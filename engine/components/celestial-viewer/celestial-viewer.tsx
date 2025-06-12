@@ -45,7 +45,7 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
     speed: 1.0,
     distortion: 1.0,
     diskSpeed: 1.0,
-    lensingStrength: 1.0,
+    lensingStrength: 0.66,
     diskBrightness: 1.0
   })
 
@@ -59,17 +59,32 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
           // Special objects don't need catalog data
           setCatalogObject(null)
         } else {
-          const data = await engineSystemLoader.getCatalogObject(selectedObjectId)
-          setCatalogObject(data)
-        }
-      } catch (error) {
-        console.error(`Failed to load catalog object: ${selectedObjectId}`, error)
-        setLoadError(`Object "${selectedObjectId}" not found`)
-        setCatalogObject(null)
-        // Fallback to a default object if the requested one doesn't exist
-        if (selectedObjectId !== 'g2v-main-sequence') {
-          setSelectedObjectId('g2v-main-sequence')
-          return // This will trigger the effect again with the fallback
+          try {
+            const data = await engineSystemLoader.getCatalogObject(selectedObjectId)
+            if (data) {
+              setCatalogObject(data)
+            } else {
+              // Handle null (object not found)
+              setLoadError(`Object "${selectedObjectId}" not found`)
+              // Fallback to default
+              if (selectedObjectId !== 'g2v-main-sequence') {
+                console.log(`Falling back to default object 'g2v-main-sequence'`)
+                setSelectedObjectId('g2v-main-sequence')
+                return
+              }
+            }
+          } catch (error) {
+            console.error(`Failed to load catalog object: ${selectedObjectId}`, error)
+            setLoadError(`Object "${selectedObjectId}" not found`)
+            setCatalogObject(null)
+            
+            // Fallback to a default object if the requested one doesn't exist
+            if (selectedObjectId !== 'g2v-main-sequence') {
+              console.log(`Falling back to default object 'g2v-main-sequence'`)
+              setSelectedObjectId('g2v-main-sequence')
+              return // This will trigger the effect again with the fallback
+            }
+          }
         }
       } finally {
         setIsLoading(false)
@@ -222,10 +237,13 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
                 return (
                   <Protostar
                     scale={objectScale}
-                    shaderScale={shaderScale}
-                    customizations={{
-                      shader: shaderParams
-                    }}
+                    effectScale={shaderScale}
+                    density={shaderParams.intensity}
+                    starBrightness={shaderParams.distortion}
+                    starHue={shaderParams.diskSpeed}
+                    nebulaHue={shaderParams.lensingStrength}
+                    rotationSpeed={shaderParams.speed}
+                    spin={0}
                   />
                 )
               } else if (catalogObject) {
@@ -265,17 +283,23 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
 
         {/* Error notification */}
         {loadError && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 border border-red-700 text-red-200 px-4 py-2 rounded-md z-10">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 border border-red-700 text-red-200 px-4 py-2 rounded-md z-10 shadow-lg">
             <div className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
-              <span className="text-sm">{loadError}. Showing default object instead.</span>
+              <div>
+                <p className="text-sm font-medium">{loadError}</p>
+                <p className="text-xs text-red-300 mt-1">Showing default G2V star instead</p>
+              </div>
               <button 
                 onClick={() => setLoadError(null)}
-                className="ml-2 text-red-400 hover:text-red-300"
+                className="ml-2 text-red-400 hover:text-red-300 p-1"
+                aria-label="Dismiss"
               >
-                ×
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>

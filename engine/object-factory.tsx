@@ -28,13 +28,12 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, o
       <group position={position}>
         <Protostar
           scale={scale || 1}
-          shaderScale={shaderScale}
-          customizations={{
-            shader: {
-              intensity: 1.0,
-              speed: 1.0
-            }
-          }}
+          effectScale={shaderScale}
+          density={1.0}
+          starBrightness={30.0}
+          starHue={0.08}
+          nebulaHue={0.66}
+          rotationSpeed={1.0}
         />
       </group>
     )

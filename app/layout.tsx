@@ -25,7 +25,7 @@ export default function RootLayout({
         {/* Celestial Viewer Link */}
         <div className="fixed bottom-4 right-4 z-50">
           <Link 
-            href="/viewer/protoplanet" 
+            href="/viewer/protostar" 
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition-colors flex items-center space-x-2"
           >
             <span>Celestial Viewer</span>

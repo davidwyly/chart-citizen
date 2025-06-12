@@ -1,7 +1,7 @@
-# Celestial Viewer
+# Object Viewer
 
 ## User Story
-As a developer, I want to inspect and modify 3D celestial objects in real-time, so that I can debug and fine-tune their properties, materials, and performance characteristics.
+As a developer, I want to inspect and modify 3D objects in real-time, so that I can debug and fine-tune their properties, materials, and performance characteristics.
 
 ## Acceptance Criteria
 1. The viewer should display a panel with tabs for different aspects of the object:
@@ -39,8 +39,11 @@ As a developer, I want to inspect and modify 3D celestial objects in real-time, 
 
 ## Usage Example
 ```tsx
-<CelestialViewer 
-  initialObjectType="protostar"
+<ObjectViewer 
+  target={yourObject} 
+  onPropertyChange={(property, value) => {
+    console.log(`Changed ${property} to ${value}`);
+  }} 
 />
 ```
 

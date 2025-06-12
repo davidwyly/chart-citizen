@@ -31,7 +31,7 @@ This document provides a quick overview of the key features implemented in the C
 
 ## Planet Rendering
 - **Terrestrial Planet** (`terrestrial-planet.md`): A shader-based implementation of terrestrial planets with quality level variants.
-- **Protoplanet** (`protoplanet.md`): A procedural shader for rendering protoplanetary disks and nebulae.
+- **protostar** (`protostar.md`): A procedural shader for rendering protostarary disks and nebulae.
 
 ## Performance Monitoring
 - **Performance Monitor** (`performance-monitor.md`): A system for tracking and reporting performance metrics with quality level recommendations.

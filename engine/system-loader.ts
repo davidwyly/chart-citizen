@@ -250,7 +250,7 @@ export class EngineSystemLoader {
       }
     }
 
-    console.error(`❌ Failed to load catalog object: ${catalogRef}`)
+    console.warn(`❌ Catalog object not found: ${catalogRef}`)
     return null
   }
 
