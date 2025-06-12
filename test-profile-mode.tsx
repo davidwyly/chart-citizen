@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { SystemViewer } from './components/system-viewer'
+import { SystemViewer } from './engine/components/system-viewer'
 import type { ViewType } from '@lib/types/effects-level'
 
 export default function TestProfileMode() {

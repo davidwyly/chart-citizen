@@ -18,12 +18,19 @@ This directory contains Three.js and React Three Fiber components for 3D user in
 - Includes animation for dynamic appearance
 - Supports different intensity levels
 
-### `raymarched-black-hole.tsx`
-- Advanced camera-facing black hole shader component
-- Uses raymarching for gravitational lensing effects
-- Simulates realistic accretion disk with Doppler shift
-- Non-geometry based - renders on camera-facing quad
-- Includes background starfield and space distortion
+### `black-hole.tsx`
+- Advanced 3D black hole shader component with gravitational lensing
+- Uses sphere geometry with world-space ray calculation for proper 3D rotation
+- Simulates realistic accretion disk with Doppler shift and redshift effects
+- Includes procedural nebula texture and starfield background
+- Features NaN/Infinity protection and robust coordinate transforms
+
+### `protostar.tsx`
+- 3D protostar shader component with volumetric nebula rendering
+- Uses spiral noise functions for realistic dusty nebula appearance
+- Features central star light source with bloom and scattering effects
+- Includes rotation animation and transparent background for skybox integration
+- Adapted from "Dusty nebula 4" Shadertoy shader by Duke
 
 ## Implementation Guidelines
 

@@ -14,7 +14,7 @@ This directory contains the Next.js application routes and pages. It follows the
 - `not-found.tsx`: Custom 404 page component
 - `test-profile/`: Test page for the profile mode view of star systems
 - `test-orbit-spacing/`: Test page demonstrating orbital path spacing differences between view modes
-- `viewer/`: Object viewer pages for individual celestial objects
+- `viewer/`: Celestial viewer pages for individual celestial objects
 
 ## File Organization Rules
 

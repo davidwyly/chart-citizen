@@ -26,7 +26,7 @@ This document provides a quick overview of the key features implemented in the C
 - **Summary**: Enables switching between Reality and Star Citizen viewing modes with separate states, features, and data sources for each mode.
 
 ## Debug Tools
-- **Object Viewer** (`object-viewer.md`): A real-time 3D object inspector and property editor with shader preview capabilities.
+- **Celestial Viewer** (`celestial-viewer.md`): A real-time 3D celestial object inspector and property editor with shader preview capabilities.
 - **Shader Performance View** (`shader-performance-view.md`): A debug panel for monitoring shader performance metrics and quality levels.
 
 ## Planet Rendering

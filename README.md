@@ -10,7 +10,7 @@ chart-citizen/
 │   ├── [mode]/            # Dynamic mode routing (realistic, star-citizen)
 │   │   ├── realistic/     # Realistic universe simulation mode
 │   │   └── star-citizen/  # Star Citizen game-inspired mode  
-│   ├── viewer/            # Object viewer pages
+│   ├── viewer/            # Celestial viewer pages
 │   ├── test-*/            # Development test pages
 │   └── layout.tsx         # Root application layout
 ├── engine/                # Celestial Rendering Engine
@@ -135,7 +135,7 @@ pnpm lint
 - `/` - Landing page
 - `/realistic` - Realistic universe simulation
 - `/star-citizen` - Star Citizen universe simulation
-- `/viewer/[objectType]` - Individual object viewer
+- `/viewer/[objectType]` - Individual celestial viewer
 
 ## 📁 Adding New Features
 

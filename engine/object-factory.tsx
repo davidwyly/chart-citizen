@@ -4,6 +4,7 @@ import { StarRenderer } from "@/engine/renderers/stars/star-renderer"
 import { PlanetRenderer } from "@/engine/renderers/planets/planet-renderer"
 import { GasGiantRenderer } from "@/engine/renderers/planets/gas-giant-renderer"
 import { TerrestrialPlanetRenderer } from "@/engine/renderers/planets/terrestrial-planet-renderer"
+import { Protostar } from "@/engine/components/3d-ui/protostar"
 import type { CatalogObject } from "@/engine/system-loader"
 import type * as THREE from "three"
 
@@ -20,6 +21,24 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, o
   const engineObject = catalogData.engine_object || ""
   const category = catalogData.category || ""
   const features = catalogData.features || {}
+
+  // Special objects
+  if (engineObject === "protostar") {
+    return (
+      <group position={position}>
+        <Protostar
+          scale={scale || 1}
+          shaderScale={shaderScale}
+          customizations={{
+            shader: {
+              intensity: 1.0,
+              speed: 1.0
+            }
+          }}
+        />
+      </group>
+    )
+  }
 
   // Star renderers
   if (engineObject === "main-sequence-star" || engineObject === "red-dwarf-star" || engineObject === "variable-star") {

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { notFound, useParams } from "next/navigation"
 import { StarmapViewer } from "@/components/starmap/starmap-viewer"
-import { SystemViewer } from "@/components/system-viewer"
+import { SystemViewer } from "@/engine/components/system-viewer"
 
 const validModes = ["realistic", "star-citizen"] as const
 

@@ -1,0 +1,6 @@
+- `celestial-viewer.tsx`: The main component that orchestrates the entire celestial object viewer, managing state and layout.
+- `object-sidebar.tsx`: Displays the list of celestial objects for selection.
+- `object-controls.tsx`: Renders interactive sliders and select inputs for the selected object's properties.
+- `object-info.tsx`: Displays static information about the selected celestial object.
+- `celestial-scene.tsx`: Sets up the React Three Fiber canvas and renders the 3D celestial object.
+- `celestial-objects/`: Directory containing specific 3D model components for different celestial object types.

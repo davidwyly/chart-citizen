@@ -170,5 +170,40 @@
       "prominence_color": "#ff6600",
       "flare_color": "#ffaa77"
     }
+  },
+  "protostar": {
+    "id": "protostar",
+    "name": "Protostar",
+    "category": "protostar",
+    "subtype": "protostar",
+    "engine_object": "protostar",
+    "physical": {
+      "mass": 0.5,
+      "radius": 2.0,
+      "temperature": 3000,
+      "luminosity": 0.1,
+      "age": 0.001
+    },
+    "composition": {
+      "hydrogen": 0.75,
+      "helium": 0.23,
+      "dust": 0.02
+    },
+    "features": {
+      "spectral_type": "T Tauri",
+      "accretion_rate": 1e-8,
+      "outflow_velocity": 200,
+      "nebula_density": 1e-18,
+      "rotation_period": 8.0,
+      "magnetic_field": 1000,
+      "jet_activity": 0.8,
+      "disk_mass": 0.01
+    },
+    "appearance": {
+      "core_color": "#ff6633",
+      "nebula_color": "#ffaa66",
+      "dust_color": "#cc4422",
+      "jet_color": "#66aaff"
+    }
   }
 }

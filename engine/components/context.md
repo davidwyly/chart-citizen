@@ -5,6 +5,7 @@ This directory contains all React components used throughout the application. Co
 ## Key Subdirectories
 
 - `system-viewer/`: Components for rendering and interacting with the 3D system visualization
+- `celestial-viewer/`: Directory containing the celestial viewer components for inspecting and customizing 3D objects with real-time shader editing
 - `3d-ui/`: Three.js and React Three Fiber components for 3D user interface elements
 - `ui/`: Reusable UI components and primitives
 - `__tests__/`: Test files for components in this directory

@@ -38,9 +38,9 @@ function DebugOverlay() {
 | Draw Calls | Number of draw calls per frame | > 1000 |
 | Triangles | Total triangles rendered | > 1M |
 
-## Object Viewer
+## Celestial Viewer
 
-The Object Viewer is a powerful debugging tool that allows inspection and manipulation of 3D objects in the scene.
+The Celestial Viewer is a powerful debugging tool that allows inspection and manipulation of 3D celestial objects in the scene.
 
 ### Features
 
@@ -54,12 +54,12 @@ The Object Viewer is a powerful debugging tool that allows inspection and manipu
 ### Usage
 
 ```typescript
-import { ObjectViewer } from '@/components/debug/object-viewer'
+import { CelestialViewer } from '@/components/debug/celestial-viewer'
 
 function DebugPanel() {
   return (
     <div className="debug-panel">
-      <ObjectViewer
+      <CelestialViewer
         target={selectedObject}
         onPropertyChange={handlePropertyChange}
       />
@@ -70,7 +70,7 @@ function DebugPanel() {
 
 ### Object Properties
 
-The Object Viewer displays and allows editing of:
+The Celestial Viewer displays and allows editing of:
 
 1. **Transform**
    - Position (x, y, z)
@@ -101,7 +101,7 @@ The Object Viewer displays and allows editing of:
 |----------|--------|
 | `Ctrl + Shift + D` | Toggle debug panel |
 | `Ctrl + Shift + P` | Toggle performance view |
-| `Ctrl + Shift + O` | Toggle object viewer |
+| `Ctrl + Shift + O` | Toggle celestial viewer |
 | `Ctrl + Shift + W` | Toggle wireframe mode |
 
 ### Best Practices
@@ -113,7 +113,7 @@ The Object Viewer displays and allows editing of:
    - Check memory usage patterns
 
 2. **Object Inspection**
-   - Use the Object Viewer for detailed property inspection
+   - Use the Celestial Viewer for detailed property inspection
    - Verify transform hierarchies
    - Check material settings
    - Validate shader uniforms
@@ -121,7 +121,7 @@ The Object Viewer displays and allows editing of:
 3. **Debug Workflow**
    - Start with performance monitoring
    - Identify problematic objects
-   - Use Object Viewer for detailed inspection
+   - Use Celestial Viewer for detailed inspection
    - Make targeted optimizations
 
 ### Integration

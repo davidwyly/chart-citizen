@@ -13,6 +13,7 @@ Object-specific effects (e.g. solar prominences, atmospheric storms) are allowed
 - `renderers/`: Custom renderers for different types of celestial objects (stars, planets, etc.)
 - `materials/`: Custom Three.js materials and shaders
 - `utils/`: Engine-specific utility functions and helpers
+- `object-factory.tsx`: Factory component that maps catalog objects to appropriate renderers, including special objects
 
 ## File Organization Rules
 

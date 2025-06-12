@@ -14,7 +14,7 @@ As a developer, I want to experiment with and craft custom shaders for celestial
 8. The shader lab should be accessible from any page via a fixed button in the bottom right corner
 
 ## Implementation Strategy
-1. Leverage the existing object viewer and debug tools components
+1. Leverage the existing celestial viewer and debug tools components
 2. Create a catalog of celestial object types with default shader parameters
 3. Implement real-time shader uniform updates based on user input
 4. Build a user interface that exposes key shader parameters

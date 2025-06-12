@@ -80,6 +80,18 @@ const objectCatalog: Record<string, any> = {
       distortion: 1.0,
     }
   },
+  "black-hole-advanced": {
+    name: "Black Hole (Advanced)",
+    description: "Advanced black hole with gravitational lensing and realistic accretion disk",
+    type: "black-hole-advanced",
+    defaultScale: 1.0,
+    defaultShaderScale: 1.0,
+    defaultShaderParams: {
+      intensity: 1.0,
+      speed: 1.0,
+      distortion: 1.0,
+    }
+  },
   "terrestrial-planet": {
     name: "Terrestrial Planet",
     description: "A rocky terrestrial planet",
@@ -204,6 +216,14 @@ export function DebugViewer({ objectType }: DebugViewerProps) {
 
           {/* Debug object */}
           {selectedObject.type === 'black-hole' ? (
+            <BlackHole
+              scale={objectScale}
+              shaderScale={shaderScale}
+              customizations={{
+                shader: shaderParams
+              }}
+            />
+          ) : selectedObject.type === 'black-hole-advanced' ? (
             <BlackHole
               scale={objectScale}
               shaderScale={shaderScale}
