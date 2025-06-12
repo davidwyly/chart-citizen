@@ -6,8 +6,9 @@ import * as THREE from "three"
 import { InteractiveObject } from "../3d-ui/interactive-object"
 import { OrbitalPath } from "../orbital-path"
 import { CatalogObjectWrapper } from "./catalog-object-wrapper"
+import { StellarZones } from "./components/stellar-zones"
 import { calculateObjectSizing } from "./view-mode-calculator"
-import type { SystemData, CatalogObject } from "@/engine/system-loader"
+import type { SystemData, CatalogObject, SystemObject } from "@/engine/system-loader"
 import type { ViewType } from "@lib/types/effects-level"
 import { engineSystemLoader } from "@/engine/system-loader"
 
@@ -446,6 +447,13 @@ export function SystemObjectsRenderer({
 
   return (
     <group>
+      {/* Render stellar zones first so they appear behind other objects */}
+      <StellarZones 
+        systemData={systemData}
+        viewType={viewType}
+        orbitalScale={ORBITAL_SCALE}
+        showZones={viewType !== "profile"} // Hide zones in profile mode for clarity
+      />
       {renderedStars}
       {renderedPlanets}
       {renderedMoons}

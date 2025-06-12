@@ -11,6 +11,7 @@ This document provides a quick overview of the key features implemented in the C
 - **Orbital Path Visualization** - Displays the paths that celestial bodies follow, adjusted for the current view mode. [orbital-paths.md](./orbital-paths.md)
 - **Star Shaders** - Realistic rendering of stars with custom shaders for atmospheric effects. [star-shaders.md](./star-shaders.md)
 - **Planetary Detail** - High-detail rendering of planets with custom textures and atmosphere effects. [planetary-detail.md](./planetary-detail.md)
+- **Stellar Zones** - Visualizes habitable zones (green) and frost lines around stars for assessing planetary habitability. [stellar-zones.md](./stellar-zones.md)
 - **Shader Lab** - Interactive tool for experimenting with and crafting custom shaders for celestial objects. [shader-lab.md](./shader-lab.md)
 
 ## Navigation Features
