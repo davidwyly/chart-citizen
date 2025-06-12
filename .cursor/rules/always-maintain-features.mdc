@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
-Feature Documentation for Testable Functionality
+**Rule: Always Maintain Feature Documentation for Testable Functionality**
 
 Each testable feature in the application should be documented in a dedicated feature.md file located in the docs/features/ directory.
 

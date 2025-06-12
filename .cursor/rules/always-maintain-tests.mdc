@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
-Test Maintenance for Code Changes
+**Rule: Always Maintain Our Testing Suite**
 
 When editing a file that has associated tests, ensure that those tests are updated to reflect the changes.
 

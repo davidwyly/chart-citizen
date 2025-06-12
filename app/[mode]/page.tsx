@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
-import { RealisticApp } from "@/apps/realistic/realistic-app"
-import { StarCitizenApp } from "@/apps/star-citizen/star-citizen-app"
+import { RealisticModeView } from "./realistic/realistic-mode-view"
+import { StarCitizenModeView } from "./star-citizen/star-citizen-mode-view"
 
 const validModes = ["realistic", "star-citizen"] as const
 type ValidMode = (typeof validModes)[number]
@@ -22,9 +22,9 @@ export default async function ModePage({ params: { mode } }: PageProps) {
 
   switch (mode) {
     case "realistic":
-      return <RealisticApp />
+      return <RealisticModeView />
     case "star-citizen":
-      return <StarCitizenApp />
+      return <StarCitizenModeView />
     default:
       notFound()
   }
@@ -36,10 +36,26 @@ export function generateStaticParams() {
   }))
 }
 
-// Handle root path redirect
-export async function generateMetadata() {
+export async function generateMetadata({ params: { mode } }: PageProps) {
+  const titles = {
+    realistic: "Realistic Universe - Chart Citizen",
+    "star-citizen": "Star Citizen Universe - Chart Citizen"
+  }
+
+  const descriptions = {
+    realistic: "Scientifically accurate 3D space simulation and exploration",
+    "star-citizen": "Star Citizen game-inspired 3D universe exploration"
+  }
+
+  if (!isValidMode(mode)) {
+    return {
+      title: "Not Found - Chart Citizen",
+      description: "The requested page could not be found."
+    }
+  }
+
   return {
-    title: "3D Starfield Background",
-    description: "Interactive 3D space simulation",
+    title: titles[mode],
+    description: descriptions[mode],
   }
 }

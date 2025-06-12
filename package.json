@@ -1,5 +1,6 @@
 {
-  "name": "my-v0-project",
+  "name": "chart-citizen",
+  "description": "Interactive celestial system explorer with Next.js, React Three Fiber, and custom rendering engine",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:modes": "vitest run __tests__/suites/modes.test.ts",
     "test:view-modes": "vitest run __tests__/suites/view-modes.test.ts",

@@ -1,5 +1,47 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+**Rule: Test-Driven Development for New Features**
+
+When developing a new feature, follow this TDD workflow:
+
+1. **Document the Feature**
+
+   * Create a feature spec following our Feature Documentation Rules.
+   * Include clear descriptions, goals, and links to related context.
+   * Ensure acceptance criteria are defined and understood.
+
+2. **Evaluate Context**
+
+   * Review all related background: product goals, user needs, constraints, etc.
+   * Confirm shared understanding with stakeholders if necessary.
+
+3. **Strategize Implementation**
+
+   * Design a high-level development and testing plan.
+   * Identify key components, dependencies, and edge cases.
+   * Decide which part of the feature to tackle first based on value and risk.
+
+4. **Write a Failing Test**
+
+   * Implement a test that captures expected behavior before writing implementation code.
+   * Ensure the test meaningfully fails (i.e. red) for the right reason.
+
+5. **Build the Feature**
+
+   * Write minimal implementation code to make the failing test pass.
+   * Keep the solution clean and focused on the current acceptance criteria.
+
+6. **Refine and Iterate**
+
+   * Refactor as needed while keeping tests green.
+   * Repeat steps 4–6 for each remaining part of the feature.
+
+7. **Validate Completion**
+
+   * Ensure all acceptance criteria are met.
+   * All tests (new and existing) must pass.
+   * Review for quality, clarity, and alignment with product goals.
+

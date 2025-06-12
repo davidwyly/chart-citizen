@@ -1,15 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { SystemViewer } from "../../components/system-viewer"
-import { engineSystemLoader } from "../../engine/system-loader"
-import { Sidebar } from "../../components/sidebar/sidebar"
+import { SystemViewer } from "@/engine/components/system-viewer"
+import { engineSystemLoader } from "@/engine/system-loader"
 import type * as THREE from "three"
 import type { ViewType } from "@lib/types/effects-level"
 
 const MODE = "realistic"
 
-export function RealisticApp() {
+export function RealisticModeView() {
   const [systemId, setSystemId] = useState<string | null>(null)
   const [availableSystems, setAvailableSystems] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
