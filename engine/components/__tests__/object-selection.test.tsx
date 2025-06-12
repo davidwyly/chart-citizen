@@ -35,10 +35,12 @@ describe('InteractiveObject Selection', () => {
     const mesh = container.querySelector('mesh')
     
     // Simulate click on the mesh
-    fireEvent.click(mesh, {
-      stopPropagation: () => {},
-      target: mockObject3D
-    } as unknown as ThreeEvent<MouseEvent>)
+    if (mesh) {
+      fireEvent.click(mesh, {
+        stopPropagation: () => {},
+        target: mockObject3D
+      } as unknown as ThreeEvent<MouseEvent>)
+    }
 
     expect(mockProps.onSelect).toHaveBeenCalledWith(
       'test-planet',

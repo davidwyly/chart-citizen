@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getViewModeScaling } from "../../../src/core/mode-system/view-modes";
-import { ViewMode } from "../../../src/core/mode-system/types";
+import { getViewModeScaling } from "@/engine/core/mode-system/view-mode.constants";
+import { ViewMode } from "@/engine/types/view-mode.types";
 
 describe("View Mode Scaling", () => {
   describe("getViewModeScaling", () => {

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { OrbitalPath } from '../orbital-path';
+import { OrbitalPath } from '@/engine/components/orbital-path';
 
 const mockProps = {
   semiMajorAxis: 100,

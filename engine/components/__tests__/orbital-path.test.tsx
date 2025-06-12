@@ -229,7 +229,7 @@ describe('OrbitalPath', () => {
         )
         rerender(
           <Canvas>
-            <OrbitalPath {...defaultProps} viewType="game" />
+            <OrbitalPath {...defaultProps} viewType="profile" />
           </Canvas>
         )
       })

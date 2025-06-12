@@ -41,9 +41,9 @@ describe('TerrestrialPlanet', () => {
       intensity: 0.8,
       speed: 0.5,
       distortion: 0.3,
-      topColor: [0.9, 0.9, 0.9],
-      middleColor: [0.3, 0.6, 0.3],
-      bottomColor: [0.2, 0.3, 0.6]
+      topColor: [0.9, 0.9, 0.9] as [number, number, number],
+      middleColor: [0.3, 0.6, 0.3] as [number, number, number],
+      bottomColor: [0.2, 0.3, 0.6] as [number, number, number]
     }
     
     render(<TerrestrialPlanet customizations={customizations} />)
