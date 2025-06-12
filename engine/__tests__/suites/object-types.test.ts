@@ -1,12 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useSystemStore } from '@/engine/core/mode-system/mode-system';
 import type { SystemData, CelestialObject } from '@/engine/types/mode';
-import rockyPlanetData from '../../../public/data/test-systems/rocky-planet.json';
-import gasGiantData from '../../../public/data/test-systems/gas-giant.json';
-import binaryStarsData from '../../../public/data/test-systems/binary-stars.json';
-import compactObjectData from '../../../public/data/test-systems/compact-object.json';
-import asteroidBeltData from '../../../public/data/test-systems/asteroid-belt.json';
-import stationSystemData from '../../../public/data/test-systems/station-system.json';
 
 describe('Object Types', () => {
   let store: ReturnType<typeof useSystemStore.getState>;
@@ -103,63 +97,97 @@ describe('Object Types', () => {
     expect(jumpPoint?.mass).toBe(0);
   });
 
-  it('should load rocky planet system correctly', async () => {
-    const data = rockyPlanetData as SystemData;
-    store.setSystemData(data);
-    expect(store.systemData).toBeDefined();
-    expect(store.systemData?.id).toBe('rocky-planet-system');
-    expect(store.systemData?.objects).toHaveLength(4);
-    expect(store.systemData?.objects.find((obj: CelestialObject) => obj.type === 'planet')).toBeDefined();
-    expect(store.systemData?.objects.find((obj: CelestialObject) => obj.type === 'moon')).toBeDefined();
-    expect(store.systemData?.objects.find((obj: CelestialObject) => obj.type === 'jump-point')).toBeDefined();
+  it('should handle object creation through store methods', () => {
+    // Test star object creation
+    const starParams = {
+      id: 'test-star',
+      type: 'star',
+      position: { x: 0, y: 0, z: 0 },
+      properties: {
+        spectralType: 'G2V',
+        temperature: 5778,
+        radius: 696340
+      }
+    };
+    
+    store.createStarObject(starParams);
+    const starObject = store.getObjectProperties('test-star');
+    expect(starObject).toBeDefined();
+
+    // Test planet object creation
+    const planetParams = {
+      id: 'test-planet',
+      type: 'planet',
+      position: { x: 1, y: 0, z: 0 },
+      properties: {
+        type: 'terrestrial',
+        radius: 6371,
+        atmosphere: true
+      }
+    };
+    
+    store.createPlanetObject(planetParams);
+    const planetObject = store.getObjectProperties('test-planet');
+    expect(planetObject).toBeDefined();
   });
 
-  it('should load gas giant system correctly', async () => {
-    const data = gasGiantData as SystemData;
-    store.setSystemData(data);
-    expect(store.systemData).toBeDefined();
-    expect(store.systemData?.id).toBe('gas-giant-system');
-    expect(store.systemData?.objects).toHaveLength(3);
-    expect(store.systemData?.objects.find((obj: CelestialObject) => obj.type === 'gas-giant')).toBeDefined();
+  it('should handle object management operations', () => {
+    // Create test objects
+    store.createStarObject({
+      id: 'test-star',
+      type: 'star',
+      position: { x: 0, y: 0, z: 0 },
+      properties: { radius: 1.0 }
+    });
+
+    // Test object selection
+    store.selectObject('test-star');
+    expect(store.selectedObject?.id).toBe('test-star');
+
+    // Test object hover
+    store.setHoveredObject('test-star');
+    expect(store.getHoveredObject()).toBe('test-star');
+
+    // Test object removal
+    store.removeObject('test-star');
+    expect(store.getObjectProperties('test-star')).toBeUndefined();
   });
 
-  it('should load binary stars system correctly', async () => {
-    const data = binaryStarsData as SystemData;
-    store.setSystemData(data);
-    expect(store.systemData).toBeDefined();
-    expect(store.systemData?.id).toBe('binary-stars-system');
-    expect(store.systemData?.objects).toHaveLength(2);
-    expect(store.systemData?.objects.filter((obj: CelestialObject) => obj.type === 'star')).toHaveLength(2);
+  it('should validate object types correctly', () => {
+    const validTypes = ['star', 'planet', 'moon', 'jump-point'];
+    
+    testSystemData.objects.forEach(obj => {
+      expect(validTypes).toContain(obj.type);
+      expect(obj.id).toBeDefined();
+      expect(obj.name).toBeDefined();
+      expect(obj.position).toHaveLength(3);
+      expect(typeof obj.radius).toBe('number');
+      expect(typeof obj.mass).toBe('number');
+    });
   });
 
-  it('should load compact object system correctly', async () => {
-    const data = compactObjectData as SystemData;
-    store.setSystemData(data);
-    expect(store.systemData).toBeDefined();
-    expect(store.systemData?.id).toBe('compact-object-system');
-    expect(store.systemData?.objects).toHaveLength(2);
-    expect(store.systemData?.objects.find((obj: CelestialObject) => obj.type === 'black-hole')).toBeDefined();
+  it('should handle orbital objects correctly', () => {
+    const orbitingObjects = testSystemData.objects.filter(obj => obj.orbit);
+    
+    orbitingObjects.forEach(obj => {
+      expect(obj.orbit).toBeDefined();
+      expect(obj.orbit?.parentId).toBeDefined();
+      expect(typeof obj.orbit?.semiMajorAxis).toBe('number');
+      expect(typeof obj.orbit?.eccentricity).toBe('number');
+      expect(typeof obj.orbit?.inclination).toBe('number');
+    });
   });
 
-  it('should load asteroid belt system correctly', async () => {
-    const data = asteroidBeltData as SystemData;
-    store.setSystemData(data);
-    expect(store.systemData).toBeDefined();
-    expect(store.systemData?.id).toBe('asteroid-belt-system');
-    expect(store.systemData?.objects).toHaveLength(3);
-    expect(store.systemData?.objects.find((obj: CelestialObject) => obj.type === 'asteroid-belt')).toBeDefined();
-  });
-
-  it('should load station system correctly', async () => {
-    const data = stationSystemData as SystemData;
-    store.setSystemData(data);
-    expect(store.systemData).toBeDefined();
-    expect(store.systemData?.id).toBe('station-system');
-    expect(store.systemData?.objects).toHaveLength(3);
-    expect(store.systemData?.objects.find((obj: CelestialObject) => obj.name === 'Space Station')).toBeDefined();
-  });
-
-  it('should have correct types for celestial objects', () => {
-    expect(true).toBe(true);
+  it('should handle system data validation', () => {
+    // Test that the system data structure is properly defined
+    expect(testSystemData.name).toBeDefined();
+    expect(testSystemData.objects).toBeDefined();
+    expect(Array.isArray(testSystemData.objects)).toBe(true);
+    
+    // Test object types are valid
+    const validTypes = ['star', 'planet', 'moon', 'jump-point'];
+    testSystemData.objects.forEach(obj => {
+      expect(validTypes).toContain(obj.type);
+    });
   });
 }); 

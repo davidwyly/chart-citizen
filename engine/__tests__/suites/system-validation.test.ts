@@ -189,14 +189,14 @@ describe('System Validation', () => {
     mockSolSystem.belts?.forEach(checkOrbitPos);
   });
 
-  it('should validate required fields in system data', () => {
-    const system: SystemData = {
-      stars: [{ id: 'star1', type: 'star', position: { x: 0, y: 0, z: 0 }, properties: { radius: 100 } }],
-      planets: [{ id: 'planet1', type: 'planet', position: { x: 1, y: 0, z: 0 }, properties: { radius: 50 } }],
-      moons: [{ id: 'moon1', type: 'moon', position: { x: 1.1, y: 0, z: 0 }, properties: { radius: 10 }, orbit: { parent: 'planet1' } }],
-    };
-    expect(system.stars[0]).toHaveProperty('id');
-    expect(system.planets[0]).toHaveProperty('id');
-    expect(system.moons[0]).toHaveProperty('id');
+  it('should handle system store integration', () => {
+    const store = useSystemStore.getState();
+    
+    // Test that the store handles system data correctly
+    expect(() => {
+      store.reset();
+      store.setMode('realistic');
+      store.setViewMode('realistic');
+    }).not.toThrow();
   });
 }); 

@@ -13,7 +13,7 @@ describe('Mode System Features', () => {
     store.setViewMode('realistic');
     let features = store.getViewFeatures();
     expect(features.scientificInfo).toBe(true);
-    expect(features.profileInfo).toBe(false);
+    expect(features.gameInfo).toBe(false);
     
     // Test Navigational mode
     store.setViewMode('navigational');
@@ -21,11 +21,11 @@ describe('Mode System Features', () => {
     expect(features.scientificInfo).toBe(true);
     expect(features.jumpPointInfo).toBe(true);
     
-    // Test Game mode
+    // Test Profile mode
     store.setViewMode('profile');
     features = store.getViewFeatures();
     expect(features.scientificInfo).toBe(false);
-    expect(features.profileInfo).toBe(true);
+    expect(features.gameInfo).toBe(true);
   });
 
   it('should handle mode-specific data correctly', () => {
@@ -43,9 +43,9 @@ describe('Mode System Features', () => {
       }
     };
     store.setDataSource(scientificData);
-    expect(store.dataSource?.type).toBe('realistic');
+    expect(store.getDataSource()?.type).toBe('realistic');
     
-    // Test Game mode data
+    // Test Profile mode data
     store.setViewMode('profile');
     const gameData = {
       type: 'profile' as const,
@@ -57,6 +57,6 @@ describe('Mode System Features', () => {
       }
     };
     store.setDataSource(gameData);
-    expect(store.dataSource?.type).toBe('profile');
+    expect(store.getDataSource()?.type).toBe('profile');
   });
 }); 
