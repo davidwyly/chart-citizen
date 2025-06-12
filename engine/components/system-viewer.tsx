@@ -18,7 +18,7 @@ import { SystemBreadcrumb } from "./system-viewer/system-breadcrumb"
 import { Sidebar } from "./sidebar/sidebar"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
 import { ZoomTracker } from "./system-viewer/components/zoom-tracker"
-import { ProfileCameraController } from "@/components/system-viewer/profile-camera-controller"
+import { ProfileCameraController } from "./system-viewer/profile-camera-controller"
 import { SystemNavigationBar } from "./system-viewer/system-navigation-bar"
 
 // Add JSX namespace declaration

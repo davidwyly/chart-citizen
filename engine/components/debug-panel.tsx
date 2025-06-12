@@ -72,15 +72,19 @@ export function DebugPanel() {
     }
 
     // Test current mode specifically
-    results.push(`\n=== Current Mode: ${engineSystemLoader.getMode()} ===`)
+    results.push(`\n=== Current Mode Test ===`)
     try {
-      const systems = await engineSystemLoader.getStarmapSystems()
-      results.push(`Systems loaded: ${Object.keys(systems).length}`)
+      const starmap = await engineSystemLoader.loadStarmap("realistic")
+      if (starmap && starmap.systems) {
+        results.push(`Systems loaded: ${Object.keys(starmap.systems).length}`)
 
-      if (Object.keys(systems).length > 0) {
-        const firstSystemId = Object.keys(systems)[0]
-        const systemData = await engineSystemLoader.loadSystem(firstSystemId)
-        results.push(`Test system load: ${systemData ? "✅ SUCCESS" : "❌ FAILED"}`)
+        if (Object.keys(starmap.systems).length > 0) {
+          const firstSystemId = Object.keys(starmap.systems)[0]
+          const systemData = await engineSystemLoader.loadSystem("realistic", firstSystemId)
+          results.push(`Test system load: ${systemData ? "✅ SUCCESS" : "❌ FAILED"}`)
+        }
+      } else {
+        results.push(`Starmap load: ❌ FAILED`)
       }
     } catch (error) {
       results.push(`Current mode test: ❌ ERROR - ${error}`)
@@ -114,7 +118,7 @@ export function DebugPanel() {
       </button>
 
       <div className="text-xs space-y-1">
-        <div>Mode: {engineSystemLoader.getMode()}</div>
+        <div>Debug Mode: Active</div>
         <div>Expected structure:</div>
         <div className="ml-2 text-gray-400">
           <div>• /data/shared/object-catalog/*.json</div>

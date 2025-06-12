@@ -62,20 +62,7 @@ export function StarRenderer({
       sunMatRef.current.uniforms.coreColor.value = coreColor
     }
 
-    // Update corona shader with dynamic lens-flare-like values
-    if (coronaRef.current?.material?.uniforms) {
-      const uniforms = coronaRef.current.material.uniforms
-      const cameraDir = new THREE.Vector3()
-      camera.getWorldDirection(cameraDir)
-
-      const viewAngle = Math.abs(cameraDir.dot(new THREE.Vector3(0, 0, 1)))
-      const cameraRotation = Math.atan2(cameraDir.y, cameraDir.x)
-      const rotationAngle = groupRef.current?.rotation.y || 0
-
-      uniforms.viewAngle.value = viewAngle
-      uniforms.rotation.value = rotationAngle
-      uniforms.cameraRotation.value = cameraRotation
-    }
+    // Corona effects would be updated here if available
   })
 
   const handleClick = (event: any) => {
@@ -116,7 +103,6 @@ export function StarRenderer({
 
         {/* Star corona */}
         <StarCorona
-          ref={coronaRef}
           radius={radius * 1}
           intensity={flareIntensity * 0.8}
           color={coronaColor}

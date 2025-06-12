@@ -1,4 +1,4 @@
-import { ViewMode, ViewModeScaling } from '@/types/view-mode';
+import { ViewModeScaling } from '../types/view-mode.types';
 
 // Base scaling values for realistic view
 const REALISTIC_SCALING: ViewModeScaling = {
@@ -32,7 +32,7 @@ const GAME_SCALING: ViewModeScaling = {
  * @param viewMode The view mode to calculate scaling for
  * @returns The scaling values for the specified view mode
  */
-export const calculateViewModeScaling = (viewMode: ViewMode): ViewModeScaling => {
+export const calculateViewModeScaling = (viewMode: string): ViewModeScaling => {
   switch (viewMode) {
     case 'realistic':
       return REALISTIC_SCALING;

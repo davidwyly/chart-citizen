@@ -1,4 +1,4 @@
-import { ViewModeState, ViewMode } from '../../types/view-mode.types';
+import { ViewModeState, ViewMode, ViewModeScaling } from '../../types/view-mode.types';
 
 export const REALISTIC_VIEW_MODE: ViewModeState = {
   currentViewMode: 'realistic',
@@ -46,7 +46,7 @@ export const getViewMode = (mode: string): ViewModeState => {
   }
 };
 
-export const getViewModeScaling = (mode: ViewMode): Record<string, number> => {
+export const getViewModeScaling = (mode: ViewMode): ViewModeScaling => {
   switch (mode) {
     case 'realistic':
       return REALISTIC_VIEW_MODE.scaling;

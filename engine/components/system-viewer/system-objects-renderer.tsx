@@ -3,13 +3,14 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react"
 import * as THREE from "three"
 
-import { InteractiveObject } from "@/components/3d-ui/interactive-object"
-import { OrbitalPath } from "@/components/orbital-path"
+import { InteractiveObject } from "../3d-ui/interactive-object"
+import { OrbitalPath } from "../orbital-path"
 import { CatalogObjectWrapper } from "./catalog-object-wrapper"
 import { calculateObjectSizing } from "./view-mode-calculator"
 import type { SystemData, CatalogObject } from "@/engine/system-loader"
 import type { ViewType } from "@lib/types/effects-level"
 import { engineSystemLoader } from "@/engine/system-loader"
+
 
 // Memoized components
 const MemoizedInteractiveObject = React.memo(InteractiveObject)
@@ -29,8 +30,8 @@ interface SystemObjectsRendererProps {
   viewType: ViewType
   objectRefsMap: React.MutableRefObject<Map<string, THREE.Object3D>>
   onObjectHover: (objectId: string | null) => void
-  onObjectSelect: (objectId: string, object: THREE.Object3D, name: string) => void
-  onObjectFocus: (object: THREE.Object3D, name: string, visualSize?: number) => void
+  onObjectSelect?: (id: string, object: any, name: string) => void
+  onObjectFocus?: (object: any, name: string, size: number) => void
   registerRef: (id: string, ref: THREE.Object3D) => void
 }
 
@@ -74,6 +75,7 @@ export function SystemObjectsRenderer({
   registerRef,
 }: SystemObjectsRendererProps) {
   const [catalogObjects, setCatalogObjects] = useState<Record<string, CatalogObject>>({})
+  // Performance monitoring would go here if available
 
   // Improved catalog object loading with error handling
   useEffect(() => {
@@ -305,8 +307,8 @@ export function SystemObjectsRenderer({
           position={starPosition}
           isSelected={isSelected}
           onHover={onObjectHover}
-          onSelect={onObjectSelect}
-          onFocus={(object) => onObjectFocus(object, star.name, visualSize)}
+          onSelect={(id, object) => onObjectSelect?.(id, object, star.name)}
+          onFocus={(object: SystemObject) => onObjectFocus?.(object, star.name, visualSize)}
           registerRef={registerRef}
           showLabel={true}
           labelAlwaysVisible={viewType === "profile"}
@@ -318,8 +320,8 @@ export function SystemObjectsRenderer({
             scale={visualSize * STAR_SCALE}
             shaderScale={STAR_SHADER_SCALE}
             isPrimaryStar={systemData.stars.length === 1}
-            onFocus={(object) => onObjectFocus(object, star.name, visualSize)}
-            onSelect={(id, object) => onObjectSelect(id, object, star.name)}
+            onFocus={(object: SystemObject) => onObjectFocus?.(object, star.name, visualSize)}
+            onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, star.name)}
             registerRef={registerRef}
           />
         </MemoizedInteractiveObject>
@@ -361,8 +363,8 @@ export function SystemObjectsRenderer({
               radius={visualSize * PLANET_SCALE}
               isSelected={isSelected}
               onHover={onObjectHover}
-              onSelect={(id, object) => onObjectSelect(id, object, planet.name)}
-              onFocus={onObjectFocus}
+              onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, planet.name)}
+              onFocus={(object: SystemObject) => onObjectFocus?.(object, planet.name, visualSize)}
               registerRef={registerRef}
               showLabel={true}
               labelAlwaysVisible={viewType === "profile"}
@@ -372,8 +374,8 @@ export function SystemObjectsRenderer({
                 catalogRef={planet.catalog_ref}
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
-                onFocus={(object) => onObjectFocus(object, planet.name, visualSize)}
-                onSelect={(id, object) => onObjectSelect(id, object, planet.name)}
+                onFocus={(object: SystemObject) => onObjectFocus?.(object, planet.name, visualSize)}
+                onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, planet.name)}
                 registerRef={registerRef}
               />
             </MemoizedInteractiveObject>
@@ -420,8 +422,8 @@ export function SystemObjectsRenderer({
               radius={visualSize * PLANET_SCALE}
               isSelected={isSelected}
               onHover={onObjectHover}
-              onSelect={(id, object) => onObjectSelect(id, object, moon.name)}
-              onFocus={onObjectFocus}
+              onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, moon.name)}
+              onFocus={(object: SystemObject) => onObjectFocus?.(object, moon.name, visualSize)}
               registerRef={registerRef}
               showLabel={true}
               labelAlwaysVisible={viewType === "profile"}
@@ -431,8 +433,8 @@ export function SystemObjectsRenderer({
                 catalogRef={moon.catalog_ref}
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
-                onFocus={(object) => onObjectFocus(object, moon.name, visualSize)}
-                onSelect={(id, object) => onObjectSelect(id, object, moon.name)}
+                onFocus={(object: SystemObject) => onObjectFocus?.(object, moon.name, visualSize)}
+                onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, moon.name)}
                 registerRef={registerRef}
               />
             </MemoizedInteractiveObject>

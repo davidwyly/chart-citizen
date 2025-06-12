@@ -27,6 +27,42 @@ export function BlackHole({
   const materialRef = useRef<THREE.ShaderMaterial>(null)
   const geometry = useMemo(() => new THREE.SphereGeometry(1, 64, 64), [])
 
+  // Create basic black hole shader material
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        intensity: { value: 1.0 },
+        speed: { value: 1.0 },
+        distortion: { value: 1.0 },
+        topColor: { value: new THREE.Color(0.0, 0.0, 0.0) },
+        midColor1: { value: new THREE.Color(0.1, 0.0, 0.2) },
+        midColor2: { value: new THREE.Color(0.2, 0.1, 0.0) },
+        midColor3: { value: new THREE.Color(0.3, 0.2, 0.1) },
+        bottomColor: { value: new THREE.Color(0.0, 0.0, 0.0) }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float time;
+        uniform float intensity;
+        varying vec2 vUv;
+        void main() {
+          vec2 center = vec2(0.5, 0.5);
+          float dist = distance(vUv, center);
+          float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+          gl_FragColor = vec4(0.0, 0.0, 0.0, alpha * intensity);
+        }
+      `,
+      transparent: true
+    })
+  }, [])
+
   // Update shader uniforms
   useFrame((state) => {
     if (materialRef.current) {
@@ -52,7 +88,7 @@ export function BlackHole({
   return (
     <mesh scale={scale}>
       <primitive object={geometry} attach="geometry" />
-      <blackHoleMaterial ref={materialRef} />
+      <primitive object={material} attach="material" ref={materialRef} />
     </mesh>
   )
 } 

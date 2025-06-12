@@ -27,7 +27,7 @@ export function GasGiantRenderer({
   radius = 1,
   onFocus,
 }: GasGiantRendererProps) {
-  const planetRef = useRef<THREE.Group>(null)
+  const planetRef = useRef<THREE.Group | null>(null)
   const surfaceRef = useRef<THREE.Mesh>(null)
   const atmosphereRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.ShaderMaterial>(null!)
@@ -277,7 +277,6 @@ export function GasGiantRenderer({
           radius={radius}
           stormCount={Math.floor(stormIntensity * 8)}
           intensity={stormIntensity}
-          planetRotation={planetRef}
             />
       )}
     </group>

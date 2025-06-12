@@ -8,11 +8,104 @@ import { Suspense } from "react"
 import * as THREE from "three"
 import { CatalogObjectWrapper } from "./system-viewer/catalog-object-wrapper"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
-import { DebugControls } from "./debug-viewer/debug-controls"
-import { objectCatalog, type ObjectConfig } from "./debug-viewer/object-catalog"
 import { engineSystemLoader, type SystemData } from "@/engine/system-loader"
 import { BlackHole } from "./3d-ui/black-hole"
 import { SystemViewer } from "./system-viewer"
+
+// Simple debug controls component
+interface DebugControlsProps {
+  shaderScale: number
+  objectScale: number
+  shaderParams: {
+    intensity: number
+    speed: number
+    distortion: number
+  }
+  onShaderScaleChange: (value: number) => void
+  onObjectScaleChange: (value: number) => void
+  onShaderParamsChange: (params: any) => void
+}
+
+function DebugControls({
+  shaderScale,
+  objectScale,
+  shaderParams,
+  onShaderScaleChange,
+  onObjectScaleChange,
+  onShaderParamsChange
+}: DebugControlsProps) {
+  return (
+    <div className="absolute top-4 right-4 bg-black/80 p-4 rounded-lg text-white space-y-2">
+      <div>
+        <label className="block text-sm">Object Scale</label>
+        <input
+          type="range"
+          min="0.1"
+          max="5"
+          step="0.1"
+          value={objectScale}
+          onChange={(e) => onObjectScaleChange(parseFloat(e.target.value))}
+          className="w-full"
+        />
+        <span className="text-xs">{objectScale.toFixed(1)}</span>
+      </div>
+      <div>
+        <label className="block text-sm">Shader Scale</label>
+        <input
+          type="range"
+          min="0.1"
+          max="5"
+          step="0.1"
+          value={shaderScale}
+          onChange={(e) => onShaderScaleChange(parseFloat(e.target.value))}
+          className="w-full"
+        />
+        <span className="text-xs">{shaderScale.toFixed(1)}</span>
+      </div>
+    </div>
+  )
+}
+
+// Simple object catalog
+const objectCatalog: Record<string, any> = {
+  "black-hole": {
+    name: "Black Hole",
+    description: "A stellar black hole with event horizon",
+    type: "black-hole",
+    defaultScale: 1.0,
+    defaultShaderScale: 1.0,
+    defaultShaderParams: {
+      intensity: 1.0,
+      speed: 1.0,
+      distortion: 1.0,
+    }
+  },
+  "terrestrial-planet": {
+    name: "Terrestrial Planet",
+    description: "A rocky terrestrial planet",
+    type: "planet",
+    defaultScale: 1.0,
+    defaultShaderScale: 1.0,
+    defaultShaderParams: {
+      intensity: 1.0,
+      speed: 1.0,
+      distortion: 1.0,
+    }
+  }
+}
+
+interface ObjectConfig {
+  name: string
+  description: string
+  type: string
+  defaultScale: number
+  defaultShaderScale: number
+  defaultShaderParams: {
+    intensity: number
+    speed: number
+    distortion: number
+  }
+}
 
 interface DebugViewerProps {
   objectType: string

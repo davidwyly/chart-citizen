@@ -1,7 +1,10 @@
-import { usePerformanceMonitor } from '@/lib/performance-monitor'
+import { usePerformanceMonitor } from '@/engine/lib/performance-monitor'
 
 export function PerformanceWarning() {
-  const { fps, isLowPerformance } = usePerformanceMonitor()
+  const { fps } = usePerformanceMonitor()
+  
+  // Calculate if performance is low based on FPS
+  const isLowPerformance = fps < 30
 
   if (!isLowPerformance) return null
 

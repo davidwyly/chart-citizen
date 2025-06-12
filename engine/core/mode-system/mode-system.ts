@@ -225,7 +225,16 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
 
   getHoveredObject: () => get().hoveredObject,
 
-  getViewModeScaling: () => getViewModeScaling(get().viewMode),
+  getViewModeScaling: () => {
+    const scaling = getViewModeScaling(get().viewMode);
+    return {
+      ORBITAL_SCALE: scaling.ORBITAL_SCALE,
+      STAR_SCALE: scaling.STAR_SCALE,
+      PLANET_SCALE: scaling.PLANET_SCALE,
+      MOON_SCALE: scaling.MOON_SCALE,
+      STAR_SHADER_SCALE: scaling.STAR_SHADER_SCALE
+    } as Record<string, number>;
+  },
 
   optimizeRendering: (mode) => {
     set((state) => ({
