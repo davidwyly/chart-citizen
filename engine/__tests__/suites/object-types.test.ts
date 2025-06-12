@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useSystemStore } from '../../core/mode-system/mode-system';
-import type { SystemData, CelestialObject } from '../../types/mode';
+import { useSystemStore } from '@/engine/core/mode-system/mode-system';
+import type { SystemData, CelestialObject } from '@/engine/types/mode';
 import rockyPlanetData from '../../../public/data/test-systems/rocky-planet.json';
 import gasGiantData from '../../../public/data/test-systems/gas-giant.json';
 import binaryStarsData from '../../../public/data/test-systems/binary-stars.json';

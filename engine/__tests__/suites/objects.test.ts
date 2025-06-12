@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useSystemStore } from '../../src/core/mode-system/mode-system';
+import { useSystemStore } from '@/engine/core/mode-system/mode-system';
 
 describe('Objects', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useSystemStore } from '../../core/mode-system/mode-system';
+import { useSystemStore } from '@/engine/core/mode-system/mode-system';
 
 describe('View Mode Features', () => {
   beforeEach(() => {

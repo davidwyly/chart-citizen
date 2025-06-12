@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useSystemStore } from '../../src/core/mode-system/mode-system';
+import { useSystemStore } from '@/engine/core/mode-system/mode-system';
 
 describe('Binary Star System Features', () => {
   beforeEach(() => {

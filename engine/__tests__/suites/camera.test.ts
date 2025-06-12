@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useSystemStore } from '@/stores/system-store';
+import { useSystemStore } from '@/engine/core/mode-system/mode-system';
 
 describe('Camera System', () => {
   beforeEach(() => {

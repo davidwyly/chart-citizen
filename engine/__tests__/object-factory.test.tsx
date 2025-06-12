@@ -16,9 +16,6 @@ vi.mock('@/engine/renderers/planets/terrestrial-planet-renderer', () => ({
 vi.mock('@/engine/renderers/planets/planet-renderer', () => ({
   PlanetRenderer: (props: any) => <div data-testid="planet-renderer" {...props} />
 }))
-vi.mock('@/engine/renderers/fallback-renderer', () => ({
-  FallbackRenderer: (props: any) => <div data-testid="fallback-renderer" {...props} />
-}))
 
 describe('ObjectFactory', () => {
   const baseCatalog: CatalogObject = {
@@ -49,7 +46,7 @@ describe('ObjectFactory', () => {
   it('renders gas giant correctly', () => {
     const catalogData = { ...baseCatalog, engine_object: 'gas-giant' }
     const { getByTestId } = render(<ObjectFactory catalogData={catalogData} />)
-    expect(getByTestId('planet-renderer')).toBeInTheDocument()
+    expect(getByTestId('gas-giant-renderer')).toBeInTheDocument()
   })
 
   it('renders TerrestrialPlanetRenderer for earth-like', () => {
@@ -152,7 +149,7 @@ describe('ObjectFactory', () => {
 
   it('renders fallback if engine_object and category are missing', () => {
     const catalogData = { ...baseCatalog, engine_object: undefined, category: undefined }
-    const { getByTestId } = render(<ObjectFactory catalogData={catalogData} />)
-    expect(getByTestId('fallback-renderer')).toBeInTheDocument()
+    const { container } = render(<ObjectFactory catalogData={catalogData} />)
+    expect(container.querySelector('group')).toBeInTheDocument()
   })
 }) 

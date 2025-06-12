@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useSystemStore } from '../../src/core/mode-system/mode-system';
-import { systemLoader } from '../../lib/system-loader';
-import { SystemData } from '../../lib/system-loader';
+import { useSystemStore } from '@/engine/core/mode-system/mode-system';
+import { systemLoader } from '@/engine/lib/system-loader';
+import { SystemData } from '@/engine/lib/system-loader';
 
 // Mock fetch
 const mockFetch = vi.fn();

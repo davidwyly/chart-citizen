@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getViewModeScaling } from '../../core/mode-system/view-mode.constants';
-import { ViewMode } from '../../types/view-mode.types';
+import { getViewModeScaling } from '@/engine/core/mode-system/view-mode.constants';
+import { ViewMode } from '@/engine/types/view-mode.types';
 
 describe('View Modes', () => {
   it('should return correct scaling for realistic mode', () => {
