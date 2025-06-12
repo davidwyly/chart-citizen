@@ -1,5 +1,0 @@
-- `terrestrial-planet.tsx`: Renders a 3D terrestrial planet with dynamic properties like land/water, temperature, and atmosphere.
-- `gas-giant.tsx`: Renders a 3D gas giant with dynamic properties like rings and gas composition.
-- `black-hole.tsx`: Renders a black hole with gravitational effects and accretion disk.
-- `star-skybox.tsx`: Renders a procedurally generated star field skybox that serves as the background for all celestial objects.
-- `protostar.tsx`: Renders a protostar with volumetric dust clouds and a central glowing star, based on "Dusty Nebula 4" shader.

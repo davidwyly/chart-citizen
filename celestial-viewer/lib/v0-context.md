@@ -1,2 +1,0 @@
-- `data.ts`: Contains the static data for all celestial objects, including their types, descriptions, and default properties.
-- `types.ts`: Defines TypeScript interfaces for celestial objects and their properties.

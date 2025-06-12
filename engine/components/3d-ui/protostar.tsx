@@ -203,36 +203,24 @@ void main() {
 
 interface ProtostarProps {
   scale?: number
-  shaderScale?: number
-  customizations?: {
-    shader?: {
-      intensity?: number
-      speed?: number
-      distortion?: number
-      diskSpeed?: number
-      lensingStrength?: number
-      diskBrightness?: number
-    }
-  }
+  density?: number
+  starBrightness?: number
+  starHue?: number
+  nebulaHue?: number
+  rotationSpeed?: number
 }
 
 export function Protostar({
   scale = 1.0,
-  shaderScale = 1.0,
-  customizations = {}
+  density = 1.0,
+  starBrightness = 30.0,
+  starHue = 0.08,
+  nebulaHue = 0.6,
+  rotationSpeed = 0.1
 }: ProtostarProps) {
   const meshRef = useRef<THREE.Mesh>(null!)
   const materialRef = useRef<THREE.ShaderMaterial>(null!)
   const { camera, size } = useThree()
-
-  // Extract shader parameters with defaults
-  const shaderParams = customizations.shader || {}
-  const density = shaderParams.intensity || 1.0
-  const rotationSpeed = shaderParams.speed || 1.0
-  const starBrightness = shaderParams.distortion || 1.0
-  const starHue = shaderParams.diskSpeed || 0.1
-  const nebulaHue = shaderParams.lensingStrength || 0.8
-  const nebulaScale = shaderParams.diskBrightness || 1.0
 
   const noiseTexture = useMemo(() => {
     const width = 256
@@ -267,7 +255,7 @@ export function Protostar({
       nebulaHueFactor: { value: nebulaHue },
       rotationSpeedFactor: { value: rotationSpeed },
     }),
-    [noiseTexture, size.width, size.height]
+    [noiseTexture, size.width, size.height, density, starBrightness, starHue, nebulaHue, rotationSpeed]
   )
 
   useFrame((state, delta) => {
@@ -276,7 +264,7 @@ export function Protostar({
       materialRef.current.uniforms.time.value = state.clock.elapsedTime
       state.camera.getWorldPosition(materialRef.current.uniforms.cameraPos.value)
       materialRef.current.uniforms.invModel.value.copy(meshRef.current.matrixWorld).invert()
-      materialRef.current.uniforms.modelScale.value = meshRef.current.scale.x * shaderScale
+      materialRef.current.uniforms.modelScale.value = meshRef.current.scale.x
 
       // Update the shader parameters from customizations
       materialRef.current.uniforms.nebulaDensityFactor.value = density
