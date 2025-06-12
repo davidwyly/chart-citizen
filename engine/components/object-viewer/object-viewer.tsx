@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Preload } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { CatalogObjectWrapper } from '../system-viewer/catalog-object-wrapper'
+import { RaymarchedBlackHole } from '../3d-ui/raymarched-black-hole'
 import { ObjectControls } from './object-controls'
 import { ObjectInfo } from './object-info'
 import { ObjectCatalog } from './object-catalog'
@@ -69,7 +70,15 @@ export function ObjectViewer({ initialObjectType }: ObjectViewerProps) {
             />
 
             {/* Selected object */}
-            {catalogObject && (
+            {selectedObjectId === 'raymarched-black-hole' ? (
+              <RaymarchedBlackHole
+                scale={objectScale}
+                shaderScale={shaderScale}
+                customizations={{
+                  shader: shaderParams
+                }}
+              />
+            ) : catalogObject && (
               <CatalogObjectWrapper
                 objectId={selectedObjectId}
                 catalogRef={selectedObjectId}
@@ -93,10 +102,19 @@ export function ObjectViewer({ initialObjectType }: ObjectViewerProps) {
 
         {/* Right sidebar - Controls and info */}
         <div className="absolute top-0 right-0 w-80 bg-gray-900 bg-opacity-90 h-full p-4 overflow-y-auto">
-          {catalogObject && (
+          {(catalogObject || selectedObjectId === 'raymarched-black-hole') && (
             <>
               <ObjectControls
-                catalogObject={catalogObject}
+                catalogObject={catalogObject || {
+                  id: selectedObjectId,
+                  name: 'Raymarched Black Hole',
+                  mass: 1000,
+                  radius: 1,
+                  category: 'compact_object',
+                  subtype: 'raymarched_black_hole',
+                  render: { shader: 'raymarched_black_hole' },
+                  physical: { mass: 1000, radius: 1 }
+                } as CatalogObject}
                 shaderScale={shaderScale}
                 objectScale={objectScale}
                 shaderParams={shaderParams}
@@ -104,7 +122,16 @@ export function ObjectViewer({ initialObjectType }: ObjectViewerProps) {
                 onObjectScaleChange={setObjectScale}
                 onShaderParamsChange={setShaderParams}
               />
-              <ObjectInfo catalogObject={catalogObject} />
+              <ObjectInfo catalogObject={catalogObject || {
+                id: selectedObjectId,
+                name: 'Raymarched Black Hole',
+                mass: 1000,
+                radius: 1,
+                category: 'compact_object',
+                subtype: 'raymarched_black_hole',
+                render: { shader: 'raymarched_black_hole' },
+                physical: { mass: 1000, radius: 1 }
+              } as CatalogObject} />
             </>
           )}
         </div>

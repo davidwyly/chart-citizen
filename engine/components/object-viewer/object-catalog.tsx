@@ -120,6 +120,13 @@ export function ObjectCatalog({ selectedObjectId, onObjectSelect }: ObjectCatalo
           subtype: 'black_hole'
         },
         {
+          id: 'raymarched-black-hole',
+          name: 'Raymarched Black Hole',
+          description: 'Advanced black hole with gravitational lensing and realistic accretion disk',
+          category: 'compact_object',
+          subtype: 'raymarched_black_hole'
+        },
+        {
           id: 'neutron-star',
           name: 'Neutron Star',
           description: 'A dense stellar remnant with intense magnetic field',

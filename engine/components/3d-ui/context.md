@@ -18,6 +18,13 @@ This directory contains Three.js and React Three Fiber components for 3D user in
 - Includes animation for dynamic appearance
 - Supports different intensity levels
 
+### `raymarched-black-hole.tsx`
+- Advanced camera-facing black hole shader component
+- Uses raymarching for gravitational lensing effects
+- Simulates realistic accretion disk with Doppler shift
+- Non-geometry based - renders on camera-facing quad
+- Includes background starfield and space distortion
+
 ## Implementation Guidelines
 
 1. Keep UI logic separate from rendering logic

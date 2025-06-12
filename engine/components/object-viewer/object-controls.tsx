@@ -211,6 +211,38 @@ export function ObjectControls({
             default: catalogObject.features?.accretion_rate || 0.5
           }
         ]
+
+      case 'raymarched_black_hole':
+        return [
+          ...baseParams,
+          {
+            id: 'diskSpeed',
+            name: 'Disk Rotation Speed',
+            description: 'Speed of accretion disk rotation',
+            min: 0.1,
+            max: 5.0,
+            step: 0.1,
+            default: 1.0
+          },
+          {
+            id: 'lensingStrength',
+            name: 'Gravitational Lensing',
+            description: 'Strength of gravitational lensing effect',
+            min: 0.1,
+            max: 3.0,
+            step: 0.1,
+            default: 1.0
+          },
+          {
+            id: 'diskBrightness',
+            name: 'Disk Brightness',
+            description: 'Brightness of the accretion disk',
+            min: 0.1,
+            max: 2.0,
+            step: 0.1,
+            default: 1.0
+          }
+        ]
       
       default:
         return baseParams
