@@ -1,0 +1,60 @@
+{
+  "systems": {
+    "stanton": {
+      "id": "stanton",
+      "name": "Stanton System",
+      "position": [0, 0, 0],
+      "tags": ["inhabited", "commercial", "core-system"],
+      "jump_routes": ["pyro", "terra", "magnus", "sol"],
+      "description": "A corporate-controlled system featuring four planets, each owned by major megacorporations."
+    },
+    "pyro": {
+      "id": "pyro",
+      "name": "Pyro System",
+      "position": [15.2, -8.7, 3.1],
+      "tags": ["lawless", "dangerous", "outlaw"],
+      "jump_routes": ["stanton", "nyx"],
+      "description": "A dangerous system controlled by criminal organizations, featuring a volatile star."
+    },
+    "terra": {
+      "id": "terra",
+      "name": "Terra System",
+      "position": [-12.8, 5.4, -2.9],
+      "tags": ["inhabited", "political", "core-system"],
+      "jump_routes": ["stanton", "sol"],
+      "description": "The political heart of the UEE, featuring the capital world Terra Prime."
+    },
+    "sol": {
+      "id": "sol",
+      "name": "Sol System",
+      "position": [-25.6, 10.8, -5.8],
+      "tags": ["inhabited", "historical", "core-system"],
+      "jump_routes": ["terra", "stanton"],
+      "description": "The birthplace of humanity, now a core system of the UEE with historical significance."
+    },
+    "magnus": {
+      "id": "magnus",
+      "name": "Magnus System",
+      "position": [8.9, 12.3, -7.6],
+      "tags": ["industrial", "mining", "frontier"],
+      "jump_routes": ["stanton"],
+      "description": "An industrial system known for its massive mining operations and shipyards."
+    },
+    "nyx": {
+      "id": "nyx",
+      "name": "Nyx System",
+      "position": [22.1, -15.8, 8.4],
+      "tags": ["derelict", "dangerous", "abandoned"],
+      "jump_routes": ["pyro"],
+      "description": "A former UEE system now abandoned and filled with derelict ships and stations."
+    }
+  },
+  "metadata": {
+    "mode": "star-citizen",
+    "coordinate_system": "uee_standard",
+    "distance_unit": "astronomical_units",
+    "last_updated": "2024-01-15",
+    "total_systems": 6,
+    "description": "Star Citizen universe systems based on official lore and game data"
+  }
+}

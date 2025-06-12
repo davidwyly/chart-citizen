@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Test Maintenance for Code Changes
+
+When editing a file that has associated tests, ensure that those tests are updated to reflect the changes.
+
+Rules:
+1. If the file being modified has accompanying tests, update them to stay aligned with the new behavior or structure.
+2. Add new test cases when new functionality is introduced.
+3. Modify test cases when functionality is changed.
+4. Remove or revise outdated tests when functionality is removed or significantly changed.
+5. Do not leave broken or irrelevant tests in place—test coverage should accurately reflect current functionality.
+
+
+Maintaining reliable tests is essential for preventing regressions and preserving feature integrity as the codebase evolves. Always treat tests as first-class citizens during development and refactoring.

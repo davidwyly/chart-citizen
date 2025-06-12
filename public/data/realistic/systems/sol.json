@@ -1,0 +1,474 @@
+{
+  "id": "sol",
+  "name": "Sol System",
+  "description": "Our home solar system, featuring the Sun, eight planets, and numerous moons",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "sol-star",
+      "catalog_ref": "g2v-main-sequence",
+      "position": [0, 0, 0],
+      "name": "Sol"
+    }
+  ],
+  "planets": [
+    {
+      "id": "mercury",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Mercury",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 0.387,
+        "eccentricity": 0.206,
+        "inclination": 7.0,
+        "orbital_period": 88
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.055,
+          "radius": 0.383,
+          "temperature": 440
+        },
+        "features": {
+          "crater_density": 0.9,
+          "surface_type": "rocky"
+        }
+      }
+    },
+    {
+      "id": "venus",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Venus",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 0.723,
+        "eccentricity": 0.007,
+        "inclination": 3.4,
+        "orbital_period": 225
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.815,
+          "radius": 0.949,
+          "temperature": 737
+        },
+        "features": {
+          "atmosphere": "thick",
+          "surface_type": "volcanic"
+        }
+      }
+    },
+    {
+      "id": "earth",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Earth",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 1.0,
+        "eccentricity": 0.017,
+        "inclination": 0.0,
+        "orbital_period": 365
+      },
+      "customizations": {
+        "physical": {
+          "mass": 1.0,
+          "radius": 1.0,
+          "temperature": 288
+        },
+        "features": {
+          "atmosphere": "breathable",
+          "ocean_coverage": 0.71,
+          "vegetation": true
+        }
+      }
+    },
+    {
+      "id": "mars",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Mars",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 1.524,
+        "eccentricity": 0.093,
+        "inclination": 1.9,
+        "orbital_period": 687
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.107,
+          "radius": 0.532,
+          "temperature": 210
+        },
+        "features": {
+          "atmosphere": "thin",
+          "surface_type": "desert"
+        }
+      }
+    },
+    {
+      "id": "jupiter",
+      "catalog_ref": "gas-giant",
+      "name": "Jupiter",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 5.203,
+        "eccentricity": 0.048,
+        "inclination": 1.3,
+        "orbital_period": 4333
+      },
+      "customizations": {
+        "physical": {
+          "mass": 317.8,
+          "radius": 11.209,
+          "temperature": 165
+        },
+        "features": {
+          "atmosphere": "thick",
+          "bands": true,
+          "great_red_spot": true
+        }
+      }
+    },
+    {
+      "id": "saturn",
+      "catalog_ref": "gas-giant",
+      "name": "Saturn",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 9.537,
+        "eccentricity": 0.054,
+        "inclination": 2.5,
+        "orbital_period": 10759
+      },
+      "customizations": {
+        "physical": {
+          "mass": 95.2,
+          "radius": 9.449,
+          "temperature": 134
+        },
+        "features": {
+          "rings": true,
+          "bands": true
+        }
+      }
+    },
+    {
+      "id": "uranus",
+      "catalog_ref": "gas-giant-ice",
+      "name": "Uranus",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 19.2,
+        "eccentricity": 0.046,
+        "inclination": 0.8,
+        "orbital_period": 30687
+      },
+      "customizations": {
+        "physical": {
+          "mass": 14.5,
+          "radius": 4.01,
+          "temperature": 76
+        },
+        "features": {
+          "axial_tilt": 98.0,
+          "has_rings": true,
+          "methane_content": 0.2,
+          "vertical_rings": true
+        },
+        "appearance": {
+          "base_color": "#4fd0e7",
+          "atmosphere_color": "#87ceeb",
+          "ring_color": "#708090",
+          "methane_haze": "#add8e6"
+        }
+      }
+    },
+    {
+      "id": "neptune",
+      "catalog_ref": "gas-giant-ice",
+      "name": "Neptune",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 30.1,
+        "eccentricity": 0.01,
+        "inclination": 1.8,
+        "orbital_period": 60190
+      },
+      "customizations": {
+        "physical": {
+          "mass": 17.1,
+          "radius": 3.88,
+          "temperature": 72
+        },
+        "features": {
+          "storm_intensity": 0.9,
+          "methane_content": 0.3,
+          "fastest_winds": true,
+          "dark_spots": true
+        },
+        "appearance": {
+          "base_color": "#4169e1",
+          "atmosphere_color": "#6495ed",
+          "storm_color": "#191970",
+          "methane_color": "#00bfff"
+        }
+      }
+    }
+  ],
+  "moons": [
+    {
+      "id": "luna",
+      "catalog_ref": "rocky-moon",
+      "name": "Luna",
+      "orbit": {
+        "parent": "earth",
+        "semi_major_axis": 0.00257,
+        "eccentricity": 0.0549,
+        "inclination": 5.145,
+        "orbital_period": 27.322
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.0123,
+          "radius": 0.2727,
+          "temperature": 250
+        },
+        "features": {
+          "crater_density": 0.8,
+          "surface_type": "rocky"
+        }
+      }
+    },
+    {
+      "id": "phobos",
+      "catalog_ref": "rocky-moon",
+      "name": "Phobos",
+      "orbit": {
+        "parent": "mars",
+        "semi_major_axis": 0.00006,
+        "eccentricity": 0.0151,
+        "inclination": 1.093,
+        "orbital_period": 0.319
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.000000001,
+          "radius": 0.0018,
+          "temperature": 233
+        },
+        "features": {
+          "crater_density": 0.7,
+          "surface_type": "rocky"
+        }
+      }
+    },
+    {
+      "id": "deimos",
+      "catalog_ref": "rocky-moon",
+      "name": "Deimos",
+      "orbit": {
+        "parent": "mars",
+        "semi_major_axis": 0.00016,
+        "eccentricity": 0.00033,
+        "inclination": 1.791,
+        "orbital_period": 1.263
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.0000000002,
+          "radius": 0.001,
+          "temperature": 233
+        },
+        "features": {
+          "crater_density": 0.6,
+          "surface_type": "rocky"
+        }
+      }
+    },
+    {
+      "id": "io",
+      "catalog_ref": "volcanic-moon",
+      "name": "Io",
+      "orbit": {
+        "parent": "jupiter",
+        "semi_major_axis": 0.00282,
+        "eccentricity": 0.0041,
+        "inclination": 0.04,
+        "orbital_period": 1.769
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.015,
+          "radius": 0.286,
+          "temperature": 130
+        },
+        "features": {
+          "volcanic_activity": true,
+          "surface_type": "volcanic"
+        }
+      }
+    },
+    {
+      "id": "europa",
+      "catalog_ref": "icy-moon",
+      "name": "Europa",
+      "orbit": {
+        "parent": "jupiter",
+        "semi_major_axis": 0.00449,
+        "eccentricity": 0.009,
+        "inclination": 0.47,
+        "orbital_period": 3.551
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.008,
+          "radius": 0.245,
+          "temperature": 102
+        },
+        "features": {
+          "ice_surface": true,
+          "subsurface_ocean": true
+        }
+      }
+    },
+    {
+      "id": "ganymede",
+      "catalog_ref": "large-moon",
+      "name": "Ganymede",
+      "orbit": {
+        "parent": "jupiter",
+        "semi_major_axis": 0.00716,
+        "eccentricity": 0.0013,
+        "inclination": 0.195,
+        "orbital_period": 7.155
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.025,
+          "radius": 0.413,
+          "temperature": 110
+        },
+        "features": {
+          "ice_surface": true,
+          "subsurface_ocean": true,
+          "magnetic_field": true
+        }
+      }
+    },
+    {
+      "id": "callisto",
+      "catalog_ref": "large-moon",
+      "name": "Callisto",
+      "orbit": {
+        "parent": "jupiter",
+        "semi_major_axis": 0.0126,
+        "eccentricity": 0.0074,
+        "inclination": 0.192,
+        "orbital_period": 16.689
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.018,
+          "radius": 0.378,
+          "temperature": 134
+        },
+        "features": {
+          "ice_surface": true,
+          "crater_density": 0.9
+        }
+      }
+    },
+    {
+      "id": "titan",
+      "catalog_ref": "large-moon",
+      "name": "Titan",
+      "orbit": {
+        "parent": "saturn",
+        "semi_major_axis": 0.00817,
+        "eccentricity": 0.0288,
+        "inclination": 0.348,
+        "orbital_period": 15.945
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.0225,
+          "radius": 0.404,
+          "temperature": 94
+        },
+        "features": {
+          "atmosphere": "thick",
+          "surface_liquid": "methane"
+        }
+      }
+    },
+    {
+      "id": "enceladus",
+      "catalog_ref": "icy-moon",
+      "name": "Enceladus",
+      "orbit": {
+        "parent": "saturn",
+        "semi_major_axis": 0.00239,
+        "eccentricity": 0.0047,
+        "inclination": 0.009,
+        "orbital_period": 1.370
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.000018,
+          "radius": 0.0395,
+          "temperature": 75
+        },
+        "features": {
+          "ice_surface": true,
+          "cryovolcanic": true,
+          "subsurface_ocean": true
+        }
+      }
+    }
+  ],
+  "belts": [
+    {
+      "id": "asteroid-belt",
+      "catalog_ref": "main-asteroid-belt",
+      "name": "Asteroid Belt",
+      "orbit": {
+        "parent": "sol-star",
+        "inner_radius": 2.2,
+        "outer_radius": 3.2,
+        "inclination": 0.0
+      }
+    },
+    {
+      "id": "kuiper-belt",
+      "catalog_ref": "kuiper-belt-type",
+      "name": "Kuiper Belt",
+      "orbit": {
+        "parent": "sol-star",
+        "inner_radius": 30,
+        "outer_radius": 50,
+        "inclination": 1.9
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "sol-alpha-centauri-jp",
+      "name": "Alpha Centauri Jump Point",
+      "position": [100, 0, 0],
+      "destination": "alpha-centauri",
+      "status": "active"
+    },
+    {
+      "id": "sol-wolf359-jp",
+      "name": "Wolf 359 Jump Point",
+      "position": [-80, 50, 20],
+      "destination": "wolf-359",
+      "status": "active"
+    }
+  ],
+  "lighting": {
+    "primary_star": "sol-star",
+    "ambient_level": 0.1,
+    "stellar_influence_radius": 100
+  }
+}

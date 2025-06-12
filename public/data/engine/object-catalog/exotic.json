@@ -1,0 +1,60 @@
+{
+  "quantum-anomaly": {
+    "id": "quantum-anomaly",
+    "name": "Quantum Spatial Anomaly",
+    "mass": 0,
+    "radius": 0.1,
+    "type": "spatial_anomaly",
+    "temporal_stability": 0.3,
+    "energy_signature": "quantum",
+    "dimensional_variance": 0.8,
+    "render": {
+      "shader": "quantum_anomaly",
+      "primaryColor": "#ff00ff",
+      "secondaryColor": "#00ffff",
+      "rotation_rate": 0.1,
+      "phase_shift": true,
+      "particle_effects": true,
+      "distortion_field": 2.0
+    }
+  },
+  "dark-matter-concentration": {
+    "id": "dark-matter-concentration",
+    "name": "Dark Matter Concentration",
+    "mass": 1000,
+    "radius": 5.0,
+    "type": "dark_matter",
+    "temporal_stability": 0.9,
+    "energy_signature": "gravitational",
+    "dimensional_variance": 0.1,
+    "render": {
+      "shader": "dark_matter",
+      "primaryColor": "#1a0033",
+      "secondaryColor": "#330066",
+      "rotation_rate": 0.001,
+      "gravitational_lensing": true,
+      "invisible_mass": true,
+      "distortion_field": 10.0
+    }
+  },
+  "wormhole-terminus": {
+    "id": "wormhole-terminus",
+    "name": "Wormhole Terminus",
+    "mass": 0,
+    "radius": 0.5,
+    "type": "wormhole",
+    "temporal_stability": 0.7,
+    "energy_signature": "exotic_matter",
+    "dimensional_variance": 1.0,
+    "destination": "unknown",
+    "render": {
+      "shader": "wormhole",
+      "primaryColor": "#ffffff",
+      "secondaryColor": "#000000",
+      "rotation_rate": 0.05,
+      "event_horizon": true,
+      "spacetime_distortion": true,
+      "energy_discharge": true
+    }
+  }
+}

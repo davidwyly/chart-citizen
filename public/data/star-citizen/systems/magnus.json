@@ -1,0 +1,48 @@
+{
+  "id": "magnus",
+  "name": "Magnus System",
+  "description": "An industrial system known for its massive mining operations and shipyards",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "magnus-star",
+      "catalog_ref": "k1v-main-sequence",
+      "position": [0, 0, 0],
+      "name": "Magnus"
+    }
+  ],
+  "planets": [
+    {
+      "id": "magnus-i",
+      "catalog_ref": "arid-desert",
+      "name": "Magnus I",
+      "orbit": {
+        "parent": "magnus-star",
+        "semi_major_axis": 0.8,
+        "eccentricity": 0.05,
+        "inclination": 1.0,
+        "orbital_period": 280
+      },
+      "customizations": {
+        "features": {
+          "mineral_deposits": 0.8,
+          "industrial_coverage": 0.4
+        }
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "magnus-stanton-jp",
+      "name": "Stanton Jump Point",
+      "position": [-90, -120, 80],
+      "destination": "stanton",
+      "status": "active"
+    }
+  ],
+  "lighting": {
+    "primary_star": "magnus-star",
+    "ambient_level": 0.09,
+    "stellar_influence_radius": 90
+  }
+}

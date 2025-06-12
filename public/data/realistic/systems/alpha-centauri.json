@@ -1,0 +1,88 @@
+{
+  "id": "alpha-centauri",
+  "name": "Alpha Centauri System",
+  "description": "A triple star system - the closest star system to Earth",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "alpha-centauri-a",
+      "catalog_ref": "g2v-main-sequence",
+      "position": [-11.2, 0, 0],
+      "name": "Alpha Centauri A (Rigil Kentaurus)",
+      "orbit": {
+        "parent": "barycenter",
+        "semi_major_axis": 11.2,
+        "eccentricity": 0.52,
+        "inclination": 0.0,
+        "orbital_period": 29200
+      }
+    },
+    {
+      "id": "alpha-centauri-b",
+      "catalog_ref": "k1v-main-sequence",
+      "position": [11.8, 0, 0],
+      "name": "Alpha Centauri B (Toliman)",
+      "orbit": {
+        "parent": "barycenter",
+        "semi_major_axis": 11.8,
+        "eccentricity": 0.52,
+        "inclination": 0.0,
+        "orbital_period": 29200
+      }
+    },
+    {
+      "id": "proxima-centauri",
+      "catalog_ref": "m5v-red-dwarf",
+      "position": [0, 0, -13000],
+      "name": "Proxima Centauri (Alpha Centauri C)",
+      "orbit": {
+        "parent": "barycenter",
+        "semi_major_axis": 13000,
+        "eccentricity": 0.5,
+        "inclination": 107,
+        "orbital_period": 1460000
+      }
+    }
+  ],
+  "planets": [
+    {
+      "id": "proxima-b",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Proxima Centauri b",
+      "orbit": {
+        "parent": "proxima-centauri",
+        "semi_major_axis": 0.0485,
+        "eccentricity": 0.02,
+        "inclination": 0.0,
+        "orbital_period": 11.2
+      },
+      "customizations": {
+        "physical": {
+          "mass": 1.17,
+          "radius": 1.03,
+          "temperature": 234
+        },
+        "features": {
+          "ocean_coverage": 0.0,
+          "habitability": "potentially_habitable",
+          "tidally_locked": true
+        }
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "ac-sol-jp",
+      "name": "Sol Jump Point",
+      "position": [-200, 0, 0],
+      "destination": "sol",
+      "status": "active"
+    }
+  ],
+  "lighting": {
+    "primary_star": "alpha-centauri-a",
+    "secondary_star": "alpha-centauri-b",
+    "ambient_level": 0.15,
+    "stellar_influence_radius": 120
+  }
+}

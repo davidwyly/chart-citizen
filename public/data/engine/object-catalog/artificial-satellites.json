@@ -1,0 +1,59 @@
+{
+  "space-station-large": {
+    "id": "space-station-large",
+    "name": "Large Space Station",
+    "mass": 0.0000001,
+    "radius": 0.0001,
+    "type": "space_station",
+    "status": "operational",
+    "origin": "human",
+    "power_source": "fusion",
+    "crew_capacity": 1000,
+    "render": {
+      "shader": "space_station",
+      "hullColor": "#c0c0c0",
+      "lightColor": "#ffffff",
+      "rotation_rate": 0.01,
+      "docking_lights": true,
+      "solar_panels": true
+    }
+  },
+  "mining-platform": {
+    "id": "mining-platform",
+    "name": "Asteroid Mining Platform",
+    "mass": 0.00000005,
+    "radius": 0.00005,
+    "type": "mining_station",
+    "status": "operational",
+    "origin": "human",
+    "power_source": "nuclear",
+    "crew_capacity": 50,
+    "render": {
+      "shader": "industrial_station",
+      "hullColor": "#8b4513",
+      "lightColor": "#ffa500",
+      "rotation_rate": 0.005,
+      "mining_beams": true,
+      "cargo_pods": true
+    }
+  },
+  "derelict-ship": {
+    "id": "derelict-ship",
+    "name": "Derelict Spacecraft",
+    "mass": 0.000000001,
+    "radius": 0.00001,
+    "type": "spacecraft",
+    "status": "derelict",
+    "origin": "unknown",
+    "power_source": "none",
+    "crew_capacity": 0,
+    "render": {
+      "shader": "derelict",
+      "hullColor": "#2f4f4f",
+      "lightColor": "#000000",
+      "rotation_rate": 0.001,
+      "damage_level": 0.8,
+      "debris_field": true
+    }
+  }
+}

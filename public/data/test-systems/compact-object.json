@@ -1,0 +1,28 @@
+{
+  "id": "compact-object-system",
+  "name": "Compact Object System",
+  "objects": [
+    {
+      "id": "compact-1",
+      "type": "star",
+      "name": "Neutron Star",
+      "position": [0, 0, 0],
+      "radius": 0.1,
+      "mass": 1.4
+    },
+    {
+      "id": "star-1",
+      "type": "star",
+      "name": "Companion Star",
+      "position": [3, 0, 0],
+      "radius": 0.5,
+      "mass": 0.5,
+      "orbit": {
+        "parentId": "compact-1",
+        "semiMajorAxis": 3,
+        "eccentricity": 0.2,
+        "inclination": 0
+      }
+    }
+  ]
+} 

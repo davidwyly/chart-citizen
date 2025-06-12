@@ -1,0 +1,54 @@
+{
+  "id": "proxima-centauri",
+  "name": "Proxima Centauri System",
+  "description": "A red dwarf system with a potentially habitable super-Earth",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "proxima-centauri-star",
+      "catalog_ref": "m5v-red-dwarf",
+      "position": [0, 0, 0],
+      "name": "Proxima Centauri"
+    }
+  ],
+  "planets": [
+    {
+      "id": "proxima-b",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Proxima b",
+      "orbit": {
+        "parent": "proxima-centauri-star",
+        "semi_major_axis": 0.05,
+        "eccentricity": 0.11,
+        "inclination": 0.0,
+        "orbital_period": 11.2
+      },
+      "customizations": {
+        "physical": {
+          "mass": 1.3,
+          "radius": 1.1,
+          "temperature": 234
+        },
+        "features": {
+          "habitability": "potentially_habitable",
+          "tidal_lock": true,
+          "ocean_coverage": 0.3
+        }
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "pc-alpha-centauri-jp",
+      "name": "Alpha Centauri Jump Point",
+      "position": [-50, 20, 10],
+      "destination": "alpha-centauri",
+      "status": "active"
+    }
+  ],
+  "lighting": {
+    "primary_star": "proxima-centauri-star",
+    "ambient_level": 0.05,
+    "stellar_influence_radius": 50
+  }
+}

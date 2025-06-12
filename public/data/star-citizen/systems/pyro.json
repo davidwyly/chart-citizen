@@ -1,0 +1,87 @@
+{
+  "id": "pyro",
+  "name": "Pyro System",
+  "description": "A dangerous system controlled by criminal organizations, featuring a volatile star",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "pyro-star",
+      "catalog_ref": "variable-star",
+      "position": [0, 0, 0],
+      "name": "Pyro"
+    }
+  ],
+  "planets": [
+    {
+      "id": "pyro-i",
+      "catalog_ref": "terrestrial-lava",
+      "name": "Pyro I",
+      "orbit": {
+        "parent": "pyro-star",
+        "semi_major_axis": 0.45,
+        "eccentricity": 0.08,
+        "inclination": 2.1,
+        "orbital_period": 156
+      },
+      "customizations": {
+        "features": {
+          "volcanic_activity": 0.9,
+          "lava_coverage": 0.6
+        }
+      }
+    },
+    {
+      "id": "pyro-ii",
+      "catalog_ref": "barren-world",
+      "name": "Pyro II",
+      "orbit": {
+        "parent": "pyro-star",
+        "semi_major_axis": 0.89,
+        "eccentricity": 0.12,
+        "inclination": 1.8,
+        "orbital_period": 298
+      },
+      "customizations": {
+        "features": {
+          "crater_density": 0.9,
+          "mineral_deposits": 0.7
+        }
+      }
+    }
+  ],
+  "space_stations": [
+    {
+      "id": "ruin-station",
+      "catalog_ref": "outlaw-station-type",
+      "name": "Ruin Station",
+      "orbit": {
+        "parent": "pyro-ii",
+        "semi_major_axis": 0.004,
+        "eccentricity": 0.0,
+        "inclination": 0.0,
+        "orbital_period": 4.2
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "pyro-stanton-jp",
+      "name": "Stanton Jump Point",
+      "position": [-180, -90, 60],
+      "destination": "stanton",
+      "status": "active"
+    },
+    {
+      "id": "pyro-nyx-jp",
+      "name": "Nyx Jump Point",
+      "position": [220, 150, -80],
+      "destination": "nyx",
+      "status": "unstable"
+    }
+  ],
+  "lighting": {
+    "primary_star": "pyro-star",
+    "ambient_level": 0.08,
+    "stellar_influence_radius": 100
+  }
+}

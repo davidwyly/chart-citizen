@@ -1,0 +1,46 @@
+{
+  "systems": {
+    "sol": {
+      "id": "sol",
+      "name": "Sol System",
+      "description": "Our home solar system",
+      "position": [0, 0, 0],
+      "status": "inhabited"
+    },
+    "alpha-centauri": {
+      "id": "alpha-centauri",
+      "name": "Alpha Centauri System",
+      "description": "Nearest star system to Sol",
+      "position": [4.37, 0, 0],
+      "status": "unexplored"
+    },
+    "proxima-centauri": {
+      "id": "proxima-centauri",
+      "name": "Proxima Centauri System",
+      "description": "Red dwarf star with potentially habitable planet",
+      "position": [4.24, 0, 0],
+      "status": "unexplored"
+    },
+    "wolf-359": {
+      "id": "wolf-359",
+      "name": "Wolf 359 System",
+      "description": "Red dwarf star system",
+      "position": [7.86, 0, 0],
+      "status": "unexplored"
+    },
+    "kepler-442": {
+      "id": "kepler-442",
+      "name": "Kepler-442 System",
+      "description": "System with potentially habitable super-Earth",
+      "position": [1206, 0, 0],
+      "status": "unexplored"
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2024-01-01",
+    "total_systems": 5,
+    "coordinate_system": "galactic",
+    "distance_unit": "light_years"
+  }
+}

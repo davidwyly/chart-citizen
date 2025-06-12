@@ -1,0 +1,28 @@
+{
+  "id": "binary-stars-system",
+  "name": "Binary Stars System",
+  "objects": [
+    {
+      "id": "star-1",
+      "type": "star",
+      "name": "G2V Star",
+      "position": [0, 0, 0],
+      "radius": 1,
+      "mass": 1
+    },
+    {
+      "id": "star-2",
+      "type": "star",
+      "name": "K2V Star",
+      "position": [5, 0, 0],
+      "radius": 0.8,
+      "mass": 0.8,
+      "orbit": {
+        "parentId": "star-1",
+        "semiMajorAxis": 5,
+        "eccentricity": 0.1,
+        "inclination": 0
+      }
+    }
+  ]
+} 

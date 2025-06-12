@@ -1,0 +1,48 @@
+{
+  "id": "nyx",
+  "name": "Nyx System",
+  "description": "A former UEE system now abandoned and filled with derelict ships and stations",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "nyx-star",
+      "catalog_ref": "m5v-red-dwarf",
+      "position": [0, 0, 0],
+      "name": "Nyx"
+    }
+  ],
+  "planets": [
+    {
+      "id": "nyx-i",
+      "catalog_ref": "barren-world",
+      "name": "Nyx I",
+      "orbit": {
+        "parent": "nyx-star",
+        "semi_major_axis": 0.3,
+        "eccentricity": 0.1,
+        "inclination": 2.5,
+        "orbital_period": 120
+      },
+      "customizations": {
+        "features": {
+          "crater_density": 0.8,
+          "abandoned_structures": 0.3
+        }
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "nyx-pyro-jp",
+      "name": "Pyro Jump Point",
+      "position": [-220, -150, 80],
+      "destination": "pyro",
+      "status": "unstable"
+    }
+  ],
+  "lighting": {
+    "primary_star": "nyx-star",
+    "ambient_level": 0.05,
+    "stellar_influence_radius": 60
+  }
+}

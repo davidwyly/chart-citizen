@@ -1,0 +1,89 @@
+{
+  "id": "terra",
+  "name": "Terra System",
+  "description": "The political heart of the UEE, featuring the capital world Terra Prime",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "terra-star",
+      "catalog_ref": "g2v-main-sequence",
+      "position": [0, 0, 0],
+      "name": "Terra"
+    }
+  ],
+  "planets": [
+    {
+      "id": "terra-prime",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Terra Prime",
+      "orbit": {
+        "parent": "terra-star",
+        "semi_major_axis": 1.0,
+        "eccentricity": 0.02,
+        "inclination": 0.1,
+        "orbital_period": 365
+      },
+      "customizations": {
+        "features": {
+          "habitability": "inhabited",
+          "ocean_coverage": 0.6,
+          "vegetation_coverage": 0.4,
+          "urbanization": 0.3
+        }
+      }
+    },
+    {
+      "id": "terra-ii",
+      "catalog_ref": "arid-desert",
+      "name": "Terra II",
+      "orbit": {
+        "parent": "terra-star",
+        "semi_major_axis": 1.6,
+        "eccentricity": 0.05,
+        "inclination": 1.2,
+        "orbital_period": 640
+      },
+      "customizations": {
+        "features": {
+          "water_reserves": 0.1,
+          "habitability": "marginal"
+        }
+      }
+    }
+  ],
+  "moons": [
+    {
+      "id": "terra-prime-moon",
+      "catalog_ref": "rocky-moon",
+      "name": "Terra Prime Moon",
+      "orbit": {
+        "parent": "terra-prime",
+        "semi_major_axis": 0.003,
+        "eccentricity": 0.02,
+        "inclination": 0.5,
+        "orbital_period": 28
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "terra-stanton-jp",
+      "name": "Stanton Jump Point",
+      "position": [120, 60, -30],
+      "destination": "stanton",
+      "status": "active"
+    },
+    {
+      "id": "terra-sol-jp",
+      "name": "Sol Jump Point",
+      "position": [-100, -40, 25],
+      "destination": "sol",
+      "status": "active"
+    }
+  ],
+  "lighting": {
+    "primary_star": "terra-star",
+    "ambient_level": 0.11,
+    "stellar_influence_radius": 110
+  }
+}

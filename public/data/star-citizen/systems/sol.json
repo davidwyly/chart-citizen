@@ -1,0 +1,180 @@
+{
+  "id": "sol",
+  "name": "Sol System",
+  "description": "The birthplace of humanity in the Star Citizen universe, now part of the UEE",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "sol-star",
+      "catalog_ref": "g2v-main-sequence",
+      "position": [0, 0, 0],
+      "name": "Sol"
+    }
+  ],
+  "planets": [
+    {
+      "id": "mercury",
+      "catalog_ref": "barren-world",
+      "name": "Mercury",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 0.39,
+        "eccentricity": 0.205,
+        "inclination": 7.0,
+        "orbital_period": 88
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.055,
+          "radius": 0.383,
+          "temperature": 440
+        }
+      }
+    },
+    {
+      "id": "venus",
+      "catalog_ref": "terrestrial-smog",
+      "name": "Venus",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 0.72,
+        "eccentricity": 0.007,
+        "inclination": 3.4,
+        "orbital_period": 225
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.815,
+          "radius": 0.949,
+          "temperature": 737,
+          "atmospheric_pressure": 92.0
+        }
+      }
+    },
+    {
+      "id": "earth",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Earth",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 1.0,
+        "eccentricity": 0.017,
+        "inclination": 0.0,
+        "orbital_period": 365
+      }
+    },
+    {
+      "id": "mars",
+      "catalog_ref": "arid-desert",
+      "name": "Mars",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 1.52,
+        "eccentricity": 0.094,
+        "inclination": 1.9,
+        "orbital_period": 687
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.107,
+          "radius": 0.532,
+          "temperature": 210
+        }
+      }
+    },
+    {
+      "id": "jupiter",
+      "catalog_ref": "gas-giant-standard",
+      "name": "Jupiter",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 5.2,
+        "eccentricity": 0.049,
+        "inclination": 1.3,
+        "orbital_period": 4333
+      }
+    },
+    {
+      "id": "saturn",
+      "catalog_ref": "gas-giant-standard",
+      "name": "Saturn",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 9.5,
+        "eccentricity": 0.057,
+        "inclination": 2.5,
+        "orbital_period": 10759
+      },
+      "customizations": {
+        "features": {
+          "has_rings": true,
+          "ring_prominence": 1.0
+        }
+      }
+    },
+    {
+      "id": "uranus",
+      "catalog_ref": "gas-giant-ice",
+      "name": "Uranus",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 19.2,
+        "eccentricity": 0.046,
+        "inclination": 0.8,
+        "orbital_period": 30687
+      },
+      "customizations": {
+        "features": {
+          "axial_tilt": 98.0
+        }
+      }
+    },
+    {
+      "id": "neptune",
+      "catalog_ref": "gas-giant-ice",
+      "name": "Neptune",
+      "orbit": {
+        "parent": "sol-star",
+        "semi_major_axis": 30.1,
+        "eccentricity": 0.01,
+        "inclination": 1.8,
+        "orbital_period": 60190
+      }
+    }
+  ],
+  "moons": [
+    {
+      "id": "luna",
+      "catalog_ref": "earth-moon-type",
+      "name": "Luna",
+      "orbit": {
+        "parent": "earth",
+        "semi_major_axis": 0.00257,
+        "eccentricity": 0.055,
+        "inclination": 5.1,
+        "orbital_period": 27.3
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "sol-terra-jp",
+      "name": "Terra Jump Point",
+      "position": [100, 0, 0],
+      "destination": "terra",
+      "status": "active"
+    },
+    {
+      "id": "sol-stanton-jp",
+      "name": "Stanton Jump Point",
+      "position": [-80, 50, 20],
+      "destination": "stanton",
+      "status": "active"
+    }
+  ],
+  "lighting": {
+    "primary_star": "sol-star",
+    "ambient_level": 0.1,
+    "stellar_influence_radius": 100
+  }
+}

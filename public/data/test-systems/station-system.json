@@ -1,0 +1,42 @@
+{
+  "id": "station-system",
+  "name": "Station System",
+  "objects": [
+    {
+      "id": "star-1",
+      "type": "star",
+      "name": "G2V Star",
+      "position": [0, 0, 0],
+      "radius": 1,
+      "mass": 1
+    },
+    {
+      "id": "planet-1",
+      "type": "planet",
+      "name": "Planet",
+      "position": [5, 0, 0],
+      "radius": 0.5,
+      "mass": 0.5,
+      "orbit": {
+        "parentId": "star-1",
+        "semiMajorAxis": 5,
+        "eccentricity": 0.1,
+        "inclination": 0
+      }
+    },
+    {
+      "id": "station-1",
+      "type": "planet",
+      "name": "Space Station",
+      "position": [5.1, 0, 0],
+      "radius": 0.05,
+      "mass": 0.001,
+      "orbit": {
+        "parentId": "planet-1",
+        "semiMajorAxis": 0.1,
+        "eccentricity": 0.01,
+        "inclination": 0
+      }
+    }
+  ]
+} 

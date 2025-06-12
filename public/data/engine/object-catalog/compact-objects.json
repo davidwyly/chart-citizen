@@ -1,0 +1,89 @@
+{
+  "white-dwarf-da": {
+    "id": "white-dwarf-da",
+    "name": "DA White Dwarf",
+    "mass": 0.6,
+    "radius": 0.008,
+    "type": "white_dwarf",
+    "subtype": "DA",
+    "temperature": 50000,
+    "spin_period": 0.1,
+    "magnetic_field": 1000000,
+    "composition": "carbon_oxygen",
+    "render": {
+      "shader": "white_dwarf",
+      "coreColor": "#ffffff",
+      "coronaColor": "#f0f8ff",
+      "rotation_rate": 0.002,
+      "intensity": 3.0,
+      "halo_size": 2.0
+    }
+  },
+  "neutron-star-pulsar": {
+    "id": "neutron-star-pulsar",
+    "name": "Pulsar",
+    "mass": 1.4,
+    "radius": 0.00001,
+    "type": "neutron_star",
+    "subtype": "pulsar",
+    "temperature": 1000000,
+    "spin_period": 0.001,
+    "magnetic_field": 100000000000,
+    "composition": "neutronium",
+    "render": {
+      "shader": "pulsar",
+      "coreColor": "#ccffff",
+      "beamColor": "#ffffff",
+      "rotation_rate": 0.05,
+      "pulse_frequency": 30,
+      "beam_width": 15
+    }
+  },
+  "stellar-black-hole": {
+    "id": "stellar-black-hole",
+    "name": "Stellar Black Hole",
+    "mass": 10,
+    "radius": 0.00003,
+    "type": "black_hole",
+    "subtype": "stellar",
+    "temperature": 0,
+    "spin_period": 0.001,
+    "magnetic_field": 0,
+    "composition": "singularity",
+    "accretion_disk": true,
+    "render": {
+      "shader": "black_hole",
+      "eventHorizonColor": "#000000",
+      "accretionDiskColor": "#ff4400",
+      "jetColor": "#ffffff",
+      "lensing_effect": true,
+      "disk_temperature": 10000000
+    }
+  },
+  "black-hole": {
+    "id": "black-hole",
+    "name": "Supermassive Black Hole",
+    "mass": 4000000,
+    "radius": 0.12,
+    "type": "black_hole",
+    "subtype": "supermassive",
+    "temperature": 0,
+    "spin_period": 0.01,
+    "magnetic_field": 0,
+    "composition": "singularity",
+    "accretion_disk": true,
+    "jets": true,
+    "render": {
+      "shader": "supermassive_black_hole",
+      "eventHorizonColor": "#000000",
+      "accretionDiskColor": "#ff3300",
+      "diskOuterColor": "#ffaa33",
+      "jetColor": "#ffffff",
+      "lensing_effect": true,
+      "disk_temperature": 10000000,
+      "distortion": 1.0,
+      "speed": 0.5,
+      "intensity": 1.0
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "id": "stanton",
+  "name": "Stanton System",
+  "description": "A corporate-controlled system featuring four planets, each owned by major megacorporations",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "stanton-star",
+      "catalog_ref": "g2v-main-sequence",
+      "position": [0, 0, 0],
+      "name": "Stanton"
+    }
+  ],
+  "planets": [
+    {
+      "id": "hurston",
+      "catalog_ref": "polluted-industrial",
+      "name": "Hurston",
+      "orbit": {
+        "parent": "stanton-star",
+        "semi_major_axis": 0.79,
+        "eccentricity": 0.01,
+        "inclination": 0.5,
+        "orbital_period": 271
+      },
+      "customizations": {
+        "physical": {
+          "mass": 1.5,
+          "radius": 1.1,
+          "temperature": 325,
+          "atmospheric_pressure": 2.0
+        },
+        "features": {
+          "pollution_level": 0.95,
+          "industrial_coverage": 0.85
+        }
+      }
+    },
+    {
+      "id": "crusader",
+      "catalog_ref": "gas-giant-standard",
+      "name": "Crusader",
+      "orbit": {
+        "parent": "stanton-star",
+        "semi_major_axis": 1.28,
+        "eccentricity": 0.02,
+        "inclination": 1.2,
+        "orbital_period": 548
+      },
+      "customizations": {
+        "physical": {
+          "mass": 150.0,
+          "radius": 8.5,
+          "temperature": 180
+        },
+        "features": {
+          "habitability": "inhabited_upper_atmosphere",
+          "storm_intensity": 0.3,
+          "band_count": 6,
+          "has_rings": false
+        },
+        "appearance": {
+          "band_colors": ["#87ceeb", "#b0e0e6", "#add8e6", "#e0f6ff", "#f0f8ff", "#ffffff"]
+        }
+      }
+    },
+    {
+      "id": "arccorp",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "ArcCorp",
+      "orbit": {
+        "parent": "stanton-star",
+        "semi_major_axis": 1.55,
+        "eccentricity": 0.03,
+        "inclination": 0.8,
+        "orbital_period": 728
+      },
+      "customizations": {
+        "physical": {
+          "mass": 1.1,
+          "radius": 0.95,
+          "temperature": 295,
+          "atmospheric_pressure": 1.1
+        },
+        "features": {
+          "ocean_coverage": 0.0,
+          "vegetation_coverage": 0.0,
+          "habitability": "ecumenopolis",
+          "urbanization": 1.0
+        },
+        "appearance": {
+          "base_color": "#696969"
+        }
+      }
+    },
+    {
+      "id": "microtech",
+      "catalog_ref": "ice-world",
+      "name": "microTech",
+      "orbit": {
+        "parent": "stanton-star",
+        "semi_major_axis": 2.14,
+        "eccentricity": 0.01,
+        "inclination": 2.1,
+        "orbital_period": 1182
+      },
+      "customizations": {
+        "physical": {
+          "mass": 0.95,
+          "radius": 0.92,
+          "temperature": 210,
+          "atmospheric_pressure": 0.9
+        },
+        "features": {
+          "habitability": "inhabited_cold",
+          "ice_coverage": 0.4,
+          "subsurface_ocean": 0.8
+        }
+      }
+    }
+  ],
+  "moons": [
+    {
+      "id": "daymar",
+      "catalog_ref": "desert-moon",
+      "name": "Daymar",
+      "orbit": {
+        "parent": "crusader",
+        "semi_major_axis": 0.008,
+        "eccentricity": 0.02,
+        "inclination": 1.5,
+        "orbital_period": 8.7
+      }
+    },
+    {
+      "id": "cellin",
+      "catalog_ref": "rocky-moon",
+      "name": "Cellin",
+      "orbit": {
+        "parent": "crusader",
+        "semi_major_axis": 0.012,
+        "eccentricity": 0.01,
+        "inclination": 0.8,
+        "orbital_period": 15.2
+      }
+    }
+  ],
+  "space_stations": [
+    {
+      "id": "port-olisar",
+      "catalog_ref": "large-station-type",
+      "name": "Port Olisar",
+      "orbit": {
+        "parent": "crusader",
+        "semi_major_axis": 0.006,
+        "eccentricity": 0.0,
+        "inclination": 0.0,
+        "orbital_period": 6.1
+      }
+    }
+  ],
+  "jump_points": [
+    {
+      "id": "stanton-pyro-jp",
+      "name": "Pyro Jump Point",
+      "position": [150, 80, -45],
+      "destination": "pyro",
+      "status": "active"
+    },
+    {
+      "id": "stanton-terra-jp",
+      "name": "Terra Jump Point",
+      "position": [-120, -60, 30],
+      "destination": "terra",
+      "status": "active"
+    },
+    {
+      "id": "stanton-magnus-jp",
+      "name": "Magnus Jump Point",
+      "position": [90, 120, -80],
+      "destination": "magnus",
+      "status": "active"
+    },
+    {
+      "id": "stanton-sol-jp",
+      "name": "Sol Jump Point",
+      "position": [80, -50, -20],
+      "destination": "sol",
+      "status": "active"
+    }
+  ],
+  "lighting": {
+    "primary_star": "stanton-star",
+    "ambient_level": 0.12,
+    "stellar_influence_radius": 120
+  }
+}

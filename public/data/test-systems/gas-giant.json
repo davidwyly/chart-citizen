@@ -1,0 +1,56 @@
+{
+  "id": "gas-giant-system",
+  "name": "Gas Giant System",
+  "objects": [
+    {
+      "id": "star-1",
+      "type": "star",
+      "name": "G2V Star",
+      "position": [0, 0, 0],
+      "radius": 1,
+      "mass": 1
+    },
+    {
+      "id": "planet-1",
+      "type": "planet",
+      "name": "Gas Giant",
+      "position": [10, 0, 0],
+      "radius": 2,
+      "mass": 5,
+      "orbit": {
+        "parentId": "star-1",
+        "semiMajorAxis": 10,
+        "eccentricity": 0.05,
+        "inclination": 0
+      }
+    },
+    {
+      "id": "moon-1",
+      "type": "moon",
+      "name": "Moon 1",
+      "position": [10.2, 0, 0],
+      "radius": 0.2,
+      "mass": 0.02,
+      "orbit": {
+        "parentId": "planet-1",
+        "semiMajorAxis": 0.2,
+        "eccentricity": 0.01,
+        "inclination": 0
+      }
+    },
+    {
+      "id": "moon-2",
+      "type": "moon",
+      "name": "Moon 2",
+      "position": [10.4, 0, 0],
+      "radius": 0.15,
+      "mass": 0.015,
+      "orbit": {
+        "parentId": "planet-1",
+        "semiMajorAxis": 0.4,
+        "eccentricity": 0.02,
+        "inclination": 0
+      }
+    }
+  ]
+} 

@@ -1,0 +1,76 @@
+import { useEffect, useRef, useState } from 'react'
+
+interface PerformanceMetrics {
+  fps: number
+  frameTime: number
+  isLowPerformance: boolean
+}
+
+export class PerformanceMonitor {
+  private frameCount = 0
+  private lastTime = performance.now()
+  private fpsHistory: number[] = []
+  private readonly historySize = 60 // Keep 1 second of history at 60fps
+  private readonly lowFpsThreshold = 20
+  private readonly warningThreshold = 30
+
+  update(): PerformanceMetrics {
+    const currentTime = performance.now()
+    const deltaTime = currentTime - this.lastTime
+    this.lastTime = currentTime
+
+    // Calculate FPS
+    const fps = 1000 / deltaTime
+    this.fpsHistory.push(fps)
+    if (this.fpsHistory.length > this.historySize) {
+      this.fpsHistory.shift()
+    }
+
+    // Calculate average FPS
+    const averageFps = this.fpsHistory.reduce((sum, value) => sum + value, 0) / this.fpsHistory.length
+
+    return {
+      fps: averageFps,
+      frameTime: deltaTime,
+      isLowPerformance: averageFps < this.lowFpsThreshold
+    }
+  }
+
+  getPerformanceLevel(): 'good' | 'warning' | 'critical' {
+    const averageFps = this.fpsHistory.reduce((sum, value) => sum + value, 0) / this.fpsHistory.length
+
+    if (averageFps < this.lowFpsThreshold) {
+      return 'critical'
+    } else if (averageFps < this.warningThreshold) {
+      return 'warning'
+    }
+    return 'good'
+  }
+}
+
+export function usePerformanceMonitor() {
+  const [metrics, setMetrics] = useState<PerformanceMetrics>({
+    fps: 0,
+    frameTime: 0,
+    isLowPerformance: false
+  })
+  const monitorRef = useRef<PerformanceMonitor>(new PerformanceMonitor())
+
+  useEffect(() => {
+    let animationFrameId: number
+
+    const updateMetrics = () => {
+      const newMetrics = monitorRef.current.update()
+      setMetrics(newMetrics)
+      animationFrameId = requestAnimationFrame(updateMetrics)
+    }
+
+    animationFrameId = requestAnimationFrame(updateMetrics)
+
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
+
+  return metrics
+} 

@@ -1,0 +1,83 @@
+{
+  "id": "kepler-442",
+  "name": "Kepler-442 System",
+  "description": "A distant K-type star system with a confirmed habitable super-Earth",
+  "barycenter": [0, 0, 0],
+  "stars": [
+    {
+      "id": "kepler-442-star",
+      "catalog_ref": "k1v-main-sequence",
+      "position": [0, 0, 0],
+      "name": "Kepler-442"
+    }
+  ],
+  "planets": [
+    {
+      "id": "kepler-442-b",
+      "catalog_ref": "terrestrial-rocky",
+      "name": "Kepler-442b",
+      "orbit": {
+        "parent": "kepler-442-star",
+        "semi_major_axis": 0.4,
+        "eccentricity": 0.04,
+        "inclination": 0.0,
+        "orbital_period": 112.3
+      },
+      "customizations": {
+        "physical": {
+          "mass": 2.3,
+          "radius": 1.34,
+          "temperature": 233
+        },
+        "features": {
+          "habitability": "potentially_habitable",
+          "ocean_coverage": 0.8,
+          "cloud_coverage": 0.7
+        }
+      }
+    },
+    {
+      "id": "kepler-442-c",
+      "catalog_ref": "gas-giant-ice",
+      "name": "Kepler-442c",
+      "orbit": {
+        "parent": "kepler-442-star",
+        "semi_major_axis": 1.2,
+        "eccentricity": 0.06,
+        "inclination": 1.5,
+        "orbital_period": 580.2
+      },
+      "customizations": {
+        "physical": {
+          "mass": 17.0,
+          "radius": 4.0,
+          "temperature": 120
+        }
+      }
+    },
+    {
+      "id": "kepler-442-d",
+      "catalog_ref": "gas-giant-standard",
+      "name": "Kepler-442d",
+      "orbit": {
+        "parent": "kepler-442-star",
+        "semi_major_axis": 3.5,
+        "eccentricity": 0.08,
+        "inclination": 0.5,
+        "orbital_period": 2400.0
+      },
+      "customizations": {
+        "physical": {
+          "mass": 200.0,
+          "radius": 8.0,
+          "temperature": 80
+        }
+      }
+    }
+  ],
+  "lighting": {
+    "primary_star": "kepler-442-star",
+    "ambient_level": 0.08,
+    "stellar_influence_radius": 80
+  }
+}

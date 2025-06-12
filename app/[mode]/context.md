@@ -1,0 +1,2 @@
+- **page.tsx**: Chooses the correct child application (Realistic or Star Citizen) based on the dynamic `mode` URL param.
+- **starmap/page.tsx**: Dynamic starmap view per mode with interactive galaxy map and drill-down to SystemViewer. 
