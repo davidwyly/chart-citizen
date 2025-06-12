@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { ObjectFactory } from '../object-factory'
+import type { CatalogObject } from '../system-loader'
 
 // Mock all renderer components
 vi.mock('@/engine/renderers/stars/star-renderer', () => ({
@@ -15,9 +16,12 @@ vi.mock('@/engine/renderers/planets/terrestrial-planet-renderer', () => ({
 vi.mock('@/engine/renderers/planets/planet-renderer', () => ({
   PlanetRenderer: (props: any) => <div data-testid="planet-renderer" {...props} />
 }))
+vi.mock('@/engine/renderers/fallback-renderer', () => ({
+  FallbackRenderer: (props: any) => <div data-testid="fallback-renderer" {...props} />
+}))
 
 describe('ObjectFactory', () => {
-  const baseCatalog = {
+  const baseCatalog: CatalogObject = {
     id: 'test-object',
     name: 'Test Object',
     engine_object: 'star',
@@ -25,14 +29,14 @@ describe('ObjectFactory', () => {
     mass: 1.0,
     radius: 1.0,
     render: {
+      shader: 'standard',
       color: '#ffffff',
       texture: 'star-texture.jpg'
     }
   }
 
   it('renders star renderer for star objects', () => {
-    const catalogData = { ...baseCatalog }
-    const { getByTestId } = render(<ObjectFactory catalogData={catalogData} />)
+    const { getByTestId } = render(<ObjectFactory catalogData={baseCatalog} />)
     expect(getByTestId('star-renderer')).toBeInTheDocument()
   })
 
@@ -148,7 +152,7 @@ describe('ObjectFactory', () => {
 
   it('renders fallback if engine_object and category are missing', () => {
     const catalogData = { ...baseCatalog, engine_object: undefined, category: undefined }
-    const { container } = render(<ObjectFactory catalogData={catalogData} />)
-    expect(container.querySelector('group')).toBeInTheDocument()
+    const { getByTestId } = render(<ObjectFactory catalogData={catalogData} />)
+    expect(getByTestId('fallback-renderer')).toBeInTheDocument()
   })
 }) 

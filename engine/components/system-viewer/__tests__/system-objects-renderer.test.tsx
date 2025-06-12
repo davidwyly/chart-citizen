@@ -4,6 +4,14 @@ import * as THREE from 'three';
 import type { ViewMode } from '../../../types/view-mode.types';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import type { SystemData } from '@/engine/lib/system-loader';
+import type { ViewType } from '@/lib/types/effects-level';
+
+// Mock Three.js components
+vi.mock('@react-three/fiber', () => ({
+  useFrame: vi.fn((callback) => callback({}, 0.016)),
+  Canvas: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+}));
 
 // Create simplified mock components for testing
 const mockUseFrame = (callback: (state: any) => void) => callback({});
@@ -166,5 +174,112 @@ describe('System Objects Renderer', () => {
       />
     );
     expect(screen.getByTestId('system-objects-renderer')).toBeDefined();
+  });
+});
+
+describe('SystemObjectsRenderer', () => {
+  const testSystemData: SystemData = {
+    id: 'test-system',
+    name: 'Test System',
+    description: 'A test star system',
+    barycenter: [0, 0, 0],
+    stars: [
+      {
+        id: 'star-1',
+        catalog_ref: 'g2v-main-sequence',
+        name: 'Primary Star',
+        position: [0, 0, 0]
+      }
+    ],
+    planets: [
+      {
+        id: 'planet-1',
+        catalog_ref: 'terrestrial-rocky',
+        name: 'Rocky Planet',
+        position: [5, 0, 0],
+        orbit: {
+          parent: 'star-1',
+          semi_major_axis: 5,
+          eccentricity: 0.1,
+          inclination: 0,
+          orbital_period: 365
+        }
+      }
+    ],
+    lighting: {
+      primary_star: 'star-1',
+      ambient_level: 0.1,
+      stellar_influence_radius: 100
+    }
+  };
+
+  const defaultProps = {
+    systemData: testSystemData,
+    selectedObjectId: null,
+    timeMultiplier: 1,
+    isPaused: false,
+    SYSTEM_SCALE: 1,
+    STAR_SCALE: 1,
+    PLANET_SCALE: 1,
+    ORBITAL_SCALE: 1,
+    STAR_SHADER_SCALE: 1,
+    viewType: 'realistic' as ViewType,
+    objectRefsMap: { current: new Map<string, THREE.Object3D>() },
+    onObjectHover: vi.fn(),
+    onObjectSelect: vi.fn(),
+    onObjectFocus: vi.fn(),
+    registerRef: vi.fn()
+  };
+
+  it('renders system objects', () => {
+    const { container } = render(
+      <SystemObjectsRenderer {...defaultProps} />
+    );
+    expect(container).toBeTruthy();
+  });
+
+  it('handles empty system data', () => {
+    const emptySystem: SystemData = {
+      id: 'empty-system',
+      name: 'Empty System',
+      description: 'An empty star system',
+      barycenter: [0, 0, 0],
+      stars: [],
+      lighting: {
+        primary_star: '',
+        ambient_level: 0.1,
+        stellar_influence_radius: 100
+      }
+    };
+    const { container } = render(
+      <SystemObjectsRenderer {...defaultProps} systemData={emptySystem} />
+    );
+    expect(container).toBeTruthy();
+  });
+
+  it('handles missing orbit data', () => {
+    const systemWithoutOrbits: SystemData = {
+      id: 'no-orbits-system',
+      name: 'No Orbits System',
+      description: 'A star system without orbital data',
+      barycenter: [0, 0, 0],
+      stars: [
+        {
+          id: 'star-1',
+          catalog_ref: 'g2v-main-sequence',
+          name: 'Primary Star',
+          position: [0, 0, 0]
+        }
+      ],
+      lighting: {
+        primary_star: 'star-1',
+        ambient_level: 0.1,
+        stellar_influence_radius: 100
+      }
+    };
+    const { container } = render(
+      <SystemObjectsRenderer {...defaultProps} systemData={systemWithoutOrbits} />
+    );
+    expect(container).toBeTruthy();
   });
 }); 
