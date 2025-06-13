@@ -10,12 +10,14 @@ function isValidMode(mode: string): mode is ValidMode {
 }
 
 interface PageProps {
-  params: {
+  params: Promise<{
     mode: string
-  }
+  }>
 }
 
-export default async function ModePage({ params: { mode } }: PageProps) {
+export default async function ModePage({ params }: PageProps) {
+  const { mode } = await params
+  
   if (!isValidMode(mode)) {
     notFound()
   }
@@ -36,7 +38,9 @@ export function generateStaticParams() {
   }))
 }
 
-export async function generateMetadata({ params: { mode } }: PageProps) {
+export async function generateMetadata({ params }: PageProps) {
+  const { mode } = await params
+  
   const titles = {
     realistic: "Realistic Universe - Chart Citizen",
     "star-citizen": "Star Citizen Universe - Chart Citizen"
