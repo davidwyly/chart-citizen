@@ -10,7 +10,12 @@ interface CameraControllerProps {
   focusRadius?: number
 }
 
-export const CameraController = forwardRef<{ resetToBookmarkView: () => void }, CameraControllerProps>(
+export interface CameraControllerRef {
+  resetToBookmarkView: () => void
+  setBirdsEyeView: () => void
+}
+
+export const CameraController = forwardRef<CameraControllerRef, CameraControllerProps>(
   function CameraController({ focusObject, focusName, focusRadius }: CameraControllerProps, ref) {
     const { camera, controls } = useThree()
     const controlsRef = useRef<any>(controls)
@@ -23,24 +28,110 @@ export const CameraController = forwardRef<{ resetToBookmarkView: () => void }, 
       controlsRef.current = controls
     }, [controls])
 
+    // Calculate the furthest orbital radius in the system
+    const calculateMaxOrbitRadius = useCallback(() => {
+      let maxOrbitRadius = 0
+      
+      // Find the largest orbit radius in the scene
+      controlsRef.current?.object?.parent?.traverse((object: THREE.Object3D) => {
+        if (object.userData.orbitRadius) {
+          maxOrbitRadius = Math.max(maxOrbitRadius, object.userData.orbitRadius)
+        }
+      })
+
+      // If no orbits found, use a default distance
+      if (maxOrbitRadius === 0) maxOrbitRadius = 50
+      
+      return maxOrbitRadius
+    }, [])
+
+    // Set birds-eye view function
+    const setBirdsEyeView = useCallback(() => {
+      if (!controlsRef.current) return
+
+      // Stop following any object
+      isFollowingRef.current = false
+      animatingRef.current = true
+
+      // Calculate the system bounds
+      const maxOrbitRadius = calculateMaxOrbitRadius()
+      const center = new THREE.Vector3()
+
+      // Calculate camera position for 40-degree angle (birds-eye view)
+      const angle = 40 * (Math.PI / 180) // Convert to radians
+      const distance = maxOrbitRadius * 1.5 // Use 1.5x the max orbit radius to frame the entire system
+
+      // Calculate position components for birds-eye view
+      const horizontalDistance = distance * Math.cos(angle)
+      const verticalDistance = distance * Math.sin(angle)
+
+      // Position camera at 40 degrees above and slightly offset for better view
+      const newPosition = new THREE.Vector3(
+        horizontalDistance * 0.7, // Slightly offset from directly overhead
+        verticalDistance,
+        horizontalDistance * 0.7
+      )
+      const newTarget = center.clone()
+
+      // Store original positions for animation
+      const originalPosition = camera.position.clone()
+      const originalTarget = controlsRef.current.target.clone()
+
+      // Disable controls during animation
+      controlsRef.current.enabled = false
+
+      const startTime = Date.now()
+      const duration = 1200 // Animation duration in ms
+
+      const animate = () => {
+        const now = Date.now()
+        const elapsed = now - startTime
+        const progress = Math.min(elapsed / duration, 1)
+
+        // Smooth easing function
+        const easeProgress = 1 - Math.pow(1 - progress, 3)
+
+        // Interpolate camera position and target
+        camera.position.lerpVectors(originalPosition, newPosition, easeProgress)
+        controlsRef.current.target.lerpVectors(originalTarget, newTarget, easeProgress)
+
+        // Update controls
+        controlsRef.current.update()
+
+        if (progress < 1) {
+          requestAnimationFrame(animate)
+        } else {
+          // Animation complete
+          animatingRef.current = false
+
+          // Set final positions exactly
+          camera.position.copy(newPosition)
+          controlsRef.current.target.copy(newTarget)
+
+          // Update controls
+          controlsRef.current.update()
+
+          // Save this state as the new "home" state for the controls
+          if (controlsRef.current.saveState) {
+            controlsRef.current.saveState()
+          }
+
+          // Re-enable controls
+          controlsRef.current.enabled = true
+        }
+      }
+
+      animate()
+    }, [camera, calculateMaxOrbitRadius])
+
     // Set initial system view
     useEffect(() => {
       if (!initialViewSetRef.current && controlsRef.current) {
         initialViewSetRef.current = true
 
         // Calculate the system bounds
-        let maxOrbitRadius = 0
+        const maxOrbitRadius = calculateMaxOrbitRadius()
         const center = new THREE.Vector3()
-
-        // Find the largest orbit radius in the scene
-        controlsRef.current.object.parent?.traverse((object: THREE.Object3D) => {
-          if (object.userData.orbitRadius) {
-            maxOrbitRadius = Math.max(maxOrbitRadius, object.userData.orbitRadius)
-          }
-        })
-
-        // If no orbits found, use a default distance
-        if (maxOrbitRadius === 0) maxOrbitRadius = 50
 
         // Calculate camera position for 45-degree angle
         const angle = 45 * (Math.PI / 180) // Convert to radians
@@ -66,7 +157,7 @@ export const CameraController = forwardRef<{ resetToBookmarkView: () => void }, 
           controlsRef.current.saveState()
         }
       }
-    }, [camera, controls])
+    }, [camera, controls, calculateMaxOrbitRadius])
 
     // Reset to bookmark view
     const resetToBookmarkView = useCallback(() => {
@@ -75,9 +166,10 @@ export const CameraController = forwardRef<{ resetToBookmarkView: () => void }, 
       }
     }, [])
 
-    // Expose the reset function to parent components
+    // Expose the reset and birds-eye view functions to parent components
     useImperativeHandle(ref, () => ({
-      resetToBookmarkView
+      resetToBookmarkView,
+      setBirdsEyeView
     }))
 
     useEffect(() => {

@@ -6,7 +6,7 @@ import { OrbitControls, Preload } from "@react-three/drei"
 import { Suspense } from "react"
 import type { ViewType } from '@lib/types/effects-level'
 import * as THREE from "three"
-import { CameraController } from "./system-viewer/camera-controller"
+import { CameraController, type CameraControllerRef } from "./system-viewer/camera-controller"
 import { SystemObjectsRenderer } from "./system-viewer/system-objects-renderer"
 import { LoadingState, ErrorState } from "./system-viewer/loading-states"
 import { calculateViewModeScaling } from "./system-viewer/view-mode-calculator"
@@ -66,7 +66,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const [isPaused, setIsPaused] = useState(true)
   const [viewType, setViewType] = useState<ViewType>("realistic")
   const [currentZoom, setCurrentZoom] = useState<number>(1)
-  const cameraControllerRef = useRef<{ resetToBookmarkView: () => void }>(null)
+  const cameraControllerRef = useRef<CameraControllerRef>(null)
 
   // Load system data
   const { systemData, loading, error, loadingProgress, availableSystems } = useSystemData(mode, systemId)
@@ -189,10 +189,10 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     scalingConfig
   ])
 
-  // Handle system name click in breadcrumb
+  // Handle system name click in breadcrumb - show birds-eye view
   const handleSystemNameClick = useCallback(() => {
     if (cameraControllerRef.current) {
-      cameraControllerRef.current.resetToBookmarkView()
+      cameraControllerRef.current.setBirdsEyeView()
     }
   }, [])
 
@@ -241,6 +241,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
               window.history.back()
             }
           }}
+          onSystemNameClick={handleSystemNameClick}
         />
 
         {/* Object Details Panel */}

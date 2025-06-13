@@ -14,6 +14,7 @@ interface SystemBreadcrumbProps {
   onObjectSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
   focusedName: string
   onBackToStarmap?: () => void
+  onSystemNameClick?: () => void
 }
 
 export function SystemBreadcrumb({
@@ -23,6 +24,7 @@ export function SystemBreadcrumb({
   onObjectSelect,
   focusedName,
   onBackToStarmap,
+  onSystemNameClick,
 }: SystemBreadcrumbProps) {
 
   const handleObjectClick = (objectId: string, name: string) => {
@@ -49,10 +51,14 @@ export function SystemBreadcrumb({
         {/* Separator */}
         <div className="w-px h-4 bg-white/30" />
 
-        {/* System Name */}
-        <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/20 text-white">
+        {/* System Name - now clickable */}
+        <button
+          onClick={() => onSystemNameClick && onSystemNameClick()}
+          className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/20 text-white transition-all duration-200 hover:bg-white/30 hover:text-yellow-100"
+          title="Click to view entire system"
+        >
           <span className="text-xs font-medium">{systemData?.name || "Unknown System"}</span>
-        </div>
+        </button>
 
         {/* Separator - only if we have celestial objects */}
         {((systemData?.stars && systemData.stars.length > 0) || (systemData?.planets && systemData.planets.length > 0)) && (

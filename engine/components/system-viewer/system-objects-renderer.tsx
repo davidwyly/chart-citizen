@@ -160,10 +160,37 @@ export function SystemObjectsRenderer({
 
   // Memoize getNavigationalOrbitalRadius function
   const getNavigationalOrbitalRadius = useCallback((index: number): number => {
+    // Only apply the scaling logic for navigational and profile modes
+    if (viewType !== "navigational" && viewType !== "profile") {
+      // For realistic mode, this function shouldn't be called, but just in case
+      const baseSpacing = ORBITAL_SCALE * 0.5
+      return baseSpacing * (index + 1)
+    }
+
+    // Calculate scaling factor to match realistic mode's system size
+    if (!systemData.planets || systemData.planets.length === 0) {
+      const baseSpacing = ORBITAL_SCALE * 0.5
+      const gameOffset = viewType === "profile" ? ORBITAL_SCALE : 0.0
+      return baseSpacing * (index + 1) + gameOffset
+    }
+
+    // Find the outermost realistic orbital radius
+    const maxRealisticRadius = Math.max(
+      ...systemData.planets.map(planet => planet.orbit?.semi_major_axis || 0)
+    )
+
+    // Calculate what the outermost navigational radius would be with current logic
+    const maxNavigationalIndex = systemData.planets.length - 1
     const baseSpacing = ORBITAL_SCALE * 0.5
     const gameOffset = viewType === "profile" ? ORBITAL_SCALE : 0.0
-    return baseSpacing * (index + 1) + gameOffset
-  }, [ORBITAL_SCALE, viewType])
+    const maxNavigationalRadius = baseSpacing * (maxNavigationalIndex + 1) + gameOffset
+
+    // Calculate scaling factor to make outermost navigational orbit match realistic
+    const scalingFactor = maxNavigationalRadius > 0 ? maxRealisticRadius / maxNavigationalRadius : 1.0
+
+    // Apply the scaling factor to maintain equidistant spacing but match system size
+    return (baseSpacing * (index + 1) + gameOffset) * scalingFactor
+  }, [ORBITAL_SCALE, viewType, systemData.planets])
 
   // Memoize getObjectSizing function
   const getObjectSizing = useCallback((objectType: string, baseRadius: number) => {
