@@ -8,27 +8,90 @@ import type { SystemData } from "@/engine/system-loader"
 import type * as THREE from "three"
 
 interface SystemBreadcrumbProps {
-  systemName: string
-  selectedObjectName: string | null
-  onSystemNameClick?: () => void
+  systemData: SystemData
+  objectRefsMap: React.MutableRefObject<Map<string, THREE.Object3D>>
+  onObjectFocus: (object: THREE.Object3D, name: string, visualSize?: number, radius?: number) => void
+  onObjectSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
+  focusedName: string
+  onBackToStarmap?: () => void
 }
 
-export function SystemBreadcrumb({ systemName, selectedObjectName, onSystemNameClick }: SystemBreadcrumbProps) {
+export function SystemBreadcrumb({
+  systemData,
+  objectRefsMap,
+  onObjectFocus,
+  onObjectSelect,
+  focusedName,
+  onBackToStarmap,
+}: SystemBreadcrumbProps) {
+
+  const handleObjectClick = (objectId: string, name: string) => {
+    const object = objectRefsMap.current.get(objectId)
+    if (object) {
+      onObjectFocus(object, name)
+      if (onObjectSelect) {
+        onObjectSelect(objectId, object, name)
+      }
+    }
+  }
+
   return (
-    <div className="absolute top-4 left-20 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-lg">
-      <div className="text-sm">
+    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="flex items-center gap-3 px-4 py-2 backdrop-blur-md bg-white/10 rounded-full border border-white/20">
+        {/* Starmap Button */}
         <button
-          onClick={onSystemNameClick}
-          className="hover:text-blue-300 transition-colors duration-200"
+          onClick={() => onBackToStarmap && onBackToStarmap()}
+          className="flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 hover:bg-white/20 text-white/80 hover:text-white"
         >
-          {systemName}
+          <span className="text-xs font-medium">← Starmap</span>
         </button>
-        {selectedObjectName && (
-          <>
-            <span className="mx-2">/</span>
-            <span>{selectedObjectName}</span>
-          </>
+
+        {/* Separator */}
+        <div className="w-px h-4 bg-white/30" />
+
+        {/* System Name */}
+        <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/20 text-white">
+          <span className="text-xs font-medium">{systemData?.name || "Unknown System"}</span>
+        </div>
+
+        {/* Separator - only if we have celestial objects */}
+        {((systemData?.stars && systemData.stars.length > 0) || (systemData?.planets && systemData.planets.length > 0)) && (
+          <div className="w-px h-4 bg-white/30" />
         )}
+
+        {/* Stars */}
+        {systemData.stars?.map((star) => (
+          <button
+            key={star.id}
+            onClick={() => handleObjectClick(star.id, star.name)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 hover:bg-white/20 ${
+              focusedName === star.name ? "bg-yellow-600/40 text-yellow-100 border border-yellow-400/50" : "text-white/80 hover:text-white"
+            }`}
+            title={star.name}
+          >
+            <Star size={16} className="fill-current" />
+          </button>
+        ))}
+
+        {/* Separator */}
+        {systemData.stars && systemData.planets && systemData.planets.length > 0 && (
+          <div className="w-px h-4 bg-white/30" />
+        )}
+
+        {/* Planets */}
+        {systemData.planets?.map((planet, index) => (
+          <button
+            key={planet.id}
+            onClick={() => handleObjectClick(planet.id, planet.name)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 hover:bg-white/20 ${
+              focusedName === planet.name ? "bg-blue-600/40 text-blue-100 border border-blue-400/50" : "text-white/80 hover:text-white"
+            }`}
+            title={planet.name}
+          >
+            <Circle size={12} className="fill-current" />
+            <span className="text-xs font-medium">{toRomanNumeral(index + 1)}</span>
+          </button>
+        ))}
       </div>
     </div>
   )

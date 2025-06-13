@@ -286,7 +286,10 @@ export function SystemObjectsRenderer({
       
       // Calculate star position based on orbital parameters or binary separation
       let starPosition: [number, number, number];
-      if (systemData.stars.length > 1) {
+      if (star.position) {
+        // Use the position defined in the system JSON file
+        starPosition = star.position;
+      } else if (systemData.stars.length > 1) {
         const separation = 5; // Default separation for binary stars
         const angle = (2 * Math.PI * index) / systemData.stars.length;
         starPosition = [

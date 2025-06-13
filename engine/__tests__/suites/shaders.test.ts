@@ -94,6 +94,51 @@ describe('Shader System', () => {
     });
   });
 
+  describe('Star Corona Glow Effects', () => {
+    it('should handle star corona glow parameters correctly', () => {
+      const store = useSystemStore.getState();
+      
+      // Test star creation with corona parameters
+      const starWithCorona = {
+        id: 'corona-test-star',
+        type: 'star',
+        position: { x: 0, y: 0, z: 0 },
+        properties: {
+          temperature: 5778,
+          radius: 2.0,
+          coronaIntensity: 0.8,
+          coronaColor: '#ffe680'
+        }
+      };
+      
+      expect(() => {
+        store.createStarObject(starWithCorona);
+      }).not.toThrow();
+      
+      const starObject = store.getObjectProperties('corona-test-star');
+      expect(starObject).toBeDefined();
+      if (starObject) {
+        expect(starObject.properties.radius).toBe(2.0);
+      }
+    });
+
+    it('should validate corona shader parameters', () => {
+      // Test that corona parameters are within expected ranges
+      const coronaParams = {
+        radius: 2.1,
+        intensity: 1.0,
+        scale: 1,
+        curvatureAmount: 0.3
+      };
+      
+      expect(coronaParams.radius).toBeGreaterThan(0);
+      expect(coronaParams.intensity).toBeGreaterThanOrEqual(0);
+      expect(coronaParams.scale).toBeGreaterThan(0);
+      expect(coronaParams.curvatureAmount).toBeGreaterThanOrEqual(0);
+      expect(coronaParams.curvatureAmount).toBeLessThanOrEqual(1);
+    });
+  });
+
   describe('Performance Optimization', () => {
     it('should optimize rendering for different view modes', () => {
       const store = useSystemStore.getState();

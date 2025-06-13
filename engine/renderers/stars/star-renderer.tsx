@@ -4,7 +4,6 @@ import { useRef, useEffect } from "react"
 import { extend, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 import { SunMaterial } from "./materials/sun-material"
-import { StarCorona } from "./effects/star-corona"
 import type { CatalogObject } from "@/engine/system-loader"
 
 extend({ SunMaterial })
@@ -86,8 +85,9 @@ export function StarRenderer({
       }}
     >
       <group ref={groupRef}>
-        {/* Star core */}
-        <mesh ref={sunRef} layers={1} renderOrder={0}>
+        
+        {/* Star core - render on top */}
+        <mesh ref={sunRef} layers={1} renderOrder={10}>
           <sphereGeometry args={[radius, 64, 64]} />
           {/* @ts-ignore */}
           <sunMaterial
@@ -100,15 +100,6 @@ export function StarRenderer({
             flowSpeed={3.0}
           />
         </mesh>
-
-        {/* Star corona */}
-        <StarCorona
-          radius={radius * 1}
-          intensity={flareIntensity * 0.8}
-          color={coronaColor}
-          scale={shaderScale}
-          curvatureAmount={0.4}
-        />
       </group>
     </group>
   )

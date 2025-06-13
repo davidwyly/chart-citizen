@@ -4,6 +4,7 @@ import { useState } from "react"
 import { notFound, useParams } from "next/navigation"
 import { StarmapViewer } from "@/components/starmap/starmap-viewer"
 import { SystemViewer } from "@/engine/components/system-viewer"
+import { Sidebar } from "@/engine/components/sidebar/sidebar"
 
 const validModes = ["realistic", "star-citizen"] as const
 
@@ -24,24 +25,39 @@ export default function StarmapPage() {
   return (
     <div className="w-full h-screen bg-black">
       {selectedSystem ? (
-        <>
-          {/* Breadcrumb */}
-          <div className="absolute top-4 left-4 z-10">
-            <button
-              className="px-3 py-1 bg-gray-800 text-white rounded hover:bg-gray-700"
-              onClick={() => setSelectedSystem(null)}
-            >
-              ← Starmap
-            </button>
-          </div>
-          <SystemViewer 
-            mode={mode} 
-            systemId={selectedSystem} 
-            onSystemChange={setSelectedSystem}
-          />
-        </>
+        <SystemViewer 
+          mode={mode} 
+          systemId={selectedSystem} 
+          onSystemChange={setSelectedSystem}
+        />
       ) : (
-        <StarmapViewer mode={mode} onSystemSelect={setSelectedSystem} />
+        <>
+          <StarmapViewer mode={mode} onSystemSelect={setSelectedSystem} />
+          {/* Sidebar for starmap */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="pointer-events-auto">
+              <Sidebar
+                onViewTypeChange={() => {}} // No view type change in starmap
+                onTimeMultiplierChange={() => {}} // No time controls in starmap
+                onPauseToggle={() => {}} // No pause/play in starmap
+                currentViewType="realistic" // Default view type
+                currentTimeMultiplier={1}
+                isPaused={false}
+                currentZoom={1}
+                systemData={null} // No system data in starmap view
+                availableSystems={{}} // TODO: Pass available systems here
+                currentSystem="" // No current system in starmap
+                onSystemChange={setSelectedSystem} // Select system from sidebar
+                focusedName=""
+                focusedObjectSize={null}
+                onStopFollowing={() => {}}
+                error={null}
+                loadingProgress=""
+                mode={mode as "realistic" | "star-citizen"}
+              />
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

@@ -13,6 +13,7 @@ This directory contains components for rendering and interacting with the 3D sys
 ## UI Components
 
 - `system-breadcrumb.tsx`: Navigation breadcrumb showing the current system hierarchy
+- `object-details-panel.tsx`: Left-side panel displaying detailed information about the currently selected celestial object
 - `system-info-overlay.tsx`: Overlay component displaying information about the current system
 - `loading-states.tsx`: Loading state components for the system viewer
 

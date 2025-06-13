@@ -16,10 +16,11 @@ import { useObjectSelection } from "./system-viewer/hooks/use-object-selection"
 import { BackButton } from "./system-viewer/components/back-button"
 import { SystemBreadcrumb } from "./system-viewer/system-breadcrumb"
 import { Sidebar } from "./sidebar/sidebar"
+import { ObjectDetailsPanel } from "./system-viewer/object-details-panel"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
 import { ZoomTracker } from "./system-viewer/components/zoom-tracker"
 import { ProfileCameraController } from "./system-viewer/profile-camera-controller"
-import { SystemNavigationBar } from "./system-viewer/system-navigation-bar"
+
 
 // Add JSX namespace declaration
 declare global {
@@ -226,34 +227,27 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   return (
     <SystemViewerContext.Provider value={contextValue}>
       <div className="relative w-full h-full">
-        {/* System Navigation Bar */}
-        {systemData && (
-          <SystemNavigationBar
-            systemData={systemData}
-            focusedName={focusedName}
-            onObjectClick={(objectId, name) => {
-              const attemptFocus = (startTime: number) => {
-                const obj = objectRefsMap.current.get(objectId)
-                if (obj) {
-                  const r = obj.scale.x
-                  handleObjectSelect(objectId, obj, name)
-                  handleObjectFocus(obj, name, undefined, r)
-                  return
-                }
-                if (Date.now() - startTime < 1000) {
-                  requestAnimationFrame(() => attemptFocus(startTime))
-                }
-              }
-              attemptFocus(Date.now())
-            }}
-          />
-        )}
-
         {/* System Breadcrumb */}
         <SystemBreadcrumb
-          systemName={systemData?.name || ""}
-          selectedObjectName={selectedObjectData?.name || null}
-          onSystemNameClick={handleSystemNameClick}
+          systemData={systemData}
+          objectRefsMap={objectRefsMap}
+          onObjectFocus={enhancedObjectFocus}
+          onObjectSelect={handleObjectSelect}
+          focusedName={focusedName || ""}
+          onBackToStarmap={() => {
+            // For modes that need to navigate back to starmap, we'll signal the parent
+            // Let the parent handle how to navigate back (could be null system selection)
+            if (window.history.length > 1) {
+              window.history.back()
+            }
+          }}
+        />
+
+        {/* Object Details Panel */}
+        <ObjectDetailsPanel
+          systemData={systemData}
+          focusedName={focusedName || ""}
+          focusedObjectSize={focusedObjectSize}
         />
 
         {/* Canvas */}

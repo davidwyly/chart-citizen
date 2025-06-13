@@ -8,9 +8,13 @@ import * as THREE from "three"
 const vertexShader = /* glsl */ `
  varying vec2 vUv;
  varying vec3 vWorldPos;
+ varying vec3 vNormal;
+ varying vec3 vPosition;
 
  void main() {
    vUv       = uv;
+   vPosition = position;
+   vNormal   = normalize(normalMatrix * normal);
    vec4 wp   = modelMatrix * vec4(position, 1.0);
    vWorldPos = wp.xyz;
    gl_Position = projectionMatrix * viewMatrix * wp;
@@ -25,6 +29,9 @@ precision highp float;
 #endif
 
 varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 vPosition;
+varying vec3 vWorldPos;
 
 uniform float      time;
 uniform vec2       resolution;
@@ -33,8 +40,6 @@ uniform vec3       cameraPos;
 uniform mat4       invModel;
 uniform float      modelScale;   // actual mesh scale (geometry)
 uniform float      effectScale;  // user-controlled nebula size multiplier
-
-varying vec3       vWorldPos;
 
 #define PI 3.14159265
 
@@ -83,14 +88,28 @@ void main(){
   sum=clamp(sum,0.,1.); 
   sum.rgb=sum.rgb*sum.rgb*(3.-2.*sum.rgb);
 
-  // Radial fade in screen space
+  // Rim-based transparency using fresnel effect for billboard appearance
+  vec3 viewDir = normalize(cameraPos - vWorldPos);
+  vec3 normal = normalize(vNormal);
+  
+  // Calculate fresnel for rim lighting effect
+  float fresnel = 1.0 - abs(dot(viewDir, normal));
+  
+  // Create sharp rim effect - more transparent toward center
+  float rimAlpha = pow(fresnel, 0.8); // Lower power = sharper rim
+  
+  // Add additional center fade for billboard effect
   vec2 center = vec2(0.5, 0.5);
-  float fadeRadius = 0.48;
-  float fadeWidth = 0.08;
-  float dist = distance(vUv, center);
-  float radialFade = smoothstep(fadeRadius, fadeRadius - fadeWidth, dist);
-
-  gl_FragColor = vec4(sum.rgb, radialFade);
+  float centerDist = distance(vUv, center) * 2.0; // Scale up distance
+  float centerFade = 1.0 - smoothstep(0.0, 0.8, centerDist); // Strong center fade
+  
+  // Combine effects for billboard rim transparency
+  float finalAlpha = rimAlpha * (0.05 + 0.95 * centerFade); // Very transparent center
+  
+  // Apply sum's alpha as well for density
+  finalAlpha *= sum.a;
+  
+  gl_FragColor = vec4(sum.rgb, finalAlpha);
 }`
 
 // ─────────────────── REACT / FIBER COMPONENT ────────────────────

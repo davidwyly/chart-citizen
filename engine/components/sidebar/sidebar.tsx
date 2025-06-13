@@ -55,7 +55,7 @@ export function Sidebar({
   mode = "realistic"
 }: SidebarProps) {
   const [openSection, setOpenSection] = useState<string>("navigation")
-  const [isCollapsed, setIsCollapsed] = useState(true)
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? "" : section)
@@ -74,8 +74,8 @@ export function Sidebar({
   return (
     <div
       data-testid="sidebar"
-      className={`absolute top-0 right-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden ${
-        isCollapsed ? "w-12" : "w-64"
+      className={`fixed top-0 right-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden ${
+        isCollapsed ? "w-12" : "w-80"
       }`}
     >
       {/* Header */}
