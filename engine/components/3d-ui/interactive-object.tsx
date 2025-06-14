@@ -32,6 +32,7 @@ export interface InteractiveObjectProps {
   showLabel?: boolean
   labelAlwaysVisible?: boolean
   parentObjectSelected?: boolean
+  planetSystemSelected?: boolean
   children: React.ReactNode
 }
 
@@ -51,6 +52,7 @@ export function InteractiveObject({
   showLabel = true,
   labelAlwaysVisible = false,
   parentObjectSelected = false,
+  planetSystemSelected = false,
   children,
 }: InteractiveObjectProps) {
   const groupRef = useRef<THREE.Group>(null)
@@ -74,10 +76,10 @@ export function InteractiveObject({
     if (!showLabel) return false
     if (objectType === "star" || objectType === "planet") return true
     if (objectType === "moon" || objectType === "station") {
-      return parentObjectSelected || isHovered || isSelected || labelAlwaysVisible
+      return planetSystemSelected || isHovered || isSelected || labelAlwaysVisible
     }
     return false
-  }, [showLabel, objectType, parentObjectSelected, isHovered, isSelected, labelAlwaysVisible])
+  }, [showLabel, objectType, parentObjectSelected, isHovered, isSelected, labelAlwaysVisible, planetSystemSelected])
 
   // Update shader uniforms only when selected
   useFrame((state) => {
@@ -108,9 +110,13 @@ export function InteractiveObject({
 
     // Calculate distance-based offset
     const distance = camera.position.distanceTo(worldPos.current)
-    const minOffset = radius * 1.5
-    const maxOffset = radius * 5
-    const offsetAmount = THREE.MathUtils.clamp(distance * 0.1, minOffset, maxOffset)
+    const minOffset = radius * 1.3
+    const maxOffset = radius * 10
+    const offsetAmount = THREE.MathUtils.clamp(
+      (distance * 0.075 + radius * 2) / 2,
+      minOffset,
+      maxOffset
+    )
 
     // Calculate desired offset
     desiredOffset.current.copy(cameraLeft.current).multiplyScalar(offsetAmount)
@@ -216,7 +222,7 @@ export function InteractiveObject({
                 pointerEvents: "auto",
                 textAlign: "right",
                 whiteSpace: "nowrap",
-                transform: "translateX(-100%) translateY(-50%)",
+                transform: "translateX(-50%) translateY(-50%)",
                 position: "absolute",
                 top: "50%",
                 left: "0",
@@ -232,6 +238,7 @@ export function InteractiveObject({
                 document.body.style.cursor = "auto"
                 if (onHover) onHover(objectId, false)
               }}
+              data-testid="html-label"
             >
               <div
                 className={`font-bold transition-colors duration-200 ${

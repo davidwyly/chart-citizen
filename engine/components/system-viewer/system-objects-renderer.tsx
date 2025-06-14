@@ -414,7 +414,7 @@ export function SystemObjectsRenderer({
               />
 
               {/* Render moons as children of this planet */}
-              {planetMoons.map(moon => {
+              {planetMoons.map((moon, moonIndex) => {
                 const moonOrbit = moon.orbit!; // We know it exists from the filter
                 const moonCatalogObject = catalogObjects[moon.catalog_ref];
                 const moonBaseRadius = moonCatalogObject?.radius || 1;
@@ -430,17 +430,17 @@ export function SystemObjectsRenderer({
                 const minOrbitDistanceFromParent = planetRenderedVisualRadius + (moonVisualSize * PLANET_SCALE) + (PLANET_SCALE * 0.1); // Small buffer
 
                 // Combined scaled orbital radius from data, with a floor at minOrbitDistanceFromParent
-                const scaledOrbitRadiusFromData = moonOrbit.semi_major_axis * ORBITAL_SCALE * 5.0; // Keep the arbitrary multiplier for now, as it might be for navigational scaling.
+                // Add index-based spacing for moons orbiting the same planet
+                const baseOrbitScale = moonOrbit.semi_major_axis * ORBITAL_SCALE;
+                const spacingOffset = moonIndex * (ORBITAL_SCALE * 0.2); // Consistent increment for all modes
+                
+                const calculatedOrbitRadius = baseOrbitScale + spacingOffset;
 
-                let moonSemiMajorAxis: number;
-                if (viewType === "navigational" || viewType === "profile") {
-                  moonSemiMajorAxis = Math.max(minOrbitDistanceFromParent, scaledOrbitRadiusFromData);
-                } else {
-                  // Realistic mode - use actual orbital radius but ensure minimum visibility
-                  moonSemiMajorAxis = Math.max(minOrbitDistanceFromParent, moonOrbit.semi_major_axis * ORBITAL_SCALE);
-                }
+                // In all modes, ensure the moon orbits outside the parent planet's rendered radius
+                const moonSemiMajorAxis = Math.max(minOrbitDistanceFromParent, calculatedOrbitRadius);
 
                 const isMoonSelected = selectedObjectId === moon.id;
+                const isAnyMoonSelectedForPlanet = isSelected || isMoonSelected; // true if planet or current moon is selected
 
                 return (
                   <MemoizedOrbitalPath
@@ -469,6 +469,7 @@ export function SystemObjectsRenderer({
                       showLabel={true}
                       labelAlwaysVisible={viewType === "profile"}
                       parentObjectSelected={isSelected}
+                      planetSystemSelected={isAnyMoonSelectedForPlanet}
                     >
                       <CatalogObjectWrapper
                         objectId={moon.id}

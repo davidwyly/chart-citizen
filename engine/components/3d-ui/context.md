@@ -7,7 +7,7 @@ This directory contains Three.js and React Three Fiber components for 3D user in
 ### `interactive-object.tsx`
 - Base component for interactive 3D objects
 - Handles hover, click, and focus interactions
-- Manages object highlighting and selection
+- Manages object highlighting and selection, including logic for showing moon labels when their parent planet or the moon itself is selected.
 - Supports custom interaction behaviors
 - Includes performance optimizations
 

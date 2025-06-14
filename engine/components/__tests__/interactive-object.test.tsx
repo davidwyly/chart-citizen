@@ -137,6 +137,30 @@ describe('InteractiveObject', () => {
     expect(getByTestId('html-label')).toBeDefined()
   })
 
+  it('shows moon label when its parent planet is selected', () => {
+    const { getByTestId, rerender } = renderWithCanvas(
+      <InteractiveObject
+        {...defaultProps}
+        objectType="moon"
+        showLabel={true}
+        planetSystemSelected={true}
+      />
+    )
+    expect(getByTestId('html-label')).toBeDefined()
+
+    rerender(
+      <Canvas>
+        <InteractiveObject
+          {...defaultProps}
+          objectType="moon"
+          showLabel={true}
+          planetSystemSelected={false}
+        />
+      </Canvas>
+    )
+    expect(() => getByTestId('html-label')).toThrow()
+  })
+
   it('handles hover states correctly', () => {
     const onHover = vi.fn()
     const { container } = renderWithCanvas(
