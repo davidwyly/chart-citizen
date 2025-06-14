@@ -4,6 +4,7 @@ This document provides a quick overview of the key features implemented in the C
 
 ## View Modes
 - **Realistic Mode** - Displays star systems with accurate astronomical distances and 3D perspective. [realistic-mode.md](./realistic-mode.md)
+- **Star Citizen Mode** - Displays star systems inspired by the Star Citizen game with unique visual and navigational characteristics. [star-citizen-mode.md](./star-citizen-mode.md)
 - **Navigational Mode** - Provides equidistant orbital paths in 3D perspective for easier navigation. [navigational-mode.md](./navigational-mode.md)
 - **Profile Mode** - Offers a top-down diagrammatic view with equidistant orbital paths and orthographic projection. [profile-mode-orbital-alignment.md](./profile-mode-orbital-alignment.md)
 
@@ -24,19 +25,32 @@ This document provides a quick overview of the key features implemented in the C
 - **Moon System** - Hierarchical moon navigation with improved orbital mechanics and parent-child relationships. [moon-system.md](./moon-system.md)
 
 ## Core Features
+- **System Viewer** (`system-viewer.md`): A robust and unified component for rendering and interacting with celestial systems across various viewing modes.
+- **Engine State Management** (`engine-state-management.md`): Provides a centralized and predictable way to manage the core state of the 3D engine.
 
 ### Mode System
 - **File**: mode-system.md
 - **Summary**: Enables switching between Reality and Star Citizen viewing modes with separate states, features, and data sources for each mode.
 
+## Data Structures
+- **Orbital System JSON Specification** (`orbital-system-json-spec.md`): This document defines the structure, schema, and rules for generating, parsing, and rendering orbital bodies.
+- **System Data Loading and Catalog Management** (`system-data-and-catalog.md`): Manages the efficient loading and caching of celestial system data and object catalogs.
+
 ## Debug Tools
 - **Celestial Viewer** (`celestial-viewer.md`): A real-time 3D celestial object inspector and property editor with shader preview capabilities.
 - **Shader Performance View** (`shader-performance-view.md`): A debug panel for monitoring shader performance metrics and quality levels.
 
+## UI Components
+- **Toast Notifications** (`toast-notifications.md`): Provides temporary, non-intrusive notification messages for user feedback.
+
 ## Planet Rendering
+- **Data Contract**: Details the JSON structure for orbital systems, including celestial body properties and relationships. [orbital-system-json-spec.md](../../architecture/orbital-system-json-spec.md)
 - **Terrestrial Planet** (`terrestrial-planet.md`): A shader-based implementation of terrestrial planets with quality level variants and dynamic lava flows.
+- **Gas Giant Rendering** (`gas-giant-rendering.md`): Renders realistic gas giant planets with atmospheric bands and storm systems.
+- **Planet Rings** (`planet-rings.md`): Renders realistic planetary ring systems with dynamic lighting and density variations.
 - **Terrestrial Planet Simulator** (`terrestrial-planet-simulator-design-document.md`): A design document outlining the features and implementation strategy for the terrestrial planet simulator.
 - **protostar** (`protostar.md`): A procedural shader for rendering protostaary disks and nebulae.
+- **Black Hole Rendering** (`black-hole-rendering.md`): Renders realistic black holes with gravitational lensing and accretion disks.
 
 ## Performance Monitoring
 - **Performance Monitor** (`performance-monitor.md`): A system for tracking and reporting performance metrics with quality level recommendations.
