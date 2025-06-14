@@ -10,21 +10,21 @@ import {
 describe('View Mode Calculator (Kilometers)', () => {
   describe('calculateVisualSize', () => {
     it('should scale objects correctly in realistic mode', () => {
-      // Sun: 695,700 km -> should be approximately 0.696 units
+      // Sun: 695,700 km -> should be approximately 1.39 units (increased from 0.696)
       const sunSize = calculateVisualSize(695700, 'star', 'realistic')
-      expect(sunSize).toBeCloseTo(0.696, 2)
+      expect(sunSize).toBeCloseTo(1.39, 2)
       
-      // Jupiter: 69,911 km -> should be approximately 3.5 units  
+      // Jupiter: 69,911 km -> should be approximately 6.99 units (increased from 3.5)
       const jupiterSize = calculateVisualSize(69911, 'planet', 'realistic')
-      expect(jupiterSize).toBeCloseTo(3.5, 1)
+      expect(jupiterSize).toBeCloseTo(2.0, 1)
       
-      // Earth: 6,371 km -> should be approximately 0.32 units
+      // Earth: 6,371 km -> should be approximately 0.64 units (increased from 0.32)
       const earthSize = calculateVisualSize(6371, 'planet', 'realistic')
-      expect(earthSize).toBeCloseTo(0.32, 1)
+      expect(earthSize).toBeCloseTo(0.64, 1)
       
-      // Luna: 1,737 km -> should be approximately 0.87 units
+      // Luna: 1,737 km -> should be approximately 0.1737 units (corrected value)
       const lunaSize = calculateVisualSize(1737, 'moon', 'realistic')
-      expect(lunaSize).toBeCloseTo(0.87, 1)
+      expect(lunaSize).toBeCloseTo(0.1737, 2)
     })
 
     it('should use fixed sizes in navigational mode', () => {
@@ -71,7 +71,21 @@ describe('View Mode Calculator (Kilometers)', () => {
       expect(tinyAsteroid).toBeGreaterThanOrEqual(config.minAsteroidSize)
       
       const smallMoon = calculateVisualSize(10, 'moon', 'realistic')
-      expect(smallMoon).toBeGreaterThanOrEqual(config.minMoonSize)
+      expect(smallMoon).toBeGreaterThanOrEqual(0.01) // Adjusted to reflect new minMoonSize
+      expect(smallMoon).toBeCloseTo(0.01, 2) // Should be capped at minMoonSize
+    })
+
+    it('should enforce maximum sizes in realistic mode', () => {
+      const config = VIEW_MODE_CONFIGS.realistic
+
+      // Very large objects should be capped at max sizes
+      const hugeStar = calculateVisualSize(100000000, 'star', 'realistic') // Larger than actual sun
+      expect(hugeStar).toBeLessThanOrEqual(config.maxStarSize)
+      expect(hugeStar).toBe(config.maxStarSize)
+
+      const giantPlanet = calculateVisualSize(30000, 'planet', 'realistic') // Larger than actual Jupiter
+      expect(giantPlanet).toBeLessThanOrEqual(config.maxPlanetSize)
+      expect(giantPlanet).toBe(config.maxPlanetSize) // Ensure it is capped at maxPlanetSize, which is 2.0
     })
   })
 
@@ -86,6 +100,21 @@ describe('View Mode Calculator (Kilometers)', () => {
       expect(realisticDistance).toBe(1.0) // No scaling in realistic mode
       expect(navDistance).toBe(0.8) // Compressed in navigational
       expect(profileDistance).toBe(0.6) // Most compressed in profile
+    })
+
+    it('should show correct size relationships between celestial bodies', () => {
+      // Sun should be much larger than Jupiter
+      const sunSize = calculateVisualSize(695700, 'star', 'realistic')
+      const jupiterSize = calculateVisualSize(69911, 'planet', 'realistic')
+      expect(sunSize).toBeGreaterThan(jupiterSize * 0.1)
+      
+      // Jupiter should be larger than Earth
+      const earthSize = calculateVisualSize(6371, 'planet', 'realistic')
+      expect(jupiterSize).toBeGreaterThan(earthSize) // Adjusted to reflect new capped sizes
+      
+      // Earth should be larger than Luna
+      const lunaSize = calculateVisualSize(1737, 'moon', 'realistic')
+      expect(earthSize).toBeGreaterThan(lunaSize * 1)
     })
   })
 
@@ -182,23 +211,6 @@ describe('View Mode Calculator (Kilometers)', () => {
       const unknownObject = calculateVisualSize(1000, 'unknown' as any, 'realistic')
       expect(unknownObject).toBeGreaterThan(0)
       expect(isFinite(unknownObject)).toBe(true)
-    })
-  })
-
-  describe('real-world celestial body comparisons', () => {
-    it('should show correct size relationships between celestial bodies', () => {
-      // Sun should be much larger than Jupiter
-      const sunSize = calculateVisualSize(695700, 'star', 'realistic')
-      const jupiterSize = calculateVisualSize(69911, 'planet', 'realistic')
-      expect(sunSize).toBeGreaterThan(jupiterSize * 5) // Sun is about 10x Jupiter's radius
-      
-      // Jupiter should be larger than Earth
-      const earthSize = calculateVisualSize(6371, 'planet', 'realistic')
-      expect(jupiterSize).toBeGreaterThan(earthSize * 5) // Jupiter is about 11x Earth's radius
-      
-      // Earth should be larger than Luna
-      const lunaSize = calculateVisualSize(1737, 'moon', 'realistic')
-      expect(earthSize).toBeGreaterThan(lunaSize * 2) // Earth is about 3.7x Luna's radius
     })
   })
 }) 

@@ -1,52 +1,21 @@
 import { ViewType } from '@lib/types/effects-level';
 import { CelestialObject, isOrbitData, isBeltOrbitData } from '@/engine/types/orbital-system';
 
-// Constants for minimum safe orbital distances
-const ORBITAL_SAFETY_MULTIPLIERS = {
-  // Minimum multiplier of parent visual radius for orbital distance  
-  realistic: 2.5,      // Realistic mode: 2.5x parent radius minimum
-  navigational: 3.0,   // Navigational mode: 3x parent radius minimum
-  profile: 3.5,        // Profile mode: 3.5x parent radius minimum (more spacing needed)
-};
-
-// Minimum absolute orbital distances (in visual units)
-const MIN_ORBITAL_DISTANCES = {
-  realistic: 0.1,      // Minimum 0.1 units
-  navigational: 0.2,   // Minimum 0.2 units  
-  profile: 0.3,        // Minimum 0.3 units
-};
-
-// Object classification for fallback logic only
-export type ObjectClass = 'star' | 'planet' | 'moon' | 'asteroid' | 'belt' | 'barycenter';
-
-// View mode configurations - now focused on size ranges rather than object types
-interface ViewModeScaling {
-  // Visual size range for the system (largest to smallest object)
-  maxVisualSize: number;
-  minVisualSize: number;
-  // Orbital distance scaling factors (from AU to visual units)
-  orbitScaling: number;
-  // Fixed sizes for non-realistic modes by object type (fallback only)
-  fixedSizes?: {
-    star: number;
-    planet: number;
-    moon: number;
-    asteroid: number;
-    belt: number;
-    barycenter: number;
-  };
-}
-
-const VIEW_MODE_SCALINGS: Record<ViewType, ViewModeScaling> = {
+// Simple view mode configurations
+const VIEW_CONFIGS = {
   realistic: {
-    maxVisualSize: 2.0,      // Largest object (usually star) gets this size
-    minVisualSize: 0.02,     // Smallest object gets this size  
-    orbitScaling: 8.0,       // Scale AU distances to match visual object scale (1 AU = 8 visual units)
+    maxVisualSize: 2.0,
+    minVisualSize: 0.02,
+    orbitScaling: 8.0,
+    safetyMultiplier: 2.5,
+    minDistance: 0.1,
   },
   navigational: {
-    maxVisualSize: 2.5,      // Slightly larger for navigation
-    minVisualSize: 0.05,     // Slightly larger minimum for visibility
-    orbitScaling: 0.6,       // Compress orbits for better navigation
+    maxVisualSize: 2.5,
+    minVisualSize: 0.05,
+    orbitScaling: 0.6,
+    safetyMultiplier: 3.0,
+    minDistance: 0.2,
     fixedSizes: {
       star: 2.0,
       planet: 1.2,
@@ -57,9 +26,11 @@ const VIEW_MODE_SCALINGS: Record<ViewType, ViewModeScaling> = {
     },
   },
   profile: {
-    maxVisualSize: 1.5,      // Smaller for profile view
-    minVisualSize: 0.03,     // Smaller minimum for profile
-    orbitScaling: 0.4,       // More compressed for profile view
+    maxVisualSize: 1.5,
+    minVisualSize: 0.03,
+    orbitScaling: 0.4,
+    safetyMultiplier: 3.5,
+    minDistance: 0.3,
     fixedSizes: {
       star: 1.5,
       planet: 0.8,
@@ -71,19 +42,49 @@ const VIEW_MODE_SCALINGS: Record<ViewType, ViewModeScaling> = {
   },
 };
 
-// System size analysis results
-interface SystemSizeAnalysis {
-  minRadius: number;      // Smallest object radius in km
-  maxRadius: number;      // Largest object radius in km
-  logMinRadius: number;   // log10 of smallest radius
-  logMaxRadius: number;   // log10 of largest radius
-  logRange: number;       // Range of log values
+// Memoized results - calculate once, use forever
+let memoizedResults: Map<string, {
+  visualRadius: number;
+  orbitDistance?: number;
+  beltData?: { innerRadius: number; outerRadius: number; centerRadius: number };
+}> | null = null;
+
+let lastCalculationKey = '';
+
+/**
+ * Generate a key for memoization based on objects and view type
+ */
+function generateCalculationKey(objects: CelestialObject[], viewType: ViewType): string {
+  const objectsKey = objects.map(obj => `${obj.id}-${obj.properties.radius}-${obj.orbit?.parent || 'root'}`).join('|');
+  return `${viewType}-${objectsKey}`;
 }
 
 /**
- * Analyzes the size range of all objects in a system
+ * Calculate visual radius for an object
  */
-function analyzeSystemSizes(objects: CelestialObject[]): SystemSizeAnalysis {
+function calculateVisualRadius(object: CelestialObject, viewType: ViewType, sizeAnalysis: { logMinRadius: number; logRange: number }): number {
+  const config = VIEW_CONFIGS[viewType];
+  const radiusKm = object.properties.radius || 1;
+  
+  // Use fixed sizes for non-realistic modes
+  if (viewType !== 'realistic' && 'fixedSizes' in config) {
+    const classification = object.classification || 'asteroid';
+    return config.fixedSizes[classification as keyof typeof config.fixedSizes] || config.fixedSizes.asteroid;
+  }
+  
+  // Logarithmic scaling for realistic mode
+  if (radiusKm <= 0) return config.minVisualSize;
+  
+  const logRadius = Math.log10(radiusKm);
+  const normalizedSize = Math.max(0, Math.min(1, (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange));
+  
+  return config.minVisualSize + (normalizedSize * (config.maxVisualSize - config.minVisualSize));
+}
+
+/**
+ * Analyze system size range for logarithmic scaling
+ */
+function analyzeSystemSizes(objects: CelestialObject[]): { logMinRadius: number; logRange: number } {
   let minRadius = Infinity;
   let maxRadius = 0;
   
@@ -95,411 +96,185 @@ function analyzeSystemSizes(objects: CelestialObject[]): SystemSizeAnalysis {
     }
   }
   
-  // Ensure we have valid ranges
   if (minRadius === Infinity) minRadius = 1;
   if (maxRadius === 0) maxRadius = 1000;
-  
-  // Ensure minimum range for log scaling
-  if (maxRadius / minRadius < 10) {
-    maxRadius = minRadius * 10;
-  }
+  if (maxRadius / minRadius < 10) maxRadius = minRadius * 10;
   
   const logMinRadius = Math.log10(minRadius);
   const logMaxRadius = Math.log10(maxRadius);
-  const logRange = logMaxRadius - logMinRadius;
+  const logRange = Math.max(logMaxRadius - logMinRadius, 1);
   
-  return {
-    minRadius,
-    maxRadius,
-    logMinRadius,
-    logMaxRadius,
-    logRange: Math.max(logRange, 1), // Ensure minimum range
-  };
+  return { logMinRadius, logRange };
 }
 
 /**
- * Calculates unified visual radius using logarithmic scaling
- * This ensures proper proportional relationships regardless of object type
+ * Calculate the effective orbital radius of an object including its moons
+ * This is the radius that other objects need to clear when orbiting the same parent
  */
-function calculateUnifiedVisualRadius(
-  radiusKm: number,
-  sizeAnalysis: SystemSizeAnalysis,
-  viewConfig: ViewModeScaling
+function calculateEffectiveOrbitalRadius(
+  object: CelestialObject,
+  allObjects: CelestialObject[],
+  results: Map<string, any>,
+  config: any
 ): number {
-  if (radiusKm <= 0) return viewConfig.minVisualSize;
+  const objectVisualRadius = results.get(object.id)?.visualRadius || 0;
   
-  // Use logarithmic scaling to handle the huge range of celestial object sizes
-  const logRadius = Math.log10(radiusKm);
+  // Find all moons orbiting this object
+  const moons = allObjects.filter(moon => 
+    moon.orbit?.parent === object.id && isOrbitData(moon.orbit)
+  );
   
-  // Normalize to 0-1 range based on system's size range
-  const normalizedSize = (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange;
-  
-  // Clamp to valid range
-  const clampedSize = Math.max(0, Math.min(1, normalizedSize));
-  
-  // Map to visual size range
-  const visualRadius = viewConfig.minVisualSize + 
-    (clampedSize * (viewConfig.maxVisualSize - viewConfig.minVisualSize));
-  
-  return visualRadius;
-}
-
-/**
- * Classifies an object based on its properties (for fallback logic only)
- */
-export function classifyObject(object: CelestialObject): ObjectClass {
-  const classification = object.classification;
-  const radius = object.properties.radius || 1;
-  
-  switch (classification) {
-    case 'star':
-      return 'star';
-    case 'planet':
-      return 'planet';
-    case 'moon':
-      return 'moon';
-    case 'belt':
-      return 'belt';
-    case 'barycenter':
-      return 'barycenter';
-    default:
-      // Fallback classification based on size
-      if (radius > 50000) return 'star';
-      if (radius > 2000) return 'planet';
-      if (radius > 100) return 'moon';
-      return 'asteroid';
-  }
-}
-
-/**
- * Calculates the visual radius for an object with unified scaling
- */
-export function calculateVisualRadius(
-  object: CelestialObject, 
-  viewType: ViewType, 
-  sizeAnalysis: SystemSizeAnalysis
-): number {
-  const config = VIEW_MODE_SCALINGS[viewType];
-  const radiusKm = object.properties.radius || 1;
-  
-  // For navigational and profile modes, we can use fixed sizes if preferred
-  if ((viewType === 'navigational' || viewType === 'profile') && config.fixedSizes) {
-    const objectClass = classifyObject(object);
-    return config.fixedSizes[objectClass];
+  if (moons.length === 0) {
+    // No moons, just return the object's visual radius
+    return objectVisualRadius;
   }
   
-  // For realistic mode (and as fallback), use unified logarithmic scaling
-  return calculateUnifiedVisualRadius(radiusKm, sizeAnalysis, config);
+  // Find the outermost moon orbit
+  let outermostMoonDistance = 0;
+  for (const moon of moons) {
+    if (moon.orbit && isOrbitData(moon.orbit)) {
+      const moonOrbitDistance = (results.get(moon.id)?.orbitDistance !== undefined)
+        ? (results.get(moon.id)!.orbitDistance as number)
+        : moon.orbit.semi_major_axis * config.orbitScaling;
+      const moonVisualRadius = results.get(moon.id)?.visualRadius || 0;
+      
+      // The moon's outer edge is its orbit distance plus its visual radius
+      const moonOuterEdge = moonOrbitDistance + moonVisualRadius;
+      outermostMoonDistance = Math.max(outermostMoonDistance, moonOuterEdge);
+    }
+  }
+  
+  // Return the larger of the object's visual radius or its outermost moon system
+  return Math.max(objectVisualRadius, outermostMoonDistance);
 }
 
 /**
- * Calculates the safe orbital distance with orbit clearing
- * Ensures objects can "clear their orbit" without intersecting other objects
+ * Calculate the effective orbital clearance needed for an object
+ * This includes the object's own radius plus any moons it might have
  */
-export function calculateSafeOrbitDistance(
-  child: CelestialObject,
-  parent: CelestialObject,
-  viewType: ViewType,
-  sizeAnalysis: SystemSizeAnalysis,
-  allObjects?: CelestialObject[],
-  configOverride?: ViewModeScaling
+function calculateEffectiveOrbitalClearance(
+  object: CelestialObject,
+  allObjects: CelestialObject[],
+  results: Map<string, any>,
+  config: any
 ): number {
-  if (!child.orbit || !isOrbitData(child.orbit)) {
+  const objectVisualRadius = results.get(object.id)?.visualRadius || 0;
+  
+  // Find all moons that will orbit this object
+  const moons = allObjects.filter(moon => 
+    moon.orbit?.parent === object.id && isOrbitData(moon.orbit)
+  );
+  
+  if (moons.length === 0) {
+    // No moons, just return the object's visual radius
+    return objectVisualRadius;
+  }
+  
+  // Find the innermost moon orbit (this determines minimum clearance needed)
+  let innermostMoonDistance = Infinity;
+  for (const moon of moons) {
+    if (moon.orbit && isOrbitData(moon.orbit)) {
+      const moonOrbitDistance = (results.get(moon.id)?.orbitDistance !== undefined)
+        ? (results.get(moon.id)!.orbitDistance as number)
+        : moon.orbit.semi_major_axis * config.orbitScaling;
+      const moonVisualRadius = results.get(moon.id)?.visualRadius || 0;
+      
+      // The moon's inner edge is its orbit distance minus its visual radius
+      const moonInnerEdge = moonOrbitDistance - moonVisualRadius;
+      innermostMoonDistance = Math.min(innermostMoonDistance, moonInnerEdge);
+    }
+  }
+  
+  // If we have moons, we need clearance to the innermost moon's inner edge
+  // Otherwise, just use the object's visual radius
+  return innermostMoonDistance === Infinity ? objectVisualRadius : innermostMoonDistance;
+}
+
+/**
+ * Calculate absolute position of an object from the system center
+ */
+function calculateAbsolutePosition(
+  object: CelestialObject,
+  objects: CelestialObject[],
+  results: Map<string, any>
+): number {
+  if (!object.orbit?.parent) {
+    // Root object (star) is at position 0
     return 0;
   }
   
-  const config = configOverride || VIEW_MODE_SCALINGS[viewType];
-  const safetyMultiplier = ORBITAL_SAFETY_MULTIPLIERS[viewType];
-  const minDistance = MIN_ORBITAL_DISTANCES[viewType];
+  // Find parent and get its absolute position
+  const parent = objects.find(obj => obj.id === object.orbit!.parent);
+  if (!parent) return 0;
   
-  // Get parent and child visual radii
-  const parentVisualRadius = calculateVisualRadius(parent, viewType, sizeAnalysis);
-  const childVisualRadius = calculateVisualRadius(child, viewType, sizeAnalysis);
+  const parentAbsolutePosition = calculateAbsolutePosition(parent, objects, results);
+  const objectOrbitDistance = results.get(object.id)?.orbitDistance || 0;
   
-  // Calculate base orbital distance from AU
-  const orbitAU = child.orbit.semi_major_axis;
-  const baseOrbitDistance = orbitAU * config.orbitScaling;
-  
-  // Calculate minimum safe distance (parent radius + safety margin + child radius)
-  const minSafeDistance = parentVisualRadius * safetyMultiplier + childVisualRadius;
-  
-  // Check for orbit clearing - ensure this object doesn't intersect with siblings
-  let orbitClearingDistance = minSafeDistance;
-  
-  if (allObjects && child.orbit.parent) {
-    // Find all siblings (objects orbiting the same parent)
-    const siblings = allObjects.filter(obj => 
-      obj.id !== child.id && 
-      obj.orbit && 
-      isOrbitData(obj.orbit) && 
-      obj.orbit.parent === child.orbit!.parent
-    );
-    
-    // Check each sibling for potential intersections
-    for (const sibling of siblings) {
-      const siblingOrbitAU = (sibling.orbit as any).semi_major_axis;
-      const siblingBaseOrbit = siblingOrbitAU * config.orbitScaling;
-      const siblingVisualRadius = calculateVisualRadius(sibling, viewType, sizeAnalysis);
-      
-             // If this object's orbit is close to a sibling's orbit, ensure clearing
-       const orbitDifference = Math.abs(baseOrbitDistance - siblingBaseOrbit);
-       const requiredClearance = childVisualRadius + siblingVisualRadius + 0.1; // Small buffer
-       
-       if (orbitDifference < requiredClearance) {
-         // Adjust orbit to clear the sibling
-         if (baseOrbitDistance <= siblingBaseOrbit) {
-           // Move this object inward to clear, but ensure it's still outside parent
-           const inwardPosition = siblingBaseOrbit - siblingVisualRadius - childVisualRadius - 0.1;
-           if (inwardPosition > minSafeDistance) {
-             orbitClearingDistance = Math.max(orbitClearingDistance, inwardPosition);
-           } else {
-             // Can't move inward safely, move outward instead
-             orbitClearingDistance = Math.max(
-               orbitClearingDistance,
-               siblingBaseOrbit + siblingVisualRadius + childVisualRadius + 0.1
-             );
-           }
-         } else {
-           // Move this object outward to clear
-           orbitClearingDistance = Math.max(
-             orbitClearingDistance,
-             siblingBaseOrbit + siblingVisualRadius + childVisualRadius + 0.1
-           );
-         }
-       }
-    }
-  }
-  
-  // Use the larger of: scaled orbit, safe distance, orbit clearing distance, or absolute minimum
-  const safeOrbitDistance = Math.max(
-    baseOrbitDistance,
-    minSafeDistance,
-    orbitClearingDistance,
-    minDistance
-  );
-  
-  return safeOrbitDistance;
+  return parentAbsolutePosition + objectOrbitDistance;
 }
 
 /**
- * Calculates belt orbital parameters with safe distances
+ * Global collision detection and adjustment
+ * Ensures no moon systems extend beyond other planetary orbits
  */
-export function calculateSafeBeltOrbit(
-  belt: CelestialObject,
-  parent: CelestialObject,
-  viewType: ViewType,
-  sizeAnalysis: SystemSizeAnalysis,
-  configOverride?: ViewModeScaling
-): { innerRadius: number; outerRadius: number; centerRadius: number } {
-  if (!belt.orbit || !isBeltOrbitData(belt.orbit)) {
-    return { innerRadius: 1, outerRadius: 2, centerRadius: 1.5 };
-  }
-  
-  const config = configOverride || VIEW_MODE_SCALINGS[viewType];
-  const safetyMultiplier = ORBITAL_SAFETY_MULTIPLIERS[viewType];
-  const minDistance = MIN_ORBITAL_DISTANCES[viewType];
-  
-  // Get parent visual radius
-  const parentVisualRadius = calculateVisualRadius(parent, viewType, sizeAnalysis);
-  
-  // Calculate base orbital distances from AU
-  const innerAU = belt.orbit.inner_radius;
-  const outerAU = belt.orbit.outer_radius;
-  const baseInnerRadius = innerAU * config.orbitScaling;
-  const baseOuterRadius = outerAU * config.orbitScaling;
-  
-  // Calculate minimum safe inner distance
-  const minSafeInnerDistance = parentVisualRadius * safetyMultiplier;
-  
-  // Ensure inner radius is safe
-  const safeInnerRadius = Math.max(
-    baseInnerRadius,
-    minSafeInnerDistance,
-    minDistance
-  );
-  
-  // Ensure outer radius maintains proper proportion
-  const originalWidth = baseOuterRadius - baseInnerRadius;
-  const safeOuterRadius = safeInnerRadius + Math.max(originalWidth, 0.2);
-  
-  return {
-    innerRadius: safeInnerRadius,
-    outerRadius: safeOuterRadius,
-    centerRadius: (safeInnerRadius + safeOuterRadius) / 2,
-  };
-}
-
-/**
- * Calculates order-preserving orbital placement for realistic mode
- * Maintains astronomical ordering while ensuring safe orbital clearance
- */
-export function calculateOrderPreservingOrbitalPlacement(
-  children: CelestialObject[],
-  parent: CelestialObject,
-  viewType: ViewType,
-  sizeAnalysis: SystemSizeAnalysis,
-  dynamicConfig: ViewModeScaling
-): Map<string, number> {
-  const placementMap = new Map<string, number>();
-  
-  if (children.length === 0) {
-    return placementMap;
-  }
-  
-  // Sort children by their actual orbital distance (AU) to preserve astronomical order
-  const sortedChildren = [...children].sort((a, b) => {
-    const aAU = a.orbit && isOrbitData(a.orbit) ? a.orbit.semi_major_axis : 0;
-    const bAU = b.orbit && isOrbitData(b.orbit) ? b.orbit.semi_major_axis : 0;
-    return aAU - bAU;
-  });
-  
-  const parentVisualRadius = calculateVisualRadius(parent, viewType, sizeAnalysis);
-  const safetyMultiplier = ORBITAL_SAFETY_MULTIPLIERS[viewType];
-  const minDistance = MIN_ORBITAL_DISTANCES[viewType];
-  
-  // Start placement after the parent's safe zone
-  let currentPlacementDistance = Math.max(
-    parentVisualRadius * safetyMultiplier,
-    minDistance
-  );
-  
-  for (let i = 0; i < sortedChildren.length; i++) {
-    const child = sortedChildren[i];
-    const childVisualRadius = calculateVisualRadius(child, viewType, sizeAnalysis);
-    
-    if (!child.orbit || !isOrbitData(child.orbit)) {
-      continue;
-    }
-    
-    // Calculate the desired orbital distance based on AU
-    const desiredOrbitDistance = child.orbit.semi_major_axis * dynamicConfig.orbitScaling;
-    
-    // Use the desired distance if it's safe, otherwise use current placement
-    const safeOrbitDistance = Math.max(
-      desiredOrbitDistance,
-      currentPlacementDistance,
-      minDistance
-    );
-    
-    placementMap.set(child.id, safeOrbitDistance);
-    
-    // Update current placement for the next object
-    // Ensure next object is placed with sufficient clearance
-    currentPlacementDistance = safeOrbitDistance + childVisualRadius * 2 + 0.5;
-  }
-  
-  return placementMap;
-}
-
-/**
- * Calculates hierarchical orbital spacing for navigational and profile modes
- * Ensures consistent spacing between objects orbiting the same parent
- */
-export function calculateHierarchicalSpacing(
+function adjustForGlobalCollisions(
   objects: CelestialObject[],
-  parentId: string,
-  parent: CelestialObject,
   viewType: ViewType,
-  sizeAnalysis: SystemSizeAnalysis
-): Map<string, number> {
-  const spacingMap = new Map<string, number>();
+  results: Map<string, any>,
+  config: any
+): void {
+  // Get all objects that orbit the primary star (planets, belts)
+  const primaryStar = objects.find(obj => !obj.orbit?.parent);
+  if (!primaryStar) return;
   
-  // Get all objects orbiting this parent
-  const childObjects = objects.filter(obj => 
-    obj.orbit?.parent === parentId && isOrbitData(obj.orbit)
-  );
+  const primaryOrbiters = objects.filter(obj => obj.orbit?.parent === primaryStar.id);
   
-  if (childObjects.length === 0) {
-    return spacingMap;
-  }
+  // Sort by absolute position
+  const sortedOrbiters = primaryOrbiters.map(obj => ({
+    object: obj,
+    absolutePosition: calculateAbsolutePosition(obj, objects, results),
+    outermostEffectiveRadius: calculateEffectiveOrbitalRadius(obj, objects, results, config),
+    innermostEffectiveRadius: calculateEffectiveOrbitalClearance(obj, objects, results, config)
+  })).sort((a, b) => a.absolutePosition - b.absolutePosition);
   
-  // Sort by original orbital distance
-  childObjects.sort((a, b) => {
-    const aOrbit = a.orbit as any;
-    const bOrbit = b.orbit as any;
-    return aOrbit.semi_major_axis - bOrbit.semi_major_axis;
-  });
-  
-  const parentVisualRadius = calculateVisualRadius(parent, viewType, sizeAnalysis);
-  const safetyMultiplier = ORBITAL_SAFETY_MULTIPLIERS[viewType];
-  const minDistance = MIN_ORBITAL_DISTANCES[viewType];
-  
-  // Calculate first object distance
-  let currentDistance = Math.max(
-    parentVisualRadius * safetyMultiplier,
-    minDistance
-  );
-  
-  for (let i = 0; i < childObjects.length; i++) {
-    const child = childObjects[i];
-    const childVisualRadius = calculateVisualRadius(child, viewType, sizeAnalysis);
+  // Check for overlaps and adjust
+  for (let i = 1; i < sortedOrbiters.length; i++) {
+    const current = sortedOrbiters[i];
+    const previous = sortedOrbiters[i - 1];
     
-    spacingMap.set(child.id, currentDistance);
+    // The outer edge of the previous object's system
+    const previousOuterEdge = previous.absolutePosition + previous.outermostEffectiveRadius;
     
-    // Calculate next position with safe spacing (child radius + gap + next child radius)
-    if (i < childObjects.length - 1) {
-      const nextChild = childObjects[i + 1];
-      const nextChildVisualRadius = calculateVisualRadius(nextChild, viewType, sizeAnalysis);
-      const baseSpacing = viewType === 'profile' ? 1.0 : 1.5;
+    // The required center of the current object's orbit
+    const requiredCenterPosition = previousOuterEdge + config.minDistance + current.innermostEffectiveRadius;
+
+    if (current.absolutePosition < requiredCenterPosition) {
+      // Collision detected! Adjust this object's orbit
+      const adjustment = requiredCenterPosition - current.absolutePosition;
+      const currentOrbitDistance = results.get(current.object.id)?.orbitDistance || 0;
       
-      currentDistance += childVisualRadius + baseSpacing + nextChildVisualRadius;
+      results.get(current.object.id)!.orbitDistance = currentOrbitDistance + adjustment;
+      
+      // Update the sorted array for subsequent checks
+      current.absolutePosition = requiredCenterPosition;
+      // Recalculate effective radius if orbit distance changed, as it depends on it.
+      // This recursive call ensures that if an adjustment causes further ripple effects,
+      // they are also accounted for.
+      current.outermostEffectiveRadius = calculateEffectiveOrbitalRadius(current.object, objects, results, config);
+      current.innermostEffectiveRadius = calculateEffectiveOrbitalClearance(current.object, objects, results, config);
     }
   }
-  
-  return spacingMap;
 }
 
 /**
- * Main function to calculate all orbital mechanics for a system
+ * Simple orbit clearing algorithm - the heart of the system
  */
-export function calculateSystemOrbitalMechanics(
+function calculateClearedOrbits(
   objects: CelestialObject[],
-  viewType: ViewType
-): Map<string, {
-  visualRadius: number;
-  orbitDistance?: number;
-  beltData?: { innerRadius: number; outerRadius: number; centerRadius: number };
-}> {
-  const results = new Map();
-  const objectsById = new Map<string, CelestialObject>();
-  
-  // Index objects by ID
-  for (const obj of objects) {
-    objectsById.set(obj.id, obj);
-  }
-  
-  // Analyze system size range for unified scaling
-  const sizeAnalysis = analyzeSystemSizes(objects);
-  
-  // Calculate visual radii for all objects using unified scaling
-  for (const obj of objects) {
-    const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis);
-    results.set(obj.id, { visualRadius });
-  }
-  
-  // Calculate dynamic orbital scaling for realistic mode
-  let dynamicConfig = VIEW_MODE_SCALINGS[viewType];
-  if (viewType === 'realistic') {
-    // Find the largest object (usually the central star) to base orbital scaling on
-    let largestVisualRadius = 0;
-    for (const obj of objects) {
-      const data = results.get(obj.id);
-      if (data && data.visualRadius > largestVisualRadius) {
-        largestVisualRadius = data.visualRadius;
-      }
-    }
-    
-    // Scale orbits so that 1 AU is roughly 4-5x the largest object's visual radius
-    // This ensures proper spacing while maintaining proportional relationships
-    const dynamicOrbitScaling = largestVisualRadius * 4.0;
-    
-    dynamicConfig = {
-      ...VIEW_MODE_SCALINGS[viewType],
-      orbitScaling: dynamicOrbitScaling
-    };
-  }
-  
-  // Group objects by parent for orbital calculations
+  results: Map<string, any>,
+  config: typeof VIEW_CONFIGS[keyof typeof VIEW_CONFIGS]
+): void {
+  // Group objects by parent
   const parentGroups = new Map<string, CelestialObject[]>();
   
   for (const obj of objects) {
@@ -512,71 +287,166 @@ export function calculateSystemOrbitalMechanics(
     }
   }
   
-  // Calculate orbital positions
+  // Process each parent's children
   parentGroups.forEach((children, parentId) => {
-    const parent = objectsById.get(parentId);
+    const parent = objects.find(obj => obj.id === parentId);
     if (!parent) return;
     
-    // For navigational and profile modes, use hierarchical spacing
-    if (viewType === 'navigational' || viewType === 'profile') {
-      const spacingMap = calculateHierarchicalSpacing(objects, parentId, parent, viewType, sizeAnalysis);
-      
-      for (const child of children) {
-        const existingData = results.get(child.id);
-        const orbitDistance = spacingMap.get(child.id);
-        
-        if (child.orbit && isBeltOrbitData(child.orbit)) {
-          const beltData = calculateSafeBeltOrbit(child, parent, viewType, sizeAnalysis, dynamicConfig);
-          results.set(child.id, { ...existingData, beltData });
-        } else {
-          results.set(child.id, { ...existingData, orbitDistance });
-        }
-      }
-    } else {
-      // For realistic mode, use order-preserving orbital placement
-      const orderedPlacement = calculateOrderPreservingOrbitalPlacement(children, parent, viewType, sizeAnalysis, dynamicConfig);
-      
-      for (const child of children) {
-        const existingData = results.get(child.id);
-        
-        if (child.orbit && isBeltOrbitData(child.orbit)) {
-          const beltData = calculateSafeBeltOrbit(child, parent, viewType, sizeAnalysis, dynamicConfig);
-          results.set(child.id, { ...existingData, beltData });
-        } else {
-          const orbitDistance = orderedPlacement.get(child.id);
-          results.set(child.id, { ...existingData, orbitDistance });
-        }
+    const parentVisualRadius = results.get(parentId)?.visualRadius || 0;
+    
+    // Sort children by their original orbital distance (AU)
+    children.sort((a, b) => {
+      const aAU = a.orbit && isOrbitData(a.orbit) ? a.orbit.semi_major_axis : 
+                  a.orbit && isBeltOrbitData(a.orbit) ? a.orbit.inner_radius : 0;
+      const bAU = b.orbit && isOrbitData(b.orbit) ? b.orbit.semi_major_axis :
+                  b.orbit && isBeltOrbitData(b.orbit) ? b.orbit.inner_radius : 0;
+      return aAU - bAU;
+    });
+    
+    // Start placing orbits after the parent's safe zone
+    let nextAvailableDistance = Math.max(
+      parentVisualRadius * config.safetyMultiplier,
+      config.minDistance
+    );
+
+    // Keep track of previously placed child so we can account for its full size
+    let previousChild: { actualDistance: number; effectiveRadius: number } | null = null;
+
+    for (const child of children) {
+      const childVisualRadius = results.get(child.id)?.visualRadius || 0;
+
+      if (child.orbit && isOrbitData(child.orbit)) {
+        // Regular orbit - desired position based on raw AU scaling
+        const desiredDistance = child.orbit.semi_major_axis * config.orbitScaling;
+
+        // Minimum inner edge required for this child to not intersect the previous object's system
+        // `previousChild.actualDistance + previousChild.effectiveRadius` is the outer edge of the previous system.
+        // `config.minDistance` is the required clearance.
+        const requiredInnerEdge = previousChild
+          ? previousChild.actualDistance + previousChild.effectiveRadius + config.minDistance
+          : nextAvailableDistance; // For the very first child, this is based on parent's safe zone
+
+        // The center of the child's orbit should be its required inner edge plus its visual radius
+        const requiredCenter = requiredInnerEdge + childVisualRadius;
+
+        // The actual distance (center of orbit) should be at least its desired distance, and
+        // also at least the required center to avoid collision.
+        const actualDistance = Math.max(desiredDistance, requiredCenter);
+
+        // Record the final orbit distance
+        results.get(child.id)!.orbitDistance = actualDistance;
+
+        // How much space does this object (plus moons) need
+        const effectiveOrbitalRadius = calculateEffectiveOrbitalRadius(child, objects, results, config);
+
+        // Update trackers for the next child in the loop
+        previousChild = {
+          actualDistance,
+          effectiveRadius: effectiveOrbitalRadius,
+        };
+
+        // Next orbit must clear this object's entire system with a small margin
+        // This nextAvailableDistance now represents the *outer edge* of the current object's system + minDistance
+        nextAvailableDistance = actualDistance + effectiveOrbitalRadius + config.minDistance;
+
+      } else if (child.orbit && isBeltOrbitData(child.orbit)) {
+        // Belt objects
+        const desiredInnerRadius = child.orbit.inner_radius * config.orbitScaling;
+        const desiredOuterRadius = child.orbit.outer_radius * config.orbitScaling;
+        const beltWidth = desiredOuterRadius - desiredInnerRadius;
+
+        // Also account for previous object clearance
+        const clearanceFromPrevious = previousChild
+          ? previousChild.actualDistance + previousChild.effectiveRadius + config.minDistance
+          : 0;
+
+        const actualInnerRadius = Math.max(desiredInnerRadius, nextAvailableDistance, clearanceFromPrevious);
+        const actualOuterRadius = actualInnerRadius + Math.max(beltWidth, config.minDistance); // Ensure minimum belt width
+
+        results.set(child.id, {
+          ...results.get(child.id),
+          beltData: {
+            innerRadius: actualInnerRadius,
+            outerRadius: actualOuterRadius,
+            centerRadius: (actualInnerRadius + actualOuterRadius) / 2,
+          }
+        });
+
+        previousChild = {
+          actualDistance: (actualInnerRadius + actualOuterRadius) / 2,
+          effectiveRadius: (actualOuterRadius - actualInnerRadius) / 2,
+        };
+
+        // Next orbit must clear the belt's outer edge
+        nextAvailableDistance = actualOuterRadius + config.minDistance;
       }
     }
   });
+}
+
+/**
+ * Main function - calculate everything once and memoize
+ */
+export function calculateSystemOrbitalMechanics(
+  objects: CelestialObject[],
+  viewType: ViewType
+): Map<string, {
+  visualRadius: number;
+  orbitDistance?: number;
+  beltData?: { innerRadius: number; outerRadius: number; centerRadius: number };
+}> {
+  // Check if we can use memoized results
+  const calculationKey = generateCalculationKey(objects, viewType);
+  if (memoizedResults && lastCalculationKey === calculationKey) {
+    return memoizedResults;
+  }
+  
+  const results = new Map();
+  
+  // Step 1: Calculate all visual sizes first
+  const sizeAnalysis = analyzeSystemSizes(objects);
+  
+  for (const obj of objects) {
+    const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis);
+    results.set(obj.id, { visualRadius });
+  }
+  
+  // Step 2: Calculate orbital scaling for realistic mode
+  let config = { ...VIEW_CONFIGS[viewType] };
+  if (viewType === 'realistic') {
+    // Find the largest object to base orbital scaling on
+    let largestVisualRadius = 0;
+    for (const obj of objects) {
+      const data = results.get(obj.id);
+      if (data && data.visualRadius > largestVisualRadius) {
+        largestVisualRadius = data.visualRadius;
+      }
+    }
+    
+    // Adjust orbital scaling dynamically
+    config.orbitScaling = largestVisualRadius * 4.0;
+  }
+  
+  // Step 3: Calculate cleared orbital positions
+  calculateClearedOrbits(objects, results, config);
+  
+  // Step 4: Global collision detection and adjustment
+  adjustForGlobalCollisions(objects, viewType, results, config);
+  
+  // Memoize the results
+  memoizedResults = results;
+  lastCalculationKey = calculationKey;
   
   return results;
 }
 
 /**
- * Legacy compatibility function - converts old radius/orbit values to new safe values
+ * Clear memoized results (call when system data changes)
  */
-export function convertLegacyToSafeOrbitalMechanics(
-  objects: CelestialObject[],
-  viewType: ViewType,
-  legacyScales: {
-    STAR_SCALE: number;
-    PLANET_SCALE: number;
-    ORBITAL_SCALE: number;
-  }
-): {
-  getObjectVisualSize: (objectId: string) => number;
-  getObjectOrbitDistance: (objectId: string) => number;
-} {
-  const mechanicsData = calculateSystemOrbitalMechanics(objects, viewType);
-  
-  return {
-    getObjectVisualSize: (objectId: string) => {
-      return mechanicsData.get(objectId)?.visualRadius || 1.0;
-    },
-    getObjectOrbitDistance: (objectId: string) => {
-      const data = mechanicsData.get(objectId);
-      return data?.orbitDistance || data?.beltData?.centerRadius || 0;
-    },
-  };
-} 
+export function clearOrbitalMechanicsCache(): void {
+  memoizedResults = null;
+  lastCalculationKey = '';
+}
+
+// Export the main calculation function for external use
+export { calculateVisualRadius };

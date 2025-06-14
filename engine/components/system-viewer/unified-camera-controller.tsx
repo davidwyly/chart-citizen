@@ -270,20 +270,20 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         // The focusRadius parameter is the real radius in km, but we need the visual size
         const actualVisualSize = focusSize || focusObject.scale?.x || 1.0
         
-        // Calculate safe camera distance based on actual visual size
-        // This ensures we never go inside the object and maintain proportional distance
-        const objectType = objectProperties.objectType
-        const distanceMultiplier = viewConfig.cameraConfig.distanceMultipliers[objectType] || 
-                                 viewConfig.cameraConfig.distanceMultipliers.default
-        const constraints = viewConfig.cameraConfig.distanceConstraints[objectType] || 
-                          viewConfig.cameraConfig.distanceConstraints.default
-
-        // Calculate target distance based on actual visual size with safety margin
-        const minSafeDistance = actualVisualSize * 2.5  // Never go closer than 2.5x the visual radius
-        const preferredDistance = actualVisualSize * distanceMultiplier
+        // Calculate camera distance based PURELY on actual visual radius
+        // This ensures consistent behavior regardless of object type
+        const cameraConfig = viewConfig.cameraConfig
+        const optimalDistance = actualVisualSize * cameraConfig.radiusMultiplier
+        const minDistance = actualVisualSize * cameraConfig.minDistanceMultiplier
+        const maxDistance = actualVisualSize * cameraConfig.maxDistanceMultiplier
+        
+        // Apply absolute constraints and ensure we never go inside the object
         const targetDistance = Math.max(
-          Math.min(preferredDistance, constraints.max),
-          Math.max(constraints.min, minSafeDistance)
+          Math.min(
+            Math.max(optimalDistance, cameraConfig.absoluteMinDistance),
+            cameraConfig.absoluteMaxDistance
+          ),
+          Math.max(minDistance, actualVisualSize * 2.0) // Safety margin: never closer than 1.5x radius
         )
 
         // Update the stored properties with the corrected distance

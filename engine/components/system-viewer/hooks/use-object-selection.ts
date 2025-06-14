@@ -18,7 +18,7 @@ interface ObjectSelectionState {
   objectRefsMap: Map<string, THREE.Object3D>
 }
 
-export function useObjectSelection(systemData: OrbitalSystemData | null, viewType: ViewType) {
+export function useObjectSelection(systemData: OrbitalSystemData | null, viewType: ViewType, setTimeMultiplier: (multiplier: number) => void, togglePause: () => void) {
   const [state, setState] = useState<ObjectSelectionState>({
     selectedObjectId: null,
     selectedObjectData: null,
@@ -67,6 +67,9 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
 
   // Handle object selection with full object data
   const handleObjectSelect = useCallback((objectId: string, object: THREE.Object3D, name: string) => {
+    // Pause simulation
+    togglePause();
+
     setState(prev => {
       // Store previous state when selecting a planet in game view
       if (viewType === "profile" && systemData?.objects.some(obj => isPlanet(obj) && obj.id === objectId)) {
@@ -79,6 +82,11 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
       const orbitalSemiMajorAxis = objectData?.orbit && isOrbitData(objectData.orbit) 
         ? objectData.orbit.semi_major_axis 
         : null
+
+      // Unpause simulation after a short delay to allow camera movement to complete
+      setTimeout(() => {
+        togglePause();
+      }, 1000); // Adjust delay as needed
 
       return {
         ...prev,
@@ -93,7 +101,7 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
         focusedObjectOrbitRadius: orbitalSemiMajorAxis
       }
     })
-  }, [viewType, systemData, getObjectData])
+  }, [viewType, systemData, getObjectData, togglePause])
 
   // Handle object hover
   const handleObjectHover = useCallback((objectId: string | null) => {

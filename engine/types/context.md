@@ -4,7 +4,7 @@ This directory contains type definitions and configuration systems for the engin
 
 ## Files
 
-- `view-mode-config.ts`: Unified view mode configuration system that defines how objects should be rendered and how the camera should behave across all view modes (realistic, navigational, profile), replacing hardcoded logic with flexible configuration profiles.
+- `view-mode-config.ts`: Unified view mode configuration system that defines how objects should be rendered and how the camera should behave across all view modes (realistic, navigational, profile), using PURELY radius-based camera positioning that eliminates all object-type-based hardcoded logic.
 
 ## Key Features
 
@@ -14,7 +14,7 @@ The `view-mode-config.ts` file implements a comprehensive configuration system t
 - **Dual Properties**: Tracks both "real" and "visual" properties for celestial objects (realRadius vs visualRadius, realOrbitRadius vs visualOrbitRadius)
 - **View Mode Profiles**: Defines specific configurations for each view mode (realistic, navigational, profile) with object scaling, orbit scaling, and camera behavior
 - **Object Classification**: Intelligently determines object types (star, planet, moon, gasGiant, asteroid) from names and properties
-- **Camera Configuration**: Unified camera distance calculations, viewing angles, and animation settings per view mode
+- **Radius-Based Camera**: Camera distances are calculated PURELY based on visible radius using configurable multipliers, completely eliminating object-type-based distance logic
 - **Configuration-Driven**: Replaces hardcoded multipliers and constraints with flexible, maintainable configuration objects
 
 ### Benefits

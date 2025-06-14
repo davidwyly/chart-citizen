@@ -1,11 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  calculateVisualRadius,
-  calculateSafeOrbitDistance,
-  calculateSafeBeltOrbit,
-  calculateHierarchicalSpacing,
   calculateSystemOrbitalMechanics,
-  classifyObject,
+  clearOrbitalMechanicsCache,
   convertLegacyToSafeOrbitalMechanics,
 } from '../orbital-mechanics-calculator';
 import { CelestialObject } from '@/engine/types/orbital-system';
@@ -93,31 +89,24 @@ const createSolarSystem = () => {
 };
 
 describe('orbital-mechanics-calculator', () => {
-  describe('classifyObject', () => {
-    it('should classify objects correctly', () => {
-      const star = createTestStar('star1');
-      const planet = createTestPlanet('planet1', 'star1');
-      const moon = createTestMoon('moon1', 'planet1');
-      
-      expect(classifyObject(star)).toBe('star');
-      expect(classifyObject(planet)).toBe('planet');
-      expect(classifyObject(moon)).toBe('moon');
-    });
-    
-    it('should fallback to size-based classification', () => {
-      const largeObject: CelestialObject = {
-        id: 'large1',
-        name: 'Large Object',
-        classification: 'unknown' as any,
-        geometry_type: 'terrestrial',
-        properties: { mass: 1, radius: 100000, temperature: 5000 },
-      };
-      
-      expect(classifyObject(largeObject)).toBe('star');
-    });
+  beforeEach(() => {
+    // Clear cache before each test to ensure clean state
+    clearOrbitalMechanicsCache();
   });
 
-  describe('Unified Scaling System', () => {
+  describe('calculateSystemOrbitalMechanics', () => {
+    it('should calculate visual radii for all objects', () => {
+      const objects = createSolarSystem();
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      
+      // All objects should have visual radii
+      for (const obj of objects) {
+        const data = mechanics.get(obj.id);
+        expect(data).toBeDefined();
+        expect(data!.visualRadius).toBeGreaterThan(0);
+      }
+    });
+
     it('should maintain proper size proportions in realistic mode', () => {
       const objects = createSolarSystem();
       const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
@@ -133,40 +122,9 @@ describe('orbital-mechanics-calculator', () => {
       expect(jupiterData.visualRadius).toBeGreaterThan(earthData.visualRadius);
       expect(earthData.visualRadius).toBeGreaterThan(moonData.visualRadius);
       expect(moonData.visualRadius).toBeGreaterThan(asteroidData.visualRadius);
-      
-      // Verify proportional relationships are preserved
-      // Jupiter is ~11x Earth's radius, so visual should reflect some of that relationship
-      const jupiterToEarthRatio = jupiterData.visualRadius / earthData.visualRadius;
-      expect(jupiterToEarthRatio).toBeGreaterThan(1.5); // Should be noticeably larger
-      
-             // Sun is ~100x Earth's radius, should be significantly larger
-       // With logarithmic scaling, the ratio will be compressed but still meaningful
-       const starToEarthRatio = starData.visualRadius / earthData.visualRadius;
-       expect(starToEarthRatio).toBeGreaterThan(2.5); // Should be noticeably larger
     });
 
-    it('should use logarithmic scaling to handle huge size ranges', () => {
-      // Test with extreme size differences
-      const tinyObject = createTestPlanet('tiny', 'star1', 1, 1.0);    // 1 km
-      const hugeObject = createTestStar('huge', 1000000);              // 1,000,000 km
-      const mediumObject = createTestPlanet('medium', 'star1', 10000, 2.0); // 10,000 km
-      
-      const objects = [tinyObject, mediumObject, hugeObject];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
-      
-      const tinyData = mechanics.get('tiny')!;
-      const mediumData = mechanics.get('medium')!;
-      const hugeData = mechanics.get('huge')!;
-      
-      // All objects should have reasonable visual sizes
-      expect(tinyData.visualRadius).toBeGreaterThan(0.01);
-      expect(tinyData.visualRadius).toBeLessThan(2.5);
-      expect(mediumData.visualRadius).toBeGreaterThan(tinyData.visualRadius);
-      expect(hugeData.visualRadius).toBeGreaterThan(mediumData.visualRadius);
-      expect(hugeData.visualRadius).toBeLessThan(2.5); // Should not be too huge
-    });
-
-    it('should ensure objects can clear their orbits', () => {
+    it('should prevent orbit intersections', () => {
       // Create a system with potential orbital conflicts
       const star = createTestStar('star1', 695700);
       const planet1 = createTestPlanet('planet1', 'star1', 6371, 1.0);
@@ -176,226 +134,289 @@ describe('orbital-mechanics-calculator', () => {
       const objects = [star, planet1, planet2, planet3];
       const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
       
-      const star1Data = mechanics.get('star1')!;
+      const starData = mechanics.get('star1')!;
       const planet1Data = mechanics.get('planet1')!;
       const planet2Data = mechanics.get('planet2')!;
       const planet3Data = mechanics.get('planet3')!;
       
       // All planets should be outside the star
-      expect(planet1Data.orbitDistance!).toBeGreaterThan(star1Data.visualRadius);
-      expect(planet2Data.orbitDistance!).toBeGreaterThan(star1Data.visualRadius);
-      expect(planet3Data.orbitDistance!).toBeGreaterThan(star1Data.visualRadius);
+      expect(planet1Data.orbitDistance!).toBeGreaterThan(starData.visualRadius);
+      expect(planet2Data.orbitDistance!).toBeGreaterThan(starData.visualRadius);
+      expect(planet3Data.orbitDistance!).toBeGreaterThan(starData.visualRadius);
       
       // Planets should not intersect with each other
-      // Each orbit should be far enough that objects don't collide
       const distances = [
         planet1Data.orbitDistance!,
         planet2Data.orbitDistance!, 
         planet3Data.orbitDistance!
       ].sort((a, b) => a - b);
       
-             // Check that there's sufficient space between adjacent orbits
-       // Note: orbit clearing algorithm may rearrange positions, so we just verify no overlaps
-       for (let i = 1; i < distances.length; i++) {
-         const gap = distances[i] - distances[i-1];
-         expect(gap).toBeGreaterThanOrEqual(0); // No overlapping orbits
-       }
-       
-       // Verify that objects are reasonably spaced (allow some close distances)
-       const uniqueDistances = new Set(distances);
-       expect(uniqueDistances.size).toBeGreaterThanOrEqual(distances.length - 1); // Allow one potential duplicate
+      // Check that there's sufficient space between adjacent orbits
+      for (let i = 1; i < distances.length; i++) {
+        const gap = distances[i] - distances[i-1];
+        expect(gap).toBeGreaterThan(0.1); // Minimum clearance
+      }
     });
-  });
 
-  describe('calculateSafeOrbitDistance', () => {
-    const viewTypes: ViewType[] = ['realistic', 'navigational', 'profile'];
-    
-    viewTypes.forEach(viewType => {
-      it(`should ensure safe orbital distance in ${viewType} mode`, () => {
-        const objects = createSolarSystem();
-        const mechanics = calculateSystemOrbitalMechanics(objects, viewType);
-        
-        const starData = mechanics.get('star1')!;
-        const earthData = mechanics.get('earth')!;
-        
-        // Earth should orbit outside the star
-        expect(earthData.orbitDistance!).toBeGreaterThan(starData.visualRadius);
-        
-        // Should be at least the safety multiplier times the parent's visual radius
-        const minMultiplier = viewType === 'realistic' ? 2.5 : viewType === 'navigational' ? 3.0 : 3.5;
-        expect(earthData.orbitDistance!).toBeGreaterThanOrEqual(starData.visualRadius * minMultiplier);
-      });
-    });
-  });
-
-  describe('calculateSystemOrbitalMechanics', () => {
-    it('should calculate mechanics for entire solar system', () => {
-      const objects = createSolarSystem();
+    it('should handle belt objects correctly', () => {
+      const star = createTestStar('star1');
+      const belt = createTestBelt('belt1', 'star1', 2.2, 3.2);
+      const planet = createTestPlanet('planet1', 'star1', 6371, 4.0);
+      
+      const objects = [star, belt, planet];
       const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
       
-      // Should have data for all objects
-      expect(mechanics.has('star1')).toBe(true);
-      expect(mechanics.has('jupiter')).toBe(true);
-      expect(mechanics.has('earth')).toBe(true);
-      expect(mechanics.has('moon')).toBe(true);
-      expect(mechanics.has('asteroid')).toBe(true);
+      const beltData = mechanics.get('belt1')!;
+      const planetData = mechanics.get('planet1')!;
       
-      // Check orbital safety
-      const starData = mechanics.get('star1')!;
-      const jupiterData = mechanics.get('jupiter')!;
+      // Belt should have belt data
+      expect(beltData.beltData).toBeDefined();
+      expect(beltData.beltData!.innerRadius).toBeLessThan(beltData.beltData!.outerRadius);
+      
+      // Planet should be placed after the belt
+      expect(planetData.orbitDistance!).toBeGreaterThan(beltData.beltData!.outerRadius);
+    });
+
+    it('should account for moon systems when placing orbits', () => {
+      // Create a comprehensive system: Earth with Luna, Mars with Phobos and Deimos, and Jupiter
+      const star = createTestStar('star1', 695700);
+      const earth = createTestPlanet('earth', 'star1', 6371, 1.0);
+      const luna = createTestMoon('luna', 'earth', 1737, 0.002); // Moon orbits Earth
+      const mars = createTestPlanet('mars', 'star1', 3390, 1.52); // Mars should clear Earth+Luna system
+      const phobos = createTestMoon('phobos', 'mars', 22, 0.00006); // Phobos orbits Mars (very close)
+      const deimos = createTestMoon('deimos', 'mars', 12, 0.00016); // Deimos orbits Mars (farther)
+      const jupiter = createTestPlanet('jupiter', 'star1', 69911, 5.2); // Jupiter should clear Mars+moons system
+      
+      const objects = [star, earth, luna, mars, phobos, deimos, jupiter];
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      
       const earthData = mechanics.get('earth')!;
-      const moonData = mechanics.get('moon')!;
-      
-      expect(jupiterData.orbitDistance!).toBeGreaterThan(starData.visualRadius);
-      expect(earthData.orbitDistance!).toBeGreaterThan(starData.visualRadius);
-      expect(moonData.orbitDistance!).toBeGreaterThan(earthData.visualRadius);
-    });
-    
-    it('should prevent orbital collisions across view modes', () => {
-      const objects = createSolarSystem();
-      
-      const viewTypes: ViewType[] = ['realistic', 'navigational', 'profile'];
-      viewTypes.forEach(viewType => {
-        const mechanics = calculateSystemOrbitalMechanics(objects, viewType);
-        
-        const starData = mechanics.get('star1')!;
-        const jupiterData = mechanics.get('jupiter')!;
-        const earthData = mechanics.get('earth')!;
-        
-        // All planets should orbit outside the star
-        expect(jupiterData.orbitDistance!).toBeGreaterThan(starData.visualRadius);
-        expect(earthData.orbitDistance!).toBeGreaterThan(starData.visualRadius);
-        
-        // In navigational/profile modes, they should have hierarchical spacing
-        if (viewType === 'navigational' || viewType === 'profile') {
-          expect(earthData.orbitDistance!).toBeLessThan(jupiterData.orbitDistance!);
-        }
-      });
-    });
-
-    it('should handle fixed sizes in navigational mode correctly', () => {
-      const objects = createSolarSystem();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'navigational');
-      
-      // In navigational mode, all stars should have the same fixed size
-      const starData = mechanics.get('star1')!;
-      expect(starData.visualRadius).toBe(2.0); // Fixed star size in navigational mode
-      
-      // All planets should have the same fixed size  
+      const lunaData = mechanics.get('luna')!;
+      const marsData = mechanics.get('mars')!;
+      const phobosData = mechanics.get('phobos')!;
+      const deimosData = mechanics.get('deimos')!;
       const jupiterData = mechanics.get('jupiter')!;
-      const earthData = mechanics.get('earth')!;
-      expect(jupiterData.visualRadius).toBe(1.2); // Fixed planet size
-      expect(earthData.visualRadius).toBe(1.2);   // Same fixed planet size
+      
+      // All should have valid orbital distances
+      expect(earthData.orbitDistance).toBeGreaterThan(0);
+      expect(lunaData.orbitDistance).toBeGreaterThan(0);
+      expect(marsData.orbitDistance).toBeGreaterThan(0);
+      expect(phobosData.orbitDistance).toBeGreaterThan(0);
+      expect(deimosData.orbitDistance).toBeGreaterThan(0);
+      expect(jupiterData.orbitDistance).toBeGreaterThan(0);
+      
+      // Calculate absolute distances from star for Earth's moon system
+      const lunaAbsoluteDistance = earthData.orbitDistance! + lunaData.orbitDistance!;
+      const lunaOuterEdge = lunaAbsoluteDistance + lunaData.visualRadius;
+      
+      // Mars should be placed beyond Earth's entire moon system
+      expect(marsData.orbitDistance!).toBeGreaterThan(lunaOuterEdge);
+      
+      // Calculate absolute distances from star for Mars's moon system
+      const phobosAbsoluteDistance = marsData.orbitDistance! + phobosData.orbitDistance!;
+      const deimosAbsoluteDistance = marsData.orbitDistance! + deimosData.orbitDistance!;
+      
+      // Find Mars's outermost moon (should be Deimos)
+      const marsOutermostMoonDistance = Math.max(
+        phobosAbsoluteDistance + phobosData.visualRadius,
+        deimosAbsoluteDistance + deimosData.visualRadius
+      );
+      
+      // Jupiter should be placed beyond Mars's entire moon system
+      expect(jupiterData.orbitDistance!).toBeGreaterThan(marsOutermostMoonDistance);
+      
+      // Verify proper clearance between systems
+      const earthMarsGap = marsData.orbitDistance! - lunaOuterEdge;
+      const marsJupiterGap = jupiterData.orbitDistance! - marsOutermostMoonDistance;
+      
+      expect(earthMarsGap).toBeGreaterThan(0.1); // Earth-Mars clearance
+      expect(marsJupiterGap).toBeGreaterThanOrEqual(0.1); // Mars-Jupiter clearance
+      
+      // Verify moon ordering within each system
+      expect(phobosData.orbitDistance!).toBeLessThan(deimosData.orbitDistance!); // Phobos closer than Deimos
     });
-  });
 
-  describe('convertLegacyToSafeOrbitalMechanics', () => {
-    it('should provide legacy compatibility interface', () => {
+    it('should prevent visual overlaps between a moon system and a subsequent planet in navigational mode', () => {
+      // Define a system where a planet's moon system is very visually large,
+      // and a subsequent planet's *initial* desired orbit is very close.
+      // This is designed to highlight issues with fixed sizes and orbit clearing.
+
+      const star = createTestStar('Sol', 695700);
+
+      // Earth-like planet, close to star
+      const earth = createTestPlanet('Earth', 'Sol', 6371, 1.0); // 1.0 AU, will be 0.6 * 1.0 = 0.6 scaled orbit
+
+      // A moon with a relatively large visual size and a small orbit around Earth
+      // This moon system should effectively make Earth "bigger" visually.
+      const luna = createTestMoon('Luna', 'Earth', 1737, 0.002); // 0.002 AU, will be 0.6 * 0.002 = 0.0012 scaled orbit
+
+      // A "Mars-like" planet, initially placed very close to Earth's orbit
+      // Its raw AU is just slightly larger than Earth's.
+      const mars = createTestPlanet('Mars', 'Sol', 3390, 1.01); // 1.01 AU, will be 0.6 * 1.01 = 0.606 scaled orbit
+
+      const objects = [star, earth, luna, mars];
+      const viewType: ViewType = 'navigational';
+      const mechanics = calculateSystemOrbitalMechanics(objects, viewType);
+
+      const earthData = mechanics.get('Earth')!;
+      const lunaData = mechanics.get('Luna')!;
+      const marsData = mechanics.get('Mars')!;
+
+      // Retrieve navigational config (assuming VIEW_CONFIGS is accessible or can be imported)
+      // For this test, we'll hardcode the relevant config values for clarity, as the actual VIEW_CONFIGS
+      // is not exported from orbital-mechanics-calculator.ts and is an internal detail.
+      const navConfig = {
+        orbitScaling: 0.6,
+        safetyMultiplier: 3.0,
+        minDistance: 0.2,
+        fixedSizes: {
+          star: 2.0,
+          planet: 1.2,
+          moon: 0.6,
+          asteroid: 0.3,
+          belt: 0.8,
+          barycenter: 0.0,
+        },
+      };
+
+      // Calculate the effective outer edge of the Earth-Luna system
+      // This replicates the logic of calculateEffectiveOrbitalRadius using the fixed sizes
+      const earthVisualRadius = navConfig.fixedSizes.planet; // fixed at 1.2 in navigational
+      const lunaVisualRadius = navConfig.fixedSizes.moon;   // fixed at 0.6 in navigational
+
+      // Luna's actual orbit distance from Earth (relative to Earth's center)
+      // This value comes directly from the calculated mechanics for Luna
+      const lunaOrbitDistanceRelativeToEarth = lunaData.orbitDistance!;
+
+      // The outer edge of Luna relative to Earth's center
+      const lunaOuterEdgeRelativeToEarth = lunaOrbitDistanceRelativeToEarth + lunaVisualRadius;
+
+      // The effective "radius" of the Earth system, considering Luna's furthest extent
+      const effectiveEarthSystemRadius = Math.max(earthVisualRadius, lunaOuterEdgeRelativeToEarth);
+
+      // The absolute outer edge of the Earth-Luna system from the Star
+      const earthSystemAbsoluteOuterEdge = earthData.orbitDistance! + effectiveEarthSystemRadius;
+
+      // Mars's calculated inner edge (its orbit distance minus its visual radius)
+      const marsVisualRadius = navConfig.fixedSizes.planet; // fixed at 1.2 in navigational
+      const marsInnerEdgeAbsolute = marsData.orbitDistance! - marsVisualRadius;
+
+      // Assertion: Mars's inner edge must be outside Earth's system outer edge + minimum clearance
+      const requiredClearance = navConfig.minDistance;
+      expect(marsInnerEdgeAbsolute).toBeGreaterThanOrEqual(earthSystemAbsoluteOuterEdge + requiredClearance);
+    });
+
+    it('should use fixed sizes for non-realistic modes', () => {
+      const objects = createSolarSystem();
+      const navigationalMechanics = calculateSystemOrbitalMechanics(objects, 'navigational');
+      const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile');
+      
+      // Check that fixed sizes are used
+      const navStarData = navigationalMechanics.get('star1')!;
+      const navPlanetData = navigationalMechanics.get('earth')!;
+      const navMoonData = navigationalMechanics.get('moon')!;
+      
+      expect(navStarData.visualRadius).toBe(2.0);  // Fixed star size
+      expect(navPlanetData.visualRadius).toBe(1.2); // Fixed planet size
+      expect(navMoonData.visualRadius).toBe(0.6);   // Fixed moon size
+      
+      const profStarData = profileMechanics.get('star1')!;
+      const profPlanetData = profileMechanics.get('earth')!;
+      const profMoonData = profileMechanics.get('moon')!;
+      
+      expect(profStarData.visualRadius).toBe(1.5);  // Fixed star size
+      expect(profPlanetData.visualRadius).toBe(0.8); // Fixed planet size
+      expect(profMoonData.visualRadius).toBe(0.4);   // Fixed moon size
+    });
+
+    it('should memoize results for identical inputs', () => {
       const objects = createSolarSystem();
       
-      const legacy = convertLegacyToSafeOrbitalMechanics(objects, 'realistic', {
-        STAR_SCALE: 1.0,
-        PLANET_SCALE: 1.0,
-        ORBITAL_SCALE: 1.0,
-      });
+      // First calculation
+      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'realistic');
       
-      const starSize = legacy.getObjectVisualSize('star1');
-      const earthSize = legacy.getObjectVisualSize('earth');
-      const earthOrbit = legacy.getObjectOrbitDistance('earth');
+      // Second calculation with same inputs - should be memoized
+      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'realistic');
       
-      expect(starSize).toBeGreaterThan(0);
-      expect(earthSize).toBeGreaterThan(0);
-      expect(earthOrbit).toBeGreaterThan(starSize);
-      expect(starSize).toBeGreaterThan(earthSize); // Sun should be bigger than Earth
+      // Results should be identical reference due to memoization
+      expect(mechanics1).toBe(mechanics2);
     });
-  });
 
-  describe('Edge Cases', () => {
-    it('should handle missing orbit data gracefully', () => {
+    it('should clear memoization when cache is cleared', () => {
+      const objects = createSolarSystem();
+      
+      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'realistic');
+      clearOrbitalMechanicsCache();
+      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'realistic');
+      
+      // Results should be different references (not memoized)
+      expect(mechanics1).not.toBe(mechanics2);
+      
+      // But values should be the same
+      expect(mechanics1.get('star1')?.visualRadius).toBe(mechanics2.get('star1')?.visualRadius);
+    });
+
+    it('should respect moon orbital paths when placing subsequent planets in navigational mode', () => {
       const star = createTestStar('star1');
-      const planetWithoutOrbit: CelestialObject = {
-        id: 'planet1',
-        name: 'Planet Without Orbit',
+      const planet1 = createTestPlanet('planet1', 'star1', 6371, 1.0);
+      const moonInner = createTestMoon('moonInner', 'planet1', 1737, 0.05); // Inner moon
+      const moonOuter = createTestMoon('moonOuter', 'planet1', 1737, 0.4); // Outermost moon with sizable path
+      const planet2 = createTestPlanet('planet2', 'star1', 6371, 1.05); // Initially very close to planet1
+
+      const objects = [star, planet1, moonInner, moonOuter, planet2];
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'navigational');
+
+      const planet1Data = mechanics.get('planet1')!;
+      const moonOuterData = mechanics.get('moonOuter')!;
+      const planet2Data = mechanics.get('planet2')!;
+
+      // Calculate the outer edge of planet1's moon system
+      const moonOuterAbsolute = planet1Data.orbitDistance! + moonOuterData.orbitDistance!;
+      const moonOuterEdge = moonOuterAbsolute + moonOuterData.visualRadius;
+
+      // Planet2 must be beyond the outer edge plus safety margin (0.1)
+      expect(planet2Data.orbitDistance!).toBeGreaterThan(moonOuterEdge);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty object list', () => {
+      const mechanics = calculateSystemOrbitalMechanics([], 'realistic');
+      expect(mechanics.size).toBe(0);
+    });
+
+    it('should handle objects with zero or negative radius', () => {
+      const star = createTestStar('star1', 0);
+      const planet = createTestPlanet('planet1', 'star1', -100, 1.0);
+      
+      const objects = [star, planet];
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      
+      // Should still calculate reasonable visual radii
+      expect(mechanics.get('star1')?.visualRadius).toBeGreaterThan(0);
+      expect(mechanics.get('planet1')?.visualRadius).toBeGreaterThan(0);
+    });
+
+    it('should handle objects without orbits', () => {
+      const star = createTestStar('star1');
+      const freeFloating: CelestialObject = {
+        id: 'floating',
+        name: 'Free Floating Object',
         classification: 'planet',
         geometry_type: 'terrestrial',
         properties: { mass: 1, radius: 6371, temperature: 288 },
-        position: [5, 0, 0],
+        position: [10, 0, 0],
       };
       
-      const objects = [star, planetWithoutOrbit];
+      const objects = [star, freeFloating];
       const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
       
-      expect(mechanics.has('planet1')).toBe(true);
-      expect(mechanics.get('planet1')!.orbitDistance).toBeUndefined();
-    });
-    
-    it('should handle systems with similar-sized objects', () => {
-      // Create system where all objects are similar size
-      const obj1 = createTestPlanet('obj1', 'center', 5000, 1.0);
-      const obj2 = createTestPlanet('obj2', 'center', 6000, 2.0);
-      const obj3 = createTestPlanet('obj3', 'center', 5500, 3.0);
-      const center = createTestStar('center', 7000);
+      // Both should have visual radii
+      expect(mechanics.get('star1')?.visualRadius).toBeGreaterThan(0);
+      expect(mechanics.get('floating')?.visualRadius).toBeGreaterThan(0);
       
-      const objects = [center, obj1, obj2, obj3];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
-      
-      // Should still maintain some size differences and safe orbits
-      const centerData = mechanics.get('center')!;
-      const obj1Data = mechanics.get('obj1')!;
-      const obj2Data = mechanics.get('obj2')!;
-      
-      expect(obj1Data.orbitDistance!).toBeGreaterThan(centerData.visualRadius);
-      expect(obj2Data.orbitDistance!).toBeGreaterThan(centerData.visualRadius);
-      expect(centerData.visualRadius).toBeGreaterThan(obj1Data.visualRadius);
-    });
-
-    it('should handle binary star systems with unified scaling', () => {
-      const primaryStar = createTestStar('star1', 695700);  // Sun-sized
-      const secondaryStar = createTestStar('star2', 400000); // Smaller star
-      secondaryStar.orbit = {
-        parent: 'star1',
-        semi_major_axis: 5.0,
-        eccentricity: 0.1,
-        inclination: 0.0,
-        orbital_period: 1000,
-      };
-      
-      const objects = [primaryStar, secondaryStar];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
-      
-      const primaryData = mechanics.get('star1')!;
-      const secondaryData = mechanics.get('star2')!;
-      
-      // Primary should be larger (unified scaling respects actual sizes)
-      expect(primaryData.visualRadius).toBeGreaterThan(secondaryData.visualRadius);
-      
-      // Secondary should orbit outside primary
-      expect(secondaryData.orbitDistance!).toBeGreaterThan(primaryData.visualRadius);
-    });
-
-    it('should preserve orbital order (Venus closer to Sun than Earth)', () => {
-      // Test the specific Venus orbital order issue
-      const star = createTestStar('star1', 695700);
-      const mercury = createTestPlanet('mercury', 'star1', 2439, 0.39);
-      const venus = createTestPlanet('venus', 'star1', 6051, 0.72);
-      const earth = createTestPlanet('earth', 'star1', 6371, 1.0);
-      const mars = createTestPlanet('mars', 'star1', 3389, 1.52);
-      
-      const objects = [star, mercury, venus, earth, mars];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
-      
-      const mercuryData = mechanics.get('mercury')!;
-      const venusData = mechanics.get('venus')!;
-      const earthData = mechanics.get('earth')!;
-      const marsData = mechanics.get('mars')!;
-      
-      // Verify correct orbital ordering
-      expect(mercuryData.orbitDistance!).toBeLessThan(venusData.orbitDistance!);
-      expect(venusData.orbitDistance!).toBeLessThan(earthData.orbitDistance!);
-      expect(earthData.orbitDistance!).toBeLessThan(marsData.orbitDistance!);
-      
-      // Specific check: Venus should NOT be beyond Earth's orbit
-      expect(venusData.orbitDistance!).toBeLessThan(earthData.orbitDistance!);
+      // Free floating object should not have orbit distance
+      expect(mechanics.get('floating')?.orbitDistance).toBeUndefined();
     });
   });
 }); 

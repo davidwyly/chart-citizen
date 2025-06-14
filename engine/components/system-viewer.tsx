@@ -9,7 +9,6 @@ import * as THREE from "three"
 import { UnifiedCameraController, type UnifiedCameraControllerRef } from "./system-viewer/unified-camera-controller"
 import { SystemObjectsRenderer } from "./system-viewer/system-objects-renderer"
 import { LoadingState, ErrorState } from "./system-viewer/loading-states"
-import { calculateViewModeScaling } from "./system-viewer/view-mode-calculator"
 import { StarfieldSkybox } from "./skybox/starfield-skybox"
 import { useSystemData } from "./system-viewer/hooks/use-system-data"
 import { useObjectSelection } from "./system-viewer/hooks/use-object-selection"
@@ -70,6 +69,16 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const [cameraOrbitRadius, setCameraOrbitRadius] = useState<number>(0)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
+  // Handle time multiplier change
+  const handleTimeMultiplierChange = useCallback((multiplier: number) => {
+    setTimeMultiplier(multiplier)
+  }, [])
+
+  // Handle pause toggle
+  const togglePause = useCallback(() => {
+    setIsPaused(prev => !prev)
+  }, [])
+
   // Load system data
   const { systemData, loading, error, loadingProgress, availableSystems } = useSystemData(mode, systemId)
 
@@ -91,12 +100,17 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     handleCanvasClick,
     handleStopFollowing,
     handleBackButtonClick,
-  } = useObjectSelection(systemData, viewType)
+  } = useObjectSelection(systemData, viewType, setTimeMultiplier, togglePause)
 
-  // Calculate scaling based on view mode
+  // Simple scaling config - no longer needed since orbital mechanics calculator handles everything
   const scalingConfig = useMemo(() => 
-    systemData ? calculateViewModeScaling(viewType) : null,
-    [systemData, viewType]
+    systemData ? {
+      STAR_SCALE: 1.0,
+      PLANET_SCALE: 1.0,
+      ORBITAL_SCALE: 1.0,
+      STAR_SHADER_SCALE: 1.0,
+    } : null,
+    [systemData]
   )
 
   // Get focused object properties for unified camera controller
@@ -128,16 +142,6 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
       onFocus(object, name)
     }
   }, [handleObjectFocus, onFocus])
-
-  // Handle time multiplier change
-  const handleTimeMultiplierChange = useCallback((multiplier: number) => {
-    setTimeMultiplier(multiplier)
-  }, [])
-
-  // Handle pause toggle
-  const togglePause = useCallback(() => {
-    setIsPaused(prev => !prev)
-  }, [])
 
   // Determine if we should show the back button
   const showBackButton = useMemo(() => 

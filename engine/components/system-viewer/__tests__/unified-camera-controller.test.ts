@@ -23,22 +23,26 @@ describe('Unified Camera System', () => {
         expect(config.objectScaling.asteroid).toBeTypeOf('number')
         expect(config.objectScaling.default).toBeTypeOf('number')
         
-        // Check camera config structure
-        expect(config.cameraConfig.distanceMultipliers).toBeDefined()
-        expect(config.cameraConfig.distanceConstraints).toBeDefined()
+        // Check camera config structure (new radius-based system)
+        expect(config.cameraConfig.radiusMultiplier).toBeTypeOf('number')
+        expect(config.cameraConfig.minDistanceMultiplier).toBeTypeOf('number')
+        expect(config.cameraConfig.maxDistanceMultiplier).toBeTypeOf('number')
+        expect(config.cameraConfig.absoluteMinDistance).toBeTypeOf('number')
+        expect(config.cameraConfig.absoluteMaxDistance).toBeTypeOf('number')
         expect(config.cameraConfig.viewingAngles).toBeDefined()
         expect(config.cameraConfig.animation).toBeDefined()
       })
     })
 
-    it('should have reasonable distance constraints', () => {
+    it('should have reasonable radius-based distance settings', () => {
       Object.entries(VIEW_MODE_CONFIGS).forEach(([mode, config]) => {
-        Object.entries(config.cameraConfig.distanceConstraints).forEach(([objectType, constraints]) => {
-          expect(constraints.min).toBeGreaterThan(0)
-          expect(constraints.max).toBeGreaterThan(constraints.min)
-          expect(constraints.min).toBeLessThan(1000) // Reasonable upper bound
-          expect(constraints.max).toBeLessThan(1000) // Reasonable upper bound
-        })
+        const cameraConfig = config.cameraConfig
+        expect(cameraConfig.radiusMultiplier).toBeGreaterThan(0)
+        expect(cameraConfig.minDistanceMultiplier).toBeGreaterThan(0)
+        expect(cameraConfig.maxDistanceMultiplier).toBeGreaterThan(cameraConfig.minDistanceMultiplier)
+        expect(cameraConfig.absoluteMinDistance).toBeGreaterThan(0)
+        expect(cameraConfig.absoluteMaxDistance).toBeGreaterThan(cameraConfig.absoluteMinDistance)
+        expect(cameraConfig.absoluteMaxDistance).toBeLessThan(1000) // Reasonable upper bound
       })
     })
   })
@@ -159,6 +163,49 @@ describe('Unified Camera System', () => {
       const largeObject = createDualProperties(100.0, 1000.0, 200.0, 'Giant Star', 'realistic')
       expect(largeObject.optimalViewDistance).toBeGreaterThanOrEqual(largeObject.minViewDistance)
       expect(largeObject.optimalViewDistance).toBeLessThanOrEqual(largeObject.maxViewDistance)
+    })
+
+    it('should calculate camera distance based PURELY on visual radius, not object type', () => {
+      // Objects with same visual radius should have same camera distance regardless of type
+      const testRadius = 5.0
+      const testOrbit = 100.0
+      
+      // Create objects with same visual radius but different types
+      const star = createDualProperties(testRadius, testOrbit, 200.0, 'Test Star', 'realistic')
+      const planet = createDualProperties(testRadius, testOrbit, 1.0, 'Test Planet', 'realistic')
+      const moon = createDualProperties(testRadius, testOrbit, 0.1, 'Test Moon', 'realistic')
+      const asteroid = createDualProperties(testRadius, testOrbit, 0.01, 'Test Asteroid', 'realistic')
+      const gasGiant = createDualProperties(testRadius, testOrbit, 15.0, 'Test Jupiter', 'realistic')
+      
+      // Ensure they have the same visual radius (accounting for scaling differences)
+      // We need to adjust for object scaling differences to get same visual radius
+      const config = VIEW_MODE_CONFIGS.realistic
+      const adjustedStarRadius = testRadius / config.objectScaling.star
+      const adjustedPlanetRadius = testRadius / config.objectScaling.planet
+      const adjustedMoonRadius = testRadius / config.objectScaling.moon
+      const adjustedAsteroidRadius = testRadius / config.objectScaling.asteroid
+      const adjustedGasGiantRadius = testRadius / config.objectScaling.gasGiant
+      
+      const adjustedStar = createDualProperties(adjustedStarRadius, testOrbit, 200.0, 'Test Star', 'realistic')
+      const adjustedPlanet = createDualProperties(adjustedPlanetRadius, testOrbit, 1.0, 'Test Planet', 'realistic')
+      const adjustedMoon = createDualProperties(adjustedMoonRadius, testOrbit, 0.1, 'Test Moon', 'realistic')
+      const adjustedAsteroid = createDualProperties(adjustedAsteroidRadius, testOrbit, 0.01, 'Test Asteroid', 'realistic')
+      const adjustedGasGiant = createDualProperties(adjustedGasGiantRadius, testOrbit, 15.0, 'Test Jupiter', 'realistic')
+      
+      // Verify all have approximately the same visual radius (within floating point precision)
+      const tolerance = 0.01
+      expect(Math.abs(adjustedStar.visualRadius - testRadius)).toBeLessThan(tolerance)
+      expect(Math.abs(adjustedPlanet.visualRadius - testRadius)).toBeLessThan(tolerance)
+      expect(Math.abs(adjustedMoon.visualRadius - testRadius)).toBeLessThan(tolerance)
+      expect(Math.abs(adjustedAsteroid.visualRadius - testRadius)).toBeLessThan(tolerance)
+      expect(Math.abs(adjustedGasGiant.visualRadius - testRadius)).toBeLessThan(tolerance)
+      
+      // Camera distances should be identical for same visual radius
+      const cameraDistanceTolerance = 0.1
+      expect(Math.abs(adjustedStar.optimalViewDistance - adjustedPlanet.optimalViewDistance)).toBeLessThan(cameraDistanceTolerance)
+      expect(Math.abs(adjustedPlanet.optimalViewDistance - adjustedMoon.optimalViewDistance)).toBeLessThan(cameraDistanceTolerance)
+      expect(Math.abs(adjustedMoon.optimalViewDistance - adjustedAsteroid.optimalViewDistance)).toBeLessThan(cameraDistanceTolerance)
+      expect(Math.abs(adjustedAsteroid.optimalViewDistance - adjustedGasGiant.optimalViewDistance)).toBeLessThan(cameraDistanceTolerance)
     })
   })
 

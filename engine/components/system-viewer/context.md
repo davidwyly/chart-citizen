@@ -7,7 +7,7 @@ This directory contains the core components and logic for rendering interactive 
 - **unified-camera-controller.tsx** - Unified camera controller handling all view modes (realistic, navigational, profile) with configuration-driven behavior and dual properties system for consistent camera distances and animations across all object types
 - **system-objects-renderer.tsx** - Main renderer for stars, planets, moons, and belts with interactive selection, focus capabilities, unified object sizing calculations, improved moon orbital mechanics with enhanced minimum distances, proper belt positioning and torus rendering, and refined gas giant scaling
 - **system-navigation-bar.tsx** - Enhanced navigation bar with hierarchical moon display, showing moons as expandable child entries under their parent planets
-- **view-mode-calculator.ts** - Configuration-driven view mode calculations using unified dual properties system, replacing all legacy hardcoded scaling logic
+
 - **catalog-object-wrapper.tsx** - Wrapper component for catalog objects that handles 3D rendering, texturing, and shading based on object type and properties
 - **object-details-panel.tsx** - UI panel displaying detailed information about focused objects including real vs visual properties
 - **system-breadcrumb.tsx** - Navigation breadcrumb showing current system and selected object hierarchy
@@ -19,7 +19,7 @@ This directory contains the core components and logic for rendering interactive 
 
 - `system-objects-renderer.tsx`: Main renderer component that manages the rendering of all celestial objects in the system with unified configuration-driven scaling
 - `catalog-object-wrapper.tsx`: Wrapper component for individual catalog objects, handling their rendering and interactions
-- `view-mode-calculator.ts`: Utility for calculating scaling and positioning based on the current view mode using the unified configuration system
+
 - `unified-camera-controller.tsx`: Configuration-driven camera controller that handles all view modes with consistent behavior
 
 ## UI Components

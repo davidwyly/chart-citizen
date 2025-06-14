@@ -18,25 +18,12 @@ export interface ViewModeConfig {
   
   // Camera behavior configuration
   cameraConfig: {
-    // Distance multipliers for different object types
-    distanceMultipliers: {
-      star: number
-      planet: number
-      moon: number
-      gasGiant: number
-      asteroid: number
-      default: number
-    }
-    
-    // Minimum and maximum camera distances
-    distanceConstraints: {
-      star: { min: number; max: number }
-      planet: { min: number; max: number }
-      moon: { min: number; max: number }
-      gasGiant: { min: number; max: number }
-      asteroid: { min: number; max: number }
-      default: { min: number; max: number }
-    }
+    // Single radius-based distance calculation
+    radiusMultiplier: number  // Multiplier applied to visible radius for optimal distance
+    minDistanceMultiplier: number  // Minimum distance as multiple of visible radius
+    maxDistanceMultiplier: number  // Maximum distance as multiple of visible radius
+    absoluteMinDistance: number    // Absolute minimum distance regardless of radius
+    absoluteMaxDistance: number    // Absolute maximum distance regardless of radius
     
     // Camera angles and positioning
     viewingAngles: {
@@ -64,10 +51,10 @@ export interface DualObjectProperties {
   visualOrbitRadius: number
   visualScale: number
   
-  // Object classification
+  // Object classification (kept for object scaling only, NOT camera positioning)
   objectType: 'star' | 'planet' | 'moon' | 'gasGiant' | 'asteroid'
   
-  // Calculated camera properties
+  // Calculated camera properties (now purely radius-based)
   optimalViewDistance: number
   minViewDistance: number
   maxViewDistance: number
@@ -90,22 +77,11 @@ export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
       maxDistance: 1000
     },
     cameraConfig: {
-      distanceMultipliers: {
-        star: 8.0,
-        planet: 3.0,
-        moon: 2.0,
-        gasGiant: 5.0,
-        asteroid: 2.0,
-        default: 3.0
-      },
-      distanceConstraints: {
-        star: { min: 2.0, max: 100 },
-        planet: { min: 0.5, max: 20 },
-        moon: { min: 0.3, max: 10 },
-        gasGiant: { min: 1.0, max: 30 },
-        asteroid: { min: 0.2, max: 5 },
-        default: { min: 0.5, max: 20 }
-      },
+      radiusMultiplier: 4.0,        // Camera positioned at 4x the visible radius
+      minDistanceMultiplier: 2.5,   // Never closer than 2.5x visible radius
+      maxDistanceMultiplier: 15.0,  // Never farther than 15x visible radius
+      absoluteMinDistance: 0.3,     // Absolute minimum 0.3 units
+      absoluteMaxDistance: 100,     // Absolute maximum 100 units
       viewingAngles: {
         defaultElevation: 30,
         birdsEyeElevation: 40
@@ -133,22 +109,11 @@ export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
       maxDistance: 500
     },
     cameraConfig: {
-      distanceMultipliers: {
-        star: 6.0,
-        planet: 2.5,
-        moon: 1.8,
-        gasGiant: 4.0,
-        asteroid: 1.8,
-        default: 2.5
-      },
-      distanceConstraints: {
-        star: { min: 1.5, max: 80 },
-        planet: { min: 0.4, max: 15 },
-        moon: { min: 0.2, max: 8 },
-        gasGiant: { min: 0.8, max: 25 },
-        asteroid: { min: 0.15, max: 4 },
-        default: { min: 0.4, max: 15 }
-      },
+      radiusMultiplier: 3.5,        // Closer for navigation
+      minDistanceMultiplier: 2.0,   // Minimum 2x visible radius
+      maxDistanceMultiplier: 12.0,  // Maximum 12x visible radius
+      absoluteMinDistance: 0.2,     // Absolute minimum 0.2 units
+      absoluteMaxDistance: 80,      // Absolute maximum 80 units
       viewingAngles: {
         defaultElevation: 35,
         birdsEyeElevation: 45
@@ -176,22 +141,11 @@ export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
       maxDistance: 800
     },
     cameraConfig: {
-      distanceMultipliers: {
-        star: 4.0,
-        planet: 2.0,
-        moon: 1.5,
-        gasGiant: 3.0,
-        asteroid: 1.5,
-        default: 2.0
-      },
-      distanceConstraints: {
-        star: { min: 1.0, max: 60 },
-        planet: { min: 0.3, max: 12 },
-        moon: { min: 0.15, max: 6 },
-        gasGiant: { min: 0.6, max: 20 },
-        asteroid: { min: 0.1, max: 3 },
-        default: { min: 0.3, max: 12 }
-      },
+      radiusMultiplier: 2.5,        // Closer for detailed view
+      minDistanceMultiplier: 1.8,   // Minimum 1.8x visible radius
+      maxDistanceMultiplier: 8.0,   // Maximum 8x visible radius
+      absoluteMinDistance: 0.15,    // Absolute minimum 0.15 units
+      absoluteMaxDistance: 60,      // Absolute maximum 60 units
       viewingAngles: {
         defaultElevation: 0,  // Top-down for profile view
         birdsEyeElevation: 0
@@ -215,7 +169,8 @@ export function determineObjectType(
   const lowerName = name.toLowerCase()
   
   // Check for star indicators
-  if (lowerName.includes('star') || lowerName.includes('sun')) {
+  if (lowerName.includes('star') || lowerName.includes('sun') || 
+      lowerName.includes('centauri') || lowerName.includes('proxima')) {
     return 'star'
   }
   
@@ -226,13 +181,18 @@ export function determineObjectType(
     return 'gasGiant'
   }
   
-  // Check for moon indicators
-  if (lowerName.includes('moon') || lowerName.includes('satellite')) {
+  // Check for moon indicators (including known moon names)
+  if (lowerName.includes('moon') || lowerName.includes('satellite') ||
+      lowerName.includes('europa') || lowerName.includes('io') ||
+      lowerName.includes('ganymede') || lowerName.includes('callisto') ||
+      lowerName.includes('titan') || lowerName.includes('enceladus')) {
     return 'moon'
   }
   
-  // Check for asteroid indicators
-  if (lowerName.includes('asteroid') || lowerName.includes('belt')) {
+  // Check for asteroid indicators (including known asteroid names)
+  if (lowerName.includes('asteroid') || lowerName.includes('belt') ||
+      lowerName.includes('ceres') || lowerName.includes('vesta') ||
+      lowerName.includes('pallas') || lowerName.includes('juno')) {
     return 'asteroid'
   }
   
@@ -265,15 +225,30 @@ export function createDualProperties(
   const visualRadius = realRadius * objectScaling * systemScale
   const visualOrbitRadius = realOrbitRadius * config.orbitScaling.multiplier * systemScale
   
-  // Calculate camera distances
-  const distanceMultiplier = config.cameraConfig.distanceMultipliers[objectType] || 
-                           config.cameraConfig.distanceMultipliers.default
-  const constraints = config.cameraConfig.distanceConstraints[objectType] || 
-                      config.cameraConfig.distanceConstraints.default
+  // Calculate camera distances based PURELY on visual radius
+  const cameraConfig = config.cameraConfig
+  const optimalDistance = visualRadius * cameraConfig.radiusMultiplier
+  const minDistance = visualRadius * cameraConfig.minDistanceMultiplier
+  const maxDistance = visualRadius * cameraConfig.maxDistanceMultiplier
   
-  const optimalViewDistance = Math.max(
-    Math.min(visualRadius * distanceMultiplier, constraints.max),
-    constraints.min
+  // Apply absolute constraints while maintaining proper ordering (min <= optimal <= max)
+  let finalMinDistance = Math.max(minDistance, cameraConfig.absoluteMinDistance)
+  let finalMaxDistance = Math.min(maxDistance, cameraConfig.absoluteMaxDistance)
+  
+  // Ensure min <= max, if not, prioritize the radius-based calculation
+  if (finalMinDistance > finalMaxDistance) {
+    if (maxDistance > cameraConfig.absoluteMinDistance) {
+      // Radius-based max is valid, use it
+      finalMaxDistance = Math.max(maxDistance, finalMinDistance)
+    } else {
+      // Radius-based calculation is too small, use absolute constraints
+      finalMaxDistance = Math.max(cameraConfig.absoluteMaxDistance, finalMinDistance)
+    }
+  }
+  
+  const finalOptimalDistance = Math.max(
+    Math.min(optimalDistance, finalMaxDistance),
+    finalMinDistance
   )
   
   return {
@@ -284,8 +259,8 @@ export function createDualProperties(
     visualOrbitRadius,
     visualScale: objectScaling,
     objectType,
-    optimalViewDistance,
-    minViewDistance: constraints.min,
-    maxViewDistance: constraints.max
+    optimalViewDistance: finalOptimalDistance,
+    minViewDistance: finalMinDistance,
+    maxViewDistance: finalMaxDistance
   }
 } 

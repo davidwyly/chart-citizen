@@ -46,7 +46,15 @@ export function calculateSnowLine(luminosity: number): number {
  * @throws Error if spectral type is not found
  */
 export function getLuminosityForSpectralType(spectralType: string): number {
-  const luminosity = SPECTRAL_TYPE_LUMINOSITY[spectralType];
+  // Handle full spectral classifications like "G2V" by extracting the base type "G2"
+  const baseType = spectralType.replace(/[IVX]+$/, ''); // Remove luminosity class suffixes
+  
+  let luminosity = SPECTRAL_TYPE_LUMINOSITY[baseType];
+  if (luminosity === undefined) {
+    // Try exact match first
+    luminosity = SPECTRAL_TYPE_LUMINOSITY[spectralType];
+  }
+  
   if (luminosity === undefined) {
     throw new Error(`Unknown spectral type: ${spectralType}`);
   }

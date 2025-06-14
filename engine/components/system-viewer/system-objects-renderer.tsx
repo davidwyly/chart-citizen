@@ -6,11 +6,9 @@ import * as THREE from "three"
 import { InteractiveObject } from "../3d-ui/interactive-object"
 import { OrbitalPath } from "../orbital-path"
 import { StellarZones } from "./components/stellar-zones"
-import { calculateObjectSizing } from "./view-mode-calculator"
-import { calculateVisualSize, calculateOrbitalDistance, calculateMoonOrbitDistance } from "@/engine/utils/view-mode-calculator-km"
 import { 
-  calculateSystemOrbitalMechanics, 
-  convertLegacyToSafeOrbitalMechanics 
+  calculateSystemOrbitalMechanics,
+  clearOrbitalMechanicsCache
 } from "@/engine/utils/orbital-mechanics-calculator"
 import type { ViewType } from "@lib/types/effects-level"
 import { 
@@ -169,79 +167,49 @@ export function SystemObjectsRenderer({
 
   // Calculate safe orbital mechanics for all objects
   const orbitalMechanics = useMemo(() => {
+    // Clear cache to ensure fresh calculation
+    clearOrbitalMechanicsCache();
     return calculateSystemOrbitalMechanics(systemData.objects, viewType);
   }, [systemData.objects, viewType]);
 
-  // Legacy compatibility helper
-  const legacyHelper = useMemo(() => {
-    return convertLegacyToSafeOrbitalMechanics(systemData.objects, viewType, {
-      STAR_SCALE,
-      PLANET_SCALE,
-      ORBITAL_SCALE,
-    });
-  }, [systemData.objects, viewType, STAR_SCALE, PLANET_SCALE, ORBITAL_SCALE]);
-
-  // Memoize getObjectSizing function - now uses safe orbital mechanics
-  const getObjectSizing = useCallback((objectType: string, baseRadiusKm: number, objectName?: string, orbitRadius?: number, mass?: number, objectId?: string) => {
-    // Use new safe orbital mechanics calculation
-    const mechanicsData = orbitalMechanics.get(objectId || '');
-    const visualSize = mechanicsData?.visualRadius || legacyHelper.getObjectVisualSize(objectId || '');
+  // Get object sizing from orbital mechanics calculator
+  const getObjectSizing = useCallback((objectId: string) => {
+    const mechanicsData = orbitalMechanics.get(objectId);
+    const visualSize = mechanicsData?.visualRadius || 1.0;
     
-    // Maintain backward compatibility by returning the expected structure
     return {
-      actualSize: baseRadiusKm * SYSTEM_SCALE,
       visualSize: visualSize,
-      dualProperties: {
-        realRadius: baseRadiusKm,
-        visualRadius: visualSize,
-        objectType: objectType
-      }
     }
-  }, [viewType, SYSTEM_SCALE, orbitalMechanics, legacyHelper])
+  }, [orbitalMechanics])
 
   // Calculate orbital period for objects
   const calculateOrbitalPeriod = useCallback((semiMajorAxis: number) => {
     return Math.sqrt(Math.pow(semiMajorAxis, 3)) * 2.0
   }, [])
 
-  // Get navigational orbital radius for evenly spaced orbits
-  const getNavigationalOrbitalRadius = useCallback((index: number): number => {
-    const baseSpacing = ORBITAL_SCALE * 1.5
-    return baseSpacing * (index + 1)
-  }, [ORBITAL_SCALE])
-
   // Render a celestial object with its orbit
   const renderCelestialObject = useCallback((object: CelestialObject, parentPosition: [number, number, number] = [0, 0, 0]) => {
-    const baseRadius = object.properties.radius || 1
-    const mass = object.properties.mass || 1
-    const orbitRadius = object.orbit && isOrbitData(object.orbit) ? object.orbit.semi_major_axis : 0
-    
-    const { visualSize } = getObjectSizing(
-      object.classification, 
-      baseRadius, 
-      object.name, 
-      orbitRadius, 
-      mass,
-      object.id
-    )
-
-    const isSelected = selectedObjectId === object.id
-    
-    // Use the visualSize directly - it's already properly scaled by the safe orbital mechanics system
-    const scale = visualSize
+    const { visualSize } = getObjectSizing(object.id);
+    const isSelected = selectedObjectId === object.id;
+    const scale = visualSize;
 
     // Handle objects with orbits
     if (object.orbit && isOrbitData(object.orbit)) {
-      const orbit = object.orbit
+      const orbit = object.orbit;
       
       // Get safe orbital distance from our orbital mechanics calculator
       const mechanicsData = orbitalMechanics.get(object.id);
-      let semiMajorAxis = mechanicsData?.orbitDistance || legacyHelper.getObjectOrbitDistance(object.id);
+      const semiMajorAxis = mechanicsData?.orbitDistance;
       
-      // Fallback to basic calculation if no mechanics data available
+
+      
+      // If no orbital distance calculated, skip rendering this object
       if (!semiMajorAxis) {
-        semiMajorAxis = calculateOrbitalDistance(orbit.semi_major_axis, viewType);
+        console.warn(`No orbital distance calculated for ${object.name} (${object.id}), skipping`);
+        return null;
       }
+
+
 
       return (
         <MemoizedOrbitalPath
@@ -271,24 +239,16 @@ export function SystemObjectsRenderer({
       )
     } else if (object.orbit && 'inner_radius' in object.orbit) {
       // Handle belt objects with BeltOrbitData
-      const orbit = object.orbit
-      
-      // Get safe belt orbital data from our orbital mechanics calculator
       const mechanicsData = orbitalMechanics.get(object.id);
       const beltData = mechanicsData?.beltData;
       
-      let adjustedRadius, adjustedWidth;
-      
-      if (beltData) {
-        adjustedRadius = beltData.centerRadius;
-        adjustedWidth = (beltData.outerRadius - beltData.innerRadius) / 2;
-      } else {
-        // Fallback to basic calculation
-        const beltRadius = (orbit.inner_radius + orbit.outer_radius) / 2
-        const beltWidth = (orbit.outer_radius - orbit.inner_radius) / 2
-        adjustedRadius = calculateOrbitalDistance(beltRadius, viewType)
-        adjustedWidth = calculateOrbitalDistance(beltWidth, viewType)
+      if (!beltData) {
+        console.warn(`No belt data calculated for ${object.name} (${object.id}), skipping`);
+        return null;
       }
+      
+      const adjustedRadius = beltData.centerRadius;
+      const adjustedWidth = (beltData.outerRadius - beltData.innerRadius) / 2;
 
       return (
         <group key={object.id} position={[0, 0, 0]}>
@@ -338,18 +298,15 @@ export function SystemObjectsRenderer({
     primaryStarPosition,
     getObjectSizing,
     calculateOrbitalPeriod,
-    getNavigationalOrbitalRadius,
     timeMultiplier,
     isPaused,
     objectRefsMap,
     viewType,
-    STAR_SCALE,
-    PLANET_SCALE,
-    ORBITAL_SCALE,
     onObjectHover,
     onObjectSelect,
     onObjectFocus,
-    registerRef
+    registerRef,
+    orbitalMechanics
   ])
 
   // Build object hierarchy for rendering

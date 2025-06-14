@@ -20,7 +20,6 @@ Overview of key Chart-Citizen features and links to detailed documentation.
 
 ## Navigation Features
 - **System Selection**: Select and view different star systems. [system-selection.md](./system-selection.md)
-- **Object Focus**: Focus on specific celestial bodies. [object-focus.md](./object-focus.md)
 - **Zoom Control**: Dynamic zoom with appropriate level of detail changes. [zoom-control.md](./zoom-control.md)
 - **Moon System**: Hierarchical moon navigation with improved orbital mechanics and parent-child relationships. [moon-system.md](./moon-system.md)
 - **Time Progression System**: Simulate the movement of celestial bodies over time with controls for speed and pause. [time-progression-system.md](./time-progression-system.md)
@@ -57,8 +56,9 @@ Overview of key Chart-Citizen features and links to detailed documentation.
 - **Performance Warning**: Displays warnings for low performance. [performance-warning.md](./performance-warning.md)
 
 ## Scaling and Orbital Mechanics
-- **View Mode Calculator**: Calculates scaling and sizing for different view modes. [view-mode-calculator.md](./view-mode-calculator.md)
+- **View Mode Calculator**: Calculates scaling and sizing for different view modes, now including configurable maximum visual sizes for celestial objects to prevent them from becoming excessively large. [view-mode-calculator.md](./view-mode-calculator.md)
 - **Orbital Mechanics System**: Ensures safe orbital positioning and proper scaling across all view modes. [orbital-mechanics-system.md](./orbital-mechanics-system.md)
+- **Effective Orbit Clearing for Moons**: Enhanced orbit clearing that uses outermost moon orbit radius instead of planet radius to prevent orbital line intersections. [effective-orbit-clearing-for-moons.md](./effective-orbit-clearing-for-moons.md)
 - **Unified Logarithmic Scaling**: Mathematical scaling system using logarithmic normalization for celestial object sizes (fixes Jupiter-bigger-than-Sun problem). [unified-scaling-explanation.md](./unified-scaling-explanation.md)
 
 ## Starmap
