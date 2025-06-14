@@ -1,3 +1,4 @@
 # Context
 
-- habitable-planet-material.test.ts: This file contains tests for the HabitablePlanetMaterial shader to ensure features like noisy biome blending are implemented correctly. 
+- shader-compilation.test.tsx: This file contains tests for the shader compilation process, ensuring materials compile correctly.
+- terrestrial-planet-lighting.test.tsx: This file tests the lighting calculations for the terrestrial planet shader. 

@@ -4,7 +4,6 @@ import { StarRenderer } from "@/engine/renderers/stars/star-renderer"
 import { PlanetRenderer } from "@/engine/renderers/planets/planet-renderer"
 import { GasGiantRenderer } from "@/engine/renderers/planets/gas-giant-renderer"
 import { TerrestrialPlanetRenderer } from "@/engine/renderers/planets/terrestrial-planet-renderer"
-import { HabitablePlanetRenderer } from "@/engine/renderers/planets/habitable-planet-renderer"
 import { Protostar } from "@/engine/components/3d-ui/protostar"
 import type { CatalogObject } from "@/engine/system-loader"
 import type * as THREE from "three"
@@ -69,14 +68,12 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, s
   }
 
   // Habitable planet renderer - for Earth-like worlds with advanced features
-  if (engineObject === "habitable-planet") {
+  if (engineObject === "terrestrial-planet" && category === "habitable") {
     return (
-      <HabitablePlanetRenderer 
+      <TerrestrialPlanetRenderer 
         catalogData={catalogData} 
         position={position} 
         scale={scale} 
-        starPosition={starPosition} 
-        habitabilityParams={customizations?.habitability}
         onFocus={onFocus} 
       />
     )
@@ -88,7 +85,7 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, s
       ((features.ocean_coverage && features.ocean_coverage > 0.5) || features.earth_like === true)) ||
     engineObject === "earth-like"
   ) {
-    return <TerrestrialPlanetRenderer catalogData={catalogData} position={position} scale={scale} starPosition={starPosition} onFocus={onFocus} />
+    return <TerrestrialPlanetRenderer catalogData={catalogData} position={position} scale={scale} onFocus={onFocus} />
   }
 
   // Regular terrestrial planets

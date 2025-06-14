@@ -48,7 +48,7 @@
     "name": "Habitable Terrestrial Planet",
     "category": "terrestrial",
     "subtype": "habitable",
-    "engine_object": "habitable-planet",
+    "engine_object": "terrestrial-planet",
     "description": "Earth-like planet capable of supporting life with oceans, continents, atmosphere, and potential civilization",
     "physical": {
       "mass": 1.0,
@@ -89,7 +89,7 @@
       "population": 30
     },
     "render": {
-      "shader": "habitable-planet",
+      "shader": "terrestrial-planet",
       "shader_complexity": "high"
     }
   },
@@ -749,7 +749,7 @@
     "name": "Earth-like World",
     "category": "terrestrial",
     "subtype": "earth-like",
-    "engine_object": "habitable-planet",
+    "engine_object": "terrestrial-planet",
     "mass": 1.0,
     "radius": 1.0,
     "physical": {
@@ -787,7 +787,7 @@
     "name": "Desert World",
     "category": "terrestrial",
     "subtype": "desert",
-    "engine_object": "habitable-planet",
+    "engine_object": "terrestrial-planet",
     "mass": 0.8,
     "radius": 0.9,
     "physical": {
@@ -825,7 +825,7 @@
     "name": "Ocean World (Habitable)",
     "category": "terrestrial",
     "subtype": "oceanic-habitable",
-    "engine_object": "habitable-planet",
+    "engine_object": "terrestrial-planet",
     "mass": 1.2,
     "radius": 1.1,
     "physical": {
@@ -863,9 +863,160 @@
     "name": "Ice World",
     "category": "terrestrial",
     "subtype": "ice",
-    "engine_object": "habitable-planet",
+    "engine_object": "terrestrial-planet",
     "mass": 0.9,
     "radius": 0.95,
+    "physical": {
+      "mass": 0.9,
+      "radius": 0.95,
+      "density": 5.0,
+      "gravity": 8.8,
+      "rotation_period": 30.0,
+      "axial_tilt": 45.0
+    },
+    "features": {
+      "atmosphere": true,
+      "ocean_coverage": 0.3,
+      "terrain_roughness": 1.2,
+      "cloud_coverage": 0.4,
+      "earth_like": false
+    },
+    "habitability": {
+      "humidity": 40,
+      "temperature": 15,
+      "population": 35
+    },
+    "appearance": {
+      "ocean_color": "#4169e1",
+      "land_color": "#e0e0e0",
+      "sand_color": "#d3d3d3",
+      "snow_color": "#fffafa",
+      "cloud_color": "#f0f8ff",
+      "atmosphere_color": "#e6f3ff",
+      "city_light_color": "#87cefa"
+    }
+  },
+  "habitable-earth-like": {
+    "id": "habitable-earth-like",
+    "name": "Earth-Like World",
+    "category": "terrestrial",
+    "subtype": "habitable",
+    "engine_object": "terrestrial-planet",
+    "description": "A lush, vibrant planet with extensive oceans and continents, abundant life, and advanced civilization.",
+    "physical": {
+      "mass": 1.0,
+      "radius": 1.0,
+      "density": 5.5,
+      "gravity": 9.8,
+      "rotation_period": 24.0,
+      "axial_tilt": 23.5
+    },
+    "features": {
+      "atmosphere": true,
+      "ocean_coverage": 0.71,
+      "terrain_roughness": 1.0,
+      "cloud_coverage": 0.6,
+      "earth_like": true
+    },
+    "habitability": {
+      "humidity": 70,
+      "temperature": 60,
+      "population": 80
+    },
+    "appearance": {
+      "ocean_color": "#1e90ff",
+      "land_color": "#8fbc8f",
+      "sand_color": "#daa520",
+      "snow_color": "#ffffff",
+      "cloud_color": "#ffffff",
+      "atmosphere_color": "#87ceeb",
+      "city_light_color": "#ffff99"
+    }
+  },
+  "habitable-desert": {
+    "id": "habitable-desert",
+    "name": "Desert World",
+    "category": "terrestrial",
+    "subtype": "habitable",
+    "engine_object": "terrestrial-planet",
+    "description": "A hot, arid planet with vast deserts and rocky formations, minimal water, and sparse vegetation concentrated around oases.",
+    "physical": {
+      "mass": 0.8,
+      "radius": 0.9,
+      "density": 5.2,
+      "gravity": 8.5,
+      "rotation_period": 28.0,
+      "axial_tilt": 35.0
+    },
+    "features": {
+      "atmosphere": true,
+      "ocean_coverage": 0.15,
+      "terrain_roughness": 1.5,
+      "cloud_coverage": 0.2,
+      "earth_like": false
+    },
+    "habitability": {
+      "humidity": 15,
+      "temperature": 75,
+      "population": 25
+    },
+    "appearance": {
+      "ocean_color": "#4682b4",
+      "land_color": "#daa520",
+      "sand_color": "#f4a460",
+      "snow_color": "#ffffff",
+      "cloud_color": "#f5f5dc",
+      "atmosphere_color": "#ffd700",
+      "city_light_color": "#ff8c00"
+    }
+  },
+  "habitable-ocean": {
+    "id": "habitable-ocean",
+    "name": "Ocean World",
+    "category": "terrestrial",
+    "subtype": "habitable",
+    "engine_object": "terrestrial-planet",
+    "description": "A planet almost entirely covered by deep oceans, with scattered archipelagos and minimal landmasses.",
+    "physical": {
+      "mass": 1.2,
+      "radius": 1.1,
+      "density": 4.9,
+      "gravity": 0.99,
+      "temperature": 295,
+      "atmospheric_pressure": 1.2
+    },
+    "composition": {
+      "core": "iron_nickel",
+      "mantle": "silicate_rock",
+      "crust": "oceanic_basalt",
+      "atmosphere": "nitrogen_oxygen_water_vapor"
+    },
+    "features": {
+      "habitability": "habitable",
+      "orbit_zone": "habitable",
+      "rotation_period": 22.0,
+      "axial_tilt": 18.0,
+      "magnetic_field": 1.2,
+      "plate_tectonics": true,
+      "tidal_forces": true,
+      "ocean_coverage": 0.95,
+      "storm_systems": true
+    },
+    "appearance": {
+      "base_color": "#1e90ff",
+      "atmosphere_color": "#87ceeb",
+      "ocean_color": "#006994",
+      "cloud_color": "#ffffff",
+      "island_color": "#8fbc8f"
+    }
+  },
+  "habitable-ice": {
+    "id": "habitable-ice",
+    "name": "Ice World",
+    "category": "terrestrial",
+    "subtype": "habitable",
+    "engine_object": "terrestrial-planet",
+    "description": "A frozen world with vast ice sheets, glaciers, and subglacial oceans, supporting hardy extremophile life forms.",
     "physical": {
       "mass": 0.9,
       "radius": 0.95,

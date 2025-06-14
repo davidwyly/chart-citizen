@@ -41,27 +41,6 @@ This directory contains shader materials used for rendering different types of c
   - Dynamic lighting with proper shadows
   - Customizable inner and outer radii
 
-### HabitablePlanetMaterial
-- **Purpose**: Specialized shader for habitable worlds with quality-based features and customizable habitability parameters (humidity, temperature, population) affecting biome distribution, ice caps, mountain ranges, and civilization lighting
-- **Key Features**:
-  - **Dynamic Water Level System**: Linear humidity-controlled sea level - at 0% humidity water is completely absent, water begins appearing at 1% humidity pooling at lowest points, progressively rising linearly with humidity, at 100% complete water planet coverage with water above highest mountain peaks  
-  - **Latitudinal Temperature Variation**: Temperature decreases from equator to poles, creating realistic climate zones with warmer equatorial regions and colder polar areas
-  - **Elevation-Based Climate Adjustment**: Temperature and humidity values are modified by elevation (temperature lapse rate, orographic effects) affecting biome selection at different altitudes
-  - **25 Discrete Biome Types**: Complete implementation of all terrain types from design document with proper temperature/humidity mapping
-  - **Intelligent Population Distribution**: Population concentrates in hospitable temperatures, lower elevations, and near (but not in) water, with no effect on biome colors - purely affects night light distribution
-  - **Advanced Mountain Ranges**: Multi-scale terrain generation with minimum natural variation at 0% volcanism, and tectonic plate-based extreme features at 100% volcanism creating isolated mountain ranges and deep valleys
-  - **Dynamic Ice Caps**: Temperature-responsive polar ice that grows/shrinks organically with patchy, realistic edges
-  - **Elevation-Based Snow Lines**: Mountains show realistic snow coverage that retreats/advances with temperature
-  - **Proper Storm Swirls**: Uses existing Spiral logic for realistic cyclone and storm patterns in clouds
-  - **Organic Temperature Zones**: Patchy, non-linear climate distribution instead of straight latitude bands
-  - **Mountain Depth**: Three-tier elevation system (snow peaks → green mid-elevation → desert/grassland low elevation)
-  - **Extreme Climate Handling**: Temperature 0 = ice world, temperature 100 = desert world
-  - **High Humidity Storm Systems**: Global cloud coverage with enhanced spiral storm patterns, with improved cloud rendering maintaining white/bright colors regardless of lighting conditions
-  - **Dynamic Lava Flows**: Volcanism and temperature-driven procedural lava flows, with animated movement and concentration in lower elevations and cracks.
-  - **Debug Topographic Lines**: Optional contour line visualization showing height variation with regular intervals (3 units) and major contours (15 units), displayed as black lines on land and blue lines underwater - automatically disables clouds when enabled for clearer terrain visualization
-  - **Multi-octave Perlin noise for terrain, clouds, and population centers
-  - Real-time star position-based illumination with day/night terminator
-
 ## Implementation Details
 
 Each shader follows a similar structure:
@@ -84,7 +63,6 @@ For custom planet types, extend these base materials or create new ones followin
 ## Files
 
 - `terrestrial-planet-material.ts`: Advanced procedural shader for Earth-like rocky planets with terrain generation, ocean rendering, cloud systems, and night lights
-- `habitable-planet-material.ts`: Specialized shader for habitable worlds with quality-based features and customizable habitability parameters (humidity, temperature, population) affecting biome distribution, ice caps, and civilization lighting
 - `gas-giant-material.ts`: Shader material for gas giant atmospheres with procedural band generation and storm systems
 - `storm-material.ts`: Specialized material for atmospheric storm effects on gas giants
 - `__tests__/shader-compilation.test.tsx`: Comprehensive test suite for validating shader compilation, uniform handling, and GLSL syntax correctness. Note that these tests perform static analysis and do not simulate actual GLSL compilation in a WebGL context, meaning runtime compilation errors will not be caught by these tests.
@@ -93,4 +71,4 @@ All materials support dynamic lighting from star positions passed through the co
 
 # Context
 
-- habitable-planet-material.ts: This file defines the HabitablePlanetMaterial shader, which procedurally generates planet surfaces with noisy biome blending, without snow glow or cloud ambient light, darker water near shorelines, city lights as discrete pinpricks for enhanced realism, and dynamic lava flows based on volcanism and temperature. It also handles procedural planet rendering with biomes, effects, and dynamic clouds that cap size at 100°C, turn dark gray, and become more opaque up to 200°C. 
+- terrestrial-planet-material.ts: This file defines the TerrestrialPlanetMaterial shader, which procedurally generates planet surfaces with noisy biome blending, without snow glow or cloud ambient light, darker water near shorelines, city lights as discrete pinpricks for enhanced realism, and dynamic lava flows based on volcanism and temperature. It also handles procedural planet rendering with biomes, effects, and dynamic clouds that cap size at 100°C, turn dark gray, and become more opaque up to 200°C. 

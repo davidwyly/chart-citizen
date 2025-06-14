@@ -27,7 +27,6 @@ This document provides a quick overview of the key features implemented in the C
 
 ## Debug Tools
 - **Celestial Viewer** (`celestial-viewer.md`): A real-time 3D celestial object inspector and property editor with shader preview capabilities.
-- **Habitable Planet Controls** (`celestial-viewer-habitable-planets.md`): Real-time manipulation of habitable planet characteristics through interactive sliders in the celestial viewer.
 - **Shader Performance View** (`shader-performance-view.md`): A debug panel for monitoring shader performance metrics and quality levels.
 
 ## Planet Rendering

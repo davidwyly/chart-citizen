@@ -1,163 +1,127 @@
 # Terrestrial Planet Shader
 
-A high-performance, quality-configurable shader for rendering realistic terrestrial planets with dynamic effects.
+A high-performance shader for rendering realistic terrestrial planets with dynamic effects.
 
 ## Features
 
-- Procedural terrain generation with quality-based detail levels
+- Procedural terrain generation
 - Animated cloud systems with realistic movement
 - Ocean/land masking with specular highlights
 - Dynamic night lights for inhabited areas
 - Atmospheric effects and lighting
-- Quality levels for performance optimization
-
-## Quality Levels
-
-The shader supports three quality levels that affect various aspects of the rendering:
-
-### High Quality
-- 8 iterations of noise for terrain generation
-- Full cloud detail with multiple layers
-- Detailed night light patterns
-- Complete atmospheric effects
-- Best for high-end systems and close-up views
-
-### Medium Quality
-- 4 iterations of noise for terrain
-- Simplified cloud system
-- Basic night light patterns
-- Reduced atmospheric effects
-- Balanced performance and visual quality
-
-### Low Quality
-- 2 iterations of noise for terrain
-- Minimal cloud coverage
-- Basic night lights
-- Essential atmospheric effects
-- Optimized for performance
-
-## Performance Impact
-
-| Quality Level | GPU Memory | FPS Impact | Best For |
-|--------------|------------|------------|----------|
-| High         | ~100MB     | -30%       | Close-ups, high-end systems |
-| Medium       | ~50MB      | -15%       | General viewing, mid-range systems |
-| Low          | ~25MB      | -5%        | Distant views, low-end systems |
 
 ## Usage
 
 ```typescript
-import { createTerrestrialPlanetMaterial } from '@/engine/renderers/planets/materials/terrestrial-planet-material'
+import { TerrestrialPlanetRenderer } from '@/engine/renderers/planets/terrestrial-planet-renderer'
+import { CatalogObject } from '@/engine/lib/system-loader'
 
-// Create material with desired quality level
-const material = createTerrestrialPlanetMaterial('high') // or 'medium' or 'low'
+interface MyComponentProps {
+  planetData: CatalogObject
+}
 
-// Customize material properties
-material.landColor = new THREE.Color(0.05, 0.4, 0.05)
-material.seaColor = new THREE.Color(0.0, 0.18, 0.45)
-material.cloudOpacity = 0.6
-material.terrainScale = 2.0
+function MyComponent({ planetData }: MyComponentProps) {
+  return (
+    <TerrestrialPlanetRenderer
+      catalogData={planetData}
+      position={[0, 0, 0]}
+      scale={1}
+      onFocus={(obj, name) => console.log(`Focused on ${name}`)}
+    />
+  )
+}
 ```
 
 ## Example Configurations
 
 ### Earth-like Planet
 ```typescript
-const earthMaterial = createTerrestrialPlanetMaterial('high')
-earthMaterial.landColor = new THREE.Color(0.05, 0.4, 0.05)
-earthMaterial.seaColor = new THREE.Color(0.0, 0.18, 0.45)
-earthMaterial.sandColor = new THREE.Color(0.9, 0.66, 0.3)
-earthMaterial.snowColor = new THREE.Color(1.0, 1.0, 1.0)
-earthMaterial.atmosphereColor = new THREE.Color(0.05, 0.8, 1.0)
-earthMaterial.terrainScale = 2.0
-earthMaterial.cloudScale = 1.5
-earthMaterial.nightLightIntensity = 0.8
+// The TerrestrialPlanetRenderer now directly takes catalogData
+// and derives properties like colors and feature flags from it.
+// Example of catalogData that would render an Earth-like planet:
+const earthCatalogData = {
+  name: "Earth",
+  physical: {
+    radius: 1.0,
+    atmospheric_pressure: 1.0,
+  },
+  features: {
+    ocean_coverage: 0.7,
+    cloud_coverage: 0.6,
+    city_lights: true,
+    terrain_roughness: 1.0,
+    rotation_period: 24.0,
+  },
+  appearance: {
+    ocean_color: "#1e90ff",
+    land_color: "#8fbc8f",
+    sand_color: "#daa520",
+    cloud_color: "#ffffff",
+    city_light_color: "#ffff99",
+    atmosphere_color: "#87ceeb",
+  }
+}
+
+<TerrestrialPlanetRenderer catalogData={earthCatalogData} />
 ```
 
 ### Arid Planet
 ```typescript
-const aridMaterial = createTerrestrialPlanetMaterial('medium')
-aridMaterial.landColor = new THREE.Color(0.6, 0.4, 0.1)
-aridMaterial.seaColor = new THREE.Color(0.1, 0.3, 0.2)
-aridMaterial.sandColor = new THREE.Color(0.8, 0.7, 0.4)
-aridMaterial.snowColor = new THREE.Color(0.9, 0.9, 0.8)
-aridMaterial.atmosphereColor = new THREE.Color(0.8, 0.6, 0.4)
-aridMaterial.terrainScale = 3.0
-aridMaterial.cloudScale = 0.8
-aridMaterial.nightLightIntensity = 0.4
-```
+// Example of catalogData that would render an Arid planet:
+const aridCatalogData = {
+  name: "Arid Planet",
+  physical: {
+    radius: 0.8,
+    atmospheric_pressure: 0.5,
+  },
+  features: {
+    ocean_coverage: 0.05,
+    cloud_coverage: 0.2,
+    city_lights: false,
+    terrain_roughness: 1.5,
+    rotation_period: 30.0,
+  },
+  appearance: {
+    ocean_color: "#1e90ff",
+    land_color: "#604010",
+    sand_color: "#807040",
+    cloud_color: "#d0d0d0",
+    city_light_color: "#ffff99",
+    atmosphere_color: "#c0a080",
+  }
+}
 
-### Performance-Optimized Planet
-```typescript
-const optimizedMaterial = createTerrestrialPlanetMaterial('low')
-optimizedMaterial.terrainScale = 1.5
-optimizedMaterial.cloudScale = 1.0
-optimizedMaterial.cloudOpacity = 0.4
-optimizedMaterial.nightLightIntensity = 0.6
+<TerrestrialPlanetRenderer catalogData={aridCatalogData} />
 ```
 
 ## Performance Monitoring
 
-The shader includes built-in performance monitoring that can be accessed through the `usePerformanceMonitor` hook:
-
-```typescript
-import { usePerformanceMonitor } from '@/lib/performance-monitor'
-
-function PlanetViewer() {
-  const { fps, performanceLevel } = usePerformanceMonitor()
-  
-  // Automatically adjust quality based on performance
-  const qualityLevel = performanceLevel === 'critical' ? 'low' 
-    : performanceLevel === 'warning' ? 'medium' 
-    : 'high'
-    
-  const material = createTerrestrialPlanetMaterial(qualityLevel)
-  
-  return (
-    <mesh>
-      <sphereGeometry args={[1, 64, 64]} />
-      <primitive object={material} />
-    </mesh>
-  )
-}
-```
+The `TerrestrialPlanetRenderer` does not directly expose performance monitoring hooks. Performance is managed at a higher level within the application, and the component itself is designed to be efficient.
 
 ## Best Practices
 
-1. **Quality Selection**
-   - Use high quality for close-up views and important planets
-   - Use medium quality for general viewing
-   - Use low quality for distant objects and background planets
+1. **Data-Driven Configuration**
+   - Configure planet appearance and features through the `catalogData` prop.
+   - Ensure your `CatalogObject` accurately reflects the desired planet characteristics.
 
-2. **Performance Optimization**
-   - Monitor FPS and adjust quality level accordingly
-   - Reduce terrain and cloud scale for distant objects
-   - Lower cloud opacity for better performance
-   - Consider disabling night lights for very distant objects
+2. **Component Usage**
+   - Render terrestrial planets using the `<TerrestrialPlanetRenderer />` component, not by directly creating the material.
 
 3. **Memory Management**
-   - Dispose of materials when no longer needed
-   - Reuse materials for similar planets
-   - Monitor GPU memory usage with different quality levels
+   - The component handles its own material disposal. No manual disposal is needed.
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Low FPS**
-   - Reduce quality level
-   - Lower terrain and cloud scale
-   - Reduce cloud opacity
-   - Disable night lights for distant objects
+   - Ensure your `CatalogObject` values (e.g., `terrain_roughness`, `cloud_coverage`) are reasonable for the desired performance.
+   - Optimize overall scene complexity if many planets are rendered.
 
 2. **Visual Artifacts**
-   - Increase quality level
-   - Adjust terrain scale
-   - Check for GPU driver updates
-   - Verify WebGL 2.0 support
+   - Verify that your `catalogData` values are within expected ranges.
+   - Check for any console errors related to WebGL.
 
-3. **Memory Issues**
-   - Monitor material instances
-   - Dispose unused materials
-   - Use lower quality for background objects
-   - Implement level-of-detail system 
+3. **Unexpected Appearance**
+   - Double-check the `appearance` and `features` properties in your `catalogData`.
+   - Ensure color values are valid hexadecimal strings. 

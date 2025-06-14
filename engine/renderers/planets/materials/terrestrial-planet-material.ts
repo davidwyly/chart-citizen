@@ -18,7 +18,6 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     cloudScale: 1.5,
     nightLightIntensity: 0.8,
     cloudOpacity: 0.6,
-    qualityLevel: 8, // Number of noise iterations
   },
   // Vertex shader
   `
@@ -53,7 +52,6 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     uniform float nightLightIntensity;
     uniform float cloudOpacity;
     uniform vec3 lightDirection;
-    uniform int qualityLevel;
 
     varying vec3 vNormal;
     varying vec3 vPosition;
@@ -111,22 +109,16 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
       return mix(length(pos) - 0.2, noise, 0.85);
     }
 
-    // Generate terrain height with quality-based iterations
+    // Generate terrain height
     float height(vec3 p) {
-      float ret = 0.0;
-      float amplitude = 1.0;
-      float frequency = 128.0 * terrainScale;
-      
-      // High quality: 8 iterations
-      // Medium quality: 4 iterations
-      // Low quality: 2 iterations
-      for (int i = 0; i < 8; i++) {
-        if (i >= qualityLevel) break;
-        ret += sdWeirdSphere(p, frequency) * amplitude;
-        amplitude *= 0.5;
-        frequency *= 0.5;
-      }
-      
+      float ret = sdWeirdSphere(p, 128.0 * terrainScale);
+      ret += sdWeirdSphere(p, 64.0 * terrainScale);
+      ret += sdWeirdSphere(p, 32.0 * terrainScale);
+      ret += sdWeirdSphere(p, 16.0 * terrainScale);
+      ret += sdWeirdSphere(p, 8.0 * terrainScale);
+      ret += sdWeirdSphere(p, 4.0 * terrainScale);
+      ret += sdWeirdSphere(p, 2.0 * terrainScale);
+      ret += sdWeirdSphere(p, 1.0 * terrainScale);
       ret /= 2.0;
       ret -= 0.5;
       return ret;
@@ -134,17 +126,9 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
 
     // Generate terrain properties (temperature, snow factor)
     vec2 terrain(vec3 p, float h) {
-      float col = 0.0;
-      float amplitude = 1.0;
-      float frequency = 32.0 * terrainScale;
-      
-      // Reduce iterations based on quality
-      for (int i = 0; i < 3; i++) {
-        if (i >= qualityLevel / 2) break;
-        col += sdWeirdSphere(p, frequency) * amplitude;
-        amplitude *= 0.5;
-        frequency *= 0.5;
-      }
+      float col = sdWeirdSphere(p, 32.0 * terrainScale);
+      col += sdWeirdSphere(p, 16.0 * terrainScale);
+      col += sdWeirdSphere(p, 4.0 * terrainScale);
       
       float t = 1.0 - (abs(p.y * 1.2) - max(h, 0.0) * 0.05);
       t = min((t + col) / 2.0, 1.0);
@@ -205,7 +189,7 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
       return vec3(X, Y, Z);
     }
 
-    // Generate cloud density with quality-based iterations
+    // Generate cloud density
     float cloud(vec3 p) {
       // Rotate clouds independently for more dynamic effect
       vec3 t = p;
@@ -216,17 +200,12 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
       vec2 uv = pos3to2(p);
       vec3 cp = pos2to3(spiral(uv * 2.0 * cloudScale) + spiral(uv * 3.0 * cloudScale));
       
-      float c = 0.0;
-      float amplitude = 1.0;
-      float frequency = 8.0;
-      
-      // Reduce iterations based on quality
-      for (int i = 0; i < 4; i++) {
-        if (i >= qualityLevel / 2) break;
-        c += perlin_noise3(cp * vec3(frequency, frequency * 2.0, frequency)) * amplitude;
-        amplitude *= 0.5;
-        frequency *= 2.0;
-      }
+      float c = perlin_noise3(cp * vec3(8.0, 16.0, 8.0));
+      c += perlin_noise3(cp * vec3(4.0, 8.0, 4.0)) * 2.0;
+      c += perlin_noise3(cp * vec3(1.0, 2.0, 1.0)) * 3.0;
+      c += perlin_noise3(cp * vec3(32.0, 64.0, 32.0));
+      c -= perlin_noise3(p * 1.5);
+      c -= perlin_noise3(p * 5.0);
       
       // Reduce clouds near poles
       float latitudeFactor = abs((abs(p.y) - 0.5) * 2.0);
@@ -235,20 +214,17 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
       return max(c, 0.0);
     }
 
-    // Generate night lights with quality-based iterations
+    // Generate night lights
     float nightLight(vec3 pos, float h, vec2 th) {
-      if (th.x < 0.2) return 0.0;  // Exclude ice/snow biomes (based on th.x threshold)
       float l = perlin_noise3(pos * vec3(128.0, 128.0, 128.0)) * 3.0;
-      float p = 0.0;
-      float amplitude = 1.0;
-      float frequency = 32.0;
-      for (int i = 0; i < 3; i++) {
-        if (i >= qualityLevel / 2) break;
-        p += perlin_noise3(pos * vec3(frequency, frequency, frequency)) * amplitude;
-        amplitude *= 0.5;
-        frequency *= 0.5;
-      }
+      
+      float p = perlin_noise3(pos * vec3(32.0, 32.0, 32.0)) * 2.0;
+      p += perlin_noise3(pos * vec3(8.0, 8.0, 8.0));
+      p += perlin_noise3(pos * vec3(16.0, 16.0, 16.0));
+      p -= perlin_noise3(pos * vec3(4.0, 4.0, 4.0)) * 4.0;
+      
       l *= clamp(p, 0.0, 1.0) * max(th.x - 0.2, 0.0) * th.y * 2.0;
+      
       return l * (h > 0.0 ? 1.0 : 0.0);
     }
 

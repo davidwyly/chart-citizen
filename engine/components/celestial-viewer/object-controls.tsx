@@ -66,7 +66,7 @@ export function ObjectControls({
 
   const isProtostar = selectedObjectId === 'protostar'
   const isBlackHole = selectedObjectId === 'black-hole'
-  const isHabitablePlanet = ['earth-like', 'desert-world', 'ocean-world-habitable', 'ice-world'].includes(selectedObjectId) || selectedObjectId === 'habitable-planet'
+  const isHabitablePlanet = ['earth-like', 'desert-world', 'ocean-world-habitable', 'ice-world'].includes(selectedObjectId)
 
   return (
     <div className="flex h-full flex-col p-4 overflow-y-auto">
