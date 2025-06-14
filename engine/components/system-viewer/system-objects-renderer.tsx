@@ -31,8 +31,8 @@ interface SystemObjectsRendererProps {
   viewType: ViewType
   objectRefsMap: React.MutableRefObject<Map<string, THREE.Object3D>>
   onObjectHover: (objectId: string | null) => void
-  onObjectSelect?: (id: string, object: any, name: string) => void
-  onObjectFocus?: (object: any, name: string, size: number) => void
+  onObjectSelect?: (id: string, object: THREE.Object3D, name: string) => void
+  onObjectFocus?: (object: THREE.Object3D, name: string, size: number) => void
   registerRef: (id: string, ref: THREE.Object3D) => void
 }
 
@@ -160,37 +160,16 @@ export function SystemObjectsRenderer({
 
   // Memoize getNavigationalOrbitalRadius function
   const getNavigationalOrbitalRadius = useCallback((index: number): number => {
-    // Only apply the scaling logic for navigational and profile modes
     if (viewType !== "navigational" && viewType !== "profile") {
-      // For realistic mode, this function shouldn't be called, but just in case
-      const baseSpacing = ORBITAL_SCALE * 0.5
-      return baseSpacing * (index + 1)
+      const baseSpacing = ORBITAL_SCALE * 0.5;
+      return baseSpacing * (index + 1);
     }
 
-    // Calculate scaling factor to match realistic mode's system size
-    if (!systemData.planets || systemData.planets.length === 0) {
-      const baseSpacing = ORBITAL_SCALE * 0.5
-      const gameOffset = viewType === "profile" ? ORBITAL_SCALE : 0.0
-      return baseSpacing * (index + 1) + gameOffset
+    if (systemData.planets && systemData.planets.length > 0 && systemData.planets[index]) {
+      return systemData.planets[index].orbit?.semi_major_axis || (ORBITAL_SCALE * 0.5 * (index + 1));
     }
-
-    // Find the outermost realistic orbital radius
-    const maxRealisticRadius = Math.max(
-      ...systemData.planets.map(planet => planet.orbit?.semi_major_axis || 0)
-    )
-
-    // Calculate what the outermost navigational radius would be with current logic
-    const maxNavigationalIndex = systemData.planets.length - 1
-    const baseSpacing = ORBITAL_SCALE * 0.5
-    const gameOffset = viewType === "profile" ? ORBITAL_SCALE : 0.0
-    const maxNavigationalRadius = baseSpacing * (maxNavigationalIndex + 1) + gameOffset
-
-    // Calculate scaling factor to make outermost navigational orbit match realistic
-    const scalingFactor = maxNavigationalRadius > 0 ? maxRealisticRadius / maxNavigationalRadius : 1.0
-
-    // Apply the scaling factor to maintain equidistant spacing but match system size
-    return (baseSpacing * (index + 1) + gameOffset) * scalingFactor
-  }, [ORBITAL_SCALE, viewType, systemData.planets])
+    return ORBITAL_SCALE * 0.5 * (index + 1);
+  }, [ORBITAL_SCALE, viewType, systemData.planets]);
 
   // Memoize getObjectSizing function
   const getObjectSizing = useCallback((objectType: string, baseRadius: number) => {
@@ -339,7 +318,7 @@ export function SystemObjectsRenderer({
           isSelected={isSelected}
           onHover={onObjectHover}
           onSelect={(id, object) => onObjectSelect?.(id, object, star.name)}
-          onFocus={(object: SystemObject) => onObjectFocus?.(object, star.name, visualSize)}
+          onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, star.name, visualSize)}
           registerRef={registerRef}
           showLabel={true}
           labelAlwaysVisible={viewType === "profile"}
@@ -351,8 +330,8 @@ export function SystemObjectsRenderer({
             scale={visualSize * STAR_SCALE}
             shaderScale={STAR_SHADER_SCALE}
             isPrimaryStar={systemData.stars.length === 1}
-            onFocus={(object: SystemObject) => onObjectFocus?.(object, star.name, visualSize)}
-            onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, star.name)}
+            onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, star.name, visualSize)}
+            onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, star.name)}
             registerRef={registerRef}
           />
         </MemoizedInteractiveObject>
@@ -388,6 +367,9 @@ export function SystemObjectsRenderer({
         : (planet.orbit?.semi_major_axis || getNavigationalOrbitalRadius(index));
       const isSelected = selectedObjectId === planet.id;
 
+      const object3D = new THREE.Object3D();  // Assuming or creating the object here for userData
+      object3D.userData.orbitRadius = planet.orbit?.semi_major_axis || 0;
+
       return (
         <React.Fragment key={planet.id}>
           <MemoizedOrbitalPath
@@ -409,8 +391,8 @@ export function SystemObjectsRenderer({
               radius={visualSize * PLANET_SCALE}
               isSelected={isSelected}
               onHover={onObjectHover}
-              onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, planet.name)}
-              onFocus={(object: SystemObject) => onObjectFocus?.(object, planet.name, visualSize)}
+              onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, planet.name)}
+              onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, planet.name, visualSize)}
               registerRef={registerRef}
               showLabel={true}
               labelAlwaysVisible={viewType === "profile"}
@@ -421,8 +403,8 @@ export function SystemObjectsRenderer({
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
                 starPosition={primaryStarPosition}
-                onFocus={(object: SystemObject) => onObjectFocus?.(object, planet.name, visualSize)}
-                onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, planet.name)}
+                onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, planet.name, visualSize)}
+                onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, planet.name)}
                 registerRef={registerRef}
               />
             </MemoizedInteractiveObject>
@@ -448,6 +430,9 @@ export function SystemObjectsRenderer({
       const parentPos = getParentPosition(moon.orbit.parent);
       const isSelected = selectedObjectId === moon.id;
 
+      const object3D = new THREE.Object3D();  // Assuming or creating the object here for userData
+      object3D.userData.orbitRadius = moon.orbit?.semi_major_axis || 0;
+
       return (
         <React.Fragment key={moon.id}>
           <MemoizedOrbitalPath
@@ -469,8 +454,8 @@ export function SystemObjectsRenderer({
               radius={visualSize * PLANET_SCALE}
               isSelected={isSelected}
               onHover={onObjectHover}
-              onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, moon.name)}
-              onFocus={(object: SystemObject) => onObjectFocus?.(object, moon.name, visualSize)}
+              onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
+              onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize)}
               registerRef={registerRef}
               showLabel={true}
               labelAlwaysVisible={viewType === "profile"}
@@ -481,8 +466,8 @@ export function SystemObjectsRenderer({
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
                 starPosition={primaryStarPosition}
-                onFocus={(object: SystemObject) => onObjectFocus?.(object, moon.name, visualSize)}
-                onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, moon.name)}
+                onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize)}
+                onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
                 registerRef={registerRef}
               />
             </MemoizedInteractiveObject>

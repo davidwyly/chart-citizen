@@ -1,21 +1,115 @@
 "use client"
 
 import type React from "react"
-import { Star, Circle, Globe } from "lucide-react"
+import { Star, Circle, Globe, Camera } from "lucide-react"
 import type { SystemData } from "@/engine/system-loader"
 
 interface ObjectDetailsPanelProps {
   systemData: SystemData | null
   focusedName: string
   focusedObjectSize: number | null
+  isSystemSelected?: boolean
+  cameraOrbitRadius?: number
 }
 
 export function ObjectDetailsPanel({
   systemData,
   focusedName,
   focusedObjectSize,
+  isSystemSelected = false,
+  cameraOrbitRadius,
 }: ObjectDetailsPanelProps) {
-  if (!systemData || !focusedName) {
+  if (!systemData) {
+    return (
+      <div className="fixed top-6 left-6 z-40 w-80 bg-black/70 backdrop-blur-sm rounded-lg border border-white/20 p-4">
+        <div className="text-white/60 text-sm">
+          No system data available
+        </div>
+      </div>
+    )
+  }
+
+  // If system is selected, show system information
+  if (isSystemSelected) {
+    return (
+      <div className="fixed top-6 left-6 z-40 w-80 bg-black/70 backdrop-blur-sm rounded-lg border border-white/20 p-4">
+        <div className="text-white">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/20">
+            <Globe size={20} className="fill-current text-green-300" />
+            <div>
+              <h3 className="font-semibold text-lg">{systemData.name}</h3>
+              <p className="text-white/60 text-sm">Star System</p>
+            </div>
+          </div>
+
+          {/* System Details */}
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-white/60 text-sm">System ID:</span>
+              <span className="text-white text-sm">{systemData.id}</span>
+            </div>
+
+            {systemData.description && (
+              <div className="flex justify-between">
+                <span className="text-white/60 text-sm">Description:</span>
+                <span className="text-white text-sm text-right max-w-48">{systemData.description}</span>
+              </div>
+            )}
+
+            <div className="flex justify-between">
+              <span className="text-white/60 text-sm">Stars:</span>
+              <span className="text-white text-sm">{systemData.stars?.length || 0}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-white/60 text-sm">Planets:</span>
+              <span className="text-white text-sm">{systemData.planets?.length || 0}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-white/60 text-sm">Moons:</span>
+              <span className="text-white text-sm">{systemData.moons?.length || 0}</span>
+            </div>
+
+            {systemData.barycenter && (
+              <div className="flex justify-between">
+                <span className="text-white/60 text-sm">Barycenter:</span>
+                <span className="text-white text-sm">
+                  {systemData.barycenter.map(p => p.toFixed(1)).join(', ')}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Camera Section */}
+          {cameraOrbitRadius && (
+            <>
+              <div className="mt-4 pt-3 border-t border-white/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <Camera size={16} className="text-blue-300" />
+                  <span className="text-white font-medium text-sm">Camera</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-white/60 text-sm">Orbit Radius:</span>
+                    <span className="text-white text-sm">{cameraOrbitRadius.toFixed(2)} AU</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/60 text-sm">View Mode:</span>
+                    <span className="text-white text-sm">Birds Eye</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Original object-focused logic
+  if (!focusedName) {
     return (
       <div className="fixed top-6 left-6 z-40 w-80 bg-black/70 backdrop-blur-sm rounded-lg border border-white/20 p-4">
         <div className="text-white/60 text-sm">
@@ -28,7 +122,8 @@ export function ObjectDetailsPanel({
   // Find the focused object
   const focusedStar = systemData.stars?.find(star => star.name === focusedName)
   const focusedPlanet = systemData.planets?.find(planet => planet.name === focusedName)
-  const focusedObject = focusedStar || focusedPlanet
+  const focusedMoon = systemData.moons?.find(moon => moon.name === focusedName)
+  const focusedObject = focusedStar || focusedPlanet || focusedMoon
 
   if (!focusedObject) {
     return (
@@ -40,8 +135,10 @@ export function ObjectDetailsPanel({
     )
   }
 
-  const objectType = focusedStar ? 'Star' : 'Planet'
-  const objectIcon = focusedStar ? <Star size={20} className="fill-current text-yellow-300" /> : <Circle size={16} className="fill-current text-blue-300" />
+  const objectType = focusedStar ? 'Star' : focusedPlanet ? 'Planet' : 'Moon'
+  const objectIcon = focusedStar ? <Star size={20} className="fill-current text-yellow-300" /> : 
+                     focusedPlanet ? <Circle size={16} className="fill-current text-blue-300" /> :
+                     <Circle size={14} className="fill-current text-purple-300" />
 
   return (
     <div className="fixed top-6 left-6 z-40 w-80 bg-black/70 backdrop-blur-sm rounded-lg border border-white/20 p-4">
@@ -113,7 +210,29 @@ export function ObjectDetailsPanel({
           )}
         </div>
 
-        {/* System Context */}
+        {/* Camera Section - Always show if available */}
+        {cameraOrbitRadius && (
+          <>
+            <div className="mt-4 pt-3 border-t border-white/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Camera size={16} className="text-blue-300" />
+                <span className="text-white font-medium text-sm">Camera</span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-white/60 text-sm">Orbit Radius:</span>
+                  <span className="text-white text-sm">{cameraOrbitRadius.toFixed(2)} AU</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60 text-sm">View Mode:</span>
+                  <span className="text-white text-sm">Birds Eye</span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* System Context - Renamed to System Info */}
         <div className="mt-4 pt-3 border-t border-white/20">
           <div className="text-white/60 text-xs">
             System: {systemData.name}

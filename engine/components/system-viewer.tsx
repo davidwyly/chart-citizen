@@ -67,6 +67,8 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const [viewType, setViewType] = useState<ViewType>("realistic")
   const [currentZoom, setCurrentZoom] = useState<number>(1)
   const cameraControllerRef = useRef<CameraControllerRef>(null)
+  const [isSystemSelected, setIsSystemSelected] = useState(false)
+  const [cameraOrbitRadius, setCameraOrbitRadius] = useState<number>(0)
 
   // Load system data
   const { systemData, loading, error, loadingProgress, availableSystems } = useSystemData(mode, systemId)
@@ -189,12 +191,35 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     scalingConfig
   ])
 
-  // Handle system name click in breadcrumb - show birds-eye view
+  // Handle system name click in breadcrumb - show birds-eye view and select system
   const handleSystemNameClick = useCallback(() => {
     if (cameraControllerRef.current) {
       cameraControllerRef.current.setBirdsEyeView()
+      // Get the orbit radius after setting birds-eye view
+      setTimeout(() => {
+        if (cameraControllerRef.current) {
+          const orbitRadius = cameraControllerRef.current.getCurrentOrbitRadius()
+          setCameraOrbitRadius(orbitRadius)
+        }
+      }, 100) // Small delay to ensure the calculation is complete
     }
-  }, [])
+    // Set system as selected and clear individual object selection
+    setIsSystemSelected(true)
+    // Clear any focused objects by calling the stop following handler
+    handleStopFollowing()
+  }, [handleStopFollowing])
+
+  // Create a wrapper for object selection that clears system selection
+  const wrappedHandleObjectSelect = useCallback((objectId: string, object: THREE.Object3D, name: string) => {
+    setIsSystemSelected(false) // Clear system selection when selecting an object
+    
+    // Get the current camera orbit radius when an object is selected
+    if (cameraControllerRef.current) {
+      setCameraOrbitRadius(cameraControllerRef.current.getCurrentOrbitRadius())
+    }
+
+    handleObjectSelect(objectId, object, name) // Call the original handler
+  }, [handleObjectSelect, setCameraOrbitRadius])
 
   // Handle system change
   const handleSystemChange = useCallback((newSystemId: string) => {
@@ -232,7 +257,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
           systemData={systemData}
           objectRefsMap={objectRefsMap}
           onObjectFocus={enhancedObjectFocus}
-          onObjectSelect={handleObjectSelect}
+          onObjectSelect={wrappedHandleObjectSelect}
           focusedName={focusedName || ""}
           onBackToStarmap={() => {
             // For modes that need to navigate back to starmap, we'll signal the parent
@@ -249,6 +274,8 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
           systemData={systemData}
           focusedName={focusedName || ""}
           focusedObjectSize={focusedObjectSize}
+          isSystemSelected={isSystemSelected}
+          cameraOrbitRadius={cameraOrbitRadius}
         />
 
         {/* Canvas */}
@@ -289,7 +316,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
                 {...systemObjectsProps}
                 objectRefsMap={objectRefsMap}
                 onObjectHover={handleObjectHoverCallback}
-                onObjectSelect={handleObjectSelect}
+                onObjectSelect={wrappedHandleObjectSelect}
                 onObjectFocus={enhancedObjectFocus}
                 registerRef={registerRefCallback}
               />

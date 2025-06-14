@@ -13,6 +13,7 @@ interface CameraControllerProps {
 export interface CameraControllerRef {
   resetToBookmarkView: () => void
   setBirdsEyeView: () => void
+  getCurrentOrbitRadius: () => number
 }
 
 export const CameraController = forwardRef<CameraControllerRef, CameraControllerProps>(
@@ -23,6 +24,7 @@ export const CameraController = forwardRef<CameraControllerRef, CameraController
     const animatingRef = useRef(false)
     const lastObjectPositionRef = useRef<THREE.Vector3>(new THREE.Vector3())
     const initialViewSetRef = useRef(false)
+    const currentOrbitRadiusRef = useRef<number>(0)
 
     useEffect(() => {
       controlsRef.current = controls
@@ -55,11 +57,12 @@ export const CameraController = forwardRef<CameraControllerRef, CameraController
 
       // Calculate the system bounds
       const maxOrbitRadius = calculateMaxOrbitRadius()
+      currentOrbitRadiusRef.current = maxOrbitRadius // Store the current orbit radius
       const center = new THREE.Vector3()
 
       // Calculate camera position for 40-degree angle (birds-eye view)
       const angle = 40 * (Math.PI / 180) // Convert to radians
-      const distance = maxOrbitRadius * 1.5 // Use 1.5x the max orbit radius to frame the entire system
+      const distance = maxOrbitRadius  // Removed * 1.5 to use raw value
 
       // Calculate position components for birds-eye view
       const horizontalDistance = distance * Math.cos(angle)
@@ -166,10 +169,16 @@ export const CameraController = forwardRef<CameraControllerRef, CameraController
       }
     }, [])
 
-    // Expose the reset and birds-eye view functions to parent components
+    // Get current orbit radius function
+    const getCurrentOrbitRadius = useCallback(() => {
+      return currentOrbitRadiusRef.current
+    }, [])
+
+    // Expose the reset, birds-eye view, and orbit radius functions to parent components
     useImperativeHandle(ref, () => ({
       resetToBookmarkView,
-      setBirdsEyeView
+      setBirdsEyeView,
+      getCurrentOrbitRadius
     }))
 
     useEffect(() => {
