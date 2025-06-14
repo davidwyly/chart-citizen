@@ -122,7 +122,7 @@ export function InteractiveObject({
     desiredOffset.current.copy(cameraLeft.current).multiplyScalar(offsetAmount)
 
     // Smoothly interpolate current offset towards desired offset
-    currentOffset.current.lerp(desiredOffset.current, 0.1)
+    currentOffset.current.lerp(desiredOffset.current, 0.2)
 
     // Update label group position
     labelGroupRef.current.position.copy(currentOffset.current)
