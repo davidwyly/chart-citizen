@@ -7,6 +7,9 @@ This document provides a quick overview of the key features implemented in the C
 - **Navigational Mode** - Provides equidistant orbital paths in 3D perspective for easier navigation. [navigational-mode.md](./navigational-mode.md)
 - **Profile Mode** - Offers a top-down diagrammatic view with equidistant orbital paths and orthographic projection. [profile-mode-orbital-alignment.md](./profile-mode-orbital-alignment.md)
 
+## Camera System
+- **Unified Camera System** - Configuration-driven camera controller that provides consistent behavior across all view modes with dual properties system for real vs visual object representation. [unified-camera-system.md](./unified-camera-system.md)
+
 ## Visualization Features
 - **Orbital Path Visualization** - Displays the paths that celestial bodies follow, adjusted for the current view mode. [orbital-paths.md](./orbital-paths.md)
 - **Star Shaders** - Realistic rendering of stars with custom shaders for atmospheric effects. [star-shaders.md](./star-shaders.md)
@@ -32,7 +35,7 @@ This document provides a quick overview of the key features implemented in the C
 ## Planet Rendering
 - **Terrestrial Planet** (`terrestrial-planet.md`): A shader-based implementation of terrestrial planets with quality level variants and dynamic lava flows.
 - **Terrestrial Planet Simulator** (`terrestrial-planet-simulator-design-document.md`): A design document outlining the features and implementation strategy for the terrestrial planet simulator.
-- **protostar** (`protostar.md`): A procedural shader for rendering protostarary disks and nebulae.
+- **protostar** (`protostar.md`): A procedural shader for rendering protostaary disks and nebulae.
 
 ## Performance Monitoring
 - **Performance Monitor** (`performance-monitor.md`): A system for tracking and reporting performance metrics with quality level recommendations.

@@ -13,6 +13,8 @@ interface ObjectSelectionState {
   focusedName: string | null
   focusedObjectSize: number | null
   focusedObjectRadius: number | null
+  focusedObjectMass: number | null
+  focusedObjectOrbitRadius: number | null
   objectRefsMap: Map<string, THREE.Object3D>
 }
 
@@ -25,6 +27,8 @@ export function useObjectSelection(systemData: SystemData | null, viewType: View
     focusedName: null,
     focusedObjectSize: null,
     focusedObjectRadius: null,
+    focusedObjectMass: null,
+    focusedObjectOrbitRadius: null,
     objectRefsMap: new Map()
   })
 
@@ -34,43 +38,55 @@ export function useObjectSelection(systemData: SystemData | null, viewType: View
   // Store refs to all objects in the scene for parent-child relationships
   const objectRefsMap = useRef<Map<string, THREE.Object3D>>(new Map())
 
-  // Helper function to get object radius from system data
-  const getObjectRadius = useCallback((objectId: string): number | null => {
+  // Helper function to get object data from system data
+  const getObjectData = useCallback((objectId: string) => {
     if (!systemData) return null
 
     // Check stars
     const star = systemData.stars.find(s => s.id === objectId)
     if (star) {
-      return 1.0 // Stars are always at scale 1.0
+      return {
+        ...star,
+        orbit: { semi_major_axis: 0 } // Stars don't orbit
+      }
     }
 
     // Check planets
     const planet = systemData.planets?.find(p => p.id === objectId)
     if (planet) {
-      return 1.0 // Planets are always at scale 1.0
+      return planet
     }
 
     // Check moons
     const moon = systemData.moons?.find(m => m.id === objectId)
     if (moon) {
-      return 0.5 // Moons are at half scale
+      return moon
     }
 
     return null
   }, [systemData])
 
-  // Handle object focus
-  const handleObjectFocus = useCallback((object: THREE.Object3D, name: string, visualSize?: number, radius?: number) => {
+  // Enhanced handle object focus with additional properties
+  const handleObjectFocus = useCallback((
+    object: THREE.Object3D, 
+    name: string, 
+    visualSize?: number, 
+    radius?: number, 
+    mass?: number, 
+    orbitRadius?: number
+  ) => {
     setState(prev => ({
       ...prev,
       focusedObject: object,
       focusedName: name,
       focusedObjectSize: visualSize || null,
-      focusedObjectRadius: radius || null
+      focusedObjectRadius: radius || null,
+      focusedObjectMass: mass || null,
+      focusedObjectOrbitRadius: orbitRadius || null
     }))
   }, [])
 
-  // Handle object selection
+  // Handle object selection with full object data
   const handleObjectSelect = useCallback((objectId: string, object: THREE.Object3D, name: string) => {
     setState(prev => {
       // Store previous state when selecting a planet in game view
@@ -78,21 +94,23 @@ export function useObjectSelection(systemData: SystemData | null, viewType: View
         previousStateRef.current = prev
       }
 
-      // Get the object radius
-      const radius = getObjectRadius(objectId)
+      // Get the full object data
+      const objectData = getObjectData(objectId)
 
       return {
         ...prev,
         selectedObjectId: objectId,
-        selectedObjectData: { id: objectId, name },
-        // Also focus the object when selected
+        selectedObjectData: objectData,
+        // Focus will be updated with full properties by the renderer when onObjectFocus is called
         focusedObject: object,
         focusedName: name,
-        focusedObjectRadius: radius,
-        focusedObjectSize: radius
+        focusedObjectRadius: null, // Will be set by renderer
+        focusedObjectSize: null, // Will be set by renderer
+        focusedObjectMass: null, // Will be set by renderer
+        focusedObjectOrbitRadius: objectData?.orbit?.semi_major_axis || null
       }
     })
-  }, [viewType, systemData, getObjectRadius])
+  }, [viewType, systemData, getObjectData])
 
   // Handle object hover
   const handleObjectHover = useCallback((objectId: string | null) => {
@@ -116,7 +134,9 @@ export function useObjectSelection(systemData: SystemData | null, viewType: View
       focusedObject: null,
       focusedName: null,
       focusedObjectSize: null,
-      focusedObjectRadius: null
+      focusedObjectRadius: null,
+      focusedObjectMass: null,
+      focusedObjectOrbitRadius: null
     }))
   }, [])
 

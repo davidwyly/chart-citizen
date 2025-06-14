@@ -7,7 +7,7 @@ import { InteractiveObject } from "../3d-ui/interactive-object"
 import { OrbitalPath } from "../orbital-path"
 import { CatalogObjectWrapper } from "./catalog-object-wrapper"
 import { StellarZones } from "./components/stellar-zones"
-import { calculateObjectSizing } from "./view-mode-calculator"
+import { calculateObjectSizing, shouldUseUnifiedCalculations } from "./view-mode-calculator"
 import type { SystemData, CatalogObject, SystemObject } from "@/engine/system-loader"
 import type { ViewType } from "@lib/types/effects-level"
 import { engineSystemLoader } from "@/engine/system-loader"
@@ -32,7 +32,7 @@ interface SystemObjectsRendererProps {
   objectRefsMap: React.MutableRefObject<Map<string, THREE.Object3D>>
   onObjectHover: (objectId: string | null) => void
   onObjectSelect?: (id: string, object: THREE.Object3D, name: string) => void
-  onObjectFocus?: (object: THREE.Object3D, name: string, size: number) => void
+  onObjectFocus?: (object: THREE.Object3D, name: string, size: number, radius?: number, mass?: number, orbitRadius?: number) => void
   registerRef: (id: string, ref: THREE.Object3D) => void
 }
 
@@ -171,9 +171,9 @@ export function SystemObjectsRenderer({
     return ORBITAL_SCALE * 0.5 * (index + 1);
   }, [ORBITAL_SCALE, viewType, systemData.planets]);
 
-  // Memoize getObjectSizing function
-  const getObjectSizing = useCallback((objectType: string, baseRadius: number) => {
-    return calculateObjectSizing(objectType, baseRadius, viewType, SYSTEM_SCALE)
+  // Memoize getObjectSizing function using unified system
+  const getObjectSizing = useCallback((objectType: string, baseRadius: number, objectName?: string, orbitRadius?: number, mass?: number) => {
+    return calculateObjectSizing(objectType, baseRadius, viewType, SYSTEM_SCALE, objectName, orbitRadius, mass)
   }, [viewType, SYSTEM_SCALE])
 
   // Memoize validateScale function
@@ -220,13 +220,13 @@ export function SystemObjectsRenderer({
 
       // Calculate star position
       const starCatalog = catalogObjects[systemData.stars[0].catalog_ref]
-      const starSizing = getObjectSizing("star", starCatalog?.radius || 1)
+      const starSizing = getObjectSizing("star", starCatalog?.radius || 1, systemData.stars[0].name, 0, starCatalog?.mass)
       layout.starPosition = [0, 0, 0]
 
       // Calculate planet positions
       systemData.planets?.forEach((planet, index) => {
         const planetCatalog = catalogObjects[planet.catalog_ref]
-        const planetSizing = getObjectSizing("planet", planetCatalog?.radius || 1)
+        const planetSizing = getObjectSizing("planet", planetCatalog?.radius || 1, planet.name, planet.orbit?.semi_major_axis, planetCatalog?.mass)
         const orbitalRadius = getNavigationalOrbitalRadius(index)
         const angle = (index / (systemData.planets?.length || 1)) * Math.PI * 2
         layout.planetPositions.push([
@@ -239,7 +239,7 @@ export function SystemObjectsRenderer({
       // Calculate moon positions
       systemData.moons?.forEach((moon, index) => {
         const moonCatalog = catalogObjects[moon.catalog_ref]
-        const moonSizing = getObjectSizing("moon", moonCatalog?.radius || 1)
+        const moonSizing = getObjectSizing("moon", moonCatalog?.radius || 1, moon.name, moon.orbit?.semi_major_axis, moonCatalog?.mass)
         const parentIndex = systemData.planets?.findIndex(p => p.id === moon.orbit?.parent) ?? -1
         if (parentIndex !== -1) {
           const parentPosition = layout.planetPositions[parentIndex]
@@ -287,7 +287,9 @@ export function SystemObjectsRenderer({
     return systemData.stars.map((star, index) => {
       const catalogObject = catalogObjects[star.catalog_ref];
       const baseRadius = catalogObject?.radius || 1;
-      const { visualSize } = calculateObjectSizing("star", baseRadius, viewType, SYSTEM_SCALE);
+      const mass = catalogObject?.mass || 100; // Default star mass
+      
+      const { visualSize, dualProperties } = getObjectSizing("star", baseRadius, star.name, 0, mass);
       const isSelected = selectedObjectId === star.id;
       
       // Calculate star position based on orbital parameters or binary separation
@@ -318,7 +320,7 @@ export function SystemObjectsRenderer({
           isSelected={isSelected}
           onHover={onObjectHover}
           onSelect={(id, object) => onObjectSelect?.(id, object, star.name)}
-          onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, star.name, visualSize)}
+          onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, star.name, visualSize, dualProperties.realRadius, mass, 0)}
           registerRef={registerRef}
           showLabel={true}
           labelAlwaysVisible={viewType === "profile"}
@@ -330,14 +332,14 @@ export function SystemObjectsRenderer({
             scale={visualSize * STAR_SCALE}
             shaderScale={STAR_SHADER_SCALE}
             isPrimaryStar={systemData.stars.length === 1}
-            onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, star.name, visualSize)}
+            onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, star.name, visualSize, dualProperties.realRadius, mass, 0)}
             onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, star.name)}
             registerRef={registerRef}
           />
         </MemoizedInteractiveObject>
       );
     });
-  }, [systemData.stars, catalogObjects, viewType, SYSTEM_SCALE, STAR_SCALE, STAR_SHADER_SCALE, selectedObjectId, ORBITAL_SCALE, timeMultiplier]);
+  }, [systemData.stars, catalogObjects, viewType, SYSTEM_SCALE, STAR_SCALE, STAR_SHADER_SCALE, selectedObjectId, ORBITAL_SCALE, timeMultiplier, getObjectSizing]);
 
   // Calculate primary star position for lighting
   const primaryStarPosition = useMemo(() => {
@@ -361,7 +363,10 @@ export function SystemObjectsRenderer({
     return systemData.planets.map((planet, index) => {
       const catalogObject = catalogObjects[planet.catalog_ref];
       const baseRadius = catalogObject?.radius || 1;
-      const { visualSize } = calculateObjectSizing("planet", baseRadius, viewType, SYSTEM_SCALE);
+      const mass = catalogObject?.mass || 1; // Default planet mass
+      const orbitRadius = planet.orbit?.semi_major_axis || 0;
+      
+      const { visualSize, dualProperties } = getObjectSizing("planet", baseRadius, planet.name, orbitRadius, mass);
       const semiMajorAxis = (viewType === "navigational" || viewType === "profile")
         ? getNavigationalOrbitalRadius(index)
         : (planet.orbit?.semi_major_axis || getNavigationalOrbitalRadius(index));
@@ -392,7 +397,7 @@ export function SystemObjectsRenderer({
               isSelected={isSelected}
               onHover={onObjectHover}
               onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, planet.name)}
-              onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, planet.name, visualSize)}
+              onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, planet.name, visualSize, dualProperties.realRadius, mass, orbitRadius)}
               registerRef={registerRef}
               showLabel={true}
               labelAlwaysVisible={viewType === "profile"}
@@ -403,7 +408,7 @@ export function SystemObjectsRenderer({
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
                 starPosition={primaryStarPosition}
-                onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, planet.name, visualSize)}
+                onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, planet.name, visualSize, dualProperties.realRadius, mass, orbitRadius)}
                 onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, planet.name)}
                 registerRef={registerRef}
               />
@@ -412,7 +417,7 @@ export function SystemObjectsRenderer({
         </React.Fragment>
       );
     });
-  }, [systemData.planets, catalogObjects, viewType, SYSTEM_SCALE, ORBITAL_SCALE, PLANET_SCALE, selectedObjectId]);
+  }, [systemData.planets, catalogObjects, viewType, SYSTEM_SCALE, ORBITAL_SCALE, PLANET_SCALE, selectedObjectId, getObjectSizing]);
 
   // Memoize moon rendering
   const renderedMoons = useMemo(() => {
@@ -423,7 +428,10 @@ export function SystemObjectsRenderer({
 
       const catalogObject = catalogObjects[moon.catalog_ref];
       const baseRadius = catalogObject?.radius || 1;
-      const { visualSize } = calculateObjectSizing("moon", baseRadius, viewType, SYSTEM_SCALE);
+      const mass = catalogObject?.mass || 0.1; // Default moon mass
+      const orbitRadius = moon.orbit?.semi_major_axis || 0;
+      
+      const { visualSize, dualProperties } = getObjectSizing("moon", baseRadius, moon.name, orbitRadius, mass);
       const semiMajorAxis = (viewType === "navigational" || viewType === "profile") 
         ? Math.max(2.0, moon.orbit.semi_major_axis * 2.5) // Ensure minimum visible distance and scale up
         : moon.orbit.semi_major_axis;
@@ -455,7 +463,7 @@ export function SystemObjectsRenderer({
               isSelected={isSelected}
               onHover={onObjectHover}
               onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
-              onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize)}
+              onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize, dualProperties.realRadius, mass, orbitRadius)}
               registerRef={registerRef}
               showLabel={true}
               labelAlwaysVisible={viewType === "profile"}
@@ -466,7 +474,7 @@ export function SystemObjectsRenderer({
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
                 starPosition={primaryStarPosition}
-                onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize)}
+                onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize, dualProperties.realRadius, mass, orbitRadius)}
                 onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
                 registerRef={registerRef}
               />
@@ -475,7 +483,7 @@ export function SystemObjectsRenderer({
         </React.Fragment>
       );
     });
-  }, [systemData.moons, catalogObjects, viewType, SYSTEM_SCALE, ORBITAL_SCALE, PLANET_SCALE, selectedObjectId]);
+  }, [systemData.moons, catalogObjects, viewType, SYSTEM_SCALE, ORBITAL_SCALE, PLANET_SCALE, selectedObjectId, getObjectSizing]);
 
   return (
     <group>

@@ -1,10 +1,12 @@
 "use client"
 
 import type { ViewType } from '@lib/types/effects-level'
+import { VIEW_MODE_CONFIGS, createDualProperties, type DualObjectProperties, type ViewModeConfig } from '@/engine/types/view-mode-config'
 
 export interface ObjectSizing {
   actualSize: number
   visualSize: number
+  dualProperties: DualObjectProperties
 }
 
 export interface ViewModeScaling {
@@ -14,133 +16,68 @@ export interface ViewModeScaling {
   STAR_SHADER_SCALE: number
 }
 
+// Legacy function for backward compatibility - now powered by unified config
 export function calculateViewModeScaling(viewType: ViewType): ViewModeScaling {
-  switch (viewType) {
-    case "realistic":
-      return {
-        STAR_SCALE: 1.0,
-        PLANET_SCALE: 0.5,
-        ORBITAL_SCALE: 2.0,
-        STAR_SHADER_SCALE: 1.0
-      }
-    case "navigational":
-      return {
-        STAR_SCALE: 0.5,
-        PLANET_SCALE: 0.25,
-        ORBITAL_SCALE: 1.0,
-        STAR_SHADER_SCALE: 0.5
-      }
-    case "profile":
-      return {
-        STAR_SCALE: 0.75,
-        PLANET_SCALE: 0.4,
-        ORBITAL_SCALE: 1.5,
-        STAR_SHADER_SCALE: 0.75
-      }
-    default:
-      return calculateViewModeScaling("realistic")
+  const config = VIEW_MODE_CONFIGS[viewType] || VIEW_MODE_CONFIGS.realistic
+  
+  return {
+    STAR_SCALE: config.objectScaling.star,
+    PLANET_SCALE: config.objectScaling.planet,
+    ORBITAL_SCALE: config.orbitScaling.multiplier,
+    STAR_SHADER_SCALE: config.objectScaling.star
   }
 }
 
+// Main function using the unified configuration system
+export function calculateUnifiedObjectProperties(
+  objectName: string,
+  baseRadius: number,
+  orbitRadius: number,
+  mass: number,
+  viewType: ViewType,
+  systemScale: number = 1.0
+): DualObjectProperties {
+  return createDualProperties(
+    baseRadius,
+    orbitRadius,
+    mass,
+    objectName,
+    viewType,
+    systemScale
+  )
+}
+
+// Enhanced object sizing calculation using unified system
 export function calculateObjectSizing(
   objectType: string,
   baseRadius: number,
   viewType: ViewType,
-  systemScale: number
+  systemScale: number,
+  objectName?: string,
+  orbitRadius?: number,
+  mass?: number
 ): ObjectSizing {
   const validBaseRadius = typeof baseRadius === "number" && !isNaN(baseRadius) && baseRadius > 0 ? baseRadius : 1.0
-  const scaling = calculateViewModeScaling(viewType)
   const validSystemScale = typeof systemScale === "number" && !isNaN(systemScale) && systemScale > 0 ? systemScale : 1.0
-
-  // Calculate actual scale based on object type
-  let actualScale = validBaseRadius
-  switch (objectType) {
-    case "star":
-      actualScale *= scaling.STAR_SCALE
-      break
-    case "planet":
-      actualScale *= scaling.PLANET_SCALE
-      break
-    case "moon":
-      actualScale *= scaling.PLANET_SCALE * 0.5
-      break
-    default:
-      actualScale *= 1.0
-  }
-
-  // Calculate visual scale based on view type
-  let visualScale = actualScale
-  switch (viewType) {
-    case "realistic":
-      switch (objectType) {
-        case "star":
-          visualScale *= 1.0
-          break
-        case "planet":
-          visualScale *= 1.0
-          break
-        case "moon":
-          visualScale *= 1.0
-          break
-        default:
-          visualScale *= 1.0
-      }
-      break
-    case "navigational":
-      switch (objectType) {
-        case "star":
-          visualScale *= 0.5
-          break
-        case "planet":
-          visualScale *= 0.5
-          break
-        case "moon":
-          visualScale *= 0.5
-          break
-        default:
-          visualScale *= 0.5
-      }
-      break
-    case "profile":
-      switch (objectType) {
-        case "star":
-          visualScale *= 0.75
-          break
-        case "planet":
-          visualScale *= 0.75
-          break
-        case "moon":
-          visualScale *= 0.75
-          break
-        default:
-          visualScale *= 0.75
-      }
-      break
-    default:
-      visualScale *= 1.0
-  }
-
+  
+  // Use unified system with intelligent defaults
+  const name = objectName || `Unknown ${objectType}`
+  const orbit = orbitRadius || 0
+  const objMass = mass || (objectType === 'star' ? 100 : objectType === 'planet' ? 1 : 0.1)
+  
+  const dualProperties = calculateUnifiedObjectProperties(
+    name,
+    validBaseRadius,
+    orbit,
+    objMass,
+    viewType,
+    validSystemScale
+  )
+  
   return {
-    actualSize: actualScale * validSystemScale,
-    visualSize: visualScale * validSystemScale
-  }
-}
-
-export function getObjectScaleForNavigational(objectType: string, baseScale: number): number {
-  // Ensure baseScale is a valid number
-  const validBaseScale = typeof baseScale === "number" && !isNaN(baseScale) && baseScale > 0 ? baseScale : 1.0
-
-  switch (objectType) {
-    case "star":
-      return validBaseScale * 2.0 // Stars are largest but not by much
-    case "gas-giant":
-      return validBaseScale * 1.2 // Gas giants are medium-large
-    case "planet":
-      return validBaseScale * 1.0 // Rocky planets are base size
-    case "moon":
-      return validBaseScale * 0.8 // Moons are smallest
-    default:
-      return validBaseScale
+    actualSize: dualProperties.realRadius * validSystemScale,
+    visualSize: dualProperties.visualRadius,
+    dualProperties
   }
 }
 
@@ -178,4 +115,44 @@ export function calculateProfileLayout(
   const maxDistance = validateScale(positions[positions.length - 1] || leftMargin)
 
   return { positions, maxDistance }
+}
+
+// New utility functions for the unified system
+
+// Get view mode configuration
+export function getViewModeConfig(viewType: ViewType): ViewModeConfig {
+  return VIEW_MODE_CONFIGS[viewType] || VIEW_MODE_CONFIGS.realistic
+}
+
+// Calculate camera distance for an object using the unified system
+export function calculateCameraDistance(
+  objectName: string,
+  radius: number,
+  viewType: ViewType,
+  mass?: number,
+  orbitRadius?: number
+): { optimal: number; min: number; max: number } {
+  const dualProperties = createDualProperties(
+    radius,
+    orbitRadius || 0,
+    mass || 1.0,
+    objectName,
+    viewType
+  )
+  
+  return {
+    optimal: dualProperties.optimalViewDistance,
+    min: dualProperties.minViewDistance,
+    max: dualProperties.maxViewDistance
+  }
+}
+
+// Check if an object should use unified calculations
+export function shouldUseUnifiedCalculations(
+  objectName?: string,
+  radius?: number,
+  mass?: number,
+  orbitRadius?: number
+): boolean {
+  return !!(objectName && radius !== undefined && mass !== undefined)
 }

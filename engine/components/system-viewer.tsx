@@ -6,7 +6,7 @@ import { OrbitControls, Preload } from "@react-three/drei"
 import { Suspense } from "react"
 import type { ViewType } from '@lib/types/effects-level'
 import * as THREE from "three"
-import { CameraController, type CameraControllerRef } from "./system-viewer/camera-controller"
+import { UnifiedCameraController, type UnifiedCameraControllerRef } from "./system-viewer/unified-camera-controller"
 import { SystemObjectsRenderer } from "./system-viewer/system-objects-renderer"
 import { LoadingState, ErrorState } from "./system-viewer/loading-states"
 import { calculateViewModeScaling } from "./system-viewer/view-mode-calculator"
@@ -19,8 +19,6 @@ import { Sidebar } from "./sidebar/sidebar"
 import { ObjectDetailsPanel } from "./system-viewer/object-details-panel"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
 import { ZoomTracker } from "./system-viewer/components/zoom-tracker"
-import { ProfileCameraController } from "./system-viewer/profile-camera-controller"
-
 
 // Add JSX namespace declaration
 declare global {
@@ -66,7 +64,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const [isPaused, setIsPaused] = useState(true)
   const [viewType, setViewType] = useState<ViewType>("realistic")
   const [currentZoom, setCurrentZoom] = useState<number>(1)
-  const cameraControllerRef = useRef<CameraControllerRef>(null)
+  const cameraControllerRef = useRef<UnifiedCameraControllerRef>(null)
   const [isSystemSelected, setIsSystemSelected] = useState(false)
   const [cameraOrbitRadius, setCameraOrbitRadius] = useState<number>(0)
 
@@ -98,6 +96,20 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     systemData ? calculateViewModeScaling(viewType) : null,
     [systemData, viewType]
   )
+
+  // Get focused object properties for unified camera controller
+  const focusedObjectProperties = useMemo(() => {
+    if (!selectedObjectData || !focusedName) return null
+    
+    // Extract mass and orbit radius from selected object data
+    const mass = selectedObjectData.mass || (focusedName.toLowerCase().includes('star') ? 100 : focusedName.toLowerCase().includes('jupiter') || focusedName.toLowerCase().includes('saturn') || focusedName.toLowerCase().includes('uranus') || focusedName.toLowerCase().includes('neptune') ? 15 : 1)
+    const orbitRadius = selectedObjectData.orbit?.semi_major_axis || 0
+    
+    return {
+      mass,
+      orbitRadius
+    }
+  }, [selectedObjectData, focusedName])
 
   // Memoize camera configuration
   const cameraConfig = useMemo(() => ({
@@ -288,24 +300,17 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
             {/* Zoom tracker */}
             <ZoomTracker onZoomChange={setCurrentZoom} />
 
-            {/* Game Camera Controller - handles game view mode */}
-            <ProfileCameraController
-              viewType={viewType}
-              focusObject={focusedObject}
-              focusName={focusedName}
-              systemData={systemData}
-              selectedObjectId={selectedObjectId}
+            {/* Unified Camera Controller - handles all view modes */}
+            <UnifiedCameraController 
+              ref={cameraControllerRef}
+              focusObject={focusedObject} 
+              focusName={focusedName} 
+              focusRadius={focusedObjectRadius || undefined}
+              focusMass={focusedObjectProperties?.mass}
+              focusOrbitRadius={focusedObjectProperties?.orbitRadius}
+              viewMode={viewType}
+              systemScale={1.0}
             />
-
-            {/* Camera controller for focusing and following (non-game modes) */}
-            {viewType !== "profile" && (
-              <CameraController 
-                ref={cameraControllerRef}
-                focusObject={focusedObject} 
-                focusName={focusedName} 
-                focusRadius={focusedObjectRadius || undefined} 
-              />
-            )}
 
             {/* OrbitControls with improved settings */}
             <OrbitControls {...orbitControlsProps} />
