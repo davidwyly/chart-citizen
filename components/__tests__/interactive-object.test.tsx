@@ -17,7 +17,7 @@ jest.mock('three', () => {
       }
     },
     Vector3: class MockVector3 {
-      set(x: number, y: number, z: number) { return this }
+      set(/*x: number, y: number, z: number*/) { return this }
       copy() { return this }
       normalize() { return this }
       multiplyScalar() { return this }

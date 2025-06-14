@@ -4,19 +4,14 @@ import { useState, useEffect } from "react"
 import { SystemViewer } from "@/engine/components/system-viewer"
 import { engineSystemLoader } from "@/engine/system-loader"
 import type * as THREE from "three"
-import type { ViewType } from "@lib/types/effects-level"
+// import type { ViewType } from "@lib/types/effects-level"
 
 const MODE = "realistic"
 
 export function RealisticModeView() {
   const [systemId, setSystemId] = useState<string | null>(null)
-  const [availableSystems, setAvailableSystems] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [viewType, setViewType] = useState<ViewType>("realistic")
-  const [timeMultiplier, setTimeMultiplier] = useState(1)
-  const [isPaused, setIsPaused] = useState(true)
-  const [currentZoom, setCurrentZoom] = useState(1)
 
   // Load available systems
   useEffect(() => {
@@ -26,7 +21,6 @@ export function RealisticModeView() {
         if (systems.length === 0) {
           throw new Error("No systems found in realistic mode")
         }
-        setAvailableSystems(systems)
         setSystemId(systems[0]) // Select first system by default
       } catch (error) {
         setError(`Failed to load realistic universe: ${error instanceof Error ? error.message : "Unknown error"}`)

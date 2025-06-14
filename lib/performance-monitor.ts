@@ -22,6 +22,12 @@ export function usePerformanceMonitor(interval = 1000): PerformanceMetrics {
     let lastTime = performance.now()
     let animationFrameId: number
 
+    interface PerformanceMemory {
+      usedJSHeapSize: number
+      totalJSHeapSize: number
+      jsHeapSizeLimit: number
+    }
+
     const measure = () => {
       const currentTime = performance.now()
       frameCount++
@@ -30,9 +36,10 @@ export function usePerformanceMonitor(interval = 1000): PerformanceMetrics {
         const fps = Math.round((frameCount * 1000) / (currentTime - lastTime))
         
         // Get memory info if available
-        const memory = (performance as any).memory || {
+        const memory = (performance as any).memory as PerformanceMemory || {
           usedJSHeapSize: 0,
-          totalJSHeapSize: 0
+          totalJSHeapSize: 0,
+          jsHeapSizeLimit: 0,
         }
 
         setMetrics({

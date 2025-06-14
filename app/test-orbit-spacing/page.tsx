@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { SystemViewer } from '@/engine/components/system-viewer'
-import type { ViewType } from '@/lib/types/effects-level'
+// import type { ViewType } from '@/lib/types/effects-level'
+type ViewType = 'realistic' | 'navigational' | 'profile';
 import Link from 'next/link'
 
 export default function TestOrbitSpacingPage() {
@@ -23,11 +24,6 @@ export default function TestOrbitSpacingPage() {
       profile: [50, 100, 150], // Same equidistant pattern in profile view
     })
   }, [])
-
-  // Function to handle view type changes in the SystemViewer
-  const handleViewTypeChange = useCallback((newViewType: ViewType) => {
-    setViewType(newViewType);
-  }, []);
 
   return (
     <div className="flex flex-col h-screen">

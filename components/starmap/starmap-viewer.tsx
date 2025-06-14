@@ -3,11 +3,11 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 
 interface StarmapViewerProps {
-  mode: "realistic" | "star-citizen";
-  onSystemSelect: (systemId: string) => void;
+  // mode: "realistic" | "star-citizen";
+  // onSystemSelect: (systemId: string) => void;
 }
 
-export function StarmapViewer({ mode, onSystemSelect }: StarmapViewerProps) {
+export function StarmapViewer({ /*mode, onSystemSelect*/ }: StarmapViewerProps) {
   return (
     <div className="w-full h-full">
       <Canvas>
