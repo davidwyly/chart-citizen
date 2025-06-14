@@ -14,6 +14,7 @@ interface TerrestrialPlanetRendererProps {
   catalogData: CatalogObject
   position?: [number, number, number]
   scale?: number
+  starPosition?: [number, number, number]
   onFocus?: (object: THREE.Object3D, name: string) => void
 }
 
@@ -21,6 +22,7 @@ export function TerrestrialPlanetRenderer({
   catalogData,
   position = [0, 0, 0],
   scale = 1,
+  starPosition = [0, 0, 0],
   onFocus,
 }: TerrestrialPlanetRendererProps) {
   const planetRef = useRef<THREE.Group>(null)
@@ -59,8 +61,8 @@ export function TerrestrialPlanetRenderer({
     if (materialRef.current) {
       materialRef.current.time = time
 
-      // Find the sun position (assuming it's at the center of the system)
-      const sunPosition = new THREE.Vector3(0, 0, 0)
+      // Use the passed star position for lighting
+      const starPos = new THREE.Vector3(starPosition[0], starPosition[1], starPosition[2])
 
       // Get planet position in world space
       const planetPosition = new THREE.Vector3()
@@ -68,8 +70,8 @@ export function TerrestrialPlanetRenderer({
         planetRef.current.getWorldPosition(planetPosition)
       }
 
-      // Calculate light direction from planet to sun
-      const lightDirection = new THREE.Vector3().subVectors(sunPosition, planetPosition).normalize()
+      // Calculate light direction from planet toward the star (toward the light source)
+      const lightDirection = new THREE.Vector3().subVectors(starPos, planetPosition).normalize()
 
       // Set the light direction in the shader
       materialRef.current.lightDirection = lightDirection
@@ -104,7 +106,7 @@ export function TerrestrialPlanetRenderer({
           terrainScale={noiseScale}
           cloudScale={1.5}
           nightLightIntensity={hasNightLights}
-          cloudOpacity={hasClouds * 0.6}
+          cloudOpacity={hasClouds * 0.8}
         />
       </mesh>
     </group>

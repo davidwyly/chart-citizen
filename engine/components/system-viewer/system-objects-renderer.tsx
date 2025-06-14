@@ -360,6 +360,21 @@ export function SystemObjectsRenderer({
     });
   }, [systemData.stars, catalogObjects, viewType, SYSTEM_SCALE, STAR_SCALE, STAR_SHADER_SCALE, selectedObjectId, ORBITAL_SCALE, timeMultiplier]);
 
+  // Calculate primary star position for lighting
+  const primaryStarPosition = useMemo(() => {
+    if (!systemData.stars || systemData.stars.length === 0) return [0, 0, 0] as [number, number, number];
+    
+    const primaryStar = systemData.stars[0]; // Use first star as primary
+    let position: [number, number, number];
+    if (primaryStar.position) {
+      position = primaryStar.position;
+    } else {
+      position = [0, 0, 0]; // Default to origin
+    }
+    
+    return position;
+  }, [systemData.stars]);
+
   // Memoize planet rendering
   const renderedPlanets = useMemo(() => {
     if (!systemData.planets) return null;
@@ -405,6 +420,7 @@ export function SystemObjectsRenderer({
                 catalogRef={planet.catalog_ref}
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
+                starPosition={primaryStarPosition}
                 onFocus={(object: SystemObject) => onObjectFocus?.(object, planet.name, visualSize)}
                 onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, planet.name)}
                 registerRef={registerRef}
@@ -464,6 +480,7 @@ export function SystemObjectsRenderer({
                 catalogRef={moon.catalog_ref}
                 position={[0, 0, 0]}
                 scale={visualSize * PLANET_SCALE}
+                starPosition={primaryStarPosition}
                 onFocus={(object: SystemObject) => onObjectFocus?.(object, moon.name, visualSize)}
                 onSelect={(id: string, object: SystemObject) => onObjectSelect?.(id, object, moon.name)}
                 registerRef={registerRef}

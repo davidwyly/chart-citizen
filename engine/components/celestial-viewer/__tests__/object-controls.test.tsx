@@ -8,20 +8,38 @@ describe('ObjectControls', () => {
   const mockOnShaderScaleChange = vi.fn()
   const mockOnObjectScaleChange = vi.fn()
   const mockOnShaderParamsChange = vi.fn()
+  const mockOnHabitabilityParamChange = vi.fn()
 
   beforeEach(() => {
     mockOnShaderScaleChange.mockClear()
     mockOnObjectScaleChange.mockClear()
     mockOnShaderParamsChange.mockClear()
+    mockOnHabitabilityParamChange.mockClear()
   })
 
   const defaultProps = {
     shaderScale: 1,
     objectScale: 1,
-    shaderParams: {},
+    shaderParams: {
+      intensity: 0,
+      speed: 0,
+      distortion: 0,
+      diskSpeed: 0,
+      lensingStrength: 0,
+      diskBrightness: 0
+    },
+    habitabilityParams: {
+      humidity: 0,
+      temperature: 0,
+      population: 0,
+      volcanism: 0,
+      rotationSpeed: 0.2,
+      showTopographicLines: false,
+    },
     onShaderScaleChange: mockOnShaderScaleChange,
     onObjectScaleChange: mockOnObjectScaleChange,
-    onShaderParamsChange: mockOnShaderParamsChange
+    onShaderParamChange: mockOnShaderParamsChange,
+    onHabitabilityParamChange: mockOnHabitabilityParamChange
   }
 
   const baseObjectProps = {
@@ -52,27 +70,27 @@ describe('ObjectControls', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockCatalogObject}
+          selectedObjectId="test-object"
         />
       )
 
-      expect(screen.getByText('Object Scale')).toBeInTheDocument()
-      expect(screen.getByText('Shader Scale')).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Object Scale/i })).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Shader Scale/i })).toBeInTheDocument()
     })
 
     it('calls scale change handlers', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockCatalogObject}
+          selectedObjectId="test-object"
         />
       )
 
-      const objectScaleInput = screen.getByLabelText('Object Scale')
+      const objectScaleInput = screen.getByLabelText(/Object Scale/)
       fireEvent.change(objectScaleInput, { target: { value: '2' } })
       expect(mockOnObjectScaleChange).toHaveBeenCalledWith(2)
 
-      const shaderScaleInput = screen.getByLabelText('Shader Scale')
+      const shaderScaleInput = screen.getByLabelText(/Shader Scale/)
       fireEvent.change(shaderScaleInput, { target: { value: '1.5' } })
       expect(mockOnShaderScaleChange).toHaveBeenCalledWith(1.5)
     })
@@ -104,32 +122,50 @@ describe('ObjectControls', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockTerrestrialPlanet}
+          selectedObjectId="earth-like"
         />
       )
 
-      expect(screen.getByText('Ocean Coverage')).toBeInTheDocument()
-      expect(screen.getByText('Atmospheric Pressure')).toBeInTheDocument()
-      expect(screen.getByText('Surface Reflectivity')).toBeInTheDocument()
-      expect(screen.getByText('Volcanic Activity')).toBeInTheDocument()
-      expect(screen.getByText('Tectonic Activity')).toBeInTheDocument()
+      expect(screen.getByLabelText(/Humidity: [\d.]+%/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Temperature: [\d.]+°/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Population: [\d.]+%/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Volcanism: [\d.]+%/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Rotation Speed: [\d.]+x/i)).toBeInTheDocument()
+      expect(screen.getByText(/Debug Mode/i)).toBeInTheDocument()
+
+      // Old tests
+      expect(screen.queryByText('Ocean Coverage')).not.toBeInTheDocument()
+      expect(screen.queryByText('Atmospheric Pressure')).not.toBeInTheDocument()
+      expect(screen.queryByText('Surface Reflectivity')).not.toBeInTheDocument()
+      expect(screen.queryByText('Volcanic Activity')).not.toBeInTheDocument()
+      expect(screen.queryByText('Tectonic Activity')).not.toBeInTheDocument()
     })
 
-    it('initializes with correct default values', () => {
+    it('displays correct parameter values', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockTerrestrialPlanet}
+          selectedObjectId="earth-like"
+          habitabilityParams={{
+            humidity: 70,
+            temperature: 60,
+            population: 80,
+            volcanism: 25,
+            rotationSpeed: 0.5,
+            showTopographicLines: true,
+          }}
         />
       )
 
-      expect(mockOnShaderParamsChange).toHaveBeenCalledWith(expect.objectContaining({
-        hydrosphere: 0.7,
-        atmosphericPressure: 1,
-        albedo: 0.3,
-        vulcanism: 0.5,
-        tectonics: 0.6
-      }))
+      expect(screen.getByDisplayValue('70')).toBeInTheDocument() // humidity
+      expect(screen.getByDisplayValue('60')).toBeInTheDocument() // temperature
+      expect(screen.getByDisplayValue('80')).toBeInTheDocument() // population
+      expect(screen.getByDisplayValue('25')).toBeInTheDocument() // volcanism
+      expect(screen.getByDisplayValue('0.5')).toBeInTheDocument() // rotation speed
+      
+      // Check debug toggle is checked
+      const debugCheckbox = screen.getByRole('checkbox')
+      expect(debugCheckbox).toBeChecked()
     })
   })
 
@@ -156,30 +192,46 @@ describe('ObjectControls', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockGasGiant}
+          selectedObjectId="gas-giant"
         />
       )
 
-      expect(screen.getByText('Atmospheric Bands')).toBeInTheDocument()
-      expect(screen.getByText('Wind Speed')).toBeInTheDocument()
-      expect(screen.getByText('Magnetic Field')).toBeInTheDocument()
-      expect(screen.getByText('Ring System')).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Intensity/i })).toBeInTheDocument()
+      expect(screen.getByLabelText(/^Speed:/i)).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Distortion/i })).toBeInTheDocument()
+      expect(screen.getByLabelText(/^Disk Speed:/i)).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Lensing Strength/i })).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Disk Brightness/i })).toBeInTheDocument()
+
+      // Old tests
+      expect(screen.queryByText('Atmospheric Bands')).not.toBeInTheDocument()
+      expect(screen.queryByText('Wind Speed')).not.toBeInTheDocument()
+      expect(screen.queryByText('Magnetic Field')).not.toBeInTheDocument()
+      expect(screen.queryByText('Ring System')).not.toBeInTheDocument()
     })
 
-    it('initializes with correct default values', () => {
+    it('displays current shader parameter values', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockGasGiant}
+          selectedObjectId="gas-giant"
+          shaderParams={{
+            intensity: 2.5,
+            speed: 1.8,
+            distortion: 1.2,
+            diskSpeed: 3.0,
+            lensingStrength: 0.8,
+            diskBrightness: 2.2
+          }}
         />
       )
 
-      expect(mockOnShaderParamsChange).toHaveBeenCalledWith(expect.objectContaining({
-        bands: 10,
-        winds: 400,
-        magneticField: 14,
-        ringSystem: 0.2
-      }))
+      expect(screen.getByDisplayValue('2.5')).toBeInTheDocument() // intensity
+      expect(screen.getByDisplayValue('1.8')).toBeInTheDocument() // speed
+      expect(screen.getByDisplayValue('1.2')).toBeInTheDocument() // distortion
+      expect(screen.getByDisplayValue('3')).toBeInTheDocument() // diskSpeed  
+      expect(screen.getByDisplayValue('0.8')).toBeInTheDocument() // lensingStrength
+      expect(screen.getByDisplayValue('2.2')).toBeInTheDocument() // diskBrightness
     })
   })
 
@@ -208,30 +260,44 @@ describe('ObjectControls', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockStar}
+          selectedObjectId="g2v-main-sequence"
         />
       )
 
-      expect(screen.getByText('Surface Temperature')).toBeInTheDocument()
-      expect(screen.getByText('Luminosity')).toBeInTheDocument()
-      expect(screen.getByText('Flare Activity')).toBeInTheDocument()
-      expect(screen.getByText('Stellar Wind')).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Intensity/i })).toBeInTheDocument()
+      expect(screen.getByLabelText(/^Speed:/i)).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Distortion/i })).toBeInTheDocument()
+      expect(screen.getByLabelText(/^Disk Speed:/i)).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Lensing Strength/i })).toBeInTheDocument()
+      expect(screen.getByRole('slider', { name: /Disk Brightness/i })).toBeInTheDocument()
+
+      // Old tests
+      expect(screen.queryByText('Stellar Flare Activity')).not.toBeInTheDocument()
+      expect(screen.queryByText('Stellar Wind Strength')).not.toBeInTheDocument()
     })
 
-    it('initializes with correct default values', () => {
+    it('displays current shader parameter values', () => {
       render(
         <ObjectControls
           {...defaultProps}
-          catalogObject={mockStar}
+          selectedObjectId="g2v-main-sequence"
+          shaderParams={{
+            intensity: 1.5,
+            speed: 2.0,
+            distortion: 1.8,
+            diskSpeed: 2.5,
+            lensingStrength: 0.9,
+            diskBrightness: 1.7
+          }}
         />
       )
 
-      expect(mockOnShaderParamsChange).toHaveBeenCalledWith(expect.objectContaining({
-        temperature: 5778,
-        luminosity: 1,
-        flareActivity: 0.1,
-        stellarWind: 0.3
-      }))
+      expect(screen.getByDisplayValue('1.5')).toBeInTheDocument() // intensity
+      expect(screen.getByDisplayValue('2')).toBeInTheDocument() // speed
+      expect(screen.getByDisplayValue('1.8')).toBeInTheDocument() // distortion
+      expect(screen.getByDisplayValue('2.5')).toBeInTheDocument() // diskSpeed
+      expect(screen.getByDisplayValue('0.9')).toBeInTheDocument() // lensingStrength
+      expect(screen.getByDisplayValue('1.7')).toBeInTheDocument() // diskBrightness
     })
   })
 }) 

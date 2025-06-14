@@ -12,6 +12,7 @@ interface CatalogObjectWrapperProps {
   scale?: number
   shaderScale?: number
   isPrimaryStar?: boolean
+  starPosition?: [number, number, number]
   customizations?: any
   onFocus?: (object: THREE.Object3D, name: string, visualSize?: number) => void
   onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
@@ -25,6 +26,7 @@ export function CatalogObjectWrapper({
   scale,
   shaderScale = 1,
   isPrimaryStar = false,
+  starPosition,
   customizations,
   onFocus,
   onSelect,
@@ -123,7 +125,7 @@ export function CatalogObjectWrapper({
 
   return (
     <group ref={objectRef} position={position}>
-      <ObjectFactory catalogData={catalogData} scale={scale} shaderScale={shaderScale} onFocus={handleFocus} />
+      <ObjectFactory catalogData={catalogData} scale={scale} shaderScale={shaderScale} starPosition={starPosition} customizations={customizations} onFocus={handleFocus} />
     </group>
   )
 }

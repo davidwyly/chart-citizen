@@ -4,6 +4,7 @@ import { StarRenderer } from "@/engine/renderers/stars/star-renderer"
 import { PlanetRenderer } from "@/engine/renderers/planets/planet-renderer"
 import { GasGiantRenderer } from "@/engine/renderers/planets/gas-giant-renderer"
 import { TerrestrialPlanetRenderer } from "@/engine/renderers/planets/terrestrial-planet-renderer"
+import { HabitablePlanetRenderer } from "@/engine/renderers/planets/habitable-planet-renderer"
 import { Protostar } from "@/engine/components/3d-ui/protostar"
 import type { CatalogObject } from "@/engine/system-loader"
 import type * as THREE from "three"
@@ -13,10 +14,12 @@ interface ObjectFactoryProps {
   position?: [number, number, number]
   scale?: number
   shaderScale?: number
+  starPosition?: [number, number, number]
+  customizations?: any
   onFocus?: (object: THREE.Object3D, name: string) => void
 }
 
-export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, onFocus }: ObjectFactoryProps) {
+export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, starPosition, customizations, onFocus }: ObjectFactoryProps) {
   // Determine which renderer to use based on the engine_object type
   const engineObject = catalogData.engine_object || ""
   const category = catalogData.category || ""
@@ -65,13 +68,27 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, o
     )
   }
 
+  // Habitable planet renderer - for Earth-like worlds with advanced features
+  if (engineObject === "habitable-planet") {
+    return (
+      <HabitablePlanetRenderer 
+        catalogData={catalogData} 
+        position={position} 
+        scale={scale} 
+        starPosition={starPosition} 
+        habitabilityParams={customizations?.habitability}
+        onFocus={onFocus} 
+      />
+    )
+  }
+
   // Terrestrial planet renderers - use the new shader for Earth-like planets
   if (
     (engineObject === "terrestrial-planet" &&
       ((features.ocean_coverage && features.ocean_coverage > 0.5) || features.earth_like === true)) ||
     engineObject === "earth-like"
   ) {
-    return <TerrestrialPlanetRenderer catalogData={catalogData} position={position} scale={scale} onFocus={onFocus} />
+    return <TerrestrialPlanetRenderer catalogData={catalogData} position={position} scale={scale} starPosition={starPosition} onFocus={onFocus} />
   }
 
   // Regular terrestrial planets

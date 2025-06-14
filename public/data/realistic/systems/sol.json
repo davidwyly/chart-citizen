@@ -60,7 +60,7 @@
     },
     {
       "id": "earth",
-      "catalog_ref": "terrestrial-rocky",
+      "catalog_ref": "terrestrial-habitable",
       "name": "Earth",
       "orbit": {
         "parent": "sol-star",
@@ -78,7 +78,14 @@
         "features": {
           "atmosphere": "breathable",
           "ocean_coverage": 0.71,
+          "cloud_coverage": 0.4,
+          "city_lights": true,
           "vegetation": true
+        },
+        "habitability": {
+          "humidity": 70,
+          "temperature": 60,
+          "population": 80
         }
       }
     },

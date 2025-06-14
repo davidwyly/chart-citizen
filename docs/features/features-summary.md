@@ -27,10 +27,12 @@ This document provides a quick overview of the key features implemented in the C
 
 ## Debug Tools
 - **Celestial Viewer** (`celestial-viewer.md`): A real-time 3D celestial object inspector and property editor with shader preview capabilities.
+- **Habitable Planet Controls** (`celestial-viewer-habitable-planets.md`): Real-time manipulation of habitable planet characteristics through interactive sliders in the celestial viewer.
 - **Shader Performance View** (`shader-performance-view.md`): A debug panel for monitoring shader performance metrics and quality levels.
 
 ## Planet Rendering
-- **Terrestrial Planet** (`terrestrial-planet.md`): A shader-based implementation of terrestrial planets with quality level variants.
+- **Terrestrial Planet** (`terrestrial-planet.md`): A shader-based implementation of terrestrial planets with quality level variants and dynamic lava flows.
+- **Terrestrial Planet Simulator** (`terrestrial-planet-simulator-design-document.md`): A design document outlining the features and implementation strategy for the terrestrial planet simulator.
 - **protostar** (`protostar.md`): A procedural shader for rendering protostarary disks and nebulae.
 
 ## Performance Monitoring

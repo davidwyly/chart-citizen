@@ -25,7 +25,7 @@ The planet rendering system provides detailed visualization of different types o
 #### Surface Features
 - Terrain visualization
 - Ocean rendering
-- Volcanic activity
+- Volcanic activity with dynamic lava flows
 - Ice caps and glaciers
 - Scale-appropriate detail levels
 

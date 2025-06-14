@@ -20,7 +20,7 @@ interface CatalogCategory {
 
 export function ObjectCatalog({ selectedObjectId, onObjectSelect }: ObjectCatalogProps) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Stars', 'Terrestrial Planets', 'Gas Giants', 'Special Objects'])
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Stars', 'Terrestrial Planets', 'Habitable Planets', 'Gas Giants', 'Special Objects'])
 
   // Organize objects by category
   const categories: CatalogCategory[] = [
@@ -73,6 +73,39 @@ export function ObjectCatalog({ selectedObjectId, onObjectSelect }: ObjectCatalo
           description: 'A Venus-like world with thick atmosphere',
           category: 'terrestrial',
           subtype: 'smog'
+        }
+      ]
+    },
+    {
+      name: 'Habitable Planets',
+      objects: [
+        {
+          id: 'earth-like',
+          name: 'Earth-like World',
+          description: 'A balanced habitable world with moderate climate',
+          category: 'habitable',
+          subtype: 'earth-like'
+        },
+        {
+          id: 'desert-world',
+          name: 'Desert World',
+          description: 'An arid planet with low humidity and sparse population',
+          category: 'habitable',
+          subtype: 'desert'
+        },
+        {
+          id: 'ocean-world-habitable',
+          name: 'Ocean World',
+          description: 'A water-dominated world with high humidity',
+          category: 'habitable',
+          subtype: 'oceanic'
+        },
+        {
+          id: 'ice-world',
+          name: 'Ice World',
+          description: 'A cold polar world with frozen landscapes',
+          category: 'habitable',
+          subtype: 'ice'
         }
       ]
     },

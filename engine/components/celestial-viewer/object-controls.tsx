@@ -12,9 +12,18 @@ interface ObjectControlsProps {
     lensingStrength: number
     diskBrightness: number
   }
+  habitabilityParams?: {
+    humidity: number
+    temperature: number
+    population: number
+    volcanism?: number
+    rotationSpeed?: number
+    showTopographicLines?: boolean
+  }
   onObjectScaleChange: (scale: number) => void
   onShaderScaleChange: (scale: number) => void
   onShaderParamChange: (param: string, value: number) => void
+  onHabitabilityParamChange?: (param: string, value: number) => void
 }
 
 export function ObjectControls({
@@ -22,9 +31,11 @@ export function ObjectControls({
   objectScale,
   shaderScale,
   shaderParams,
+  habitabilityParams,
   onObjectScaleChange,
   onShaderScaleChange,
-  onShaderParamChange
+  onShaderParamChange,
+  onHabitabilityParamChange
 }: ObjectControlsProps) {
   const renderSlider = (
     id: string,
@@ -55,6 +66,7 @@ export function ObjectControls({
 
   const isProtostar = selectedObjectId === 'protostar'
   const isBlackHole = selectedObjectId === 'black-hole'
+  const isHabitablePlanet = ['earth-like', 'desert-world', 'ocean-world-habitable', 'ice-world'].includes(selectedObjectId) || selectedObjectId === 'habitable-planet'
 
   return (
     <div className="flex h-full flex-col p-4 overflow-y-auto">
@@ -204,8 +216,90 @@ export function ObjectControls({
         </div>
       )}
 
+      {/* Habitable Planet-specific Properties */}
+      {isHabitablePlanet && habitabilityParams && onHabitabilityParamChange && (
+        <div className="mb-6">
+          <h3 className="text-md font-medium text-gray-200 mb-3 border-b border-gray-700 pb-1">
+            Habitability Parameters
+          </h3>
+          {renderSlider(
+            "humidity",
+            "Humidity",
+            habitabilityParams.humidity,
+            0,
+            100,
+            1,
+            (value) => onHabitabilityParamChange("humidity", value),
+            "%"
+          )}
+          {renderSlider(
+            "temperature",
+            "Temperature",
+            habitabilityParams.temperature,
+            0,
+            200,
+            1,
+            (value) => onHabitabilityParamChange("temperature", value),
+            "°C"
+          )}
+          {renderSlider(
+            "population",
+            "Population",
+            habitabilityParams.population,
+            0,
+            100,
+            1,
+            (value) => onHabitabilityParamChange("population", value),
+            "%"
+          )}
+          {renderSlider(
+            "volcanism",
+            "Volcanism",
+            habitabilityParams.volcanism ?? 0,
+            0,
+            100,
+            1,
+            (value) => onHabitabilityParamChange("volcanism", value),
+            "%"
+          )}
+          {renderSlider(
+            "rotationSpeed",
+            "Rotation Speed",
+            habitabilityParams.rotationSpeed ?? 0.2,
+            0.0,
+            2.0,
+            0.01,
+            (value) => onHabitabilityParamChange("rotationSpeed", value),
+            "x"
+          )}
+          <div className="space-y-2 mb-4">
+            <label className="block text-sm text-gray-300">
+              Debug Mode
+            </label>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={habitabilityParams.showTopographicLines ?? false}
+                onChange={(e) => onHabitabilityParamChange("showTopographicLines", e.target.checked ? 1 : 0)}
+                className="sr-only"
+              />
+              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                habitabilityParams.showTopographicLines ? 'bg-blue-600' : 'bg-gray-600'
+              }`}>
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  habitabilityParams.showTopographicLines ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+              </div>
+              <span className="ml-3 text-sm text-gray-300">
+                Show Topographic Lines{habitabilityParams.showTopographicLines ? ' (Clouds Off)' : ''}
+              </span>
+            </label>
+          </div>
+        </div>
+      )}
+
       {/* Generic Shader Properties for other objects */}
-      {!isProtostar && !isBlackHole && (
+      {!isProtostar && !isBlackHole && !isHabitablePlanet && (
         <div className="mb-6">
           <h3 className="text-md font-medium text-gray-200 mb-3 border-b border-gray-700 pb-1">
             Shader Properties

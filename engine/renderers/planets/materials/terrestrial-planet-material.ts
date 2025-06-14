@@ -237,22 +237,18 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
 
     // Generate night lights with quality-based iterations
     float nightLight(vec3 pos, float h, vec2 th) {
+      if (th.x < 0.2) return 0.0;  // Exclude ice/snow biomes (based on th.x threshold)
       float l = perlin_noise3(pos * vec3(128.0, 128.0, 128.0)) * 3.0;
-      
       float p = 0.0;
       float amplitude = 1.0;
       float frequency = 32.0;
-      
-      // Reduce iterations based on quality
       for (int i = 0; i < 3; i++) {
         if (i >= qualityLevel / 2) break;
         p += perlin_noise3(pos * vec3(frequency, frequency, frequency)) * amplitude;
         amplitude *= 0.5;
         frequency *= 0.5;
       }
-      
       l *= clamp(p, 0.0, 1.0) * max(th.x - 0.2, 0.0) * th.y * 2.0;
-      
       return l * (h > 0.0 ? 1.0 : 0.0);
     }
 

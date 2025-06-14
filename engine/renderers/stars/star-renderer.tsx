@@ -83,6 +83,7 @@ export function StarRenderer({
         e.stopPropagation()
         document.body.style.cursor = "auto"
       }}
+
     >
       <group ref={groupRef}>
         

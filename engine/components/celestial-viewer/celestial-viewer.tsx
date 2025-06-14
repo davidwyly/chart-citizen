@@ -13,13 +13,18 @@ import { ObjectControls } from './object-controls'
 import { ObjectInfo } from './object-info'
 import { ObjectCatalog } from './object-catalog'
 import { engineSystemLoader, type CatalogObject } from '@/engine/system-loader'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface CelestialViewerProps {
   initialObjectType?: string
 }
 
 export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
-  const [selectedObjectId, setSelectedObjectId] = useState<string>(initialObjectType || 'g2v-main-sequence')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialObject = searchParams.get('object') || initialObjectType || 'g2v-main-sequence'
+
+  const [selectedObjectId, setSelectedObjectId] = useState<string>(initialObject)
   const [catalogObject, setCatalogObject] = useState<CatalogObject | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showStats, setShowStats] = useState(false)
@@ -48,9 +53,20 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
     lensingStrength: 0.66,
     diskBrightness: 1.0
   })
+  
+  // Habitability parameters for habitable planets
+  const [habitabilityParams, setHabitabilityParams] = useState({
+    humidity: 70,
+    temperature: 60,
+    population: 80,
+    volcanism: 0,
+    rotationSpeed: 0.2,
+    showTopographicLines: false,
+  })
 
   // Load catalog object data
   useEffect(() => {
+    console.time('loadObjectTimer');  // Start timing
     const loadObject = async () => {
       setIsLoading(true)
       setLoadError(null)
@@ -88,6 +104,7 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
         }
       } finally {
         setIsLoading(false)
+        console.timeEnd('loadObjectTimer')  // End timing
       }
     }
 
@@ -145,10 +162,17 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
 
   const handleObjectSelect = (objectId: string) => {
     setSelectedObjectId(objectId)
+    router.push(`?object=${objectId}`)
   }
 
   const handleShaderParamChange = (param: string, value: number) => {
     setShaderParams(prev => ({ ...prev, [param]: value }))
+  }
+
+  const handleHabitabilityParamChange = (param: string, value: number) => {
+    // Handle boolean values for showTopographicLines
+    const finalValue = param === 'showTopographicLines' ? value > 0 : value
+    setHabitabilityParams(prev => ({ ...prev, [param]: finalValue }))
   }
 
   if (isLoading) {
@@ -204,10 +228,15 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
             {/* Starfield background */}
             <StarfieldSkybox />
             
-            {/* Scene lighting */}
-            <ambientLight intensity={0.05} />
-            <directionalLight position={[10, 10, 10]} intensity={1.2} />
-            <pointLight position={[0, 0, 20]} intensity={0.3} color="#ffffff" />
+            {/* Scene lighting - minimal ambient only for non-shader objects */}
+            <ambientLight intensity={0.1} />
+            
+            {/* Simulated star for lighting visualization */}
+            <mesh position={[10, 5, 10]}>
+              <sphereGeometry args={[0.5, 16, 16]} />
+              <meshBasicMaterial color="#ffff88" />
+            </mesh>
+            <pointLight position={[10, 5, 10]} intensity={0.5} color="#ffff88" />
             
             {/* Orbit controls */}
             <OrbitControls
@@ -255,7 +284,8 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
                     scale={objectScale}
                     shaderScale={shaderScale}
                     customizations={{
-                      shader: shaderParams
+                      shader: shaderParams,
+                      habitability: habitabilityParams
                     }}
                   />
                 )
@@ -327,9 +357,11 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
             objectScale={objectScale}
             shaderScale={shaderScale}
             shaderParams={shaderParams}
+            habitabilityParams={habitabilityParams}
             onObjectScaleChange={setObjectScale}
             onShaderScaleChange={setShaderScale}
             onShaderParamChange={handleShaderParamChange}
+            onHabitabilityParamChange={handleHabitabilityParamChange}
           />
         </div>
         

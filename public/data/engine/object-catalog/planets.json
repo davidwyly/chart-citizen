@@ -43,6 +43,56 @@
       "specular_map": "earth-specular"
     }
   },
+  "terrestrial-habitable": {
+    "id": "terrestrial-habitable",
+    "name": "Habitable Terrestrial Planet",
+    "category": "terrestrial",
+    "subtype": "habitable",
+    "engine_object": "habitable-planet",
+    "description": "Earth-like planet capable of supporting life with oceans, continents, atmosphere, and potential civilization",
+    "physical": {
+      "mass": 1.0,
+      "radius": 1.0,
+      "density": 5.5,
+      "gravity": 1.0,
+      "atmospheric_pressure": 1.0,
+      "magnetic_field": 1.0,
+      "rotation_period": 24.0,
+      "axial_tilt": 23.5
+    },
+    "features": {
+      "ocean_coverage": 0.7,
+      "cloud_coverage": 0.4,
+      "city_lights": true,
+      "has_atmosphere": true,
+      "atmosphere_type": "breathable",
+      "surface_type": "mixed",
+      "hydrosphere": 0.7,
+      "albedo": 0.35,
+      "magnetic_field": 1.0,
+      "vulcanism": 0.3,
+      "tectonics": 0.7,
+      "crater_density": 0.05
+    },
+    "appearance": {
+      "ocean_color": "#1e90ff",
+      "land_color": "#8fbc8f",
+      "sand_color": "#daa520",
+      "snow_color": "#ffffff",
+      "cloud_color": "#ffffff",
+      "atmosphere_color": "#87ceeb",
+      "city_light_color": "#ffff99"
+    },
+    "habitability": {
+      "humidity": 50,
+      "temperature": 50,
+      "population": 30
+    },
+    "render": {
+      "shader": "habitable-planet",
+      "shader_complexity": "high"
+    }
+  },
   "terrestrial-oceanic": {
     "id": "terrestrial-oceanic",
     "name": "Oceanic Planet",
@@ -692,6 +742,158 @@
       "industrial_coverage": { "min": 0.2, "max": 0.9, "unit": "fraction" },
       "population_density": { "min": 0.1, "max": 1.0, "unit": "density" },
       "air_quality": { "min": 0.1, "max": 0.7, "unit": "breathability" }
+    }
+  },
+  "earth-like": {
+    "id": "earth-like",
+    "name": "Earth-like World",
+    "category": "terrestrial",
+    "subtype": "earth-like",
+    "engine_object": "habitable-planet",
+    "mass": 1.0,
+    "radius": 1.0,
+    "physical": {
+      "mass": 1.0,
+      "radius": 1.0,
+      "density": 5.5,
+      "gravity": 9.8,
+      "rotation_period": 24.0,
+      "axial_tilt": 23.5
+    },
+    "features": {
+      "atmosphere": true,
+      "ocean_coverage": 0.71,
+      "terrain_roughness": 1.0,
+      "cloud_coverage": 0.6,
+      "earth_like": true
+    },
+    "habitability": {
+      "humidity": 70,
+      "temperature": 60,
+      "population": 80
+    },
+    "appearance": {
+      "ocean_color": "#1e90ff",
+      "land_color": "#8fbc8f",
+      "sand_color": "#daa520",
+      "snow_color": "#ffffff",
+      "cloud_color": "#ffffff",
+      "atmosphere_color": "#87ceeb",
+      "city_light_color": "#ffff99"
+    }
+  },
+  "desert-world": {
+    "id": "desert-world",
+    "name": "Desert World",
+    "category": "terrestrial",
+    "subtype": "desert",
+    "engine_object": "habitable-planet",
+    "mass": 0.8,
+    "radius": 0.9,
+    "physical": {
+      "mass": 0.8,
+      "radius": 0.9,
+      "density": 5.2,
+      "gravity": 8.5,
+      "rotation_period": 28.0,
+      "axial_tilt": 35.0
+    },
+    "features": {
+      "atmosphere": true,
+      "ocean_coverage": 0.15,
+      "terrain_roughness": 1.5,
+      "cloud_coverage": 0.2,
+      "earth_like": false
+    },
+    "habitability": {
+      "humidity": 15,
+      "temperature": 75,
+      "population": 25
+    },
+    "appearance": {
+      "ocean_color": "#4682b4",
+      "land_color": "#daa520",
+      "sand_color": "#f4a460",
+      "snow_color": "#ffffff",
+      "cloud_color": "#f5f5dc",
+      "atmosphere_color": "#ffd700",
+      "city_light_color": "#ff8c00"
+    }
+  },
+  "ocean-world-habitable": {
+    "id": "ocean-world-habitable",
+    "name": "Ocean World (Habitable)",
+    "category": "terrestrial",
+    "subtype": "oceanic-habitable",
+    "engine_object": "habitable-planet",
+    "mass": 1.2,
+    "radius": 1.1,
+    "physical": {
+      "mass": 1.2,
+      "radius": 1.1,
+      "density": 5.8,
+      "gravity": 10.5,
+      "rotation_period": 20.0,
+      "axial_tilt": 18.0
+    },
+    "features": {
+      "atmosphere": true,
+      "ocean_coverage": 0.95,
+      "terrain_roughness": 0.8,
+      "cloud_coverage": 0.8,
+      "earth_like": false
+    },
+    "habitability": {
+      "humidity": 90,
+      "temperature": 55,
+      "population": 60
+    },
+    "appearance": {
+      "ocean_color": "#006994",
+      "land_color": "#228b22",
+      "sand_color": "#f5deb3",
+      "snow_color": "#ffffff",
+      "cloud_color": "#e6e6fa",
+      "atmosphere_color": "#b0e0e6",
+      "city_light_color": "#40e0d0"
+    }
+  },
+  "ice-world": {
+    "id": "ice-world",
+    "name": "Ice World",
+    "category": "terrestrial",
+    "subtype": "ice",
+    "engine_object": "habitable-planet",
+    "mass": 0.9,
+    "radius": 0.95,
+    "physical": {
+      "mass": 0.9,
+      "radius": 0.95,
+      "density": 5.0,
+      "gravity": 8.8,
+      "rotation_period": 30.0,
+      "axial_tilt": 45.0
+    },
+    "features": {
+      "atmosphere": true,
+      "ocean_coverage": 0.3,
+      "terrain_roughness": 1.2,
+      "cloud_coverage": 0.4,
+      "earth_like": false
+    },
+    "habitability": {
+      "humidity": 40,
+      "temperature": 15,
+      "population": 35
+    },
+    "appearance": {
+      "ocean_color": "#4169e1",
+      "land_color": "#e0e0e0",
+      "sand_color": "#d3d3d3",
+      "snow_color": "#fffafa",
+      "cloud_color": "#f0f8ff",
+      "atmosphere_color": "#e6f3ff",
+      "city_light_color": "#87cefa"
     }
   }
 }
