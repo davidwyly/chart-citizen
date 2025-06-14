@@ -356,7 +356,7 @@ export function SystemObjectsRenderer({
     return position;
   }, [systemData.stars]);
 
-  // Memoize planet rendering
+  // Memoize planet rendering with their moons as children
   const renderedPlanets = useMemo(() => {
     if (!systemData.planets) return null;
 
@@ -372,8 +372,8 @@ export function SystemObjectsRenderer({
         : (planet.orbit?.semi_major_axis || getNavigationalOrbitalRadius(index));
       const isSelected = selectedObjectId === planet.id;
 
-      const object3D = new THREE.Object3D();  // Assuming or creating the object here for userData
-      object3D.userData.orbitRadius = planet.orbit?.semi_major_axis || 0;
+      // Find moons for this planet
+      const planetMoons = systemData.moons?.filter(moon => moon.orbit?.parent === planet.id) || [];
 
       return (
         <React.Fragment key={planet.id}>
@@ -412,78 +412,86 @@ export function SystemObjectsRenderer({
                 onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, planet.name)}
                 registerRef={registerRef}
               />
+
+              {/* Render moons as children of this planet */}
+              {planetMoons.map(moon => {
+                const moonOrbit = moon.orbit!; // We know it exists from the filter
+                const moonCatalogObject = catalogObjects[moon.catalog_ref];
+                const moonBaseRadius = moonCatalogObject?.radius || 1;
+                const moonMass = moonCatalogObject?.mass || 0.1;
+                const moonOrbitRadius = moonOrbit.semi_major_axis || 0;
+                
+                const { visualSize: moonVisualSize, dualProperties: moonDualProperties } = getObjectSizing("moon", moonBaseRadius, moon.name, moonOrbitRadius, moonMass);
+                
+                // Calculate the parent planet's rendered visual radius
+                const planetRenderedVisualRadius = visualSize * PLANET_SCALE;
+
+                // Minimum distance for moon orbit should be at least the parent planet's rendered radius plus a buffer
+                const minOrbitDistanceFromParent = planetRenderedVisualRadius + (moonVisualSize * PLANET_SCALE) + (PLANET_SCALE * 0.1); // Small buffer
+
+                // Combined scaled orbital radius from data, with a floor at minOrbitDistanceFromParent
+                const scaledOrbitRadiusFromData = moonOrbit.semi_major_axis * ORBITAL_SCALE * 5.0; // Keep the arbitrary multiplier for now, as it might be for navigational scaling.
+
+                let moonSemiMajorAxis: number;
+                if (viewType === "navigational" || viewType === "profile") {
+                  moonSemiMajorAxis = Math.max(minOrbitDistanceFromParent, scaledOrbitRadiusFromData);
+                } else {
+                  // Realistic mode - use actual orbital radius but ensure minimum visibility
+                  moonSemiMajorAxis = Math.max(minOrbitDistanceFromParent, moonOrbit.semi_major_axis * ORBITAL_SCALE);
+                }
+
+                const isMoonSelected = selectedObjectId === moon.id;
+
+                return (
+                  <MemoizedOrbitalPath
+                    key={moon.id}
+                    semiMajorAxis={moonSemiMajorAxis}
+                    eccentricity={moonOrbit.eccentricity || 0}
+                    inclination={moonOrbit.inclination || 0}
+                    orbitalPeriod={calculateOrbitalPeriod(moonOrbit.semi_major_axis)}
+                    showOrbit={true}
+                    timeMultiplier={timeMultiplier}
+                    isPaused={isPaused}
+                    parentObjectId={undefined}
+                    objectRefsMap={objectRefsMap}
+                    viewType={viewType}
+                  >
+                    <MemoizedInteractiveObject
+                      objectId={moon.id}
+                      objectName={moon.name}
+                      objectType="moon"
+                      radius={moonVisualSize * PLANET_SCALE}
+                      isSelected={isMoonSelected}
+                      onHover={onObjectHover}
+                      onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
+                      onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, moonVisualSize, moonDualProperties.realRadius, moonMass, moonOrbitRadius)}
+                      registerRef={registerRef}
+                      showLabel={true}
+                      labelAlwaysVisible={viewType === "profile"}
+                      parentObjectSelected={isSelected}
+                    >
+                      <CatalogObjectWrapper
+                        objectId={moon.id}
+                        catalogRef={moon.catalog_ref}
+                        position={[0, 0, 0]}
+                        scale={moonVisualSize * PLANET_SCALE}
+                        starPosition={primaryStarPosition}
+                        onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, moonVisualSize, moonDualProperties.realRadius, moonMass, moonOrbitRadius)}
+                        onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
+                        registerRef={registerRef}
+                      />
+                    </MemoizedInteractiveObject>
+                  </MemoizedOrbitalPath>
+                );
+              })}
             </MemoizedInteractiveObject>
           </MemoizedOrbitalPath>
         </React.Fragment>
       );
     });
-  }, [systemData.planets, catalogObjects, viewType, SYSTEM_SCALE, ORBITAL_SCALE, PLANET_SCALE, selectedObjectId, getObjectSizing]);
+  }, [systemData.planets, systemData.moons, catalogObjects, viewType, SYSTEM_SCALE, ORBITAL_SCALE, PLANET_SCALE, selectedObjectId, getObjectSizing, primaryStarPosition, timeMultiplier, isPaused, calculateOrbitalPeriod, onObjectHover, onObjectSelect, onObjectFocus, registerRef]);
 
-  // Memoize moon rendering
-  const renderedMoons = useMemo(() => {
-    if (!systemData.moons) return null;
-
-    return systemData.moons.map(moon => {
-      if (!moon.orbit?.parent) return null;
-
-      const catalogObject = catalogObjects[moon.catalog_ref];
-      const baseRadius = catalogObject?.radius || 1;
-      const mass = catalogObject?.mass || 0.1; // Default moon mass
-      const orbitRadius = moon.orbit?.semi_major_axis || 0;
-      
-      const { visualSize, dualProperties } = getObjectSizing("moon", baseRadius, moon.name, orbitRadius, mass);
-      const semiMajorAxis = (viewType === "navigational" || viewType === "profile") 
-        ? Math.max(2.0, moon.orbit.semi_major_axis * 2.5) // Ensure minimum visible distance and scale up
-        : moon.orbit.semi_major_axis;
-      const parentPos = getParentPosition(moon.orbit.parent);
-      const isSelected = selectedObjectId === moon.id;
-
-      const object3D = new THREE.Object3D();  // Assuming or creating the object here for userData
-      object3D.userData.orbitRadius = moon.orbit?.semi_major_axis || 0;
-
-      return (
-        <React.Fragment key={moon.id}>
-          <MemoizedOrbitalPath
-            semiMajorAxis={semiMajorAxis * ORBITAL_SCALE}
-            eccentricity={moon.orbit.eccentricity}
-            inclination={moon.orbit.inclination}
-            orbitalPeriod={calculateOrbitalPeriod(semiMajorAxis)}
-            showOrbit={true}
-            timeMultiplier={timeMultiplier}
-            isPaused={isPaused}
-            parentObjectId={moon.orbit.parent}
-            objectRefsMap={objectRefsMap}
-            viewType={viewType}
-          >
-            <MemoizedInteractiveObject
-              objectId={moon.id}
-              objectName={moon.name}
-              objectType="moon"
-              radius={visualSize * PLANET_SCALE}
-              isSelected={isSelected}
-              onHover={onObjectHover}
-              onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
-              onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize, dualProperties.realRadius, mass, orbitRadius)}
-              registerRef={registerRef}
-              showLabel={true}
-              labelAlwaysVisible={viewType === "profile"}
-            >
-              <CatalogObjectWrapper
-                objectId={moon.id}
-                catalogRef={moon.catalog_ref}
-                position={[0, 0, 0]}
-                scale={visualSize * PLANET_SCALE}
-                starPosition={primaryStarPosition}
-                onFocus={(object: THREE.Object3D) => onObjectFocus?.(object, moon.name, visualSize, dualProperties.realRadius, mass, orbitRadius)}
-                onSelect={(id: string, object: THREE.Object3D) => onObjectSelect?.(id, object, moon.name)}
-                registerRef={registerRef}
-              />
-            </MemoizedInteractiveObject>
-          </MemoizedOrbitalPath>
-        </React.Fragment>
-      );
-    });
-  }, [systemData.moons, catalogObjects, viewType, SYSTEM_SCALE, ORBITAL_SCALE, PLANET_SCALE, selectedObjectId, getObjectSizing]);
+  
 
   return (
     <group>
@@ -496,7 +504,6 @@ export function SystemObjectsRenderer({
       />
       {renderedStars}
       {renderedPlanets}
-      {renderedMoons}
     </group>
   );
 }

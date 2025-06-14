@@ -126,7 +126,11 @@ export function OrbitalPath({
         // Get the parent's world position
         const parentWorldPos = new THREE.Vector3()
         parent.getWorldPosition(parentWorldPos)
-        groupRef.current.position.copy(parentWorldPos)
+        
+        // Only update if position has changed significantly to avoid jitter
+        if (groupRef.current.position.distanceTo(parentWorldPos) > 0.001) {
+          groupRef.current.position.copy(parentWorldPos)
+        }
       }
     }
 
@@ -144,6 +148,18 @@ export function OrbitalPath({
       orbitingObject.position.copy(position)
     }
   })
+
+  // Set initial position relative to parent when parent becomes available
+  useEffect(() => {
+    if (!groupRef.current || !parentObjectId || !objectRefsMap?.current) return;
+
+    const parent = objectRefsMap.current.get(parentObjectId)
+    if (parent) {
+      const parentWorldPos = new THREE.Vector3()
+      parent.getWorldPosition(parentWorldPos)
+      groupRef.current.position.copy(parentWorldPos)
+    }
+  }, [parentObjectId, objectRefsMap])
 
   // Set initial position
   useEffect(() => {

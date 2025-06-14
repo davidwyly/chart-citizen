@@ -158,7 +158,7 @@ export function InteractiveObject({
       onClick={handleClick}
     >
       <sphereGeometry args={[radius, 16, 16]} />
-      <meshBasicMaterial transparent opacity={0} />
+      <meshBasicMaterial transparent opacity={0} depthWrite={false} />
     </mesh>
   ), [radius, handlePointerOver, handlePointerOut, handleClick])
 

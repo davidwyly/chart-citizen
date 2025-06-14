@@ -5,7 +5,8 @@ This directory contains the core components and logic for rendering interactive 
 ## Files
 
 - **unified-camera-controller.tsx** - Unified camera controller handling all view modes (realistic, navigational, profile) with configuration-driven behavior and dual properties system for consistent camera distances and animations across all object types
-- **system-objects-renderer.tsx** - Main renderer for stars, planets, and moons with interactive selection, focus capabilities, and unified object sizing calculations using dual properties system
+- **system-objects-renderer.tsx** - Main renderer for stars, planets, and moons with interactive selection, focus capabilities, unified object sizing calculations using dual properties system, and improved moon orbital mechanics
+- **system-navigation-bar.tsx** - Enhanced navigation bar with hierarchical moon display, showing moons as expandable child entries under their parent planets
 - **view-mode-calculator.ts** - Configuration-driven view mode calculations using unified dual properties system, replacing all legacy hardcoded scaling logic
 - **catalog-object-wrapper.tsx** - Wrapper component for catalog objects that handles 3D rendering, texturing, and shading based on object type and properties
 - **object-details-panel.tsx** - UI panel displaying detailed information about focused objects including real vs visual properties
@@ -52,6 +53,15 @@ The system includes intelligent orbital scaling that ensures all view modes main
 - **Realistic Mode**: Uses actual astronomical semi-major axis values from system data
 - **Navigational Mode**: Uses equidistant spacing with intelligent scaling to maintain system coherence
 - **Profile Mode**: Similar scaling logic as navigational mode for consistent system sizing
+
+### Moon System Enhancements
+The moon system has been completely overhauled with:
+
+- **Improved Orbital Mechanics**: Moons now properly orbit their parent planets with accurate positioning
+- **Parent Validation**: Comprehensive validation ensures moons only render when their parent planets exist
+- **Intelligent Scaling**: Dynamic orbital radius calculation based on view mode and parent planet size
+- **Hierarchical Navigation**: Navigation bar now shows moons as expandable child entries under planets
+- **Visual Separation**: Proper spacing calculation prevents moons from appearing inside planets or other objects
 
 ## Subdirectories
 

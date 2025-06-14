@@ -21,6 +21,7 @@ This document provides a quick overview of the key features implemented in the C
 - **System Selection** - Ability to select and view different star systems. [system-selection.md](./system-selection.md)
 - **Object Focus** - Focus on specific celestial bodies for detailed examination. [object-focus.md](./object-focus.md)
 - **Zoom Control** - Dynamic zoom functionality with appropriate level of detail changes. [zoom-control.md](./zoom-control.md)
+- **Moon System** - Hierarchical moon navigation with improved orbital mechanics and parent-child relationships. [moon-system.md](./moon-system.md)
 
 ## Core Features
 
