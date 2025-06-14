@@ -5,15 +5,16 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Preload } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
-import { CatalogObjectWrapper } from '../system-viewer/catalog-object-wrapper'
 import { BlackHole } from '../3d-ui/black-hole'
 import { Protostar } from '../3d-ui/protostar'
 import { StarfieldSkybox } from '../skybox/starfield-skybox'
 import { ObjectControls } from './object-controls'
 import { ObjectInfo } from './object-info'
 import { ObjectCatalog } from './object-catalog'
-import { engineSystemLoader, type CatalogObject } from '@/engine/system-loader'
+import { engineSystemLoader } from '@/engine/system-loader'
+import { CelestialObject } from '@/engine/types/orbital-system'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { CelestialObjectRenderer } from '../system-viewer/system-objects-renderer'
 
 interface CelestialViewerProps {
   initialObjectType?: string
@@ -22,10 +23,10 @@ interface CelestialViewerProps {
 export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const initialObject = searchParams.get('object') || initialObjectType || 'g2v-main-sequence'
+  const initialObject = searchParams.get('object') || initialObjectType || 'sol-star'
 
   const [selectedObjectId, setSelectedObjectId] = useState<string>(initialObject)
-  const [catalogObject, setCatalogObject] = useState<CatalogObject | null>(null)
+  const [celestialObject, setCelestialObject] = useState<CelestialObject | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showStats, setShowStats] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -64,7 +65,7 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
     showTopographicLines: false,
   })
 
-  // Load catalog object data
+  // Load celestial object data
   useEffect(() => {
     console.time('loadObjectTimer');  // Start timing
     const loadObject = async () => {
@@ -72,35 +73,38 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
       setLoadError(null)
       try {
         if (selectedObjectId === 'black-hole' || selectedObjectId === 'protostar') {
-          // Special objects don't need catalog data
-          setCatalogObject(null)
+          setCelestialObject(null) // Special objects handled separately in render
         } else {
-          try {
-            const data = await engineSystemLoader.getCatalogObject(selectedObjectId)
-            if (data) {
-              setCatalogObject(data)
+          // Load the 'sol' system and find the object within it for now.
+          // A more robust solution might dynamically determine which system to load.
+          const systemData = await engineSystemLoader.loadSystem('sol', 'realistic') // Assuming 'sol' for now
+          if (systemData) {
+            const foundObject = systemData.objects.find(obj => obj.id === selectedObjectId)
+            if (foundObject) {
+              setCelestialObject(foundObject)
             } else {
-              // Handle null (object not found)
-              setLoadError(`Object "${selectedObjectId}" not found`)
-              // Fallback to default
-              if (selectedObjectId !== 'g2v-main-sequence') {
-                console.log(`Falling back to default object 'g2v-main-sequence'`)
-                setSelectedObjectId('g2v-main-sequence')
+              setLoadError(`Object "${selectedObjectId}" not found in Sol system`)
+              // Fallback to default if not found
+              if (selectedObjectId !== 'sol-star') {
+                console.log(`Falling back to default object 'sol-star'`)
+                setSelectedObjectId('sol-star')
                 return
               }
             }
-          } catch (error) {
-            console.error(`Failed to load catalog object: ${selectedObjectId}`, error)
-            setLoadError(`Object "${selectedObjectId}" not found`)
-            setCatalogObject(null)
-            
-            // Fallback to a default object if the requested one doesn't exist
-            if (selectedObjectId !== 'g2v-main-sequence') {
-              console.log(`Falling back to default object 'g2v-main-sequence'`)
-              setSelectedObjectId('g2v-main-sequence')
-              return // This will trigger the effect again with the fallback
-            }
+          } else {
+            setLoadError(`Failed to load Sol system`)
           }
+        }
+      } catch (error) {
+        console.error(`Failed to load celestial object: ${selectedObjectId}`, error)
+        setLoadError(`Error loading object: ${selectedObjectId}`)
+        setCelestialObject(null)
+        
+        // Fallback to a default object if the requested one doesn't exist
+        if (selectedObjectId !== 'sol-star') {
+          console.log(`Falling back to default object 'sol-star'`)
+          setSelectedObjectId('sol-star')
+          return // This will trigger the effect again with the fallback
         }
       } finally {
         setIsLoading(false)
@@ -275,18 +279,17 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
                     spin={0}
                   />
                 )
-              } else if (catalogObject) {
+              } else if (celestialObject) {
                 return (
-                  <CatalogObjectWrapper
-                    objectId={selectedObjectId}
-                    catalogRef={selectedObjectId}
-                    position={[0, 0, 0]}
+                  <CelestialObjectRenderer
+                    object={celestialObject}
                     scale={objectScale}
-                    shaderScale={shaderScale}
-                    customizations={{
-                      shader: shaderParams,
-                      habitability: habitabilityParams
-                    }}
+                    starPosition={[0,0,0]} // Assuming central star for this viewer
+                    isSelected={false} // No selection in this viewer
+                    onHover={() => {}} // No hover in this viewer
+                    onSelect={() => {}} // No select in this viewer
+                    onFocus={() => {}} // No focus in this viewer
+                    registerRef={() => {}} // No ref registration needed
                   />
                 )
               } else {
@@ -362,6 +365,9 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
             onShaderScaleChange={setShaderScale}
             onShaderParamChange={handleShaderParamChange}
             onHabitabilityParamChange={handleHabitabilityParamChange}
+            objectType={celestialObject?.geometry_type || selectedObjectId}
+            showStats={showStats}
+            onToggleStats={() => setShowStats(prev => !prev)}
           />
         </div>
         
@@ -377,8 +383,8 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
           style={{ height: `${100 - rightControlsHeight}%` }}
         >
           <ObjectInfo
+            celestialObject={celestialObject}
             selectedObjectId={selectedObjectId}
-            catalogObject={catalogObject}
           />
         </div>
       </div>

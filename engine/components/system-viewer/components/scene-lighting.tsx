@@ -1,21 +1,23 @@
 "use client"
 
-import type { SystemData } from "@/engine/system-loader"
+import { OrbitalSystemData, isStar } from "@/engine/types/orbital-system"
 import type { ViewType } from '@lib/types/effects-level'
 
 interface SceneLightingProps {
-  systemData: SystemData
+  systemData: OrbitalSystemData
   viewType: ViewType
 }
 
 export function SceneLighting({ systemData, viewType }: SceneLightingProps) {
+  const stars = systemData.objects.filter(isStar)
+
   return (
     <>
       {/* Very minimal ambient light - just enough to see objects */}
       <ambientLight intensity={0.05} color="#ffffff" />
 
       {/* Point lights from stars - primary lighting source with increased intensity */}
-      {systemData.stars.map((star) => {
+      {stars.map((star) => {
         const starPosition =
           (viewType === "profile"
             ? ([-600, 500, 0] as [number, number, number]) // Profile position for star lighting

@@ -2,47 +2,66 @@
   "id": "magnus",
   "name": "Magnus System",
   "description": "An industrial system known for its massive mining operations and shipyards",
-  "barycenter": [0, 0, 0],
-  "stars": [
+  "objects": [
     {
       "id": "magnus-star",
-      "catalog_ref": "k1v-main-sequence",
-      "position": [0, 0, 0],
-      "name": "Magnus"
-    }
-  ],
-  "planets": [
+      "name": "Magnus",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 0.93,
+        "radius": 695700,
+        "temperature": 5260,
+        "luminosity": 0.38,
+        "age": 5.8,
+        "spectral_type": "K1V",
+        "habitable_zone_inner": 0.55,
+        "habitable_zone_outer": 0.9,
+        "rotation_period": 29,
+        "magnetic_cycle": 13,
+        "flare_activity": 0.2,
+        "stellar_wind": 0.4,
+        "core_color": "#ff8833",
+        "corona_color": "#ffaa66",
+        "prominence_color": "#ff4400",
+        "flare_color": "#ff9944"
+      },
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "id": "magnus-i",
-      "catalog_ref": "arid-desert",
       "name": "Magnus I",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288,
+        "mineral_deposits": 0.8,
+        "industrial_coverage": 0.4
+      },
       "orbit": {
         "parent": "magnus-star",
         "semi_major_axis": 0.8,
         "eccentricity": 0.05,
-        "inclination": 1.0,
+        "inclination": 1,
         "orbital_period": 280
-      },
-      "customizations": {
-        "features": {
-          "mineral_deposits": 0.8,
-          "industrial_coverage": 0.4
-        }
       }
-    }
-  ],
-  "jump_points": [
-    {
-      "id": "magnus-stanton-jp",
-      "name": "Stanton Jump Point",
-      "position": [-90, -120, 80],
-      "destination": "stanton",
-      "status": "active"
     }
   ],
   "lighting": {
     "primary_star": "magnus-star",
     "ambient_level": 0.09,
     "stellar_influence_radius": 90
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-06-14",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au"
   }
 }

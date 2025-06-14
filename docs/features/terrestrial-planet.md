@@ -1,6 +1,6 @@
 # Terrestrial Planet Shader
 
-A high-performance shader for rendering realistic terrestrial planets with dynamic effects.
+High-performance shader for realistic terrestrial planets with dynamic effects.
 
 ## Features
 
@@ -96,32 +96,32 @@ const aridCatalogData = {
 
 ## Performance Monitoring
 
-The `TerrestrialPlanetRenderer` does not directly expose performance monitoring hooks. Performance is managed at a higher level within the application, and the component itself is designed to be efficient.
+`TerrestrialPlanetRenderer` does not directly expose performance monitoring hooks. Performance is managed at a higher level, and the component is efficient.
 
 ## Best Practices
 
 1. **Data-Driven Configuration**
-   - Configure planet appearance and features through the `catalogData` prop.
-   - Ensure your `CatalogObject` accurately reflects the desired planet characteristics.
+   - Configure planet appearance/features via `catalogData` prop.
+   - Ensure `CatalogObject` accurately reflects desired planet characteristics.
 
 2. **Component Usage**
-   - Render terrestrial planets using the `<TerrestrialPlanetRenderer />` component, not by directly creating the material.
+   - Render terrestrial planets using `<TerrestrialPlanetRenderer />` component, not direct material creation.
 
 3. **Memory Management**
-   - The component handles its own material disposal. No manual disposal is needed.
+   - Component handles material disposal; no manual disposal needed.
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Low FPS**
-   - Ensure your `CatalogObject` values (e.g., `terrain_roughness`, `cloud_coverage`) are reasonable for the desired performance.
-   - Optimize overall scene complexity if many planets are rendered.
+   - Ensure `CatalogObject` values (e.g., `terrain_roughness`, `cloud_coverage`) are reasonable.
+   - Optimize overall scene complexity if many planets rendered.
 
 2. **Visual Artifacts**
-   - Verify that your `catalogData` values are within expected ranges.
-   - Check for any console errors related to WebGL.
+   - Verify `catalogData` values within expected ranges.
+   - Check for console errors related to WebGL.
 
 3. **Unexpected Appearance**
-   - Double-check the `appearance` and `features` properties in your `catalogData`.
+   - Double-check `appearance`/`features` properties in `catalogData`.
    - Ensure color values are valid hexadecimal strings. 

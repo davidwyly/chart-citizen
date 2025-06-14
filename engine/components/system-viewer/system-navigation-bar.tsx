@@ -1,10 +1,11 @@
 import { Star, Circle, ChevronDown, ChevronRight } from "lucide-react"
 import { toRomanNumeral } from "@/lib/roman-numerals"
-import type { SystemData } from "@/engine/system-loader"
+import { OrbitalSystemData } from "@/engine/types/orbital-system"
+import { engineSystemLoader } from "@/engine/system-loader"
 import { useState, useMemo } from "react"
 
 interface SystemNavigationBarProps {
-  systemData: SystemData
+  systemData: OrbitalSystemData
   focusedName: string | null
   onObjectClick: (objectId: string, name: string, radius: number) => void
 }
@@ -16,11 +17,16 @@ export function SystemNavigationBar({
 }: SystemNavigationBarProps) {
   const [expandedPlanets, setExpandedPlanets] = useState<Set<string>>(new Set())
 
+  // Get stars, planets, and moons using the system loader helper methods
+  const stars = engineSystemLoader.getStars(systemData)
+  const planets = engineSystemLoader.getPlanets(systemData)
+  const moons = engineSystemLoader.getMoons(systemData)
+
   // Group moons by their parent planet
   const moonsByParent = useMemo(() => {
-    if (!systemData.moons) return {}
+    if (!moons) return {}
     
-    return systemData.moons.reduce((acc, moon) => {
+    return moons.reduce((acc, moon) => {
       if (!moon.orbit?.parent) return acc
       
       if (!acc[moon.orbit.parent]) {
@@ -28,8 +34,8 @@ export function SystemNavigationBar({
       }
       acc[moon.orbit.parent].push(moon)
       return acc
-    }, {} as Record<string, typeof systemData.moons>)
-  }, [systemData.moons])
+    }, {} as Record<string, typeof moons>)
+  }, [moons])
 
   const togglePlanetExpansion = (planetId: string) => {
     setExpandedPlanets(prev => {
@@ -47,7 +53,7 @@ export function SystemNavigationBar({
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-auto max-w-4xl">
       <div className="flex items-center justify-center gap-3 px-6 py-3 backdrop-blur-lg bg-black/20 rounded-full border border-white/20 shadow-lg">
         {/* Stars */}
-        {systemData.stars?.map((star) => (
+        {stars?.map((star) => (
           <button
             key={star.id}
             onClick={() => onObjectClick(star.id, star.name, 1.0)}
@@ -62,12 +68,12 @@ export function SystemNavigationBar({
         ))}
 
         {/* Separator */}
-        {systemData.stars && systemData.planets && systemData.planets.length > 0 && (
+        {stars && planets && planets.length > 0 && (
           <div className="w-px h-6 bg-white/30" />
         )}
 
         {/* Planets with expandable moons */}
-        {systemData.planets?.map((planet, index) => {
+        {planets?.map((planet, index) => {
           const planetMoons = moonsByParent[planet.id] || []
           const hasMoons = planetMoons.length > 0
           const isExpanded = expandedPlanets.has(planet.id)

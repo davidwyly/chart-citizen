@@ -1,34 +1,27 @@
 # Engine State Management
 
 ## Overview
-The Engine State Management system provides a centralized way to manage the 3D engine's state, configuration, and scene management. It uses Zustand for state management and provides a clean API for controlling the engine's lifecycle.
+Centralized system for managing 3D engine state, configuration, and scene management using Zustand.
 
 ## User Story
-As a developer, I want to manage the 3D engine's state, configuration, and scenes in a centralized way, so that I can easily control the engine's behavior and maintain a consistent state across the application.
+Manage 3D engine state, configuration, and scenes centrally for easy control and consistent application state.
 
 ## Acceptance Criteria
-1. Engine state can be initialized, started, and stopped
-2. Configuration can be updated at runtime
-3. Scenes can be added, removed, and switched
-4. Error states are properly handled and reported
-5. State changes are predictable and testable
+1. Engine state: initialize, start, stop.
+2. Configuration: update at runtime.
+3. Scenes: add, remove, switch.
+4. Error states: properly handled and reported.
+5. State changes: predictable and testable.
 
 ## Implementation Details
 
 ### Core Components
 
 #### Engine Store (`engine-state.ts`)
-- Manages engine state and configuration
-- Handles scene management
-- Controls engine lifecycle
-- Provides error handling
+- Manages engine state, configuration, scene management, lifecycle, and error handling.
 
 #### Types (`types.ts`)
-- Defines interfaces for:
-  - Engine state
-  - Engine configuration
-  - Scene configuration
-  - Object properties
+- Defines interfaces for engine state, configuration, scene configuration, and object properties.
 
 ### Key Features
 
@@ -72,28 +65,16 @@ store.setError(null);
 ## Testing Strategy
 
 ### Unit Tests
-- Configuration management
-- Scene management
-- Engine lifecycle
-- Error handling
-- State transitions
+- Configuration, scene management, engine lifecycle, error handling, state transitions.
 
 ### Integration Tests
-- Engine initialization
-- Scene loading
-- Configuration updates
-- Error recovery
+- Engine initialization, scene loading, configuration updates, error recovery.
 
 ## Performance Considerations
-- State updates should be optimized
-- Scene switching should be smooth
-- Configuration changes should be efficient
-- Error handling should not impact performance
+- Optimize state updates, smooth scene switching, efficient configuration changes, error handling without performance impact.
 
 ## Security Considerations
-- Scene data should be validated
-- Configuration changes should be sanitized
-- Error messages should not expose sensitive information
+- Validate scene data, sanitize configuration changes, error messages should not expose sensitive information.
 
 ## Future Enhancements
 1. Scene preloading

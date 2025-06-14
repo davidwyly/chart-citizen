@@ -2,127 +2,222 @@
   "id": "stanton-example",
   "name": "Stanton System (Enhanced)",
   "description": "Example of customized planet types in the Stanton system",
-  "barycenter": [0, 0, 0],
-  "stars": [
+  "objects": [
     {
       "id": "stanton-star",
-      "catalog_ref": "g2v-main-sequence",
-      "position": [0, 0, 0],
-      "name": "Stanton"
-    }
-  ],
-  "planets": [
+      "name": "Stanton",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 1,
+        "radius": 695700,
+        "temperature": 5778,
+        "luminosity": 1,
+        "age": 4.6,
+        "spectral_type": "G2V",
+        "habitable_zone_inner": 0.95,
+        "habitable_zone_outer": 1.4,
+        "rotation_period": 25.4,
+        "magnetic_cycle": 11,
+        "flare_activity": 0.1,
+        "stellar_wind": 0.3,
+        "core_color": "#ffaa44",
+        "corona_color": "#ffe680",
+        "prominence_color": "#ff5500",
+        "flare_color": "#ffcc66"
+      },
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "id": "hurston",
-      "catalog_ref": "polluted-industrial",
       "name": "Hurston",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288
+      },
       "orbit": {
         "parent": "stanton-star",
         "semi_major_axis": 0.79,
         "eccentricity": 0.01,
         "inclination": 0.5,
         "orbital_period": 271
-      },
-      "customizations": {
-        "mass": 1.5,
-        "radius": 1.1,
-        "temperature": 325,
-        "atmospheric_pressure": 2.0,
-        "pollution_level": 0.95,
-        "industrial_coverage": 0.85,
-        "population_density": 0.9,
-        "air_quality": 0.2,
-        "render_overrides": {
-          "surfaceColor": "#654321",
-          "smogColor": "#8b4513",
-          "cityLights": true,
-          "factoryCount": 150
-        }
       }
     },
     {
       "id": "crusader",
-      "catalog_ref": "gas-giant-standard",
       "name": "Crusader",
+      "classification": "planet",
+      "geometry_type": "gas_giant",
+      "properties": {
+        "0": "i",
+        "1": "n",
+        "2": "h",
+        "3": "a",
+        "4": "b",
+        "5": "i",
+        "6": "t",
+        "7": "e",
+        "8": "d",
+        "9": "_",
+        "10": "u",
+        "11": "p",
+        "12": "p",
+        "13": "e",
+        "14": "r",
+        "15": "_",
+        "16": "a",
+        "17": "t",
+        "18": "m",
+        "19": "o",
+        "20": "s",
+        "21": "p",
+        "22": "h",
+        "23": "e",
+        "24": "r",
+        "25": "e",
+        "mass": 317.8,
+        "radius": 6371,
+        "temperature": 165,
+        "density": 1.33,
+        "gravity": 2.36,
+        "atmospheric_pressure": 1000,
+        "habitability": "uninhabitable",
+        "orbit_zone": "cold",
+        "rotation_period": 9.9,
+        "axial_tilt": 3.1,
+        "magnetic_field": 20,
+        "storm_systems": true,
+        "radiation_belts": true,
+        "band_count": 8,
+        "has_rings": true,
+        "storm_intensity": 0.7,
+        "base_color": "#d8ca9d",
+        "atmosphere_color": "#fad5a5",
+        "storm_color": "#8b4513",
+        "ring_color": "#c0c0c0",
+        "band_colors": [
+          "#d8ca9d",
+          "#f4a460",
+          "#daa520",
+          "#cd853f",
+          "#8b4513",
+          "#a0522d",
+          "#d2b48c",
+          "#f5deb3"
+        ]
+      },
       "orbit": {
         "parent": "stanton-star",
         "semi_major_axis": 1.28,
         "eccentricity": 0.02,
         "inclination": 1.2,
         "orbital_period": 548
-      },
-      "customizations": {
-        "mass": 150.0,
-        "radius": 8.5,
-        "temperature": 180,
-        "storm_intensity": 0.3,
-        "band_count": 6,
-        "magnetic_field": 8.0,
-        "habitability": "inhabited_upper_atmosphere",
-        "render_overrides": {
-          "bands": ["#87ceeb", "#b0e0e6", "#add8e6", "#e0f6ff", "#f0f8ff", "#ffffff"],
-          "floatingCities": true,
-          "cloudLayers": 4,
-          "hasRings": false
-        }
       }
     },
     {
       "id": "arccorp",
-      "catalog_ref": "terrestrial-rocky",
       "name": "ArcCorp",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "0": "e",
+        "1": "c",
+        "2": "u",
+        "3": "m",
+        "4": "e",
+        "5": "n",
+        "6": "o",
+        "7": "p",
+        "8": "o",
+        "9": "l",
+        "10": "i",
+        "11": "s",
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288,
+        "density": 5.51,
+        "gravity": 1,
+        "escape_velocity": 11.186,
+        "rotation_period": 24,
+        "axial_tilt": 23.5,
+        "atmospheric_pressure": 1,
+        "atmospheric_composition": {
+          "nitrogen": 0.78,
+          "oxygen": 0.21,
+          "argon": 0.01
+        },
+        "hydrosphere": 0.71,
+        "albedo": 0.35,
+        "magnetic_field": 0.5,
+        "vulcanism": 0.3,
+        "tectonics": 0.7,
+        "crater_density": 0.1,
+        "surface_color": "#4b8975",
+        "cloud_color": "#ffffff",
+        "haze_color": "#afd1e3",
+        "terminator_color": "#203050"
+      },
       "orbit": {
         "parent": "stanton-star",
         "semi_major_axis": 1.55,
         "eccentricity": 0.03,
         "inclination": 0.8,
         "orbital_period": 728
-      },
-      "customizations": {
-        "mass": 1.1,
-        "radius": 0.95,
-        "temperature": 295,
-        "atmospheric_pressure": 1.1,
-        "ocean_coverage": 0.0,
-        "vegetation_coverage": 0.0,
-        "habitability": "ecumenopolis",
-        "render_overrides": {
-          "shader": "city_planet",
-          "surfaceColor": "#696969",
-          "hasOceans": false,
-          "cityLights": true,
-          "urbanization": 1.0,
-          "megastructures": true,
-          "spaceports": 12
-        }
       }
     },
     {
       "id": "microtech",
-      "catalog_ref": "ice-world",
       "name": "microTech",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "0": "i",
+        "1": "n",
+        "2": "h",
+        "3": "a",
+        "4": "b",
+        "5": "i",
+        "6": "t",
+        "7": "e",
+        "8": "d",
+        "9": "_",
+        "10": "c",
+        "11": "o",
+        "12": "l",
+        "13": "d",
+        "mass": 0.9,
+        "radius": 6371,
+        "temperature": 288,
+        "density": 5,
+        "gravity": 8.8,
+        "rotation_period": 30,
+        "axial_tilt": 45,
+        "atmosphere": true,
+        "ocean_coverage": 0.3,
+        "terrain_roughness": 1.2,
+        "cloud_coverage": 0.4,
+        "earth_like": false,
+        "ocean_color": "#4169e1",
+        "land_color": "#e0e0e0",
+        "sand_color": "#d3d3d3",
+        "snow_color": "#fffafa",
+        "cloud_color": "#f0f8ff",
+        "atmosphere_color": "#e6f3ff",
+        "city_light_color": "#87cefa"
+      },
       "orbit": {
         "parent": "stanton-star",
         "semi_major_axis": 2.14,
         "eccentricity": 0.01,
         "inclination": 2.1,
         "orbital_period": 1182
-      },
-      "customizations": {
-        "mass": 0.95,
-        "radius": 0.92,
-        "temperature": 210,
-        "atmospheric_pressure": 0.9,
-        "ice_thickness": 0.4,
-        "subsurface_ocean": 0.8,
-        "habitability": "inhabited_cold",
-        "render_overrides": {
-          "cityLights": true,
-          "techFacilities": true,
-          "iceColor": "#e6f3ff",
-          "aurorae": true,
-          "domeStructures": 8
-        }
       }
     }
   ],
@@ -130,5 +225,11 @@
     "primary_star": "stanton-star",
     "ambient_level": 0.12,
     "stellar_influence_radius": 120
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-06-14",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au"
   }
 }

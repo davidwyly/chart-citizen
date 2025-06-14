@@ -4,10 +4,10 @@ import React, { useMemo } from "react"
 import * as THREE from "three"
 import { calculateHabitableZoneAndSnowLine, getLuminosityForSpectralType } from "@/engine/utils/stellar-zones"
 import type { ViewType } from "@lib/types/effects-level"
-import type { SystemData } from "@/engine/system-loader"
+import { OrbitalSystemData, isStar } from "@/engine/types/orbital-system"
 
 interface StellarZonesProps {
-  systemData: SystemData
+  systemData: OrbitalSystemData
   viewType: ViewType
   orbitalScale: number
   showZones?: boolean
@@ -19,27 +19,32 @@ export function StellarZones({
   orbitalScale, 
   showZones = true 
 }: StellarZonesProps) {
-  // Calculate zones based on primary star's spectral type
+  // Calculate zones based on primary star's properties
   const zones = useMemo(() => {
-    if (!systemData.stars || systemData.stars.length === 0) return null
+    const stars = systemData.objects.filter(isStar)
+    if (stars.length === 0) return null
     
-    const primaryStar = systemData.stars[0]
+    const primaryStar = stars[0]
     if (!primaryStar) return null
 
     try {
-      // Default spectral type (Sun-like)
-      let spectralType = 'G2V'
+      // Get spectral type from star properties
+      let spectralType = 'G2V' // Default to Sun-like star
       
-      // For now, we'll use defaults based on common star types
-      // In the future, this could be enhanced to load catalog data
-      if (primaryStar.catalog_ref) {
-        const catalogRef = primaryStar.catalog_ref.toLowerCase()
-        if (catalogRef.includes('k1v') || catalogRef.includes('k-type')) {
-          spectralType = 'K1V'
-        } else if (catalogRef.includes('m2v') || catalogRef.includes('m5v') || catalogRef.includes('red-dwarf')) {
-          spectralType = 'M2V'
-        } else if (catalogRef.includes('g2v') || catalogRef.includes('main-sequence')) {
-          spectralType = 'G2V'
+      // Check for spectral type in properties
+      if (primaryStar.properties.spectral_type) {
+        spectralType = primaryStar.properties.spectral_type
+      } else {
+        // Infer spectral type from temperature
+        const temp = primaryStar.properties.color_temperature || primaryStar.properties.temperature
+        if (temp) {
+          if (temp > 30000) spectralType = 'O5V'
+          else if (temp > 10000) spectralType = 'B5V'
+          else if (temp > 7500) spectralType = 'A5V'
+          else if (temp > 6000) spectralType = 'F5V'
+          else if (temp > 5200) spectralType = 'G2V'
+          else if (temp > 3700) spectralType = 'K5V'
+          else spectralType = 'M5V'
         }
       }
 
@@ -58,7 +63,7 @@ export function StellarZones({
       console.warn('Failed to calculate stellar zones:', error)
       return null
     }
-  }, [systemData.stars, orbitalScale])
+  }, [systemData.objects, orbitalScale])
 
   // Create ring geometries for zones
   const ringGeometries = useMemo(() => {

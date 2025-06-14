@@ -3,23 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
-**Rule: Always Maintain Feature Documentation for Testable Functionality**
+**Rule: Always Understand High-Level Features and Architecture**
 
-Each testable feature in the application should be documented in a dedicated feature.md file located in the docs/features/ directory.
-
-Rules:
-1. When a new testable feature is requested, create a feature.md file for it in docs/features/.
-2. Each feature.md file should include:
- - A clear user story
- - Unambiguous acceptance criteria
- - A high-level implementation strategy
- - A high-level testing approach
-3. At the root of the docs/features/ folder, maintain a features-summary.md file.
- - This file should contain a one-sentence summary of each feature, and 
- - The name of its corresponding markdown document
-4. When adding a new feature document, update features.md with its summary and filename.
-5. When removing or fundamentally changing a feature, update or remove the corresponding entry in features-summary.md accordingly.
-
-These documents are critical for test planning, understanding application behavior, and ensuring that essential features remain intact during large-scale changes or refactors.
-
-Before moving or modifying unfamiliar functionality, consult features-summary.md. If a related feature is listed, review its associated feature.md document to understand the context and plan your changes accordingly.
+Always view ./docs/features/features-summary.md and any relevant .md documentation for important context

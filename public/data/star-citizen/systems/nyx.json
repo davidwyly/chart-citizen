@@ -2,47 +2,66 @@
   "id": "nyx",
   "name": "Nyx System",
   "description": "A former UEE system now abandoned and filled with derelict ships and stations",
-  "barycenter": [0, 0, 0],
-  "stars": [
+  "objects": [
     {
       "id": "nyx-star",
-      "catalog_ref": "m5v-red-dwarf",
-      "position": [0, 0, 0],
-      "name": "Nyx"
-    }
-  ],
-  "planets": [
+      "name": "Nyx",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 0.12,
+        "radius": 695700,
+        "temperature": 3240,
+        "luminosity": 0.0055,
+        "age": 10,
+        "spectral_type": "M5V",
+        "habitable_zone_inner": 0.05,
+        "habitable_zone_outer": 0.12,
+        "rotation_period": 70,
+        "magnetic_cycle": 7,
+        "flare_activity": 0.8,
+        "stellar_wind": 0.2,
+        "core_color": "#ff3300",
+        "corona_color": "#ff6633",
+        "prominence_color": "#ff2200",
+        "flare_color": "#ff4400"
+      },
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "id": "nyx-i",
-      "catalog_ref": "barren-world",
       "name": "Nyx I",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288,
+        "crater_density": 0.8,
+        "abandoned_structures": 0.3
+      },
       "orbit": {
         "parent": "nyx-star",
         "semi_major_axis": 0.3,
         "eccentricity": 0.1,
         "inclination": 2.5,
         "orbital_period": 120
-      },
-      "customizations": {
-        "features": {
-          "crater_density": 0.8,
-          "abandoned_structures": 0.3
-        }
       }
-    }
-  ],
-  "jump_points": [
-    {
-      "id": "nyx-pyro-jp",
-      "name": "Pyro Jump Point",
-      "position": [-220, -150, 80],
-      "destination": "pyro",
-      "status": "unstable"
     }
   ],
   "lighting": {
     "primary_star": "nyx-star",
     "ambient_level": 0.05,
     "stellar_influence_radius": 60
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-06-14",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au"
   }
 }

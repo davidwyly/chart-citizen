@@ -2,90 +2,167 @@
   "id": "sol",
   "name": "Sol System",
   "description": "The birthplace of humanity in the Star Citizen universe, now part of the UEE",
-  "barycenter": [0, 0, 0],
-  "stars": [
+  "objects": [
     {
       "id": "sol-star",
-      "catalog_ref": "g2v-main-sequence",
-      "position": [0, 0, 0],
-      "name": "Sol"
-    }
-  ],
-  "planets": [
+      "name": "Sol",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 1,
+        "radius": 695700,
+        "temperature": 5778,
+        "luminosity": 1,
+        "age": 4.6,
+        "spectral_type": "G2V",
+        "habitable_zone_inner": 0.95,
+        "habitable_zone_outer": 1.4,
+        "rotation_period": 25.4,
+        "magnetic_cycle": 11,
+        "flare_activity": 0.1,
+        "stellar_wind": 0.3,
+        "core_color": "#ffaa44",
+        "corona_color": "#ffe680",
+        "prominence_color": "#ff5500",
+        "flare_color": "#ffcc66"
+      },
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "id": "mercury",
-      "catalog_ref": "barren-world",
       "name": "Mercury",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 0.055,
+        "radius": 2439.7,
+        "temperature": 440
+      },
       "orbit": {
         "parent": "sol-star",
         "semi_major_axis": 0.39,
         "eccentricity": 0.205,
-        "inclination": 7.0,
+        "inclination": 7,
         "orbital_period": 88
-      },
-      "customizations": {
-        "physical": {
-          "mass": 0.055,
-          "radius": 0.383,
-          "temperature": 440
-        }
       }
     },
     {
       "id": "venus",
-      "catalog_ref": "terrestrial-smog",
       "name": "Venus",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 0.815,
+        "radius": 6051.8,
+        "temperature": 737,
+        "atmospheric_pressure": 92
+      },
       "orbit": {
         "parent": "sol-star",
         "semi_major_axis": 0.72,
         "eccentricity": 0.007,
         "inclination": 3.4,
         "orbital_period": 225
-      },
-      "customizations": {
-        "physical": {
-          "mass": 0.815,
-          "radius": 0.949,
-          "temperature": 737,
-          "atmospheric_pressure": 92.0
-        }
       }
     },
     {
       "id": "earth",
-      "catalog_ref": "terrestrial-rocky",
       "name": "Earth",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288,
+        "density": 5.51,
+        "gravity": 1,
+        "escape_velocity": 11.186,
+        "rotation_period": 24,
+        "axial_tilt": 23.5,
+        "atmospheric_pressure": 1,
+        "atmospheric_composition": {
+          "nitrogen": 0.78,
+          "oxygen": 0.21,
+          "argon": 0.01
+        },
+        "hydrosphere": 0.71,
+        "albedo": 0.35,
+        "magnetic_field": 0.5,
+        "vulcanism": 0.3,
+        "tectonics": 0.7,
+        "crater_density": 0.1,
+        "surface_color": "#4b8975",
+        "cloud_color": "#ffffff",
+        "haze_color": "#afd1e3",
+        "terminator_color": "#203050"
+      },
       "orbit": {
         "parent": "sol-star",
-        "semi_major_axis": 1.0,
+        "semi_major_axis": 1,
         "eccentricity": 0.017,
-        "inclination": 0.0,
+        "inclination": 0,
         "orbital_period": 365
       }
     },
     {
       "id": "mars",
-      "catalog_ref": "arid-desert",
       "name": "Mars",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 0.107,
+        "radius": 3389.5,
+        "temperature": 210
+      },
       "orbit": {
         "parent": "sol-star",
         "semi_major_axis": 1.52,
         "eccentricity": 0.094,
         "inclination": 1.9,
         "orbital_period": 687
-      },
-      "customizations": {
-        "physical": {
-          "mass": 0.107,
-          "radius": 0.532,
-          "temperature": 210
-        }
       }
     },
     {
       "id": "jupiter",
-      "catalog_ref": "gas-giant-standard",
       "name": "Jupiter",
+      "classification": "planet",
+      "geometry_type": "gas_giant",
+      "properties": {
+        "mass": 317.8,
+        "radius": 69911,
+        "temperature": 165,
+        "density": 1.33,
+        "gravity": 2.36,
+        "atmospheric_pressure": 1000,
+        "habitability": "uninhabitable",
+        "orbit_zone": "cold",
+        "rotation_period": 9.9,
+        "axial_tilt": 3.1,
+        "magnetic_field": 20,
+        "storm_systems": true,
+        "radiation_belts": true,
+        "band_count": 8,
+        "has_rings": true,
+        "storm_intensity": 0.7,
+        "base_color": "#d8ca9d",
+        "atmosphere_color": "#fad5a5",
+        "storm_color": "#8b4513",
+        "ring_color": "#c0c0c0",
+        "band_colors": [
+          "#d8ca9d",
+          "#f4a460",
+          "#daa520",
+          "#cd853f",
+          "#8b4513",
+          "#a0522d",
+          "#d2b48c",
+          "#f5deb3"
+        ]
+      },
       "orbit": {
         "parent": "sol-star",
         "semi_major_axis": 5.2,
@@ -96,43 +173,116 @@
     },
     {
       "id": "saturn",
-      "catalog_ref": "gas-giant-standard",
       "name": "Saturn",
+      "classification": "planet",
+      "geometry_type": "gas_giant",
+      "properties": {
+        "mass": 317.8,
+        "radius": 58232,
+        "temperature": 165,
+        "density": 1.33,
+        "gravity": 2.36,
+        "atmospheric_pressure": 1000,
+        "habitability": "uninhabitable",
+        "orbit_zone": "cold",
+        "rotation_period": 9.9,
+        "axial_tilt": 3.1,
+        "magnetic_field": 20,
+        "storm_systems": true,
+        "radiation_belts": true,
+        "band_count": 8,
+        "has_rings": true,
+        "storm_intensity": 0.7,
+        "base_color": "#d8ca9d",
+        "atmosphere_color": "#fad5a5",
+        "storm_color": "#8b4513",
+        "ring_color": "#c0c0c0",
+        "band_colors": [
+          "#d8ca9d",
+          "#f4a460",
+          "#daa520",
+          "#cd853f",
+          "#8b4513",
+          "#a0522d",
+          "#d2b48c",
+          "#f5deb3"
+        ],
+        "ring_prominence": 1
+      },
       "orbit": {
         "parent": "sol-star",
         "semi_major_axis": 9.5,
         "eccentricity": 0.057,
         "inclination": 2.5,
         "orbital_period": 10759
-      },
-      "customizations": {
-        "features": {
-          "has_rings": true,
-          "ring_prominence": 1.0
-        }
       }
     },
     {
       "id": "uranus",
-      "catalog_ref": "gas-giant-ice",
       "name": "Uranus",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 25362,
+        "temperature": 288,
+        "habitability": "uninhabitable",
+        "orbit_zone": "frozen",
+        "rotation_period": 17.2,
+        "axial_tilt": 98,
+        "magnetic_field": 0.23,
+        "storm_systems": false,
+        "methane_clouds": true,
+        "band_count": 4,
+        "has_rings": true,
+        "storm_intensity": 0.2,
+        "base_color": "#4fd0e7",
+        "atmosphere_color": "#87ceeb",
+        "ring_color": "#708090",
+        "band_colors": [
+          "#4fd0e7",
+          "#87ceeb",
+          "#add8e6",
+          "#e0f6ff"
+        ]
+      },
       "orbit": {
         "parent": "sol-star",
         "semi_major_axis": 19.2,
         "eccentricity": 0.046,
         "inclination": 0.8,
         "orbital_period": 30687
-      },
-      "customizations": {
-        "features": {
-          "axial_tilt": 98.0
-        }
       }
     },
     {
       "id": "neptune",
-      "catalog_ref": "gas-giant-ice",
       "name": "Neptune",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 24622,
+        "temperature": 288,
+        "habitability": "uninhabitable",
+        "orbit_zone": "frozen",
+        "rotation_period": 17.2,
+        "axial_tilt": 98,
+        "magnetic_field": 0.23,
+        "storm_systems": false,
+        "methane_clouds": true,
+        "band_count": 4,
+        "has_rings": true,
+        "storm_intensity": 0.2,
+        "base_color": "#4fd0e7",
+        "atmosphere_color": "#87ceeb",
+        "ring_color": "#708090",
+        "band_colors": [
+          "#4fd0e7",
+          "#87ceeb",
+          "#add8e6",
+          "#e0f6ff"
+        ]
+      },
       "orbit": {
         "parent": "sol-star",
         "semi_major_axis": 30.1,
@@ -140,13 +290,26 @@
         "inclination": 1.8,
         "orbital_period": 60190
       }
-    }
-  ],
-  "moons": [
+    },
     {
       "id": "luna",
-      "catalog_ref": "earth-moon-type",
       "name": "Luna",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.012,
+        "radius": 1737.4,
+        "temperature": 220,
+        "atmospheric_pressure": 0,
+        "tidal_lock": true,
+        "mare_regions": true,
+        "highland_regions": true,
+        "crater_density": 0.8,
+        "habitability": "uninhabitable",
+        "base_color": "#c0c0c0",
+        "mare_color": "#696969",
+        "highland_color": "#d3d3d3"
+      },
       "orbit": {
         "parent": "earth",
         "semi_major_axis": 0.00257,
@@ -156,25 +319,15 @@
       }
     }
   ],
-  "jump_points": [
-    {
-      "id": "sol-terra-jp",
-      "name": "Terra Jump Point",
-      "position": [100, 0, 0],
-      "destination": "terra",
-      "status": "active"
-    },
-    {
-      "id": "sol-stanton-jp",
-      "name": "Stanton Jump Point",
-      "position": [-80, 50, 20],
-      "destination": "stanton",
-      "status": "active"
-    }
-  ],
   "lighting": {
     "primary_star": "sol-star",
     "ambient_level": 0.1,
     "stellar_influence_radius": 100
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-06-14",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au"
   }
 }

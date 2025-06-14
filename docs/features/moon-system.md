@@ -1,89 +1,89 @@
 # Moon System Feature
 
 ## User Story
-As a user exploring a star system, I want to be able to view, navigate to, and select moons that orbit planets, so that I can examine these celestial bodies in detail and understand their relationship to their parent planets.
+View, navigate to, and select moons orbiting planets to examine details and parent relationships.
 
 ## Acceptance Criteria
 
 ### Navigation Panel Integration
-- [ ] **AC1**: When viewing a star system, planets with moons display an expand/collapse button in the navigation bar
-- [ ] **AC2**: Clicking the expand button reveals all moons belonging to that planet in a dropdown menu
-- [ ] **AC3**: Each moon entry shows its name and can be clicked to focus on that moon
-- [ ] **AC4**: When a moon is selected, the parent planet is highlighted to show the relationship
-- [ ] **AC5**: Moon navigation updates dynamically when switching between planets
+- [ ] **AC1**: Planets with moons display expand/collapse button in navigation bar.
+- [ ] **AC2**: Expanding reveals moons in dropdown menu.
+- [ ] **AC3**: Each moon entry shows name and is clickable to focus.
+- [ ] **AC4**: Selecting moon highlights parent planet.
+- [ ] **AC5**: Moon navigation updates dynamically when switching planets.
 
 ### Orbital Mechanics and Rendering
-- [ ] **AC6**: Moons properly orbit their parent planets, not stars or other celestial bodies
-- [ ] **AC7**: Moon orbital paths are visible and accurately represent their semi-major axis
-- [ ] **AC8**: Moons maintain proper distance from their parent planets (never appearing inside the planet)
-- [ ] **AC9**: Moon orbits scale appropriately across different view modes (realistic, navigational, profile)
-- [ ] **AC10**: Orbital periods and eccentricity are respected in the animation
+- [ ] **AC6**: Moons orbit parent planets (not stars/other bodies).
+- [ ] **AC7**: Moon orbital paths are visible and accurately represent semi-major axis.
+- [ ] **AC8**: Moons maintain proper distance from parent planets (never inside).
+- [ ] **AC9**: Moon orbits scale appropriately across view modes (realistic, navigational, profile).
+- [ ] **AC10**: Orbital periods/eccentricity respected in animation.
 
 ### Selection and Focus System
-- [ ] **AC11**: Selecting a moon focuses the camera on that moon
-- [ ] **AC12**: The target panel (object details panel) displays moon-specific information when a moon is selected
-- [ ] **AC13**: Moon selection works consistently with the existing camera system
-- [ ] **AC14**: Time controls affect moon orbital motion appropriately
+- [ ] **AC11**: Selecting a moon focuses camera on it.
+- [ ] **AC12**: Target panel displays moon-specific information.
+- [ ] **AC13**: Moon selection works consistently with existing camera system.
+- [ ] **AC14**: Time controls affect moon orbital motion.
 
 ### Data Integrity and Error Handling
-- [ ] **AC15**: Moons with missing or invalid parent references are handled gracefully (logged and skipped)
-- [ ] **AC16**: System validates that parent planets exist before rendering moons
-- [ ] **AC17**: No crashes or rendering issues occur with malformed moon data
+- [ ] **AC15**: Moons with missing/invalid parent references handled gracefully (logged/skipped).
+- [ ] **AC16**: System validates parent planets exist before rendering moons.
+- [ ] **AC17**: No crashes/rendering issues with malformed moon data.
 
 ## High-Level Implementation Strategy
 
 ### 1. Navigation Bar Enhancement
 - **Component**: `system-navigation-bar.tsx`
-- **Approach**: Extend existing navigation to support hierarchical display
+- **Approach**: Extend existing navigation for hierarchical display.
 - **Key Features**:
-  - Group moons by parent planet ID
-  - Implement expand/collapse state management
-  - Create dropdown UI for moon selection
-  - Add visual indicators for parent-child relationships
+  - Group moons by parent planet ID.
+  - Implement expand/collapse state management.
+  - Create dropdown UI for moon selection.
+  - Add visual indicators for parent-child relationships.
 
 ### 2. Moon Rendering Overhaul
 - **Component**: `system-objects-renderer.tsx`
-- **Approach**: Complete rewrite of moon rendering logic
+- **Approach**: Complete rewrite of moon rendering logic.
 - **Key Improvements**:
-  - Parent planet validation before rendering
-  - Intelligent orbital radius calculation
-  - View mode-specific scaling logic
-  - Proper orbital mechanics integration
+  - Parent planet validation before rendering.
+  - Intelligent orbital radius calculation.
+  - View mode-specific scaling logic.
+  - Proper orbital mechanics integration.
 
 ### 3. Integration with Existing Systems
-- **Camera System**: Ensure moon selection works with unified camera controller
-- **Object Details Panel**: Display moon-specific information
-- **Time Controls**: Integrate moon orbital motion with time multiplier
+- **Camera System**: Ensure moon selection works with unified camera controller.
+- **Object Details Panel**: Display moon-specific information.
+- **Time Controls**: Integrate moon orbital motion with time multiplier.
 
 ## High-Level Testing Approach
 
 ### Unit Tests
-- Test moon grouping logic by parent planet
-- Validate orbital radius calculations across view modes
-- Test error handling for invalid moon data
-- Verify expand/collapse state management
+- Moon grouping logic by parent planet.
+- Orbital radius calculations across view modes.
+- Error handling for invalid moon data.
+- Expand/collapse state management.
 
 ### Integration Tests
-- Test moon selection with camera focusing
-- Verify object details panel updates for moons
-- Test view mode switching with moons present
-- Validate time control integration
+- Moon selection with camera focusing.
+- Object details panel updates for moons.
+- View mode switching with moons present.
+- Time control integration.
 
 ### Visual Tests
-- Verify moons orbit correct parent planets
-- Check proper spacing and collision avoidance
-- Validate orbital path rendering
-- Test UI responsiveness of navigation dropdowns
+- Moons orbit correct parent planets.
+- Proper spacing and collision avoidance.
+- Orbital path rendering.
+- UI responsiveness of navigation dropdowns.
 
 ### Performance Tests
-- Ensure no performance degradation with many moons
-- Test memory usage with large moon datasets
-- Validate rendering performance across view modes
+- No performance degradation with many moons.
+- Memory usage with large moon datasets.
+- Rendering performance across view modes.
 
 ## Technical Implementation Details
 
 ### Moon Data Structure
-Moons are defined in system JSON files with:
+Moons are defined in system JSON files:
 ```json
 {
   "id": "luna",
@@ -100,27 +100,27 @@ Moons are defined in system JSON files with:
 ```
 
 ### Key Components Modified
-1. **SystemNavigationBar**: Added hierarchical moon display
-2. **SystemObjectsRenderer**: Completely restructured moon rendering as children of planets
-3. **ObjectDetailsPanel**: Enhanced to display moon information  
-4. **UnifiedCameraController**: Integrated moon focusing capabilities
-5. **OrbitalPath**: Enhanced parent-following logic for nested orbital systems
+1. **SystemNavigationBar**: Hierarchical moon display added.
+2. **SystemObjectsRenderer**: Moon rendering restructured as children of planets.
+3. **ObjectDetailsPanel**: Enhanced to display moon information.
+4. **UnifiedCameraController**: Moon focusing capabilities integrated.
+5. **OrbitalPath**: Parent-following logic enhanced for nested orbital systems.
 
 ### Validation Logic
-- Parent planet existence check before moon rendering
-- Orbital parameter validation and fallback values
-- Comprehensive error logging for debugging
+- Parent planet existence check before moon rendering.
+- Orbital parameter validation and fallback values.
+- Comprehensive error logging.
 
 ## Dependencies
-- Existing camera system (unified-camera-controller)
-- Object selection hooks (use-object-selection)
-- Orbital path rendering components
-- Object details panel system
+- Existing camera system (unified-camera-controller).
+- Object selection hooks (use-object-selection).
+- Orbital path rendering components.
+- Object details panel system.
 
 ## Risks and Mitigations
-- **Risk**: Performance impact with many moons
-  - **Mitigation**: Efficient memoization and conditional rendering
-- **Risk**: Complex parent-child relationships
-  - **Mitigation**: Clear validation and error handling
-- **Risk**: UI complexity in navigation
-  - **Mitigation**: Progressive disclosure with expand/collapse 
+- **Risk**: Performance impact with many moons.
+  - **Mitigation**: Efficient memoization and conditional rendering.
+- **Risk**: Complex parent-child relationships.
+  - **Mitigation**: Clear validation and error handling.
+- **Risk**: UI complexity in navigation.
+  - **Mitigation**: Progressive disclosure with expand/collapse. 

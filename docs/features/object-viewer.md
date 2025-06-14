@@ -1,39 +1,37 @@
 # Object Viewer
 
 ## User Story
-As a developer, I want to inspect and modify 3D objects in real-time, so that I can debug and fine-tune their properties, materials, and performance characteristics.
+Inspect and modify 3D objects in real-time for debugging and fine-tuning.
 
 ## Acceptance Criteria
-1. The viewer should display a panel with tabs for different aspects of the object:
+1. Displays panel with tabs for:
    - Transform (position, rotation, scale)
-   - Material (type and shader uniforms)
+   - Material (type, shader uniforms)
    - Geometry (vertices, faces, draw range)
    - Performance (draw calls, triangles, memory usage)
-2. Property changes should be immediately reflected on the target object
-3. The viewer should support shader material inspection
-4. The viewer should include a protostar shader preview for testing
-5. The viewer should be collapsible to save screen space
-6. The viewer should work with any THREE.Object3D instance
+2. Property changes immediately reflected on target object.
+3. Supports shader material inspection.
+4. Includes protostar shader preview for testing.
+5. Collapsible to save screen space.
+6. Works with any `THREE.Object3D` instance.
 
 ## Implementation Strategy
-1. Create a React component that accepts a target object and optional callback
-2. Use React Three Fiber for 3D rendering integration
-3. Implement a tabbed interface using Tailwind CSS
-4. Add real-time property updates with proper TypeScript typing
-5. Include a protostar shader preview for testing shader materials
-6. Add performance monitoring capabilities
+1. React component accepting target object and optional callback.
+2. React Three Fiber for 3D rendering.
+3. Tabbed interface with Tailwind CSS.
+4. Real-time property updates with TypeScript.
+5. Protostar shader preview for testing shader materials.
+6. Performance monitoring capabilities.
 
 ## Testing Approach
 1. Unit tests for:
-   - Component rendering with and without target
-   - Tab switching functionality
+   - Component rendering (with/without target)
+   - Tab switching
    - Property change handling
-   - protostar preview toggling
-   - Material information display
-   - Geometry information display
-   - Performance information display
+   - Protostar preview toggling
+   - Material, geometry, performance info display
 2. Integration tests for:
-   - Property updates affecting the target object
+   - Property updates affecting target object
    - Shader material uniform updates
    - Performance metrics accuracy
 

@@ -1,7 +1,7 @@
 # Performance Optimization Features
 
 ## Overview
-The performance optimization system ensures smooth and efficient rendering of complex celestial systems, handling multiple objects, effects, and interactions while maintaining high visual quality.
+Ensures smooth, efficient rendering of complex celestial systems with high visual quality.
 
 ## Core Features
 
@@ -49,9 +49,9 @@ The performance optimization system ensures smooth and efficient rendering of co
 ```
 
 ## View Mode Support
-- Realistic: Full detail, accurate scaling
-- Navigational: Simplified effects, enhanced visibility
-- Profile: Focused on specific features
+- Realistic: Full detail, accurate scaling.
+- Navigational: Simplified effects, enhanced visibility.
+- Profile: Focused on specific features.
 
 ## Performance Monitoring
 1. Frame rate monitoring

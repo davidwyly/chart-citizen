@@ -1,12 +1,12 @@
 # Interaction System Features
 
 ## Overview
-The interaction system provides intuitive and responsive ways to interact with celestial objects in the 3D space, including selection, navigation, and information display.
+Intuitive, responsive interaction with celestial objects (selection, navigation, information display).
 
 ## Core Features
 
 ### Object Interaction
-- Hover detection and highlighting
+- Hover detection/highlighting
 - Click selection
 - Focus management
 - Custom interaction behaviors
@@ -49,9 +49,9 @@ The interaction system provides intuitive and responsive ways to interact with c
 ```
 
 ## View Mode Support
-- Realistic: Full interaction capabilities
-- Navigational: Simplified controls, enhanced visibility
-- Profile: Focused on specific features
+- Realistic: Full interaction capabilities.
+- Navigational: Simplified controls, enhanced visibility.
+- Profile: Focused on specific features.
 
 ## Performance Considerations
 1. Event debouncing

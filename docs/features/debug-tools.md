@@ -1,10 +1,10 @@
 # Debug Tools
 
-A comprehensive set of debugging tools for monitoring and analyzing the 3D scene, shader performance, and object properties.
+Comprehensive debugging tools for monitoring and analyzing 3D scene, shader performance, and object properties.
 
 ## Shader Performance View
 
-The Shader Performance View provides real-time monitoring of shader performance metrics, helping identify performance bottlenecks and optimize rendering.
+Real-time monitoring of shader performance metrics to identify bottlenecks and optimize rendering.
 
 ### Features
 
@@ -40,7 +40,7 @@ function DebugOverlay() {
 
 ## Celestial Viewer
 
-The Celestial Viewer is a powerful debugging tool that allows inspection and manipulation of 3D celestial objects in the scene.
+Powerful debugging tool for inspecting and manipulating 3D celestial objects.
 
 ### Features
 
@@ -70,7 +70,7 @@ function DebugPanel() {
 
 ### Object Properties
 
-The Celestial Viewer displays and allows editing of:
+Displays and allows editing of:
 
 1. **Transform**
    - Position (x, y, z)
@@ -107,26 +107,26 @@ The Celestial Viewer displays and allows editing of:
 ### Best Practices
 
 1. **Performance Monitoring**
-   - Use the Shader Performance View to identify bottlenecks
-   - Monitor draw calls and triangle counts
-   - Watch for sudden FPS drops
-   - Check memory usage patterns
+   - Use Shader Performance View to identify bottlenecks.
+   - Monitor draw calls and triangle counts.
+   - Watch for sudden FPS drops.
+   - Check memory usage patterns.
 
 2. **Object Inspection**
-   - Use the Celestial Viewer for detailed property inspection
-   - Verify transform hierarchies
-   - Check material settings
-   - Validate shader uniforms
+   - Use Celestial Viewer for detailed property inspection.
+   - Verify transform hierarchies.
+   - Check material settings.
+   - Validate shader uniforms.
 
 3. **Debug Workflow**
-   - Start with performance monitoring
-   - Identify problematic objects
-   - Use Celestial Viewer for detailed inspection
-   - Make targeted optimizations
+   - Start with performance monitoring.
+   - Identify problematic objects.
+   - Use Celestial Viewer for detailed inspection.
+   - Make targeted optimizations.
 
 ### Integration
 
-The debug tools can be integrated into your development workflow:
+Debug tools can be integrated into your development workflow:
 
 1. **Development Mode**
    ```typescript
@@ -160,19 +160,19 @@ The debug tools can be integrated into your development workflow:
 ### Troubleshooting
 
 1. **Performance Issues**
-   - Check shader complexity
-   - Monitor draw calls
-   - Verify geometry optimization
-   - Review texture sizes
+   - Check shader complexity.
+   - Monitor draw calls.
+   - Verify geometry optimization.
+   - Review texture sizes.
 
 2. **Visual Artifacts**
-   - Inspect material settings
-   - Check shader uniforms
-   - Verify transform hierarchy
-   - Validate UV maps
+   - Inspect material settings.
+   - Check shader uniforms.
+   - Verify transform hierarchy.
+   - Validate UV maps.
 
 3. **Memory Problems**
-   - Monitor texture memory
-   - Check geometry buffers
-   - Verify material disposal
-   - Review shader program caching 
+   - Monitor texture memory.
+   - Check geometry buffers.
+   - Verify material disposal.
+   - Review shader program caching. 

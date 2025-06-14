@@ -1,3 +1,5 @@
+import { OrbitalSystemData } from './orbital-system'
+
 export type Mode = 'realistic' | 'navigational' | 'profile';
 
 export interface ModeFeatures {
@@ -11,7 +13,7 @@ export interface ModeState {
   mode: Mode;
   dataSource: DataSource | null;
   selectedObject: SelectedObject | null;
-  systemData: SystemData | null;
+  systemData: OrbitalSystemData | null;
   features: ModeFeatures;
   viewMode: Mode;
   objects: Map<string, any>;
@@ -29,12 +31,13 @@ export interface SelectedObject {
   type: 'star' | 'planet' | 'moon' | 'jump-point';
 }
 
+// Legacy compatibility interfaces (deprecated - use orbital-system types instead)
 export interface SystemData {
   name: string;
-  objects: CelestialObject[];
+  objects: LegacyCelestialObject[];
 }
 
-export interface CelestialObject {
+export interface LegacyCelestialObject {
   id: string;
   type: 'star' | 'planet' | 'moon' | 'jump-point';
   name: string;

@@ -1,7 +1,7 @@
 # Planet Rendering Features
 
 ## Overview
-The planet rendering system provides detailed visualization of different types of planets, including their surface features, atmospheric effects, and dynamic behaviors.
+Detailed visualization of planet types, surface features, atmospheric effects, and dynamic behaviors.
 
 ## Core Features
 
@@ -11,7 +11,7 @@ The planet rendering system provides detailed visualization of different types o
 - Ice planets
 - Volcanic planets
 - Ocean planets
-- Each type has unique visual characteristics and behaviors
+- Each type has unique visual characteristics/behaviors.
 
 ### Visual Effects
 
@@ -59,9 +59,9 @@ The planet rendering system provides detailed visualization of different types o
 ```
 
 ## View Mode Support
-- Realistic: Full detail, accurate scaling
-- Navigational: Simplified effects, enhanced visibility
-- Profile: Focused on specific features
+- Realistic: Full detail, accurate scaling.
+- Navigational: Simplified effects, enhanced visibility.
+- Profile: Focused on specific features.
 
 ## Future Enhancements
 1. More planet types and variations

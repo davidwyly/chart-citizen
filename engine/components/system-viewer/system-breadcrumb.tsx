@@ -4,11 +4,12 @@ import type React from "react"
 
 import { Star, Circle } from "lucide-react"
 import { toRomanNumeral } from "@/lib/roman-numerals"
-import type { SystemData } from "@/engine/system-loader"
+import { OrbitalSystemData } from "@/engine/types/orbital-system"
+import { engineSystemLoader } from "@/engine/system-loader"
 import type * as THREE from "three"
 
 interface SystemBreadcrumbProps {
-  systemData: SystemData
+  systemData: OrbitalSystemData
   objectRefsMap: React.MutableRefObject<Map<string, THREE.Object3D>>
   onObjectFocus: (object: THREE.Object3D, name: string, visualSize?: number, radius?: number) => void
   onObjectSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
@@ -37,6 +38,10 @@ export function SystemBreadcrumb({
     }
   }
 
+  // Get stars and planets using the system loader helper methods
+  const stars = engineSystemLoader.getStars(systemData)
+  const planets = engineSystemLoader.getPlanets(systemData)
+
   return (
     <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="flex items-center gap-3 px-4 py-2 backdrop-blur-md bg-white/10 rounded-full border border-white/20">
@@ -61,12 +66,12 @@ export function SystemBreadcrumb({
         </button>
 
         {/* Separator - only if we have celestial objects */}
-        {((systemData?.stars && systemData.stars.length > 0) || (systemData?.planets && systemData.planets.length > 0)) && (
+        {((stars && stars.length > 0) || (planets && planets.length > 0)) && (
           <div className="w-px h-4 bg-white/30" />
         )}
 
         {/* Stars */}
-        {systemData.stars?.map((star) => (
+        {stars?.map((star) => (
           <button
             key={star.id}
             onClick={() => handleObjectClick(star.id, star.name)}
@@ -80,12 +85,12 @@ export function SystemBreadcrumb({
         ))}
 
         {/* Separator */}
-        {systemData.stars && systemData.planets && systemData.planets.length > 0 && (
+        {stars && planets && planets.length > 0 && (
           <div className="w-px h-4 bg-white/30" />
         )}
 
         {/* Planets */}
-        {systemData.planets?.map((planet, index) => (
+        {planets?.map((planet, index) => (
           <button
             key={planet.id}
             onClick={() => handleObjectClick(planet.id, planet.name)}

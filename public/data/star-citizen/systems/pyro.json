@@ -2,86 +2,101 @@
   "id": "pyro",
   "name": "Pyro System",
   "description": "A dangerous system controlled by criminal organizations, featuring a volatile star",
-  "barycenter": [0, 0, 0],
-  "stars": [
+  "objects": [
     {
       "id": "pyro-star",
-      "catalog_ref": "variable-star",
-      "position": [0, 0, 0],
-      "name": "Pyro"
-    }
-  ],
-  "planets": [
+      "name": "Pyro",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 1.2,
+        "radius": 695700,
+        "temperature": 6200,
+        "luminosity": 1.5,
+        "age": 3.2,
+        "spectral_type": "G1V",
+        "habitable_zone_inner": 1.1,
+        "habitable_zone_outer": 1.7,
+        "rotation_period": 22,
+        "magnetic_cycle": 9,
+        "flare_activity": 0.5,
+        "stellar_wind": 0.4,
+        "variability_period": 4.2,
+        "variability_amplitude": 0.3,
+        "core_color": "#ffbb55",
+        "corona_color": "#ffdd88",
+        "prominence_color": "#ff6600",
+        "flare_color": "#ffaa77"
+      },
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "id": "pyro-i",
-      "catalog_ref": "terrestrial-lava",
       "name": "Pyro I",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 0.8,
+        "radius": 6371,
+        "temperature": 1200,
+        "density": 5.8,
+        "gravity": 0.98,
+        "atmospheric_pressure": 0.1,
+        "habitability": "uninhabitable",
+        "orbit_zone": "hot",
+        "rotation_period": 18,
+        "axial_tilt": 15,
+        "magnetic_field": 0.3,
+        "plate_tectonics": true,
+        "volcanic_activity": 0.9,
+        "lava_coverage": 0.6,
+        "base_color": "#8b0000",
+        "atmosphere_color": "#ff4500",
+        "lava_color": "#ff6600",
+        "ash_color": "#696969"
+      },
       "orbit": {
         "parent": "pyro-star",
         "semi_major_axis": 0.45,
         "eccentricity": 0.08,
         "inclination": 2.1,
         "orbital_period": 156
-      },
-      "customizations": {
-        "features": {
-          "volcanic_activity": 0.9,
-          "lava_coverage": 0.6
-        }
       }
     },
     {
       "id": "pyro-ii",
-      "catalog_ref": "barren-world",
       "name": "Pyro II",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288,
+        "crater_density": 0.9,
+        "mineral_deposits": 0.7
+      },
       "orbit": {
         "parent": "pyro-star",
         "semi_major_axis": 0.89,
         "eccentricity": 0.12,
         "inclination": 1.8,
         "orbital_period": 298
-      },
-      "customizations": {
-        "features": {
-          "crater_density": 0.9,
-          "mineral_deposits": 0.7
-        }
       }
-    }
-  ],
-  "space_stations": [
-    {
-      "id": "ruin-station",
-      "catalog_ref": "outlaw-station-type",
-      "name": "Ruin Station",
-      "orbit": {
-        "parent": "pyro-ii",
-        "semi_major_axis": 0.004,
-        "eccentricity": 0.0,
-        "inclination": 0.0,
-        "orbital_period": 4.2
-      }
-    }
-  ],
-  "jump_points": [
-    {
-      "id": "pyro-stanton-jp",
-      "name": "Stanton Jump Point",
-      "position": [-180, -90, 60],
-      "destination": "stanton",
-      "status": "active"
-    },
-    {
-      "id": "pyro-nyx-jp",
-      "name": "Nyx Jump Point",
-      "position": [220, 150, -80],
-      "destination": "nyx",
-      "status": "unstable"
     }
   ],
   "lighting": {
     "primary_star": "pyro-star",
     "ambient_level": 0.08,
     "stellar_influence_radius": 100
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-06-14",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au"
   }
 }

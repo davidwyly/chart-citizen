@@ -2,76 +2,160 @@
   "id": "kepler-442",
   "name": "Kepler-442 System",
   "description": "A distant K-type star system with a confirmed habitable super-Earth",
-  "barycenter": [0, 0, 0],
-  "stars": [
+  "objects": [
     {
       "id": "kepler-442-star",
-      "catalog_ref": "k1v-main-sequence",
-      "position": [0, 0, 0],
-      "name": "Kepler-442"
-    }
-  ],
-  "planets": [
+      "name": "Kepler-442",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 0.93,
+        "radius": 695700,
+        "temperature": 5260,
+        "luminosity": 0.38,
+        "age": 5.8,
+        "spectral_type": "K1V",
+        "habitable_zone_inner": 0.55,
+        "habitable_zone_outer": 0.9,
+        "rotation_period": 29,
+        "magnetic_cycle": 13,
+        "flare_activity": 0.2,
+        "stellar_wind": 0.4,
+        "core_color": "#ff8833",
+        "corona_color": "#ffaa66",
+        "prominence_color": "#ff4400",
+        "flare_color": "#ff9944"
+      },
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "id": "kepler-442-b",
-      "catalog_ref": "terrestrial-rocky",
       "name": "Kepler-442b",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 2.3,
+        "radius": 6371,
+        "temperature": 233,
+        "density": 5.51,
+        "gravity": 1,
+        "escape_velocity": 11.186,
+        "rotation_period": 24,
+        "axial_tilt": 23.5,
+        "atmospheric_pressure": 1,
+        "atmospheric_composition": {
+          "nitrogen": 0.78,
+          "oxygen": 0.21,
+          "argon": 0.01
+        },
+        "hydrosphere": 0.71,
+        "albedo": 0.35,
+        "magnetic_field": 0.5,
+        "vulcanism": 0.3,
+        "tectonics": 0.7,
+        "crater_density": 0.1,
+        "surface_color": "#4b8975",
+        "cloud_color": "#ffffff",
+        "haze_color": "#afd1e3",
+        "terminator_color": "#203050",
+        "habitability": "potentially_habitable",
+        "ocean_coverage": 0.8,
+        "cloud_coverage": 0.7,
+        "water": 80,
+        "atmosphere": 70
+      },
       "orbit": {
         "parent": "kepler-442-star",
         "semi_major_axis": 0.4,
         "eccentricity": 0.04,
-        "inclination": 0.0,
+        "inclination": 0,
         "orbital_period": 112.3
-      },
-      "customizations": {
-        "physical": {
-          "mass": 2.3,
-          "radius": 1.34,
-          "temperature": 233
-        },
-        "features": {
-          "habitability": "potentially_habitable",
-          "ocean_coverage": 0.8,
-          "cloud_coverage": 0.7
-        }
       }
     },
     {
       "id": "kepler-442-c",
-      "catalog_ref": "gas-giant-ice",
       "name": "Kepler-442c",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 17,
+        "radius": 6371,
+        "temperature": 120,
+        "habitability": "uninhabitable",
+        "orbit_zone": "frozen",
+        "rotation_period": 17.2,
+        "axial_tilt": 98,
+        "magnetic_field": 0.23,
+        "storm_systems": false,
+        "methane_clouds": true,
+        "band_count": 4,
+        "has_rings": true,
+        "storm_intensity": 0.2,
+        "base_color": "#4fd0e7",
+        "atmosphere_color": "#87ceeb",
+        "ring_color": "#708090",
+        "band_colors": [
+          "#4fd0e7",
+          "#87ceeb",
+          "#add8e6",
+          "#e0f6ff"
+        ]
+      },
       "orbit": {
         "parent": "kepler-442-star",
         "semi_major_axis": 1.2,
         "eccentricity": 0.06,
         "inclination": 1.5,
         "orbital_period": 580.2
-      },
-      "customizations": {
-        "physical": {
-          "mass": 17.0,
-          "radius": 4.0,
-          "temperature": 120
-        }
       }
     },
     {
       "id": "kepler-442-d",
-      "catalog_ref": "gas-giant-standard",
       "name": "Kepler-442d",
+      "classification": "planet",
+      "geometry_type": "gas_giant",
+      "properties": {
+        "mass": 200,
+        "radius": 6371,
+        "temperature": 80,
+        "density": 1.33,
+        "gravity": 2.36,
+        "atmospheric_pressure": 1000,
+        "habitability": "uninhabitable",
+        "orbit_zone": "cold",
+        "rotation_period": 9.9,
+        "axial_tilt": 3.1,
+        "magnetic_field": 20,
+        "storm_systems": true,
+        "radiation_belts": true,
+        "band_count": 8,
+        "has_rings": true,
+        "storm_intensity": 0.7,
+        "base_color": "#d8ca9d",
+        "atmosphere_color": "#fad5a5",
+        "storm_color": "#8b4513",
+        "ring_color": "#c0c0c0",
+        "band_colors": [
+          "#d8ca9d",
+          "#f4a460",
+          "#daa520",
+          "#cd853f",
+          "#8b4513",
+          "#a0522d",
+          "#d2b48c",
+          "#f5deb3"
+        ]
+      },
       "orbit": {
         "parent": "kepler-442-star",
         "semi_major_axis": 3.5,
         "eccentricity": 0.08,
         "inclination": 0.5,
-        "orbital_period": 2400.0
-      },
-      "customizations": {
-        "physical": {
-          "mass": 200.0,
-          "radius": 8.0,
-          "temperature": 80
-        }
+        "orbital_period": 2400
       }
     }
   ],
@@ -79,5 +163,11 @@
     "primary_star": "kepler-442-star",
     "ambient_level": 0.08,
     "stellar_influence_radius": 80
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-06-14",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au"
   }
 }

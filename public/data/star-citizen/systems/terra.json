@@ -2,60 +2,117 @@
   "id": "terra",
   "name": "Terra System",
   "description": "The political heart of the UEE, featuring the capital world Terra Prime",
-  "barycenter": [0, 0, 0],
-  "stars": [
+  "objects": [
     {
       "id": "terra-star",
-      "catalog_ref": "g2v-main-sequence",
-      "position": [0, 0, 0],
-      "name": "Terra"
-    }
-  ],
-  "planets": [
+      "name": "Terra",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 1,
+        "radius": 695700,
+        "temperature": 5778,
+        "luminosity": 1,
+        "age": 4.6,
+        "spectral_type": "G2V",
+        "habitable_zone_inner": 0.95,
+        "habitable_zone_outer": 1.4,
+        "rotation_period": 25.4,
+        "magnetic_cycle": 11,
+        "flare_activity": 0.1,
+        "stellar_wind": 0.3,
+        "core_color": "#ffaa44",
+        "corona_color": "#ffe680",
+        "prominence_color": "#ff5500",
+        "flare_color": "#ffcc66"
+      },
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "id": "terra-prime",
-      "catalog_ref": "terrestrial-rocky",
       "name": "Terra Prime",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288,
+        "density": 5.51,
+        "gravity": 1,
+        "escape_velocity": 11.186,
+        "rotation_period": 24,
+        "axial_tilt": 23.5,
+        "atmospheric_pressure": 1,
+        "atmospheric_composition": {
+          "nitrogen": 0.78,
+          "oxygen": 0.21,
+          "argon": 0.01
+        },
+        "hydrosphere": 0.71,
+        "albedo": 0.35,
+        "magnetic_field": 0.5,
+        "vulcanism": 0.3,
+        "tectonics": 0.7,
+        "crater_density": 0.1,
+        "surface_color": "#4b8975",
+        "cloud_color": "#ffffff",
+        "haze_color": "#afd1e3",
+        "terminator_color": "#203050",
+        "habitability": "inhabited",
+        "ocean_coverage": 0.6,
+        "vegetation_coverage": 0.4,
+        "urbanization": 0.3,
+        "water": 60
+      },
       "orbit": {
         "parent": "terra-star",
-        "semi_major_axis": 1.0,
+        "semi_major_axis": 1,
         "eccentricity": 0.02,
         "inclination": 0.1,
         "orbital_period": 365
-      },
-      "customizations": {
-        "features": {
-          "habitability": "inhabited",
-          "ocean_coverage": 0.6,
-          "vegetation_coverage": 0.4,
-          "urbanization": 0.3
-        }
       }
     },
     {
       "id": "terra-ii",
-      "catalog_ref": "arid-desert",
       "name": "Terra II",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1,
+        "radius": 6371,
+        "temperature": 288,
+        "water_reserves": 0.1,
+        "habitability": "marginal"
+      },
       "orbit": {
         "parent": "terra-star",
         "semi_major_axis": 1.6,
         "eccentricity": 0.05,
         "inclination": 1.2,
         "orbital_period": 640
-      },
-      "customizations": {
-        "features": {
-          "water_reserves": 0.1,
-          "habitability": "marginal"
-        }
       }
-    }
-  ],
-  "moons": [
+    },
     {
       "id": "terra-prime-moon",
-      "catalog_ref": "rocky-moon",
       "name": "Terra Prime Moon",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.006,
+        "radius": 1737.4,
+        "temperature": 200,
+        "atmospheric_pressure": 0.05,
+        "tidal_lock": true,
+        "crater_density": 0.9,
+        "mineral_deposits": true,
+        "habitability": "uninhabitable",
+        "base_color": "#696969",
+        "atmosphere_color": "#2f4f4f"
+      },
       "orbit": {
         "parent": "terra-prime",
         "semi_major_axis": 0.003,
@@ -65,25 +122,15 @@
       }
     }
   ],
-  "jump_points": [
-    {
-      "id": "terra-stanton-jp",
-      "name": "Stanton Jump Point",
-      "position": [120, 60, -30],
-      "destination": "stanton",
-      "status": "active"
-    },
-    {
-      "id": "terra-sol-jp",
-      "name": "Sol Jump Point",
-      "position": [-100, -40, 25],
-      "destination": "sol",
-      "status": "active"
-    }
-  ],
   "lighting": {
     "primary_star": "terra-star",
     "ambient_level": 0.11,
     "stellar_influence_radius": 110
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-06-14",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au"
   }
 }

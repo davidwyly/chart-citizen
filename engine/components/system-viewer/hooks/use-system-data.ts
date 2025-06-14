@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { engineSystemLoader, type SystemData } from "@/engine/system-loader"
+import { engineSystemLoader } from "@/engine/system-loader"
+import { OrbitalSystemData } from "@/engine/types/orbital-system"
 
 export function useSystemData(mode: string, systemId: string) {
-  const [systemData, setSystemData] = useState<SystemData | null>(null)
+  const [systemData, setSystemData] = useState<OrbitalSystemData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [loadingProgress, setLoadingProgress] = useState<string>("")
@@ -65,24 +66,40 @@ export function useSystemData(mode: string, systemId: string) {
           // If still no system available, create a minimal default
           if (!foundFallback && systems.length === 0) {
             console.warn(`No systems available. Creating minimal default system.`)
-            const defaultSystem: SystemData = {
+            const defaultSystem: OrbitalSystemData = {
               id: "default",
               name: "Default System",
               description: "A minimal default system",
-              barycenter: [0, 0, 0],
-              stars: [
+              objects: [
                 {
                   id: "default-star",
-                  catalog_ref: "sol-type-star",
                   name: "Default Star",
-                  position: [0, 0, 0],
-                },
+                  classification: "star",
+                  geometry_type: "star",
+                  properties: {
+                    mass: 1.0,
+                    radius: 1.0,
+                    temperature: 5778,
+                    color_temperature: 5778,
+                    luminosity: 100,
+                    solar_activity: 50,
+                    corona_thickness: 50,
+                    variability: 10
+                  },
+                  position: [0, 0, 0]
+                }
               ],
               lighting: {
                 primary_star: "default-star",
                 ambient_level: 0.1,
                 stellar_influence_radius: 1000,
               },
+              metadata: {
+                version: "1.0",
+                last_updated: new Date().toISOString().split('T')[0],
+                coordinate_system: "heliocentric",
+                distance_unit: "au"
+              }
             }
             setSystemData(defaultSystem)
             setError(`No systems available for mode "${mode}". Showing default system.`)
@@ -110,24 +127,40 @@ export function useSystemData(mode: string, systemId: string) {
         console.error("System loading error:", err)
 
         // As a last resort, create a minimal system
-        const emergencySystem: SystemData = {
+        const emergencySystem: OrbitalSystemData = {
           id: "emergency",
           name: "Emergency System",
           description: "Emergency fallback system",
-          barycenter: [0, 0, 0],
-          stars: [
+          objects: [
             {
               id: "emergency-star",
-              catalog_ref: "sol-type-star",
               name: "Emergency Star",
-              position: [0, 0, 0],
-            },
+              classification: "star",
+              geometry_type: "star",
+              properties: {
+                mass: 1.0,
+                radius: 1.0,
+                temperature: 5778,
+                color_temperature: 5778,
+                luminosity: 100,
+                solar_activity: 50,
+                corona_thickness: 50,
+                variability: 10
+              },
+              position: [0, 0, 0]
+            }
           ],
           lighting: {
             primary_star: "emergency-star",
             ambient_level: 0.1,
             stellar_influence_radius: 1000,
           },
+          metadata: {
+            version: "1.0",
+            last_updated: new Date().toISOString().split('T')[0],
+            coordinate_system: "heliocentric",
+            distance_unit: "au"
+          }
         }
         setSystemData(emergencySystem)
       } finally {

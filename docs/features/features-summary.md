@@ -1,63 +1,65 @@
 # Chart-Citizen Features Summary
 
-This document provides a quick overview of the key features implemented in the Chart-Citizen application, along with links to their detailed documentation.
+Overview of key Chart-Citizen features and links to detailed documentation.
 
 ## View Modes
-- **Realistic Mode** - Displays star systems with accurate astronomical distances and 3D perspective. [realistic-mode.md](./realistic-mode.md)
-- **Star Citizen Mode** - Displays star systems inspired by the Star Citizen game with unique visual and navigational characteristics. [star-citizen-mode.md](./star-citizen-mode.md)
-- **Navigational Mode** - Provides equidistant orbital paths in 3D perspective for easier navigation. [navigational-mode.md](./navigational-mode.md)
-- **Profile Mode** - Offers a top-down diagrammatic view with equidistant orbital paths and orthographic projection. [profile-mode-orbital-alignment.md](./profile-mode-orbital-alignment.md)
+- **Realistic Mode**: Displays star systems with accurate astronomical distances and 3D perspective. [realistic-mode.md](./realistic-mode.md)
+- **Star Citizen Mode**: Displays Star Citizen-inspired star systems with unique visuals/navigation. [star-citizen-mode.md](./star-citizen-mode.md)
+- **Navigational Mode**: Provides equidistant orbital paths in 3D perspective for easier navigation. [navigational-mode.md](./navigational-mode.md)
+- **Profile Mode**: Top-down diagrammatic view with equidistant orbital paths and orthographic projection. [profile-mode-orbital-alignment.md](./profile-mode-orbital-alignment.md)
 
 ## Camera System
-- **Unified Camera System** - Configuration-driven camera controller that provides consistent behavior across all view modes with dual properties system for real vs visual object representation. [unified-camera-system.md](./unified-camera-system.md)
+- **Unified Camera System**: Configuration-driven camera controller for consistent behavior across view modes, with dual properties for real vs. visual object representation. [unified-camera-system.md](./unified-camera-system.md)
 
 ## Visualization Features
-- **Orbital Path Visualization** - Displays the paths that celestial bodies follow, adjusted for the current view mode. [orbital-paths.md](./orbital-paths.md)
-- **Star Shaders** - Realistic rendering of stars with custom shaders for atmospheric effects. [star-shaders.md](./star-shaders.md)
-- **Planetary Detail** - High-detail rendering of planets with custom textures and atmosphere effects. [planetary-detail.md](./planetary-detail.md)
-- **Stellar Zones** - Visualizes habitable zones (green) and frost lines around stars for assessing planetary habitability. [stellar-zones.md](./stellar-zones.md)
-- **Shader Lab** - Interactive tool for experimenting with and crafting custom shaders for celestial objects. [shader-lab.md](./shader-lab.md)
+- **Orbital Path Visualization**: Displays celestial body paths, adjusted for current view mode. [orbital-paths.md](./orbital-paths.md)
+- **Star Shaders**: Realistic star rendering with custom shaders for atmospheric effects. [star-shaders.md](./star-shaders.md)
+- **Planetary Detail**: High-detail planet rendering with custom textures and atmosphere effects. [planetary-detail.md](./planetary-detail.md)
+- **Stellar Zones**: Visualizes habitable zones (green) and frost lines around stars. [stellar-zones.md](./stellar-zones.md)
+- **Shader Lab**: Interactive tool for experimenting with and crafting custom shaders. [shader-lab.md](./shader-lab.md)
 
 ## Navigation Features
-- **System Selection** - Ability to select and view different star systems. [system-selection.md](./system-selection.md)
-- **Object Focus** - Focus on specific celestial bodies for detailed examination. [object-focus.md](./object-focus.md)
-- **Zoom Control** - Dynamic zoom functionality with appropriate level of detail changes. [zoom-control.md](./zoom-control.md)
-- **Moon System** - Hierarchical moon navigation with improved orbital mechanics and parent-child relationships. [moon-system.md](./moon-system.md)
+- **System Selection**: Select and view different star systems. [system-selection.md](./system-selection.md)
+- **Object Focus**: Focus on specific celestial bodies. [object-focus.md](./object-focus.md)
+- **Zoom Control**: Dynamic zoom with appropriate level of detail changes. [zoom-control.md](./zoom-control.md)
+- **Moon System**: Hierarchical moon navigation with improved orbital mechanics and parent-child relationships. [moon-system.md](./moon-system.md)
+- **Time Progression System**: Simulate the movement of celestial bodies over time with controls for speed and pause. [time-progression-system.md](./time-progression-system.md)
 
 ## Core Features
-- **System Viewer** (`system-viewer.md`): A robust and unified component for rendering and interacting with celestial systems across various viewing modes.
-- **Engine State Management** (`engine-state-management.md`): Provides a centralized and predictable way to manage the core state of the 3D engine.
+- **System Viewer**: Robust, unified component for rendering and interacting with celestial systems across view modes. [system-viewer.md](./system-viewer.md)
+- **Engine State Management**: Centralized, predictable 3D engine state management. [engine-state-management.md](./engine-state-management.md)
 
 ### Mode System
 - **File**: mode-system.md
-- **Summary**: Enables switching between Reality and Star Citizen viewing modes with separate states, features, and data sources for each mode.
+- **Summary**: Switches between Reality and Star Citizen modes with separate states, features, and data sources.
 
 ## Data Structures
-- **Orbital System JSON Specification** (`orbital-system-json-spec.md`): This document defines the structure, schema, and rules for generating, parsing, and rendering orbital bodies.
-- **System Data Loading and Catalog Management** (`system-data-and-catalog.md`): Manages the efficient loading and caching of celestial system data and object catalogs.
+- **Orbital System JSON Specification**: Defines structure, schema, and rules for orbital bodies. [orbital-system-json-spec.md](./orbital-system-json-spec.md)
+- **System Data Loading and Catalog Management**: Manages efficient loading and caching of celestial system data and object catalogs. [system-data-and-catalog.md](./system-data-and-catalog.md)
 
 ## Debug Tools
-- **Celestial Viewer** (`celestial-viewer.md`): A real-time 3D celestial object inspector and property editor with shader preview capabilities.
-- **Shader Performance View** (`shader-performance-view.md`): A debug panel for monitoring shader performance metrics and quality levels.
+- **Celestial Viewer**: Real-time 3D celestial object inspector and property editor with shader preview. [celestial-viewer.md](./celestial-viewer.md)
+- **Shader Performance View**: Debug panel for monitoring shader performance metrics and quality levels. [shader-performance-view.md](./shader-performance-view.md)
 
 ## UI Components
-- **Toast Notifications** (`toast-notifications.md`): Provides temporary, non-intrusive notification messages for user feedback.
+- **Toast Notifications**: Temporary, non-intrusive notification messages for user feedback. [toast-notifications.md](./toast-notifications.md)
 
 ## Planet Rendering
-- **Data Contract**: Details the JSON structure for orbital systems, including celestial body properties and relationships. [orbital-system-json-spec.md](../../architecture/orbital-system-json-spec.md)
-- **Terrestrial Planet** (`terrestrial-planet.md`): A shader-based implementation of terrestrial planets with quality level variants and dynamic lava flows.
-- **Gas Giant Rendering** (`gas-giant-rendering.md`): Renders realistic gas giant planets with atmospheric bands and storm systems.
-- **Planet Rings** (`planet-rings.md`): Renders realistic planetary ring systems with dynamic lighting and density variations.
-- **Terrestrial Planet Simulator** (`terrestrial-planet-simulator-design-document.md`): A design document outlining the features and implementation strategy for the terrestrial planet simulator.
-- **protostar** (`protostar.md`): A procedural shader for rendering protostaary disks and nebulae.
-- **Black Hole Rendering** (`black-hole-rendering.md`): Renders realistic black holes with gravitational lensing and accretion disks.
+- **Data Contract**: Defines JSON structure for orbital systems, including celestial body properties. [orbital-system-json-spec.md](../../architecture/orbital-system-json-spec.md)
+- **Terrestrial Planet**: Shader-based terrestrial planets with quality variants and dynamic lava flows. [terrestrial-planet.md](./terrestrial-planet.md)
+- **Gas Giant Rendering**: Renders realistic gas giants with atmospheric bands and storm systems. [gas-giant-rendering.md](./gas-giant-rendering.md)
+- **Planet Rings**: Renders realistic planetary ring systems with dynamic lighting and density. [planet-rings.md](./planet-rings.md)
+- **Terrestrial Planet Simulator**: Design document for terrestrial planet simulator features and implementation. [terrestrial-planet-simulator-design-document.md](./terrestrial-planet-simulator-design-document.md)
+- **Black Hole Rendering**: Renders realistic black holes with gravitational lensing and accretion disks. [black-hole-rendering.md](./black-hole-rendering.md)
 
 ## Performance Monitoring
-- **Performance Monitor** (`performance-monitor.md`): A system for tracking and reporting performance metrics with quality level recommendations.
-- **Performance Warning** (`performance-warning.md`): A component that displays warnings when performance drops below acceptable levels.
+- **Performance Monitor**: Tracks and reports performance metrics with quality recommendations. [performance-monitor.md](./performance-monitor.md)
+- **Performance Warning**: Displays warnings for low performance. [performance-warning.md](./performance-warning.md)
 
-## View Modes
-- **View Mode Calculator** (`view-mode-calculator.md`): A system for calculating appropriate scaling and sizing for different view modes (realistic, navigational, profile).
+## Scaling and Orbital Mechanics
+- **View Mode Calculator**: Calculates scaling and sizing for different view modes. [view-mode-calculator.md](./view-mode-calculator.md)
+- **Orbital Mechanics System**: Ensures safe orbital positioning and proper scaling across all view modes. [orbital-mechanics-system.md](./orbital-mechanics-system.md)
+- **Unified Logarithmic Scaling**: Mathematical scaling system using logarithmic normalization for celestial object sizes (fixes Jupiter-bigger-than-Sun problem). [unified-scaling-explanation.md](./unified-scaling-explanation.md)
 
 ## Starmap
-- **Starmap View** (`starmap-view.md`): Interactive 2-D/3-D galaxy map with jump-route planning and system drill-down. 
+- **Starmap View**: Interactive 2-D/3-D galaxy map with jump-route planning and system drill-down. [starmap-view.md](./starmap-view.md) 

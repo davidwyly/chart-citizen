@@ -19,6 +19,7 @@ import { Sidebar } from "./sidebar/sidebar"
 import { ObjectDetailsPanel } from "./system-viewer/object-details-panel"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
 import { ZoomTracker } from "./system-viewer/components/zoom-tracker"
+import { isPlanet } from "../types/orbital-system"
 
 // Add JSX namespace declaration
 declare global {
@@ -61,12 +62,13 @@ export function useSystemViewer() {
 
 export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: SystemViewerProps) {
   const [timeMultiplier, setTimeMultiplier] = useState(1)
-  const [isPaused, setIsPaused] = useState(true)
+  const [isPaused, setIsPaused] = useState(false)
   const [viewType, setViewType] = useState<ViewType>("realistic")
   const [currentZoom, setCurrentZoom] = useState<number>(1)
   const cameraControllerRef = useRef<UnifiedCameraControllerRef>(null)
   const [isSystemSelected, setIsSystemSelected] = useState(false)
   const [cameraOrbitRadius, setCameraOrbitRadius] = useState<number>(0)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // Load system data
   const { systemData, loading, error, loadingProgress, availableSystems } = useSystemData(mode, systemId)
@@ -139,7 +141,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
 
   // Determine if we should show the back button
   const showBackButton = useMemo(() => 
-    viewType === "profile" && systemData?.planets?.some((p: { id: string }) => p.id === selectedObjectId),
+    viewType === "profile" && systemData?.objects?.some((obj) => isPlanet(obj) && obj.id === selectedObjectId),
     [viewType, systemData, selectedObjectId]
   )
 
@@ -306,6 +308,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
               focusObject={focusedObject} 
               focusName={focusedName} 
               focusRadius={focusedObjectRadius || undefined}
+              focusSize={focusedObjectSize || undefined}
               focusMass={focusedObjectProperties?.mass}
               focusOrbitRadius={focusedObjectProperties?.orbitRadius}
               viewMode={viewType}

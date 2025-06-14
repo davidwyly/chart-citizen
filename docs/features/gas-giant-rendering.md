@@ -1,20 +1,20 @@
 # Gas Giant Rendering
 
 ## User Story
-As a user, I want to view realistic gas giant planets with atmospheric bands and storm systems, so I can appreciate the diverse celestial bodies in the simulated universe.
+View realistic gas giant planets with atmospheric bands and storm systems.
 
 ## Acceptance Criteria
-- The application renders gas giant planets with distinct atmospheric banding.
-- Visible storm systems (e.g., a Great Red Spot-like feature) are present and animated.
-- The gas giants are dynamically lit by nearby stars.
-- The rendering is performant and visually appealing.
+- Renders gas giant planets with distinct atmospheric banding.
+- Visible, animated storm systems (e.g., Great Red Spot-like feature).
+- Dynamically lit by nearby stars.
+- Performant and visually appealing rendering.
 
 ## High-Level Implementation Strategy
-- Utilize a custom `GasGiantMaterial` and `GasGiantRenderer` to achieve specialized visual effects.
-- Implement procedural texture generation for atmospheric bands and storm systems within the renderer.
-- Ensure proper handling of light direction from stellar objects to illuminate the gas giant.
+- Custom `GasGiantMaterial` and `GasGiantRenderer` for specialized visual effects.
+- Procedural texture generation for atmospheric bands and storm systems within renderer.
+- Proper handling of light direction from stellar objects.
 
 ## High-Level Testing Approach
-- Unit tests for `GasGiantMaterial` and `GasGiantRenderer` to verify texture generation, lighting, and animation.
-- Visual regression tests to confirm the appearance of atmospheric bands and storm systems.
-- Performance tests to ensure rendering efficiency with multiple gas giants. 
+- Unit tests for `GasGiantMaterial`/`GasGiantRenderer` (texture generation, lighting, animation).
+- Visual regression tests (atmospheric bands, storm systems appearance).
+- Performance tests (rendering efficiency with multiple gas giants). 

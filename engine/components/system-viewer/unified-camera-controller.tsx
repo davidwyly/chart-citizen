@@ -10,6 +10,7 @@ interface UnifiedCameraControllerProps {
   focusObject: THREE.Object3D | null
   focusName?: string | null
   focusRadius?: number
+  focusSize?: number  // The actual visual size in the scene
   focusMass?: number
   focusOrbitRadius?: number
   viewMode: ViewType
@@ -28,6 +29,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     focusObject, 
     focusName, 
     focusRadius, 
+    focusSize,
     focusMass,
     focusOrbitRadius,
     viewMode,
@@ -141,11 +143,19 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         const progress = Math.min(elapsed / duration, 1)
         const easeProgress = easingFunction(progress)
 
+        if (!controlsRef.current) {
+          // If controls are null, it means the component (or its parent controls) has unmounted.
+          // Stop the animation to prevent errors.
+          console.warn("Animation stopped: controlsRef.current is null.")
+          animatingRef.current = false
+          return
+        }
+
         // Interpolate camera position and target
         camera.position.lerpVectors(originalPosition, newPosition, easeProgress)
         controlsRef.current.target.lerpVectors(originalTarget, newTarget, easeProgress)
 
-        // Update controls
+        // Update controls without enabling them
         controlsRef.current.update()
 
         if (progress < 1) {
@@ -163,7 +173,9 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           }
 
           // Re-enable controls
-          controlsRef.current.enabled = true
+          if (controlsRef.current) {
+            controlsRef.current.enabled = true
+          }
         }
       }
 
@@ -254,8 +266,32 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         // Store the current object properties
         currentObjectPropertiesRef.current = objectProperties
 
-        // Use the calculated optimal view distance
-        const targetDistance = objectProperties.optimalViewDistance
+        // IMPORTANT: Use the actual visual size from the scene, not the recalculated one
+        // The focusRadius parameter is the real radius in km, but we need the visual size
+        const actualVisualSize = focusSize || focusObject.scale?.x || 1.0
+        
+        // Calculate safe camera distance based on actual visual size
+        // This ensures we never go inside the object and maintain proportional distance
+        const objectType = objectProperties.objectType
+        const distanceMultiplier = viewConfig.cameraConfig.distanceMultipliers[objectType] || 
+                                 viewConfig.cameraConfig.distanceMultipliers.default
+        const constraints = viewConfig.cameraConfig.distanceConstraints[objectType] || 
+                          viewConfig.cameraConfig.distanceConstraints.default
+
+        // Calculate target distance based on actual visual size with safety margin
+        const minSafeDistance = actualVisualSize * 2.5  // Never go closer than 2.5x the visual radius
+        const preferredDistance = actualVisualSize * distanceMultiplier
+        const targetDistance = Math.max(
+          Math.min(preferredDistance, constraints.max),
+          Math.max(constraints.min, minSafeDistance)
+        )
+
+        // Update the stored properties with the corrected distance
+        currentObjectPropertiesRef.current = {
+          ...objectProperties,
+          optimalViewDistance: targetDistance,
+          visualRadius: actualVisualSize
+        }
 
         // Start following the object
         isFollowingRef.current = true
@@ -316,6 +352,14 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           const progress = Math.min(elapsed / duration, 1)
           const easeProgress = easingFunction(progress)
 
+          if (!controlsRef.current) {
+            // If controls are null, it means the component (or its parent controls) has unmounted.
+            // Stop the animation to prevent errors.
+            console.warn("Animation stopped: controlsRef.current is null.")
+            animatingRef.current = false
+            return
+          }
+
           // Interpolate camera position and target
           camera.position.lerpVectors(originalPosition, newPosition, easeProgress)
           controlsRef.current.target.lerpVectors(originalTarget, newTarget, easeProgress)
@@ -329,16 +373,21 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
             // Animation complete
             animatingRef.current = false
             camera.position.copy(newPosition)
-            controlsRef.current.target.copy(newTarget)
-            controlsRef.current.update()
+
+            if (controlsRef.current) { // Defensive check before accessing target again
+              controlsRef.current.target.copy(newTarget)
+              controlsRef.current.update()
+            }
 
             // Save this state as the new "home" state for the controls
-            if (controlsRef.current.saveState) {
+            if (controlsRef.current && controlsRef.current.saveState) {
               controlsRef.current.saveState()
             }
 
             // Re-enable controls
-            controlsRef.current.enabled = true
+            if (controlsRef.current) { // Defensive check
+              controlsRef.current.enabled = true
+            }
 
             // Update last position
             lastObjectPositionRef.current.copy(position)
@@ -354,7 +403,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           controlsRef.current.enabled = true
         }
       }
-    }, [focusObject, focusName, focusRadius, focusMass, focusOrbitRadius, viewMode, systemScale, camera, viewConfig, createEasingFunction])
+    }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, systemScale, camera, viewConfig, createEasingFunction])
 
     // Continuously follow the focused object
     useFrame(() => {

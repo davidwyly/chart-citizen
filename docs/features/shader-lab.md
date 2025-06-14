@@ -1,38 +1,38 @@
 # Shader Lab
 
 ## User Story
-As a developer, I want to experiment with and craft custom shaders for celestial objects in the chart-citizen application, so that I can create visually stunning and accurate representations of stars, planets, and other astronomical phenomena.
+Experiment with and craft custom shaders for celestial objects to create visually stunning and accurate representations.
 
 ## Acceptance Criteria
-1. The shader lab should provide access to all celestial object types (stars, planets, moons, black holes)
-2. Each object should display real-time shader parameters that can be modified
-3. Shader quality settings should be adjustable to test performance impacts
-4. Objects should be viewable from multiple angles with orbit controls
-5. Material properties should be editable including colors, intensity, distortion, and speed
-6. Changes should be reflected in real-time
-7. The viewer should include wireframe and bounding box toggles for debugging
-8. The shader lab should be accessible from any page via a fixed button in the bottom right corner
+1. Provides access to all celestial object types (stars, planets, moons, black holes).
+2. Each object displays real-time, modifiable shader parameters.
+3. Shader quality settings adjustable for performance testing.
+4. Objects viewable from multiple angles with orbit controls.
+5. Material properties editable (colors, intensity, distortion, speed).
+6. Changes reflected in real-time.
+7. Viewer includes wireframe/bounding box toggles for debugging.
+8. Accessible from any page via fixed bottom-right button.
 
 ## Implementation Strategy
-1. Leverage the existing celestial viewer and debug tools components
-2. Create a catalog of celestial object types with default shader parameters
-3. Implement real-time shader uniform updates based on user input
-4. Build a user interface that exposes key shader parameters
-5. Add performance monitoring for shader efficiency testing
-6. Include navigation between different object types
-7. Add global application access via layout component
+1. Leverage existing celestial viewer and debug tools.
+2. Create catalog of celestial object types with default shader parameters.
+3. Implement real-time shader uniform updates based on user input.
+4. Build UI exposing key shader parameters.
+5. Add performance monitoring for shader efficiency.
+6. Include navigation between object types.
+7. Add global application access via layout component.
 
 ## Testing Approach
 1. Unit tests for:
-   - Parameter binding to shader uniforms
-   - User interface controls functionality 
-   - Object rendering with different parameters
-   - Navigation between object types
-2. Visual regression tests to ensure shader consistency
-3. Performance benchmarks at different quality levels
+   - Parameter binding to shader uniforms.
+   - UI controls functionality.
+   - Object rendering with different parameters.
+   - Navigation between object types.
+2. Visual regression tests for shader consistency.
+3. Performance benchmarks at different quality levels.
 
 ## Usage Example
-The shader lab can be accessed via the "Shader Lab" button in the bottom right corner of any page. From there, developers can select different celestial objects and experiment with their shader parameters to create custom visual effects.
+Accessed via "Shader Lab" button (bottom right). Select objects, experiment with shader parameters for custom visual effects.
 
 ## Dependencies
 - Three.js

@@ -1,22 +1,22 @@
 # Engine State Management
 
 ## User Story
-As a developer, I want a centralized and predictable way to manage the core state of the 3D engine, including its configuration, active scenes, and operational status, so I can build features consistently and maintain application stability.
+Centralized, predictable 3D engine state management (configuration, scenes, operational status) for consistent features and stability.
 
 ## Acceptance Criteria
-- The engine state can be initialized, started, and stopped programmatically.
+- Engine state can be initialized, started, and stopped programmatically.
 - Configuration settings (e.g., debug mode, FPS, antialiasing) can be dynamically updated.
-- Scenes can be added, removed, and set as current, with appropriate error handling.
-- The engine provides clear status indicators for initialization and running state.
+- Scenes can be added, removed, and set as current, with error handling.
+- Engine provides clear status indicators (initialization, running state).
 
 ## High-Level Implementation Strategy
-- Utilize Zustand, a lightweight state-management library, to create a global `useEngineStore`.
-- Define `EngineState` and `EngineConfig` interfaces to ensure type safety and clarity of state structure.
-- Implement actions (`setConfig`, `addScene`, `removeScene`, `setCurrentScene`, `initialize`, `start`, `stop`, `setError`) to modify the state in a controlled manner.
-- Store references to active scenes and the current scene ID within the store.
+- Use Zustand for global `useEngineStore`.
+- Define `EngineState`/`EngineConfig` interfaces for type safety.
+- Implement actions (`setConfig`, `addScene`, `removeScene`, `setCurrentScene`, `initialize`, `start`, `stop`, `setError`) to modify state.
+- Store references to active scenes and current scene ID.
 
 ## High-Level Testing Approach
-- Unit tests for each action in `useEngineStore` to verify state transitions and error handling.
-- Mock Zustand's `create` function to isolate the store's logic during testing.
-- Ensure that `initialize` sets `isInitialized` to true and `start` sets `isRunning` to true.
-- Verify that attempting to start before initialization or setting a non-existent scene throws appropriate errors. 
+- Unit tests for `useEngineStore` actions (state transitions, error handling).
+- Mock Zustand's `create` to isolate store logic.
+- Verify `initialize` sets `isInitialized` to true and `start` sets `isRunning` to true.
+- Confirm errors thrown for starting before initialization or non-existent scenes. 

@@ -5,7 +5,7 @@ This directory contains the core components and logic for rendering interactive 
 ## Files
 
 - **unified-camera-controller.tsx** - Unified camera controller handling all view modes (realistic, navigational, profile) with configuration-driven behavior and dual properties system for consistent camera distances and animations across all object types
-- **system-objects-renderer.tsx** - Main renderer for stars, planets, and moons with interactive selection, focus capabilities, unified object sizing calculations using dual properties system, and improved moon orbital mechanics
+- **system-objects-renderer.tsx** - Main renderer for stars, planets, moons, and belts with interactive selection, focus capabilities, unified object sizing calculations, improved moon orbital mechanics with enhanced minimum distances, proper belt positioning and torus rendering, and refined gas giant scaling
 - **system-navigation-bar.tsx** - Enhanced navigation bar with hierarchical moon display, showing moons as expandable child entries under their parent planets
 - **view-mode-calculator.ts** - Configuration-driven view mode calculations using unified dual properties system, replacing all legacy hardcoded scaling logic
 - **catalog-object-wrapper.tsx** - Wrapper component for catalog objects that handles 3D rendering, texturing, and shading based on object type and properties
@@ -54,14 +54,26 @@ The system includes intelligent orbital scaling that ensures all view modes main
 - **Navigational Mode**: Uses equidistant spacing with intelligent scaling to maintain system coherence
 - **Profile Mode**: Similar scaling logic as navigational mode for consistent system sizing
 
-### Moon System Enhancements
-The moon system has been completely overhauled with:
+### Orbital Mechanics and Rendering Enhancements
+The system includes significant improvements to orbital mechanics and object rendering:
 
+#### Moon System Enhancements
 - **Improved Orbital Mechanics**: Moons now properly orbit their parent planets with accurate positioning
+- **Enhanced Minimum Distances**: Moons have a minimum orbital distance (0.02 AU after scaling) to ensure visibility outside parent planets
 - **Parent Validation**: Comprehensive validation ensures moons only render when their parent planets exist
 - **Intelligent Scaling**: Dynamic orbital radius calculation based on view mode and parent planet size
 - **Hierarchical Navigation**: Navigation bar now shows moons as expandable child entries under planets
-- **Visual Separation**: Proper spacing calculation prevents moons from appearing inside planets or other objects
+
+#### Belt System Implementation
+- **Proper Belt Positioning**: Asteroid and Kuiper belts now render at their correct orbital distances using BeltOrbitData
+- **Torus Rendering**: Belts render as proper torus shapes with accurate inner and outer radius dimensions
+- **Realistic Proportions**: Belt width and position are calculated from actual inner/outer radius data
+- **Interactive Elements**: Invisible interaction objects allow for belt selection and focus
+
+#### Gas Giant Scaling Refinements
+- **Proportional Scaling**: Gas giants use refined scaling (0.8x factor) to maintain proper size relationships relative to stars
+- **Geometry-Based Scaling**: Objects with `geometry_type: 'gas_giant'` receive specialized scaling treatment
+- **Visual Hierarchy**: Ensures stars remain visually larger than planets across all view modes
 
 ## Subdirectories
 
@@ -102,4 +114,14 @@ The moon system has been completely overhauled with:
 7. Follow the established patterns for component organization
 8. Keep components focused on their specific responsibilities
 9. Ensure all view modes maintain consistent system scaling through configuration
-10. Ensure system selection and object selection states are mutually exclusive and properly managed 
+10. Ensure system selection and object selection states are mutually exclusive and properly managed
+
+## Key Architectural Changes
+
+**Scaling System**: Fixed critical double scaling issue where objects were being scaled twice - once by the unified view mode configuration and again by legacy scaling multipliers. Now uses single, consistent scaling from the unified system to maintain proper proportional relationships.
+
+**Orbital Mechanics**: Removed hardcoded moon orbit adjustments that were breaking view mode scaling logic. All orbital distances now scale consistently through the view mode system.
+
+**Object Rendering**: Unified celestial object rendering through CelestialObjectRenderer component that handles all geometry types (stars, planets, gas giants, belts) with appropriate materials and effects.
+
+**View Mode Integration**: All components now properly integrate with the unified view mode configuration system for consistent scaling, orbital positioning, and camera behavior across realistic, navigational, and profile modes. 

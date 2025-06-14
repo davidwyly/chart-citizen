@@ -1,77 +1,22 @@
-export interface SystemData {
-  id: string
-  name: string
-  description: string
-  barycenter: [number, number, number]
-  stars: SystemObject[]
-  planets?: SystemObject[]
-  moons?: SystemObject[]
-  belts?: SystemObject[]
-  jump_points?: JumpPoint[]
-  lighting: LightingConfig
-}
+import { 
+  OrbitalSystemData, 
+  CelestialObject, 
+  StarmapData,
+  isStar,
+  isPlanet,
+  isMoon,
+  isBelt
+} from '../types/orbital-system'
 
-export interface SystemObject {
-  id: string
-  catalog_ref: string
-  name: string
-  position?: [number, number, number]
-  orbit?: OrbitData
-}
-
-export interface OrbitData {
-  parent: string
-  semi_major_axis: number
-  eccentricity: number
-  inclination: number
-  orbital_period: number
-  inner_radius?: number
-  outer_radius?: number
-}
-
-export interface JumpPoint {
-  id: string
-  name: string
-  position: [number, number, number]
-  destination: string
-  status: "active" | "inactive" | "unstable"
-}
-
-export interface LightingConfig {
-  primary_star: string
-  secondary_star?: string
-  ambient_level: number
-  stellar_influence_radius: number
-}
-
-export interface CatalogObject {
-  id: string
-  name: string
-  mass: number
-  radius: number
-  render: RenderConfig
-  [key: string]: any
-}
-
-export interface RenderConfig {
-  shader: string
-  [key: string]: any
-}
-
-export interface StarmapData {
-  systems: Record<string, any>
-  metadata: any
-}
-
-export type SimulationMode = string
+// Simulation mode type
+export type SimulationMode = "realistic" | "star-citizen"
 
 export class SystemLoader {
   private static instance: SystemLoader
   private currentMode: SimulationMode = "realistic"
-  private loadedSystems: Map<string, SystemData> = new Map()
-  private loadingPromises: Map<string, Promise<SystemData | null>> = new Map()
+  private loadedSystems: Map<string, OrbitalSystemData> = new Map()
+  private loadingPromises: Map<string, Promise<OrbitalSystemData | null>> = new Map()
   private preloadQueue: Set<string> = new Set()
-  private catalogCache: Map<string, CatalogObject> = new Map()
   private starmapData: StarmapData | null = null
   private starmapLoading: Promise<StarmapData | null> | null = null
 
@@ -82,19 +27,20 @@ export class SystemLoader {
     return SystemLoader.instance
   }
 
-  setMode(mode: SimulationMode): void {
+  setCurrentMode(mode: SimulationMode): void {
     if (this.currentMode !== mode) {
       this.currentMode = mode
+      // Clear cache when switching modes
       this.clearCache()
     }
   }
 
-  getMode(): SimulationMode {
+  getCurrentMode(): SimulationMode {
     return this.currentMode
   }
 
   async loadStarmapData(): Promise<StarmapData | null> {
-    if (this.starmapData) {
+    if (this.starmapData && this.currentMode) {
       return this.starmapData
     }
 
@@ -103,9 +49,10 @@ export class SystemLoader {
     }
 
     this.starmapLoading = this.fetchStarmapData()
-    const data = await this.starmapLoading
-    this.starmapData = data
-    return data
+    this.starmapData = await this.starmapLoading
+    this.starmapLoading = null
+
+    return this.starmapData
   }
 
   private async fetchStarmapData(): Promise<StarmapData | null> {
@@ -145,27 +92,36 @@ export class SystemLoader {
   }
 
   private getFallbackStarmapData(): StarmapData {
-    console.log(`🔧 Using fallback starmap data for ${this.currentMode}`)
+    const fallbackSystems: Record<string, any> = {}
+    
+    if (this.currentMode === "realistic") {
+      fallbackSystems["sol"] = {
+        id: "sol",
+        name: "Sol System",
+        description: "Our home solar system",
+        position: [0, 0, 0],
+        status: "inhabited"
+      }
+    } else if (this.currentMode === "star-citizen") {
+      fallbackSystems["stanton"] = {
+        id: "stanton",
+        name: "Stanton System",
+        position: [0, 0, 0],
+        tags: ["inhabited", "commercial", "core-system"],
+        description: "A corporate-controlled system featuring four planets."
+      }
+    }
 
     return {
-      systems: {
-        "default-system": {
-          id: "default-system",
-          name: `Default ${this.currentMode} System`,
-          position: [0, 0, 0],
-          tags: ["fallback"],
-          jump_routes: [],
-          description: `Fallback system data for ${this.currentMode} mode`,
-        },
-      },
+      systems: fallbackSystems,
       metadata: {
-        mode: this.currentMode,
-        fallback: true,
-      },
+        version: "fallback",
+        mode: this.currentMode
+      }
     }
   }
 
-  async loadSystem(systemId: string): Promise<SystemData | null> {
+  async loadSystem(systemId: string): Promise<OrbitalSystemData | null> {
     const cacheKey = `${this.currentMode}:${systemId}`
 
     if (this.loadedSystems.has(cacheKey)) {
@@ -184,7 +140,7 @@ export class SystemLoader {
 
       if (systemData) {
         this.loadedSystems.set(cacheKey, systemData)
-        this.preloadJumpNeighbors(systemData.jump_points || [])
+        // Note: Jump point preloading removed as it's now handled differently
       }
 
       return systemData
@@ -193,7 +149,7 @@ export class SystemLoader {
     }
   }
 
-  private async fetchSystemData(systemId: string): Promise<SystemData | null> {
+  private async fetchSystemData(systemId: string): Promise<OrbitalSystemData | null> {
     try {
       console.log(`🚀 Loading system: ${systemId} (mode: ${this.currentMode})`)
 
@@ -218,7 +174,7 @@ export class SystemLoader {
         return this.getFallbackSystemData(systemId)
       }
 
-      const systemData: SystemData = await response.json()
+      const systemData: OrbitalSystemData = await response.json()
 
       if (!this.validateSystemData(systemData)) {
         console.error(`❌ Invalid system data for ${systemId}`)
@@ -233,121 +189,72 @@ export class SystemLoader {
     }
   }
 
-  private getFallbackSystemData(systemId: string): SystemData {
-    console.log(`🔧 Using fallback system data for ${systemId}`)
+  private validateSystemData(systemData: OrbitalSystemData): boolean {
+    return !!(
+      systemData.id && 
+      systemData.name && 
+      systemData.objects && 
+      systemData.objects.length > 0 &&
+      systemData.objects.some(obj => isStar(obj))
+    )
+  }
 
+  private getFallbackSystemData(systemId: string): OrbitalSystemData {
     return {
       id: systemId,
-      name: `${systemId.charAt(0).toUpperCase() + systemId.slice(1)} System`,
-      description: `Fallback system data for ${systemId} in ${this.currentMode} mode`,
-      barycenter: [0, 0, 0],
-      stars: [
+      name: `${systemId} System (Fallback)`,
+      description: `Fallback system data for ${systemId}`,
+      objects: [
         {
           id: `${systemId}-star`,
-          catalog_ref: "g2v-main-sequence",
-          name: `${systemId.charAt(0).toUpperCase() + systemId.slice(1)} Star`,
-          position: [0, 0, 0],
-        },
+          name: `${systemId} Star`,
+          classification: 'star',
+          geometry_type: 'star',
+          properties: {
+            mass: 1.0,
+            radius: 1.0,
+            temperature: 5778,
+            color_temperature: 5778,
+            luminosity: 100,
+            solar_activity: 50,
+            corona_thickness: 50,
+            variability: 10
+          },
+          position: [0, 0, 0]
+        }
       ],
       lighting: {
         primary_star: `${systemId}-star`,
         ambient_level: 0.1,
-        stellar_influence_radius: 100,
+        stellar_influence_radius: 100
       },
+      metadata: {
+        version: "fallback",
+        last_updated: new Date().toISOString().split('T')[0],
+        coordinate_system: "heliocentric",
+        distance_unit: "au"
+      }
     }
   }
 
-  private async preloadJumpNeighbors(jumpPoints: JumpPoint[]) {
-    const availableSystems = await this.getStarmapSystems()
+  // Preload adjacent systems (simplified without jump points for now)
+  async preloadAdjacentSystems(systemId: string): Promise<void> {
+    const starmapData = await this.loadStarmapData()
+    if (!starmapData?.systems) return
 
-    jumpPoints.forEach((jumpPoint) => {
-      const neighborId = jumpPoint.destination
+    const currentSystem = starmapData.systems[systemId]
+    if (!currentSystem?.jump_routes) return
 
-      if (!availableSystems[neighborId]) {
-        console.log(`⚠️ Skipping preload of ${neighborId} - not available in ${this.currentMode} mode`)
-        return
+    for (const adjacentSystemId of currentSystem.jump_routes) {
+      if (!this.preloadQueue.has(adjacentSystemId)) {
+        this.preloadQueue.add(adjacentSystemId)
+        // Background preload
+        this.loadSystem(adjacentSystemId).then(() => {
+          this.preloadQueue.delete(adjacentSystemId)
+        }).catch(() => {
+          this.preloadQueue.delete(adjacentSystemId)
+        })
       }
-
-      const cacheKey = `${this.currentMode}:${neighborId}`
-      if (
-        !this.loadedSystems.has(cacheKey) &&
-        !this.loadingPromises.has(cacheKey) &&
-        !this.preloadQueue.has(neighborId)
-      ) {
-        this.preloadQueue.add(neighborId)
-
-        setTimeout(() => {
-          this.loadSystem(neighborId)
-            .then(() => {
-              console.log(`🔄 Preloaded neighbor system: ${neighborId}`)
-              this.preloadQueue.delete(neighborId)
-            })
-            .catch((error) => {
-              console.warn(`⚠️ Failed to preload ${neighborId}:`, error)
-              this.preloadQueue.delete(neighborId)
-            })
-        }, 1000)
-      }
-    })
-  }
-
-  async getCatalogObject(catalogRef: string): Promise<CatalogObject | null> {
-    if (this.catalogCache.has(catalogRef)) {
-      return this.catalogCache.get(catalogRef)!
-    }
-
-    const catalogFiles = [
-      "stars",
-      "planets",
-      "moons",
-      "belts",
-      "compact-objects",
-      "artificial-satellites",
-      "exotic",
-      "space-stations",
-    ]
-
-    for (const catalogFile of catalogFiles) {
-      try {
-        const url = `/data/engine/object-catalog/${catalogFile}.json?t=${Date.now()}`
-        const response = await fetch(url)
-        if (response.ok) {
-          const contentType = response.headers.get("content-type")
-          if (!contentType || !contentType.includes("application/json")) {
-            console.warn(`⚠️ Invalid content type for catalog ${catalogFile}: ${contentType}`)
-            continue
-          }
-
-          const catalogData = await response.json()
-
-          Object.entries(catalogData).forEach(([key, value]) => {
-            this.catalogCache.set(key, value as CatalogObject)
-          })
-
-          if (catalogData[catalogRef]) {
-            return catalogData[catalogRef] as CatalogObject
-          }
-        }
-      } catch (error) {
-        console.warn(`⚠️ Failed to load catalog ${catalogFile}:`, error)
-      }
-    }
-
-    console.warn(`⚠️ Catalog object not found: ${catalogRef}, using fallback`)
-    return this.getFallbackCatalogObject(catalogRef)
-  }
-
-  private getFallbackCatalogObject(catalogRef: string): CatalogObject {
-    return {
-      id: catalogRef,
-      name: `Fallback ${catalogRef}`,
-      mass: 1.0,
-      radius: 1.0,
-      render: {
-        shader: "basic",
-        surfaceColor: "#888888",
-        rotation_rate: 0.01,
-      },
     }
   }
 
@@ -356,97 +263,41 @@ export class SystemLoader {
     return starmapData?.systems || {}
   }
 
-  async getSystemMetadata() {
-    const starmapData = await this.loadStarmapData()
-    return starmapData?.metadata || {}
-  }
-
-  async getAvailableSystems(): Promise<string[]> {
-    const systems = await this.getStarmapSystems()
-    return Object.keys(systems)
-  }
-
   isSystemLoaded(systemId: string): boolean {
-    return this.loadedSystems.has(`${this.currentMode}:${systemId}`)
-  }
-
-  isSystemLoading(systemId: string): boolean {
-    return this.loadingPromises.has(`${this.currentMode}:${systemId}`)
-  }
-
-  getLoadingStatus(systemId: string): "loaded" | "loading" | "not-loaded" {
-    if (this.isSystemLoaded(systemId)) return "loaded"
-    if (this.isSystemLoading(systemId)) return "loading"
-    return "not-loaded"
-  }
-
-  preloadSystem(systemId: string): void {
-    if (!this.isSystemLoaded(systemId) && !this.isSystemLoading(systemId)) {
-      this.loadSystem(systemId).catch((error) => {
-        console.warn(`⚠️ Failed to preload system ${systemId}:`, error)
-      })
-    }
+    const cacheKey = `${this.currentMode}:${systemId}`
+    return this.loadedSystems.has(cacheKey)
   }
 
   clearCache(): void {
-    console.log(`🧹 Clearing cache for mode switch to ${this.currentMode}`)
     this.loadedSystems.clear()
     this.loadingPromises.clear()
-    this.preloadQueue.clear()
     this.starmapData = null
     this.starmapLoading = null
   }
 
-  clearAllCaches(): void {
-    this.clearCache()
-    this.catalogCache.clear()
+  // Helper methods for backward compatibility
+  getStars(systemData: OrbitalSystemData): CelestialObject[] {
+    return systemData.objects.filter(isStar)
   }
 
-  private validateSystemData(systemData: SystemData): boolean {
-    if (!systemData.id || !systemData.name || !systemData.stars || systemData.stars.length === 0) {
-      return false
-    }
-    return true
+  getPlanets(systemData: OrbitalSystemData): CelestialObject[] {
+    return systemData.objects.filter(isPlanet)
   }
 
-  calculateBarycenter(stars: SystemObject[]): [number, number, number] {
-    if (stars.length === 1) {
-      return [0, 0, 0]
-    }
-
-    let totalX = 0,
-      totalY = 0,
-      totalZ = 0
-
-    for (const star of stars) {
-      const pos = star.position || [0, 0, 0]
-      totalX += pos[0]
-      totalY += pos[1]
-      totalZ += pos[2]
-    }
-
-    return [totalX / stars.length, totalY / stars.length, totalZ / stars.length]
+  getMoons(systemData: OrbitalSystemData): CelestialObject[] {
+    return systemData.objects.filter(isMoon)
   }
 
-  async getSystemsInRange(centerPosition: [number, number, number], maxDistance: number) {
-    const systems = await this.getStarmapSystems()
-    const inRange = []
-
-    for (const [systemId, systemInfo] of Object.entries(systems)) {
-      const distance = this.calculateDistance(centerPosition, systemInfo.position)
-      if (distance <= maxDistance) {
-        inRange.push({ ...systemInfo, distance })
-      }
-    }
-
-    return inRange.sort((a, b) => a.distance - b.distance)
+  getBelts(systemData: OrbitalSystemData): CelestialObject[] {
+    return systemData.objects.filter(isBelt)
   }
 
-  private calculateDistance(pos1: [number, number, number], pos2: [number, number, number]): number {
-    const dx = pos1[0] - pos2[0]
-    const dy = pos1[1] - pos2[1]
-    const dz = pos1[2] - pos2[2]
-    return Math.sqrt(dx * dx + dy * dy + dz * dz)
+  getObjectsByParent(systemData: OrbitalSystemData, parentId: string): CelestialObject[] {
+    return systemData.objects.filter(obj => obj.orbit?.parent === parentId)
+  }
+
+  findObject(systemData: OrbitalSystemData, objectId: string): CelestialObject | undefined {
+    return systemData.objects.find(obj => obj.id === objectId)
   }
 }
 
@@ -456,5 +307,5 @@ export function getActiveMode(): SimulationMode {
   if (typeof window === "undefined") return "realistic"
 
   const mode = new URLSearchParams(window.location.search).get("mode")
-  return mode || "realistic"
+  return (mode === "star-citizen" ? "star-citizen" : "realistic") as SimulationMode
 }

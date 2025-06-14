@@ -1,10 +1,11 @@
 "use client"
 
-import type { SystemData } from "@/engine/system-loader"
+import { OrbitalSystemData } from "@/engine/types/orbital-system"
+import { engineSystemLoader } from "@/engine/system-loader"
 import type { ViewType } from '@lib/types/effects-level'
 
 interface SystemInfoOverlayProps {
-  systemData: SystemData
+  systemData: OrbitalSystemData
   viewType: ViewType
   focusedName: string
   focusedObjectSize: number | null
@@ -22,15 +23,20 @@ export function SystemInfoOverlay({
   loadingProgress,
   onStopFollowing,
 }: SystemInfoOverlayProps) {
+  // Get stars, planets, and moons using the system loader helper methods
+  const stars = engineSystemLoader.getStars(systemData)
+  const planets = engineSystemLoader.getPlanets(systemData)
+  const moons = engineSystemLoader.getMoons(systemData)
+
   return (
     <div className="absolute top-4 left-20 bg-black/70 backdrop-blur-sm text-white p-4 rounded-lg max-w-sm">
       <h2 className="text-xl font-bold mb-2">{systemData.name}</h2>
       <p className="text-sm mb-2">{systemData.description}</p>
       <div className="text-xs space-y-1">
-        <div>Stars: {systemData.stars.length}</div>
-        <div>Planets: {systemData.planets?.length || 0}</div>
-        <div>Moons: {systemData.moons?.length || 0}</div>
-        {systemData.jump_points && <div>Jump Points: {systemData.jump_points.length}</div>}
+        <div>Stars: {stars.length}</div>
+        <div>Planets: {planets?.length || 0}</div>
+        <div>Moons: {moons?.length || 0}</div>
+        <div>Total Objects: {systemData.objects?.length || 0}</div>
       </div>
 
       {/* View mode indicator */}

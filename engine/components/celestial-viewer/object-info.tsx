@@ -1,13 +1,13 @@
 "use client"
 
-import type { CatalogObject } from '@/engine/system-loader'
+import type { CelestialObject } from '@/engine/types/orbital-system'
 
 interface ObjectInfoProps {
   selectedObjectId: string
-  catalogObject: CatalogObject | null
+  celestialObject: CelestialObject | null
 }
 
-export function ObjectInfo({ selectedObjectId, catalogObject }: ObjectInfoProps) {
+export function ObjectInfo({ selectedObjectId, celestialObject }: ObjectInfoProps) {
   const formatValue = (value: any, unit?: string): string => {
     if (typeof value === 'number') {
       return `${value.toFixed(3)}${unit ? ` ${unit}` : ''}`
@@ -15,7 +15,7 @@ export function ObjectInfo({ selectedObjectId, catalogObject }: ObjectInfoProps)
     return String(value)
   }
 
-  if (!catalogObject) {
+  if (!celestialObject) {
     return (
       <div className="flex h-full flex-col p-4">
         <h2 className="mb-4 text-lg font-semibold">Object Information</h2>
@@ -45,52 +45,52 @@ export function ObjectInfo({ selectedObjectId, catalogObject }: ObjectInfoProps)
       <div className="space-y-4">
         {/* Basic Info */}
         <div>
-          <h3 className="text-md font-medium text-gray-200 mb-2">{catalogObject.name}</h3>
+          <h3 className="text-md font-medium text-gray-200 mb-2">{celestialObject.name}</h3>
           <div className="flex gap-2 mb-3">
             <span className="px-2 py-1 bg-gray-800 text-gray-200 text-xs rounded">
-              {catalogObject.category}
+              {celestialObject.classification}
             </span>
-            {catalogObject.subtype && (
+            {celestialObject.geometry_type && (
               <span className="px-2 py-1 border border-gray-600 text-gray-300 text-xs rounded">
-                {catalogObject.subtype}
+                {celestialObject.geometry_type}
               </span>
             )}
           </div>
         </div>
 
         {/* Physical Properties */}
-        {catalogObject.physical && (
+        {celestialObject.properties && (
           <div>
             <h4 className="text-sm font-medium text-gray-300 mb-2 border-b border-gray-700 pb-1">Physical Properties</h4>
             <div className="space-y-1 text-sm">
-              {catalogObject.physical.mass !== undefined && (
+              {celestialObject.properties.mass !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Mass:</span>
-                  <span className="text-gray-200">{formatValue(catalogObject.physical.mass, 'M☉')}</span>
+                  <span className="text-gray-200">{formatValue(celestialObject.properties.mass, 'M☉')}</span>
                 </div>
               )}
-              {catalogObject.physical.radius !== undefined && (
+              {celestialObject.properties.radius !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Radius:</span>
-                  <span className="text-gray-200">{formatValue(catalogObject.physical.radius, 'R☉')}</span>
+                  <span className="text-gray-200">{formatValue(celestialObject.properties.radius, 'km')}</span>
                 </div>
               )}
-              {catalogObject.physical.temperature !== undefined && (
+              {celestialObject.properties.temperature !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Temperature:</span>
-                  <span className="text-gray-200">{formatValue(catalogObject.physical.temperature, 'K')}</span>
+                  <span className="text-gray-200">{formatValue(celestialObject.properties.temperature, 'K')}</span>
                 </div>
               )}
-              {catalogObject.physical.luminosity !== undefined && (
+              {celestialObject.properties.luminosity !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Luminosity:</span>
-                  <span className="text-gray-200">{formatValue(catalogObject.physical.luminosity, 'L☉')}</span>
+                  <span className="text-gray-200">{formatValue(celestialObject.properties.luminosity, 'L☉')}</span>
                 </div>
               )}
-              {catalogObject.physical.age !== undefined && (
+              {celestialObject.properties.age !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Age:</span>
-                  <span className="text-gray-200">{formatValue(catalogObject.physical.age, 'Gyr')}</span>
+                  <span className="text-gray-200">{formatValue(celestialObject.properties.age, 'Gyr')}</span>
                 </div>
               )}
             </div>
@@ -98,11 +98,11 @@ export function ObjectInfo({ selectedObjectId, catalogObject }: ObjectInfoProps)
         )}
 
         {/* Composition */}
-        {catalogObject.composition && (
+        {celestialObject.properties.composition && (
           <div>
             <h4 className="text-sm font-medium text-gray-300 mb-2 border-b border-gray-700 pb-1">Composition</h4>
             <div className="space-y-1 text-sm">
-              {Object.entries(catalogObject.composition).map(([element, fraction]) => (
+              {Object.entries(celestialObject.properties.composition).map(([element, fraction]) => (
                 <div key={element} className="flex justify-between">
                   <span className="text-gray-400 capitalize">{element}:</span>
                   <span className="text-gray-200">{formatValue(fraction)}</span>
@@ -113,11 +113,11 @@ export function ObjectInfo({ selectedObjectId, catalogObject }: ObjectInfoProps)
         )}
 
         {/* Features */}
-        {catalogObject.features && (
+        {celestialObject.properties.features && (
           <div>
             <h4 className="text-sm font-medium text-gray-300 mb-2 border-b border-gray-700 pb-1">Features</h4>
             <div className="space-y-1 text-sm">
-              {Object.entries(catalogObject.features).map(([feature, value]) => (
+              {Object.entries(celestialObject.properties.features).map(([feature, value]) => (
                 <div key={feature} className="flex justify-between">
                   <span className="text-gray-400 capitalize">{feature.replace(/_/g, ' ')}:</span>
                   <span className="text-gray-200">{formatValue(value)}</span>
@@ -128,11 +128,11 @@ export function ObjectInfo({ selectedObjectId, catalogObject }: ObjectInfoProps)
         )}
 
         {/* Appearance */}
-        {catalogObject.appearance && (
+        {celestialObject.properties.appearance && (
           <div>
             <h4 className="text-sm font-medium text-gray-300 mb-2 border-b border-gray-700 pb-1">Appearance</h4>
             <div className="space-y-1 text-sm">
-              {Object.entries(catalogObject.appearance).map(([property, value]) => (
+              {Object.entries(celestialObject.properties.appearance).map(([property, value]) => (
                 <div key={property} className="flex justify-between items-center">
                   <span className="text-gray-400 capitalize">{property.replace(/_/g, ' ')}:</span>
                   <div className="flex items-center gap-2">

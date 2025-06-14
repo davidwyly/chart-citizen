@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, fireEvent, act } from '@testing-library/react'
-import { InteractiveObject } from '../3d-ui/interactive-object'
+import { InteractiveObject } from '../../engine/components/3d-ui/interactive-object'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 

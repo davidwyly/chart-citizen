@@ -16,5 +16,4 @@ Rules:
 
 These context.md files are used to maintain high-level awareness of the role and purpose of each file across the codebase, especially helpful during onboarding, code reviews, and refactors.
 
-
 When refactoring or reorganizing code, refer to the relevant context.md in a folder to understand what each file is for. If a files purpose isn't clear or the summary seems outdated, investigate and update accordingly.

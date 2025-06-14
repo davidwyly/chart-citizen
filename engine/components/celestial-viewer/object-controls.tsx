@@ -24,6 +24,9 @@ interface ObjectControlsProps {
   onShaderScaleChange: (scale: number) => void
   onShaderParamChange: (param: string, value: number) => void
   onHabitabilityParamChange?: (param: string, value: number) => void
+  objectType?: string
+  showStats: boolean
+  onToggleStats: () => void
 }
 
 export function ObjectControls({

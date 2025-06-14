@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react"
 import type * as THREE from "three"
-import type { SystemData } from "@/engine/system-loader"
+import { OrbitalSystemData, isStar, isPlanet, isMoon, isBelt, isOrbitData } from "@/engine/types/orbital-system"
 import type { ViewType } from "@lib/types/effects-level"
 
 interface ObjectSelectionState {
@@ -18,7 +18,7 @@ interface ObjectSelectionState {
   objectRefsMap: Map<string, THREE.Object3D>
 }
 
-export function useObjectSelection(systemData: SystemData | null, viewType: ViewType) {
+export function useObjectSelection(systemData: OrbitalSystemData | null, viewType: ViewType) {
   const [state, setState] = useState<ObjectSelectionState>({
     selectedObjectId: null,
     selectedObjectData: null,
@@ -40,30 +40,9 @@ export function useObjectSelection(systemData: SystemData | null, viewType: View
 
   // Helper function to get object data from system data
   const getObjectData = useCallback((objectId: string) => {
-    if (!systemData) return null
+    if (!systemData || !systemData.objects) return null
 
-    // Check stars
-    const star = systemData.stars.find(s => s.id === objectId)
-    if (star) {
-      return {
-        ...star,
-        orbit: { semi_major_axis: 0 } // Stars don't orbit
-      }
-    }
-
-    // Check planets
-    const planet = systemData.planets?.find(p => p.id === objectId)
-    if (planet) {
-      return planet
-    }
-
-    // Check moons
-    const moon = systemData.moons?.find(m => m.id === objectId)
-    if (moon) {
-      return moon
-    }
-
-    return null
+    return systemData.objects.find(obj => obj.id === objectId)
   }, [systemData])
 
   // Enhanced handle object focus with additional properties
@@ -90,12 +69,16 @@ export function useObjectSelection(systemData: SystemData | null, viewType: View
   const handleObjectSelect = useCallback((objectId: string, object: THREE.Object3D, name: string) => {
     setState(prev => {
       // Store previous state when selecting a planet in game view
-      if (viewType === "profile" && systemData?.planets?.some(p => p.id === objectId)) {
+      if (viewType === "profile" && systemData?.objects.some(obj => isPlanet(obj) && obj.id === objectId)) {
         previousStateRef.current = prev
       }
 
       // Get the full object data
       const objectData = getObjectData(objectId)
+
+      const orbitalSemiMajorAxis = objectData?.orbit && isOrbitData(objectData.orbit) 
+        ? objectData.orbit.semi_major_axis 
+        : null
 
       return {
         ...prev,
@@ -107,7 +90,7 @@ export function useObjectSelection(systemData: SystemData | null, viewType: View
         focusedObjectRadius: null, // Will be set by renderer
         focusedObjectSize: null, // Will be set by renderer
         focusedObjectMass: null, // Will be set by renderer
-        focusedObjectOrbitRadius: objectData?.orbit?.semi_major_axis || null
+        focusedObjectOrbitRadius: orbitalSemiMajorAxis
       }
     })
   }, [viewType, systemData, getObjectData])
