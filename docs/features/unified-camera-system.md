@@ -83,10 +83,9 @@ export interface DualObjectProperties {
 - Supports all camera operations (focus, birds-eye, following).
 - Configurable animations and easing functions.
 
-### 3. Enhanced View Mode Calculator (`engine/components/system-viewer/view-mode-calculator.ts`)
-- Backward compatibility with legacy system.
-- Integration with unified configuration system.
-- Helper functions for configuration-driven calculations.
+### 3. Enhanced View Mode Logic (Now integrated into `view-mode-config.ts` and `camera-animations.ts`)
+- Logic for calculating visual properties and camera distances is now part of `createDualProperties` in `view-mode-config.ts` and `CameraPositionCalculator` in `camera-animations.ts`.
+- Removed separate `view-mode-calculator.ts` as its functionality has been absorbed into more appropriate, cohesive modules.
 
 ### 4. Comprehensive Testing (`engine/components/system-viewer/__tests__/unified-camera-controller.test.ts`)
 - Unit tests for all configuration profiles.

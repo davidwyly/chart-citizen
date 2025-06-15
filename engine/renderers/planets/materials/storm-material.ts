@@ -83,5 +83,5 @@ export const StormMaterial = shaderMaterial(
       
       gl_FragColor = vec4(stormColor, alpha * 0.6);
     }
-  `,
+  `
 )

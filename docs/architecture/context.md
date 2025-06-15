@@ -1,1 +1,0 @@
-orbital-system-json-spec.md: This document defines the structure, schema, and rules for generating, parsing, and rendering orbital bodies in our solar system generator. 

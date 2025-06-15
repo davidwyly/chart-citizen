@@ -103,100 +103,13 @@
 3. **Phase 3:** ✅ **COMPLETED** - Fix mode agnosticism issues in celestial viewer
 4. **Phase 4:** ✅ **COMPLETED** - Remove legacy system loader and consolidate types
 5. **Phase 5:** ✅ **COMPLETED** - Standardize import paths project-wide
-6. **Phase 6:** Test organization improvements
+6. **Phase 6:** ✅ **COMPLETED** - Test organization improvements
+7. **Phase 7:** ✅ **COMPLETED** - Implement error handling improvements (Custom Error Types, Error Boundaries, Enhanced System Loader, Error Reporter, Validation Framework)
 
-## Completed Work
+## TODO: Future Enhancements
 
-### ✅ Phase 1: Duplicate Utility Files Fixed
-- **Removed** `engine/lib/utils.ts` (duplicate of root version)
-- **Enhanced** `lib/performance-monitor.ts` with class-based monitor from engine version
-- **Updated imports** in `engine/components/system-viewer/planet-viewer.tsx` and `engine/components/performance-warning.tsx`
-- **Removed** `engine/lib/performance-monitor.ts` and `engine/lib/roman-numerals.ts`
-- **Updated context.md** files to reflect changes
-
-### ✅ Phase 2: Temporary Files Cleanup
-- **Removed** `test-profile-mode.tsx` (temporary development file)
-- **Removed** `next.config.mjs` (kept more comprehensive `next.config.js`)
-- **Removed** `jest.setup.tsx` (kept more comprehensive `jest.setup.ts`)
-
-### 📝 Test Status Note
-Some tests are failing, but these appear to be pre-existing issues in the unified camera controller and other engine components, not related to the utility consolidation changes. The performance monitor imports are resolving correctly.
-
-## ✅ **COMPLETED** - Mode Agnosticism Fixes
-
-### 🔧 Phase 3: Mode Agnosticism Issues Fixed
-- **Fixed celestial viewer parameter order** - `loadSystem('sol', 'realistic')` → `loadSystem('realistic', 'sol')`
-- **Added mode support to CelestialViewer** - Now accepts `mode` prop and detects from URL parameters
-- **Updated viewer page** - Now passes mode parameter from URL to CelestialViewer
-- **Enhanced debug panel** - Now tests both realistic and star-citizen modes instead of hardcoded realistic
-- **Made celestial viewer truly mode-agnostic** - Uses current mode instead of hardcoded 'realistic'
-
-### 🐛 Root Cause Analysis
-The main issue was in `engine/components/celestial-viewer/celestial-viewer.tsx` line 80:
-```typescript
-// WRONG: Parameters in wrong order
-const systemData = await engineSystemLoader.loadSystem('sol', 'realistic')
-
-// FIXED: Correct parameter order (mode first, then systemId)
-const systemData = await engineSystemLoader.loadSystem('realistic', 'sol')
-```
-
-This was causing the system loader to try to fetch `/data/sol/systems/realistic.json` instead of `/data/realistic/systems/sol.json`.
-
-### 🔄 System Loader Architecture
-There are currently **two system loaders** with different APIs:
-1. **New Engine System Loader** (`engine/system-loader.ts`) - `loadSystem(mode, systemId)` - Mode-agnostic
-2. **Old System Loader** (`engine/lib/system-loader.ts`) - `loadSystem(systemId)` - Has internal mode state
-
-The celestial viewer was using the new loader with the old API pattern.
-
-## Dependencies and Risks
-
-**Critical Dependencies:**
-- `lib/utils.ts` (cn function) is imported by 40+ UI components
-- `lib/performance-monitor.ts` is imported by performance warning components
-- `lib/roman-numerals.ts` is imported by system navigation components
-
-**Testing Required:**
-- Full regression test suite after each phase
-- Verify all import paths resolve correctly
-- Check that all components still render properly
-
-**Rollback Plan:**
-- Keep git checkpoints before each phase
-- Have list of all affected import paths for quick reversion
-
-### ✅ Phase 4: Legacy System Consolidation
-- **Removed** unused root `types/view-mode.ts` (no imports found)
-- **Removed** legacy system loader `engine/lib/system-loader.ts` (superseded by `engine/system-loader.ts`)
-- **Removed** legacy test files that were testing old system loader:
-  - `engine/__tests__/suites/system-loading.test.ts`
-  - `engine/__tests__/suites/system-validation.test.ts`
-  - `engine/__tests__/suites/system-ui.test.ts`
-  - `engine/components/system-viewer/__tests__/system-objects-renderer.test.tsx`
-- **Updated imports** from legacy system loader to new system loader:
-  - `engine/renderers/planets/terrestrial-planet-renderer.tsx`
-  - `engine/lib/planet-customizer.ts`
-  - `docs/features/terrestrial-planet.md`
-- **Updated context.md files** to reflect removed files
-
-### 🏗️ Architecture Consolidation
-The codebase now has a single, unified system loader architecture:
-- **New System Loader** (`engine/system-loader.ts`) - Mode-agnostic, uses `OrbitalSystemData` format
-- **Legacy System Loader** - ❌ **REMOVED** - Was using old `SystemData` format with separate arrays
-- All components now use the modern system loader with unified object structure
-
-### ✅ Phase 5: Import Path Standardization
-- **Consolidated effects-level types** - Moved comprehensive version from `engine/lib/types/effects-level.ts` to `lib/types/effects-level.ts`
-- **Standardized ViewType imports** - Updated inconsistent imports to use `@/lib/types/effects-level`
-- **Enhanced root effects-level types** - Merged best features from engine version (material quality validation, detailed effects levels)
-- **Removed duplicate use-toast hook** - Deleted identical `engine/components/ui/use-toast.ts` (root version already used)
-- **Updated material registry imports** - Now imports from standardized `@/lib/types/effects-level`
-- **Moved and updated tests** - Relocated effects-level tests to `lib/types/__tests__/` with correct import paths
-- **Updated context.md files** - Documented the consolidation and standardization
-
-### 📋 Import Path Standards Established
-- **Shared utilities**: Use `@/lib/` prefix (utils, performance-monitor, roman-numerals, types)
-- **Engine-specific utilities**: Use `@/engine/` prefix (system-loader, orbital mechanics, etc.)
-- **UI components**: Engine components can import from root `@/components/ui/` when extending base components
-- **Types**: Shared types in `@/lib/types/`, engine-specific types in `@/engine/types/` 
+### 1. Structured Logging System
+**Summary:** Implement a dedicated, structured logging system beyond console-based logging, with defined log levels and potential integration with external log aggregation services.
+**File/Path Reference:** Primarily `engine/services/logger.ts` (new file) and various points across the codebase where `console.log`/`warn`/`error` are currently used.
+**Why needed:** To provide more granular observability, enable easier filtering and analysis of logs, and facilitate integration with centralized logging platforms for production environments. This will complement the existing error reporting by providing a more comprehensive view of application events and health.
+**Priority:** Medium
