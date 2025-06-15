@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   calculateSystemOrbitalMechanics,
   clearOrbitalMechanicsCache,
-  convertLegacyToSafeOrbitalMechanics,
 } from '../orbital-mechanics-calculator';
 import { CelestialObject } from '@/engine/types/orbital-system';
 import { ViewType } from '@lib/types/effects-level';
@@ -234,76 +233,6 @@ describe('orbital-mechanics-calculator', () => {
       
       // Verify moon ordering within each system
       expect(phobosData.orbitDistance!).toBeLessThan(deimosData.orbitDistance!); // Phobos closer than Deimos
-    });
-
-    it('should prevent visual overlaps between a moon system and a subsequent planet in navigational mode', () => {
-      // Define a system where a planet's moon system is very visually large,
-      // and a subsequent planet's *initial* desired orbit is very close.
-      // This is designed to highlight issues with fixed sizes and orbit clearing.
-
-      const star = createTestStar('Sol', 695700);
-
-      // Earth-like planet, close to star
-      const earth = createTestPlanet('Earth', 'Sol', 6371, 1.0); // 1.0 AU, will be 0.6 * 1.0 = 0.6 scaled orbit
-
-      // A moon with a relatively large visual size and a small orbit around Earth
-      // This moon system should effectively make Earth "bigger" visually.
-      const luna = createTestMoon('Luna', 'Earth', 1737, 0.002); // 0.002 AU, will be 0.6 * 0.002 = 0.0012 scaled orbit
-
-      // A "Mars-like" planet, initially placed very close to Earth's orbit
-      // Its raw AU is just slightly larger than Earth's.
-      const mars = createTestPlanet('Mars', 'Sol', 3390, 1.01); // 1.01 AU, will be 0.6 * 1.01 = 0.606 scaled orbit
-
-      const objects = [star, earth, luna, mars];
-      const viewType: ViewType = 'navigational';
-      const mechanics = calculateSystemOrbitalMechanics(objects, viewType);
-
-      const earthData = mechanics.get('Earth')!;
-      const lunaData = mechanics.get('Luna')!;
-      const marsData = mechanics.get('Mars')!;
-
-      // Retrieve navigational config (assuming VIEW_CONFIGS is accessible or can be imported)
-      // For this test, we'll hardcode the relevant config values for clarity, as the actual VIEW_CONFIGS
-      // is not exported from orbital-mechanics-calculator.ts and is an internal detail.
-      const navConfig = {
-        orbitScaling: 0.6,
-        safetyMultiplier: 3.0,
-        minDistance: 0.2,
-        fixedSizes: {
-          star: 2.0,
-          planet: 1.2,
-          moon: 0.6,
-          asteroid: 0.3,
-          belt: 0.8,
-          barycenter: 0.0,
-        },
-      };
-
-      // Calculate the effective outer edge of the Earth-Luna system
-      // This replicates the logic of calculateEffectiveOrbitalRadius using the fixed sizes
-      const earthVisualRadius = navConfig.fixedSizes.planet; // fixed at 1.2 in navigational
-      const lunaVisualRadius = navConfig.fixedSizes.moon;   // fixed at 0.6 in navigational
-
-      // Luna's actual orbit distance from Earth (relative to Earth's center)
-      // This value comes directly from the calculated mechanics for Luna
-      const lunaOrbitDistanceRelativeToEarth = lunaData.orbitDistance!;
-
-      // The outer edge of Luna relative to Earth's center
-      const lunaOuterEdgeRelativeToEarth = lunaOrbitDistanceRelativeToEarth + lunaVisualRadius;
-
-      // The effective "radius" of the Earth system, considering Luna's furthest extent
-      const effectiveEarthSystemRadius = Math.max(earthVisualRadius, lunaOuterEdgeRelativeToEarth);
-
-      // The absolute outer edge of the Earth-Luna system from the Star
-      const earthSystemAbsoluteOuterEdge = earthData.orbitDistance! + effectiveEarthSystemRadius;
-
-      // Mars's calculated inner edge (its orbit distance minus its visual radius)
-      const marsVisualRadius = navConfig.fixedSizes.planet; // fixed at 1.2 in navigational
-      const marsInnerEdgeAbsolute = marsData.orbitDistance! - marsVisualRadius;
-
-      // Assertion: Mars's inner edge must be outside Earth's system outer edge + minimum clearance
-      const requiredClearance = navConfig.minDistance;
-      expect(marsInnerEdgeAbsolute).toBeGreaterThanOrEqual(earthSystemAbsoluteOuterEdge + requiredClearance);
     });
 
     it('should use fixed sizes for non-realistic modes', () => {

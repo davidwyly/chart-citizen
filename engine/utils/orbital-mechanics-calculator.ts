@@ -1,19 +1,19 @@
 import { ViewType } from '@lib/types/effects-level';
 import { CelestialObject, isOrbitData, isBeltOrbitData } from '@/engine/types/orbital-system';
 
-// Simple view mode configurations
-const VIEW_CONFIGS = {
+// Simple view mode configurations - FIXED and reliable scaling
+export const VIEW_CONFIGS = {
   realistic: {
     maxVisualSize: 2.0,
     minVisualSize: 0.02,
-    orbitScaling: 8.0,
+    orbitScaling: 15.0, // Fixed orbital scaling for consistent realistic view
     safetyMultiplier: 2.5,
     minDistance: 0.1,
   },
   navigational: {
     maxVisualSize: 2.5,
     minVisualSize: 0.05,
-    orbitScaling: 0.6,
+    orbitScaling: 8.0, // Reduced from 0.6 for better spacing
     safetyMultiplier: 3.0,
     minDistance: 0.2,
     fixedSizes: {
@@ -28,7 +28,7 @@ const VIEW_CONFIGS = {
   profile: {
     maxVisualSize: 1.5,
     minVisualSize: 0.03,
-    orbitScaling: 0.4,
+    orbitScaling: 5.0, // Increased from 0.4 for better spacing
     safetyMultiplier: 3.5,
     minDistance: 0.3,
     fixedSizes: {
@@ -66,10 +66,31 @@ function calculateVisualRadius(object: CelestialObject, viewType: ViewType, size
   const config = VIEW_CONFIGS[viewType];
   const radiusKm = object.properties.radius || 1;
   
-  // Use fixed sizes for non-realistic modes
+  // Use fixed sizes for non-realistic modes - IMPROVED CLASSIFICATION LOGIC
   if (viewType !== 'realistic' && 'fixedSizes' in config) {
-    const classification = object.classification || 'asteroid';
-    return config.fixedSizes[classification as keyof typeof config.fixedSizes] || config.fixedSizes.asteroid;
+    // Use geometry_type for better differentiation, fallback to classification
+    let sizeKey = object.classification || 'asteroid';
+    
+    // Special handling for gas giants vs terrestrial planets
+    if (object.classification === 'planet') {
+      if (object.geometry_type === 'gas_giant') {
+        // Gas giants get larger size - use planet size * 1.5
+        const planetSize = config.fixedSizes.planet || 1.2;
+        return planetSize * 1.5; // Gas giants are 1.5x terrestrial planets
+      } else {
+        sizeKey = 'planet'; // terrestrial planets
+      }
+    }
+    
+    // Get fixed size by classification
+    let fixedSize = config.fixedSizes[sizeKey as keyof typeof config.fixedSizes];
+    
+    // Final fallback to asteroid size if classification not found
+    if (fixedSize === undefined) {
+      fixedSize = config.fixedSizes.asteroid;
+    }
+    
+    return fixedSize;
   }
   
   // Logarithmic scaling for realistic mode
@@ -118,6 +139,16 @@ function calculateEffectiveOrbitalRadius(
   config: any
 ): number {
   const objectVisualRadius = results.get(object.id)?.visualRadius || 0;
+
+  // Handle belts specifically: their effective radius is their outer_radius
+  if (object.orbit && isBeltOrbitData(object.orbit)) {
+    const beltData = results.get(object.id)?.beltData;
+    if (beltData) {
+      // The effective radius for a belt should be its outer radius from the parent
+      // This is crucial for other objects to clear the entire belt.
+      return beltData.outerRadius;
+    }
+  }
   
   // Find all moons orbiting this object
   const moons = allObjects.filter(moon => 
@@ -208,7 +239,10 @@ function calculateAbsolutePosition(
   if (!parent) return 0;
   
   const parentAbsolutePosition = calculateAbsolutePosition(parent, objects, results);
-  const objectOrbitDistance = results.get(object.id)?.orbitDistance || 0;
+  // For belts, use the centerRadius from beltData, otherwise use orbitDistance
+  const objectOrbitDistance = (object.orbit && isBeltOrbitData(object.orbit))
+    ? results.get(object.id)?.beltData?.centerRadius || 0
+    : results.get(object.id)?.orbitDistance || 0;
   
   return parentAbsolutePosition + objectOrbitDistance;
 }
@@ -411,21 +445,9 @@ export function calculateSystemOrbitalMechanics(
     results.set(obj.id, { visualRadius });
   }
   
-  // Step 2: Calculate orbital scaling for realistic mode
-  let config = { ...VIEW_CONFIGS[viewType] };
-  if (viewType === 'realistic') {
-    // Find the largest object to base orbital scaling on
-    let largestVisualRadius = 0;
-    for (const obj of objects) {
-      const data = results.get(obj.id);
-      if (data && data.visualRadius > largestVisualRadius) {
-        largestVisualRadius = data.visualRadius;
-      }
-    }
-    
-    // Adjust orbital scaling dynamically
-    config.orbitScaling = largestVisualRadius * 4.0;
-  }
+  // Step 2: Use FIXED orbital scaling - no more dynamic scaling
+  const config = { ...VIEW_CONFIGS[viewType] };
+  // REMOVED: Dynamic orbital scaling that was causing issues
   
   // Step 3: Calculate cleared orbital positions
   calculateClearedOrbits(objects, results, config);

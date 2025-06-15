@@ -1,21 +1,4 @@
 export interface ViewModeConfig {
-  // Object scaling configuration
-  objectScaling: {
-    star: number
-    planet: number
-    moon: number
-    gasGiant: number
-    asteroid: number
-    default: number
-  }
-  
-  // Orbit scaling configuration
-  orbitScaling: {
-    multiplier: number
-    minDistance: number
-    maxDistance: number
-  }
-  
   // Camera behavior configuration
   cameraConfig: {
     // Single radius-based distance calculation
@@ -51,9 +34,6 @@ export interface DualObjectProperties {
   visualOrbitRadius: number
   visualScale: number
   
-  // Object classification (kept for object scaling only, NOT camera positioning)
-  objectType: 'star' | 'planet' | 'moon' | 'gasGiant' | 'asteroid'
-  
   // Calculated camera properties (now purely radius-based)
   optimalViewDistance: number
   minViewDistance: number
@@ -63,19 +43,6 @@ export interface DualObjectProperties {
 // View mode configurations
 export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
   realistic: {
-    objectScaling: {
-      star: 1.0,
-      planet: 0.5,
-      moon: 0.5,
-      gasGiant: 0.5,
-      asteroid: 0.5,
-      default: 1.0
-    },
-    orbitScaling: {
-      multiplier: 2.0,
-      minDistance: 0.1,
-      maxDistance: 1000
-    },
     cameraConfig: {
       radiusMultiplier: 4.0,        // Camera positioned at 4x the visible radius
       minDistanceMultiplier: 2.5,   // Never closer than 2.5x visible radius
@@ -95,19 +62,6 @@ export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
   },
   
   navigational: {
-    objectScaling: {
-      star: 0.5,
-      planet: 0.25,
-      moon: 0.25,
-      gasGiant: 0.3,
-      asteroid: 0.25,
-      default: 0.5
-    },
-    orbitScaling: {
-      multiplier: 1.0,
-      minDistance: 0.1,
-      maxDistance: 500
-    },
     cameraConfig: {
       radiusMultiplier: 3.5,        // Closer for navigation
       minDistanceMultiplier: 2.0,   // Minimum 2x visible radius
@@ -127,19 +81,6 @@ export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
   },
   
   profile: {
-    objectScaling: {
-      star: 0.75,
-      planet: 0.4,
-      moon: 0.4,
-      gasGiant: 0.5,
-      asteroid: 0.4,
-      default: 0.75
-    },
-    orbitScaling: {
-      multiplier: 1.5,
-      minDistance: 0.1,
-      maxDistance: 800
-    },
     cameraConfig: {
       radiusMultiplier: 2.5,        // Closer for detailed view
       minDistanceMultiplier: 1.8,   // Minimum 1.8x visible radius
@@ -165,7 +106,7 @@ export function determineObjectType(
   mass?: number, 
   radius?: number,
   catalogData?: any
-): DualObjectProperties['objectType'] {
+): 'star' | 'planet' | 'moon' | 'gasGiant' | 'asteroid' {
   const lowerName = name.toLowerCase()
   
   // Check for star indicators
@@ -198,67 +139,49 @@ export function determineObjectType(
   
   // Use mass and radius to determine type if available
   if (mass && radius) {
-    // Rough classification based on mass (in Earth masses)
+    // Simplified classification for example
     if (mass > 100) return 'star'
     if (mass > 10) return 'gasGiant'
-    if (mass < 0.1) return 'moon'
+    if (mass > 0.5) return 'planet'
+    if (mass < 0.001) return 'asteroid'
   }
   
-  // Default to planet
+  // Default to planet if no clear classification
   return 'planet'
 }
 
-// Helper function to create dual properties for an object
 export function createDualProperties(
   realRadius: number,
   realOrbitRadius: number,
   realMass: number,
+  visualRadius: number,
+  visualOrbitRadius: number,
   objectName: string,
   viewMode: string,
-  systemScale: number = 1.0
 ): DualObjectProperties {
   const config = VIEW_MODE_CONFIGS[viewMode] || VIEW_MODE_CONFIGS.realistic
-  const objectType = determineObjectType(objectName, realMass, realRadius)
   
-  // Calculate visual properties based on view mode
-  const objectScaling = config.objectScaling[objectType] || config.objectScaling.default
-  const visualRadius = realRadius * objectScaling * systemScale
-  const visualOrbitRadius = realOrbitRadius * config.orbitScaling.multiplier * systemScale
-  
-  // Calculate camera distances based PURELY on visual radius
-  const cameraConfig = config.cameraConfig
-  const optimalDistance = visualRadius * cameraConfig.radiusMultiplier
-  const minDistance = visualRadius * cameraConfig.minDistanceMultiplier
-  const maxDistance = visualRadius * cameraConfig.maxDistanceMultiplier
-  
-  // Apply absolute constraints while maintaining proper ordering (min <= optimal <= max)
-  let finalMinDistance = Math.max(minDistance, cameraConfig.absoluteMinDistance)
-  let finalMaxDistance = Math.min(maxDistance, cameraConfig.absoluteMaxDistance)
-  
-  // Ensure min <= max, if not, prioritize the radius-based calculation
-  if (finalMinDistance > finalMaxDistance) {
-    if (maxDistance > cameraConfig.absoluteMinDistance) {
-      // Radius-based max is valid, use it
-      finalMaxDistance = Math.max(maxDistance, finalMinDistance)
-    } else {
-      // Radius-based calculation is too small, use absolute constraints
-      finalMaxDistance = Math.max(cameraConfig.absoluteMaxDistance, finalMinDistance)
-    }
-  }
-  
-  const finalOptimalDistance = Math.max(
-    Math.min(optimalDistance, finalMaxDistance),
-    finalMinDistance
-  )
-  
+  // Calculate optimal view distance based purely on visual radius and configuration
+  const optimalViewDistance = visualRadius * config.cameraConfig.radiusMultiplier;
+  const minViewDistance = Math.max(visualRadius * config.cameraConfig.minDistanceMultiplier, config.cameraConfig.absoluteMinDistance);
+  const maxViewDistance = Math.min(visualRadius * config.cameraConfig.maxDistanceMultiplier, config.cameraConfig.absoluteMaxDistance);
+
+  // Ensure min <= optimal <= max
+  let finalMinDistance = minViewDistance;
+  let finalMaxDistance = maxViewDistance;
+  let finalOptimalDistance = optimalViewDistance;
+
+  if (finalMinDistance > finalOptimalDistance) finalOptimalDistance = finalMinDistance;
+  if (finalOptimalDistance > finalMaxDistance) finalOptimalDistance = finalMaxDistance;
+  if (finalMinDistance > finalMaxDistance) finalMinDistance = finalMaxDistance; // Should not happen with current logic, but as a safeguard
+
   return {
     realRadius,
     realOrbitRadius,
     realMass,
     visualRadius,
     visualOrbitRadius,
-    visualScale: objectScaling,
-    objectType,
+    visualScale: 1.0, // This is now primarily handled by the orbital mechanics calculator
     optimalViewDistance: finalOptimalDistance,
     minViewDistance: finalMinDistance,
     maxViewDistance: finalMaxDistance

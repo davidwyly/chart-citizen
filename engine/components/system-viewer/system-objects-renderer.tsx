@@ -8,7 +8,8 @@ import { OrbitalPath } from "../orbital-path"
 import { StellarZones } from "./components/stellar-zones"
 import { 
   calculateSystemOrbitalMechanics,
-  clearOrbitalMechanicsCache
+  clearOrbitalMechanicsCache,
+  VIEW_CONFIGS
 } from "@/engine/utils/orbital-mechanics-calculator"
 import type { ViewType } from "@lib/types/effects-level"
 import { 
@@ -30,11 +31,6 @@ interface SystemObjectsRendererProps {
   selectedObjectId: string | null
   timeMultiplier: number
   isPaused: boolean
-  SYSTEM_SCALE: number
-  STAR_SCALE: number
-  PLANET_SCALE: number
-  ORBITAL_SCALE: number
-  STAR_SHADER_SCALE: number
   viewType: ViewType
   objectRefsMap: React.MutableRefObject<Map<string, THREE.Object3D>>
   onObjectHover: (objectId: string | null) => void
@@ -144,11 +140,6 @@ export function SystemObjectsRenderer({
   selectedObjectId,
   timeMultiplier,
   isPaused,
-  SYSTEM_SCALE,
-  STAR_SCALE,
-  PLANET_SCALE,
-  ORBITAL_SCALE,
-  STAR_SHADER_SCALE,
   viewType,
   objectRefsMap,
   onObjectHover,
@@ -199,17 +190,13 @@ export function SystemObjectsRenderer({
       
       // Get safe orbital distance from our orbital mechanics calculator
       const mechanicsData = orbitalMechanics.get(object.id);
-      const semiMajorAxis = mechanicsData?.orbitDistance;
-      
-
+      const semiMajorAxis = mechanicsData?.orbitDistance || 0;
       
       // If no orbital distance calculated, skip rendering this object
-      if (!semiMajorAxis) {
+      if (semiMajorAxis === 0) {
         console.warn(`No orbital distance calculated for ${object.name} (${object.id}), skipping`);
         return null;
       }
-
-
 
       return (
         <MemoizedOrbitalPath
@@ -348,13 +335,19 @@ export function SystemObjectsRenderer({
     )
   }, [objectHierarchy.rootObjects, renderObjectWithChildren])
 
+  // Get the orbital scaling from VIEW_CONFIGS based on the current viewType
+  const orbitalScaling = useMemo(() => {
+    const viewConfig = VIEW_CONFIGS[viewType];
+    return viewConfig?.orbitScaling || 1.0; // Default to 1.0 if not found
+  }, [viewType]);
+
   return (
     <group>
       {/* Render stellar zones first so they appear behind other objects */}
       <StellarZones 
         systemData={systemData}
         viewType={viewType}
-        orbitalScale={ORBITAL_SCALE}
+        orbitalScale={orbitalScaling}
         showZones={viewType !== "profile"} // Hide zones in profile mode for clarity
       />
       {renderedObjects}

@@ -14,7 +14,6 @@ interface UnifiedCameraControllerProps {
   focusMass?: number
   focusOrbitRadius?: number
   viewMode: ViewType
-  systemScale?: number
 }
 
 export interface UnifiedCameraControllerRef {
@@ -33,7 +32,6 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     focusMass,
     focusOrbitRadius,
     viewMode,
-    systemScale = 1.0
   }: UnifiedCameraControllerProps, ref) {
     const { camera, controls } = useThree()
     const controlsRef = useRef<any>(controls)
@@ -260,7 +258,6 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           focusMass || 1.0,
           focusName,
           viewMode,
-          systemScale
         )
 
         // Store the current object properties
@@ -403,7 +400,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           controlsRef.current.enabled = true
         }
       }
-    }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, systemScale, camera, viewConfig, createEasingFunction])
+    }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, camera, viewConfig, createEasingFunction])
 
     // Continuously follow the focused object
     useFrame(() => {

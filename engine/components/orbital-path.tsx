@@ -30,25 +30,18 @@ const calculateOrbitalPosition = (
 ): THREE.Vector3 => {
   let x, y, z
 
-  if (viewType === "navigational" || viewType === "profile") {
-    // Perfect circular orbit for navigational mode
-    x = Math.cos(angle) * semiMajorAxis
-    z = Math.sin(angle) * semiMajorAxis
-    y = 0
-  } else {
-    // Elliptical orbit for realistic mode
-    // Calculate semi-minor axis from semi-major axis and eccentricity
-    const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity)
+  // Elliptical orbit for realistic mode
+  // Calculate semi-minor axis from semi-major axis and eccentricity
+  const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity)
 
-    // Calculate position in orbital plane
-    const r = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.cos(angle))
-    x = r * Math.cos(angle)
-    const yFlat = r * Math.sin(angle)
+  // Calculate position in orbital plane
+  const r = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.cos(angle))
+  x = r * Math.cos(angle)
+  const yFlat = r * Math.sin(angle)
 
-    // Apply inclination rotation
-    z = yFlat * Math.cos((inclination * Math.PI) / 180)
-    y = yFlat * Math.sin((inclination * Math.PI) / 180)
-  }
+  // Apply inclination rotation
+  z = yFlat * Math.cos((inclination * Math.PI) / 180)
+  y = yFlat * Math.sin((inclination * Math.PI) / 180)
 
   return new THREE.Vector3(x, y, z)
 }

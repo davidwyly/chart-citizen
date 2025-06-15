@@ -108,23 +108,6 @@ const handleViewModeChange = (newMode: ViewMode) => {
 };
 ```
 
-### Scale Management
-```typescript
-// View mode specific scaling
-const getViewModeScaling = (viewMode: ViewMode) => {
-  switch (viewMode) {
-    case 'realistic':
-      return REALISTIC_SCALING;
-    case 'navigational':
-      return NAVIGATIONAL_SCALING;
-    case 'profile':
-      return PROFILE_SCALING;
-    default:
-      return REALISTIC_SCALING;
-  }
-};
-```
-
 ## Performance Considerations
 
 ### View Mode Optimization

@@ -102,17 +102,6 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     handleBackButtonClick,
   } = useObjectSelection(systemData, viewType, setTimeMultiplier, togglePause)
 
-  // Simple scaling config - no longer needed since orbital mechanics calculator handles everything
-  const scalingConfig = useMemo(() => 
-    systemData ? {
-      STAR_SCALE: 1.0,
-      PLANET_SCALE: 1.0,
-      ORBITAL_SCALE: 1.0,
-      STAR_SHADER_SCALE: 1.0,
-    } : null,
-    [systemData]
-  )
-
   // Get focused object properties for unified camera controller
   const focusedObjectProperties = useMemo(() => {
     if (!selectedObjectData || !focusedName) return null
@@ -186,7 +175,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
 
   // Memoize SystemObjectsRenderer props
   const systemObjectsProps = useMemo(() => {
-    if (!systemData || !scalingConfig) return null
+    if (!systemData) return null
 
     return {
       systemData,
@@ -194,19 +183,13 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
       selectedObjectId,
       timeMultiplier,
       isPaused,
-      SYSTEM_SCALE: 1.0,
-      STAR_SCALE: scalingConfig.STAR_SCALE,
-      PLANET_SCALE: scalingConfig.PLANET_SCALE,
-      ORBITAL_SCALE: scalingConfig.ORBITAL_SCALE,
-      STAR_SHADER_SCALE: scalingConfig.STAR_SHADER_SCALE,
     }
   }, [
     systemData,
     viewType,
     selectedObjectId,
     timeMultiplier,
-    isPaused,
-    scalingConfig
+    isPaused
   ])
 
   // Handle system name click in breadcrumb - show birds-eye view and select system
@@ -263,7 +246,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     return <ErrorState error={error} availableSystems={availableSystems} mode={mode} />
   }
 
-  if (!systemData || !scalingConfig) {
+  if (!systemData) {
     return <LoadingState systemId={systemId} loadingProgress="Initializing..." />
   }
 
@@ -316,7 +299,6 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
               focusMass={focusedObjectProperties?.mass}
               focusOrbitRadius={focusedObjectProperties?.orbitRadius}
               viewMode={viewType}
-              systemScale={1.0}
             />
 
             {/* OrbitControls with improved settings */}
