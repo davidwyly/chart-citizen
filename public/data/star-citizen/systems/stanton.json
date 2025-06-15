@@ -30,6 +30,38 @@
         0,
         0,
         0
+      ],
+      "timeline": [
+        {
+          "date": "2865-01-01",
+          "title": "Stanton System Discovery",
+          "description": "The Stanton System is officially discovered by the UEE."
+        },
+        {
+          "date": "2871-06-15",
+          "title": "Initial Corporate Land Grants",
+          "description": "Megacorporations begin purchasing planets in the Stanton system from the UEE."
+        },
+        {
+          "date": "2903-03-22",
+          "title": "Hurston Dynamics Opens HQ",
+          "description": "Hurston Dynamics completes construction of its primary headquarters on Hurston I."
+        },
+        {
+          "date": "2910-11-05",
+          "title": "Crusader Industries Establishes Cloudbase",
+          "description": "Crusader Industries establishes its floating cities in the atmosphere of Crusader."
+        },
+        {
+          "date": "2915-08-10",
+          "title": "ArcCorp Begins Terraforming",
+          "description": "ArcCorp initiates large-scale terraforming and urbanization projects on ArcCorp (Stanton III)."
+        },
+        {
+          "date": "2920-02-29",
+          "title": "microTech's First Planetary City",
+          "description": "microTech establishes its first major planetary city on microTech (Stanton IV)."
+        }
       ]
     },
     {

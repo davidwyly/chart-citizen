@@ -1,23 +1,22 @@
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
   test: {
+    globals: true,
     environment: 'jsdom',
-    setupFiles: ['./engine/__tests__/setup.ts'],
-    include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    globals: true
+    setupFiles: [
+      './engine/renderers/geometry-renderers/__tests__/setup.ts'
+    ],
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './'),
-      '@components': path.resolve(__dirname, './components'),
+      '@': path.resolve(__dirname, '.'),
       '@lib': path.resolve(__dirname, './lib'),
-      '@engine': path.resolve(__dirname, './engine'),
-      '@types': path.resolve(__dirname, './types'),
-      '@hooks': path.resolve(__dirname, './hooks')
-    }
-  }
+      '@/components': path.resolve(__dirname, './components'),
+      '@/engine': path.resolve(__dirname, './engine'),
+      '@/hooks': path.resolve(__dirname, './hooks'),
+      '@/types': path.resolve(__dirname, './types'),
+    },
+  },
 }); 

@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import * as THREE from "three"
 import { useRef, useState, useMemo, useCallback, useEffect } from "react"
 import { useThree, useFrame, extend } from "@react-three/fiber"
@@ -85,14 +85,14 @@ export function InteractiveObject({
   useFrame((state) => {
     if (!materialRef.current || !isSelected) return;
 
-    materialRef.current.time = state.clock.elapsedTime;
-    materialRef.current.intensity = 1.0;
+    materialRef.current.uniforms.time.value = state.clock.elapsedTime;
+    materialRef.current.uniforms.intensity.value = 1.0;
 
     if (groupRef.current) {
       groupRef.current.getWorldPosition(worldPos.current);
-      if (materialRef.current.spherePosition) {
-        materialRef.current.spherePosition.copy(worldPos.current);
-        materialRef.current.sphereRadius = radius;
+      if (materialRef.current.uniforms.spherePosition) {
+        materialRef.current.uniforms.spherePosition.value.copy(worldPos.current);
+        materialRef.current.uniforms.sphereRadius.value = radius;
       }
     }
   })

@@ -1,46 +1,6 @@
 /// <reference types="jest" />
-import '@testing-library/jest-dom/extend-expect';
-import React from 'react';
-
-// Mock Three.js and React Three Fiber
-const mockThree = {
-  WebGLRenderer: jest.fn().mockImplementation(() => ({
-    setSize: jest.fn(),
-    render: jest.fn(),
-    dispose: jest.fn(),
-  })),
-  Scene: jest.fn().mockImplementation(() => ({
-    add: jest.fn(),
-    remove: jest.fn(),
-  })),
-  PerspectiveCamera: jest.fn().mockImplementation(() => ({
-    position: { set: jest.fn() },
-    lookAt: jest.fn(),
-  })),
-};
-
-jest.mock('three', () => {
-  const THREE = jest.requireActual('three');
-  return {
-    ...THREE,
-    ...mockThree
-  };
-});
-
-jest.mock('@react-three/fiber', () => ({
-  Canvas: ({ children }: { children: React.ReactNode }) => React.createElement('div', { 'data-testid': 'canvas' }, children),
-  useFrame: jest.fn(),
-  useThree: jest.fn(() => ({
-    camera: { position: { set: jest.fn() } },
-    scene: { add: jest.fn(), remove: jest.fn() },
-  })),
-}));
-
-jest.mock('@react-three/drei', () => ({
-  OrbitControls: () => null,
-  Stars: () => null,
-  useHelper: jest.fn(),
-}));
+import "@testing-library/jest-dom/extend-expect";
+import React from "react";
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -49,7 +9,33 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
-// Extend Jest matchers
+// Mock IntersectionObserver
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock requestAnimationFrame
+global.requestAnimationFrame = jest.fn().mockImplementation(callback => setTimeout(callback, 0));
+global.cancelAnimationFrame = jest.fn();
+
+// Extend Jest Matchers for @testing-library/jest-dom
 declare global {
   namespace jest {
     interface Matchers<R> {

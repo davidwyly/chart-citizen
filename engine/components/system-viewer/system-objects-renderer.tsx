@@ -11,6 +11,7 @@ import {
   clearOrbitalMechanicsCache,
   VIEW_CONFIGS
 } from "@/engine/utils/orbital-mechanics-calculator"
+import { GeometryRendererFactory } from "@/engine/renderers/geometry-renderers"
 import type { ViewType } from "@lib/types/effects-level"
 import { 
   OrbitalSystemData, 
@@ -61,77 +62,19 @@ export const CelestialObjectRenderer = React.memo(({
 }) => {
   const { geometry_type, classification, properties } = object
 
-  // Store the visual size in a ref to pass to userData
-  const visualSize = scale
-
-  const renderConfig = useMemo(() => {
-    switch (geometry_type) {
-      case "star":
-        return {
-          geometry: <sphereGeometry args={[1, 32, 32]} />,
-          material: <meshBasicMaterial color={properties.tint || "#FFD700"} />
-        }
-      
-      case "terrestrial":
-        return {
-          geometry: <sphereGeometry args={[1, 24, 24]} />,
-          material: <meshBasicMaterial color={properties.tint || "#8B4513"} />
-        }
-      
-      case "gas_giant":
-        return {
-          geometry: <sphereGeometry args={[1, 24, 24]} />,
-          material: <meshBasicMaterial color={properties.tint || "#FF6B35"} />
-        }
-      
-      case "rocky":
-        return {
-          geometry: <sphereGeometry args={[1, 16, 16]} />,
-          material: <meshBasicMaterial color={properties.tint || "#C0C0C0"} />
-        }
-      
-      default:
-        return {
-          geometry: <sphereGeometry args={[1, 16, 16]} />,
-          material: <meshBasicMaterial color="#888888" />
-        }
-    }
-  }, [geometry_type, properties])
-
+  // Use the new geometry renderer factory instead of basic geometry switching
   return (
-    <MemoizedInteractiveObject
-      objectId={object.id}
-      objectName={object.name}
-      objectType={classification as any}
-      radius={scale}
+    <GeometryRendererFactory
+      object={object}
+      scale={scale}
+      starPosition={starPosition}
+      position={[0, 0, 0]}
       isSelected={isSelected}
       onHover={onHover}
-      onSelect={(id: string, obj: THREE.Object3D) => {
-        // Store visual size in userData for camera calculations
-        obj.userData.visualSize = visualSize
-        onSelect?.(id, obj, object.name)
-      }}
-      onFocus={(obj: THREE.Object3D) => {
-        // Store visual size in userData for camera calculations
-        obj.userData.visualSize = visualSize
-        // Pass the visual size as the size parameter instead of the real radius
-        onFocus?.(obj, object.name, visualSize, properties.radius, properties.mass, 0)
-      }}
-      registerRef={(id: string, ref: THREE.Object3D) => {
-        if (ref) {
-          // Store visual size in userData for camera calculations
-          ref.userData.visualSize = visualSize
-        }
-        registerRef(id, ref)
-      }}
-      showLabel={true}
-      labelAlwaysVisible={false}
-    >
-      <mesh scale={[scale, scale, scale]}>
-        {renderConfig.geometry}
-        {renderConfig.material}
-      </mesh>
-    </MemoizedInteractiveObject>
+      onSelect={onSelect}
+      onFocus={onFocus}
+      registerRef={registerRef}
+    />
   )
 })
 

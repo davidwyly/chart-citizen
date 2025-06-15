@@ -1,10 +1,12 @@
+import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 import { InteractiveObject } from '../3d-ui/interactive-object'
 import { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
+import { vi } from 'vitest'
 
 // Mock Three.js and react-three-fiber
-jest.mock('@react-three/fiber', () => ({
+vi.mock('@react-three/fiber', () => ({
   useThree: () => ({
     camera: new THREE.PerspectiveCamera(),
     controls: { enabled: true }
@@ -21,13 +23,13 @@ describe('InteractiveObject Selection', () => {
     objectType: 'planet' as const,
     radius: 1,
     position: [0, 0, 0] as [number, number, number],
-    onSelect: jest.fn(),
-    onHover: jest.fn(),
+    onSelect: vi.fn(),
+    onHover: vi.fn(),
     children: null
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should trigger selection when clicking the object mesh', () => {

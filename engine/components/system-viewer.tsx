@@ -79,6 +79,15 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     setIsPaused(prev => !prev)
   }, [])
 
+  // Explicit pause and unpause functions for object selection
+  const pauseSimulation = useCallback(() => {
+    setIsPaused(true)
+  }, [])
+
+  const unpauseSimulation = useCallback(() => {
+    setIsPaused(false)
+  }, [])
+
   // Load system data
   const { systemData, loading, error, loadingProgress, availableSystems } = useSystemData(mode, systemId)
 
@@ -100,7 +109,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     handleCanvasClick,
     handleStopFollowing,
     handleBackButtonClick,
-  } = useObjectSelection(systemData, viewType, setTimeMultiplier, togglePause)
+  } = useObjectSelection(systemData, viewType, setTimeMultiplier, pauseSimulation, unpauseSimulation, isPaused)
 
   // Get focused object properties for unified camera controller
   const focusedObjectProperties = useMemo(() => {

@@ -17,6 +17,7 @@ export type GeometryType =
   | 'gas_giant' 
   | 'star' 
   | 'compact' 
+  | 'exotic'
   | 'ring' 
   | 'belt' 
   | 'none'
@@ -111,6 +112,12 @@ export interface RingDefinition {
   opacity?: number
 }
 
+export interface TimelineEvent {
+  date: string // YYYY-MM-DD
+  title: string
+  description: string
+}
+
 // Main celestial object interface
 export interface CelestialObject {
   id: string
@@ -120,6 +127,7 @@ export interface CelestialObject {
   orbit?: OrbitData | BeltOrbitData
   properties: CelestialProperties
   rings?: RingDefinition[]
+  timeline?: TimelineEvent[]
   position?: [number, number, number] // For objects without orbits (like system center)
 }
 

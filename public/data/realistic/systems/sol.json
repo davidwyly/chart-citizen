@@ -157,7 +157,29 @@
         "eccentricity": 0.017,
         "inclination": 0,
         "orbital_period": 365
-      }
+      },
+      "timeline": [
+        {
+          "date": "1961-04-12",
+          "title": "First Human Spaceflight",
+          "description": "Yuri Gagarin becomes the first human to journey into outer space, orbiting the Earth aboard the Vostok 1 spacecraft."
+        },
+        {
+          "date": "1969-07-20",
+          "title": "First Moon Landing",
+          "description": "Apollo 11 lands on the Moon, with Neil Armstrong and Buzz Aldrin becoming the first humans to walk on its surface."
+        },
+        {
+          "date": "1990-04-24",
+          "title": "Hubble Space Telescope Launched",
+          "description": "The Hubble Space Telescope is deployed, revolutionizing astronomy with its detailed images of the universe."
+        },
+        {
+          "date": "2000-11-02",
+          "title": "Permanent Habitation of ISS Begins",
+          "description": "Expedition 1 arrives at the International Space Station, beginning over two decades of continuous human presence in orbit."
+        }
+      ]
     },
     {
       "id": "mars",

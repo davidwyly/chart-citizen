@@ -18,7 +18,14 @@ interface ObjectSelectionState {
   objectRefsMap: Map<string, THREE.Object3D>
 }
 
-export function useObjectSelection(systemData: OrbitalSystemData | null, viewType: ViewType, setTimeMultiplier: (multiplier: number) => void, togglePause: () => void) {
+export function useObjectSelection(
+  systemData: OrbitalSystemData | null, 
+  viewType: ViewType, 
+  setTimeMultiplier: (multiplier: number) => void, 
+  pauseSimulation: () => void,
+  unpauseSimulation: () => void,
+  isPaused: boolean
+) {
   const [state, setState] = useState<ObjectSelectionState>({
     selectedObjectId: null,
     selectedObjectData: null,
@@ -37,6 +44,9 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
 
   // Store refs to all objects in the scene for parent-child relationships
   const objectRefsMap = useRef<Map<string, THREE.Object3D>>(new Map())
+
+  // Store timeout reference to prevent overlapping timeouts
+  const unpauseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Helper function to get object data from system data
   const getObjectData = useCallback((objectId: string) => {
@@ -65,10 +75,18 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
     }))
   }, [])
 
-  // Handle object selection with full object data
+  // Handle object selection with explicit pause state management
   const handleObjectSelect = useCallback((objectId: string, object: THREE.Object3D, name: string) => {
-    // Pause simulation
-    togglePause();
+    // Clear any existing unpause timeout
+    if (unpauseTimeoutRef.current) {
+      clearTimeout(unpauseTimeoutRef.current)
+      unpauseTimeoutRef.current = null
+    }
+
+    // Always pause when selecting an object (if not already paused)
+    if (!isPaused) {
+      pauseSimulation()
+    }
 
     setState(prev => {
       // Store previous state when selecting a planet in game view
@@ -83,10 +101,11 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
         ? objectData.orbit.semi_major_axis 
         : null
 
-      // Unpause simulation after a short delay to allow camera movement to complete
-      setTimeout(() => {
-        togglePause();
-      }, 1000); // Adjust delay as needed
+      // Set timeout to unpause after camera navigation completes
+      unpauseTimeoutRef.current = setTimeout(() => {
+        unpauseSimulation()
+        unpauseTimeoutRef.current = null
+      }, 1000) // Adjust delay as needed
 
       return {
         ...prev,
@@ -101,7 +120,7 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
         focusedObjectOrbitRadius: orbitalSemiMajorAxis
       }
     })
-  }, [viewType, systemData, getObjectData, togglePause])
+  }, [viewType, systemData, getObjectData, pauseSimulation, unpauseSimulation, isPaused])
 
   // Handle object hover
   const handleObjectHover = useCallback((objectId: string | null) => {
@@ -143,6 +162,15 @@ export function useObjectSelection(systemData: OrbitalSystemData | null, viewTyp
   useEffect(() => {
     objectRefsMap.current = new Map()
   }, [systemData])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (unpauseTimeoutRef.current) {
+        clearTimeout(unpauseTimeoutRef.current)
+      }
+    }
+  }, [])
 
   return {
     ...state,

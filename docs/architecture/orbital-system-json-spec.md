@@ -17,36 +17,38 @@ Each celestial object includes the following top-level fields:
 * `orbit` (object): Orbital relationship and parameters (if applicable)
 * `properties` (object): Unified block for physical, visual, and behavioral attributes
 * `rings` (array, optional): Ring definitions for gas giants or rocky bodies
+* `timeline` (array, optional): Chronological events associated with the object
 
 ---
 
 ## Geometry Types (`geometry_type`)
 
-| Type          | Use For                                 | Geometry                     |
-| ------------- | --------------------------------------- | ---------------------------- |
-| `terrestrial` | Earth-like planets with atmospheres     | Sphere + atmosphere shell    |
-| `rocky`       | Moons, Mercury-like bodies              | Basic sphere                 |
-| `gas_giant`   | Jupiter, Saturn, Neptune, etc.          | Banding + haze               |
-| `star`        | Radiant body like the Sun               | Emissive sphere              |
-| `compact`     | Neutron stars, black holes              | Point/small sphere + effects |
-| `ring`        | Planet-attached ring system             | Flat disk                    |
-| `belt`        | Asteroid/Kuiper belt                    | Donut/torus zone             |
-| `none`        | Barycenters, jump points (not rendered) | Invisible                    |
+| Type          | Use For                                  | Geometry                      |
+| ------------- | ---------------------------------------- | ----------------------------- |
+| `terrestrial` | Earth-like planets, moons w/ atmospheres | Sphere + atmosphere shell     |
+| `rocky`       | Moons, Mercury-like bodies               | Basic sphere                  |
+| `gas_giant`   | Jupiter, Saturn, Neptune, etc.           | Banding + haze                |
+| `star`        | Radiant body like the Sun                | Emissive sphere               |
+| `compact`     | Neutron stars, white dwarfs              | Point/small sphere + effects  |
+| `exotic`      | Black holes, pulsars, other phenomena    | Raymarched shader projections |
+| `ring`        | Planet-attached ring system              | Flat disk                     |
+| `belt`        | Asteroid/Kuiper belt                     | Donut/torus zone              |
+| `none`        | Barycenters, jump points (not rendered)  | Invisible                     |
 
 ---
 
 ## Classification (`classification`)
 
-| Value            | Description                    |
-| ---------------- | ------------------------------ |
-| `star`           | Primary stellar body           |
-| `compact-object` | Neutron star, black hole, etc. |
-| `planet`         | Major planet                   |
-| `dwarf-planet`   | Pluto-like                     |
-| `moon`           | Natural satellite              |
-| `belt`           | Asteroid or Kuiper belt        |
-| `ring`           | Planet-attached ring structure |
-| `barycenter`     | Virtual mass center            |
+| Value            | Description                     |
+| ---------------- | ------------------------------- |
+| `star`           | Primary stellar body            |
+| `compact-object` | Neutron star, white dwarf, etc. |
+| `planet`         | Major planet                    |
+| `dwarf-planet`   | Pluto-like                      |
+| `moon`           | Natural satellite               |
+| `belt`           | Asteroid or Kuiper belt         |
+| `ring`           | Planet-attached ring structure  |
+| `barycenter`     | Virtual mass center             |
 
 ---
 
@@ -226,6 +228,25 @@ All bodies use a single `properties` object for physical and shader-driven data.
 
 ---
 
+## Timeline (optional, attached to any object)
+
+```json
+"timeline": [
+  {
+    "date": "YYYY-MM-DD",
+    "title": "Event Title",
+    "description": "A brief description of the event."
+  },
+  {
+    "date": "YYYY-MM-DD",
+    "title": "Another Event",
+    "description": "More details about this historical point."
+  }
+]
+```
+
+---
+
 ## Example: Earth
 
 ```json
@@ -282,4 +303,4 @@ All bodies use a single `properties` object for physical and shader-driven data.
 * Procedural naming and object seeding
 * Custom atmospheres or color palettes
 * Time-based orbital updates or precession
-* Nested barycenters and binary star systems 
+* Nested barycenters and binary star systems

@@ -6,14 +6,14 @@ export const VIEW_CONFIGS = {
   realistic: {
     maxVisualSize: 2.0,
     minVisualSize: 0.02,
-    orbitScaling: 15.0, // Fixed orbital scaling for consistent realistic view
+    orbitScaling: 8.0, // Keep realistic as baseline
     safetyMultiplier: 2.5,
     minDistance: 0.1,
   },
   navigational: {
     maxVisualSize: 2.5,
     minVisualSize: 0.05,
-    orbitScaling: 8.0, // Reduced from 0.6 for better spacing
+    orbitScaling: 6.0, // Adjusted from 4.0 to be more proportional (3/4 of realistic)
     safetyMultiplier: 3.0,
     minDistance: 0.2,
     fixedSizes: {
@@ -28,7 +28,7 @@ export const VIEW_CONFIGS = {
   profile: {
     maxVisualSize: 1.5,
     minVisualSize: 0.03,
-    orbitScaling: 5.0, // Increased from 0.4 for better spacing
+    orbitScaling: 4.0, // Adjusted from 2.5 to be more proportional (1/2 of realistic)
     safetyMultiplier: 3.5,
     minDistance: 0.3,
     fixedSizes: {
@@ -119,7 +119,7 @@ function calculateVisualRadius(
       }
     }
     
-    // For non-child objects (stars, planets), use logarithmic scaling
+    // For non-child objects (planets and stars), use logarithmic scaling
     if (radiusKm <= 0) return config.minVisualSize;
     
     const logRadius = Math.log10(radiusKm);
@@ -454,6 +454,98 @@ function calculateClearedOrbits(
 }
 
 /**
+ * Enforce parent-child size hierarchy while preserving view mode design intentions
+ */
+function enforceParentChildSizeHierarchy(
+  objects: CelestialObject[],
+  results: Map<string, any>,
+  viewType: ViewType
+): void {
+  const config = VIEW_CONFIGS[viewType];
+  
+  // Build parent-child relationships
+  const parentChildMap = new Map<string, string[]>();
+  
+  objects.forEach(obj => {
+    if (obj.orbit?.parent) {
+      const parent = obj.orbit.parent;
+      if (!parentChildMap.has(parent)) {
+        parentChildMap.set(parent, []);
+      }
+      parentChildMap.get(parent)!.push(obj.id);
+    }
+  });
+  
+  // Process each parent-child relationship
+  parentChildMap.forEach((childIds, parentId) => {
+    const parentData = results.get(parentId);
+    const parentObj = objects.find(o => o.id === parentId);
+    
+    if (!parentData || !parentObj) return;
+    
+    childIds.forEach(childId => {
+      const childData = results.get(childId);
+      const childObj = objects.find(o => o.id === childId);
+      
+      if (!childData || !childObj) return;
+      
+      // Skip belts and rings - they are exceptions to hierarchy rules
+      const isException = childObj.classification === 'belt' || 
+                         childObj.classification === 'ring' ||
+                         childObj.geometry_type === 'belt' ||
+                         childObj.geometry_type === 'ring';
+      
+      if (isException) return;
+      
+      // Check if parent is larger than child
+      if (parentData.visualRadius <= childData.visualRadius) {
+        // Calculate minimum parent size to maintain hierarchy
+        const minParentSize = childData.visualRadius * 1.2; // Parent should be at least 20% larger
+        
+        // Don't make the parent too large - respect view mode constraints
+        const maxAllowedParentSize = viewType === 'realistic' 
+          ? Math.min(minParentSize, config.maxVisualSize)
+          : minParentSize;
+        
+        // Update parent size
+        parentData.visualRadius = maxAllowedParentSize;
+        
+        // If parent is now too large for realistic mode orbital mechanics, 
+        // we need to scale down the child instead
+        if (viewType === 'realistic' && parentObj.classification === 'star' && maxAllowedParentSize > 1.0) {
+          // For stars in realistic mode, prefer to scale down children rather than make star too large
+          const maxStarSize = 1.0; // Max star size for orbital mechanics
+          const scaleDownFactor = maxStarSize / maxAllowedParentSize;
+          
+          // Scale down the star
+          parentData.visualRadius = maxStarSize;
+          
+          // Scale down all children proportionally
+          childIds.forEach(childId => {
+            const childData = results.get(childId);
+            const childObj = objects.find(o => o.id === childId);
+            
+            if (childData && childObj) {
+              const isChildException = childObj.classification === 'belt' || 
+                                     childObj.classification === 'ring' ||
+                                     childObj.geometry_type === 'belt' ||
+                                     childObj.geometry_type === 'ring';
+              
+              if (!isChildException) {
+                childData.visualRadius = Math.max(
+                  childData.visualRadius * scaleDownFactor * 0.8, // 80% of scaled size to maintain hierarchy
+                  config.minVisualSize
+                );
+              }
+            }
+          });
+        }
+      }
+    });
+  });
+}
+
+/**
  * Main function - calculate everything once and memoize
  */
 export function calculateSystemOrbitalMechanics(
@@ -501,6 +593,9 @@ export function calculateSystemOrbitalMechanics(
   
   // Step 4: Global collision detection and adjustment
   adjustForGlobalCollisions(objects, viewType, results, config);
+  
+  // Step 5: Enforce parent-child size hierarchy
+  enforceParentChildSizeHierarchy(objects, results, viewType);
   
   // Memoize the results
   memoizedResults = results;
