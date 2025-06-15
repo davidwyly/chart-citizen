@@ -9,6 +9,7 @@ This directory contains core React components for the system viewer functionalit
 - `stellar-zones.tsx`: Renders habitable zones (green) and frost lines for stellar systems
 - `system-info-overlay.tsx`: Information overlay displaying system details
 - `zoom-tracker.tsx`: Component that tracks and displays current zoom level
+- `orbital-path/`: Directory containing the orbital path component for celestial object orbital mechanics and visualization
 
 ## Component Guidelines
 

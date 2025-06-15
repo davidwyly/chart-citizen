@@ -1,21 +1,19 @@
-# Lib Directory Context
+# Engine Lib Directory Context
 
-This directory contains shared utilities, types, and helper functions used throughout the application.
+This directory contains engine-specific utilities and helper functions.
 
-## Key Subdirectories
+## Files
 
-- `utils/`: General utility functions and helpers
-- `types/`: Shared TypeScript type definitions
-- `constants/`: Application-wide constants
-- `hooks/`: Custom React hooks
-- `store/`: State management and store-related code
+- `planet-customizer.ts`: Planet customization and configuration utilities
+- `material-registry.ts`: Registry for managing Three.js materials
+- `__tests__/`: Test files for engine lib utilities
+- `types/`: Engine-specific type definitions
 
-## File Organization Rules
+## Organization Notes
 
-1. Each utility should be in its own file
-2. Related utilities should be grouped in subdirectories
-3. Types should be in a `types.ts` file within their relevant directory
-4. Constants should be in a `constants.ts` file
+- **Shared utilities** (utils, performance-monitor, roman-numerals) are located in the root `/lib/` directory
+- **Engine-specific utilities** remain in this directory
+- All components should import shared utilities from `@/lib/` not `@/engine/lib/`
 
 ## Library Guidelines
 

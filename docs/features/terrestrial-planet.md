@@ -14,7 +14,7 @@ High-performance shader for realistic terrestrial planets with dynamic effects.
 
 ```typescript
 import { TerrestrialPlanetRenderer } from '@/engine/renderers/planets/terrestrial-planet-renderer'
-import { CatalogObject } from '@/engine/lib/system-loader'
+import { CatalogObject } from '@/engine/system-loader'
 
 interface MyComponentProps {
   planetData: CatalogObject

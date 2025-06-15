@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useSystemStore } from '@/engine/core/mode-system/mode-system';
-import type { ViewType } from '@/engine/lib/types/effects-level';
+import type { ViewType } from '@/lib/types/effects-level';
 
 describe('Mode System', () => {
   describe('View Mode Management', () => {

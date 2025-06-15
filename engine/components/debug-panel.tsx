@@ -71,23 +71,25 @@ export function DebugPanel() {
       }
     }
 
-    // Test current mode specifically
-    results.push(`\n=== Current Mode Test ===`)
-    try {
-      const starmap = await engineSystemLoader.loadStarmap("realistic")
-      if (starmap && starmap.systems) {
-        results.push(`Systems loaded: ${Object.keys(starmap.systems).length}`)
+    // Test current mode specifically (test both modes)
+    for (const testMode of modes) {
+      results.push(`\n=== ${testMode} Mode Test ===`)
+      try {
+        const starmap = await engineSystemLoader.loadStarmap(testMode)
+        if (starmap && starmap.systems) {
+          results.push(`Systems loaded: ${Object.keys(starmap.systems).length}`)
 
-        if (Object.keys(starmap.systems).length > 0) {
-          const firstSystemId = Object.keys(starmap.systems)[0]
-          const systemData = await engineSystemLoader.loadSystem("realistic", firstSystemId)
-          results.push(`Test system load: ${systemData ? "✅ SUCCESS" : "❌ FAILED"}`)
+          if (Object.keys(starmap.systems).length > 0) {
+            const firstSystemId = Object.keys(starmap.systems)[0]
+            const systemData = await engineSystemLoader.loadSystem(testMode, firstSystemId)
+            results.push(`Test system load: ${systemData ? "✅ SUCCESS" : "❌ FAILED"}`)
+          }
+        } else {
+          results.push(`Starmap load: ❌ FAILED`)
         }
-      } else {
-        results.push(`Starmap load: ❌ FAILED`)
+      } catch (error) {
+        results.push(`${testMode} mode test: ❌ ERROR - ${error}`)
       }
-    } catch (error) {
-      results.push(`Current mode test: ❌ ERROR - ${error}`)
     }
 
     setTestResults(results)

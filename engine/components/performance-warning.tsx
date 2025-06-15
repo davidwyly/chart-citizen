@@ -1,4 +1,4 @@
-import { usePerformanceMonitor } from '@/engine/lib/performance-monitor'
+import { usePerformanceMonitor } from '@/lib/performance-monitor'
 
 export function PerformanceWarning() {
   const { fps } = usePerformanceMonitor()

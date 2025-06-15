@@ -60,9 +60,15 @@ function generateCalculationKey(objects: CelestialObject[], viewType: ViewType):
 }
 
 /**
- * Calculate visual radius for an object
+ * Calculate visual radius for an object with proportional parent-child scaling
  */
-function calculateVisualRadius(object: CelestialObject, viewType: ViewType, sizeAnalysis: { logMinRadius: number; logRange: number }): number {
+function calculateVisualRadius(
+  object: CelestialObject, 
+  viewType: ViewType, 
+  sizeAnalysis: { logMinRadius: number; logRange: number },
+  allObjects: CelestialObject[],
+  results: Map<string, any>
+): number {
   const config = VIEW_CONFIGS[viewType];
   const radiusKm = object.properties.radius || 1;
   
@@ -93,7 +99,36 @@ function calculateVisualRadius(object: CelestialObject, viewType: ViewType, size
     return fixedSize;
   }
   
-  // Logarithmic scaling for realistic mode
+  // REALISTIC MODE: Implement proportional parent-child scaling
+  if (viewType === 'realistic') {
+    // For child objects (moons), scale proportionally to their parent
+    if (object.orbit?.parent && object.classification === 'moon') {
+      const parent = allObjects.find(obj => obj.id === object.orbit!.parent);
+      if (parent && results.has(parent.id)) {
+        const parentVisualRadius = results.get(parent.id).visualRadius;
+        const parentRealRadius = parent.properties.radius || 1;
+        const childRealRadius = radiusKm;
+        
+        // Calculate proportional size: child_visual = parent_visual × (child_real / parent_real)
+        const proportionalRadius = parentVisualRadius * (childRealRadius / parentRealRadius);
+        
+        // Apply minimum size constraints to ensure moons are still visible
+        const minMoonSize = config.minVisualSize * 2; // Moons should be at least 2x min size
+        
+        return Math.max(proportionalRadius, minMoonSize);
+      }
+    }
+    
+    // For non-child objects (stars, planets), use logarithmic scaling
+    if (radiusKm <= 0) return config.minVisualSize;
+    
+    const logRadius = Math.log10(radiusKm);
+    const normalizedSize = Math.max(0, Math.min(1, (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange));
+    
+    return config.minVisualSize + (normalizedSize * (config.maxVisualSize - config.minVisualSize));
+  }
+  
+  // Fallback to original logarithmic scaling
   if (radiusKm <= 0) return config.minVisualSize;
   
   const logRadius = Math.log10(radiusKm);
@@ -440,9 +475,21 @@ export function calculateSystemOrbitalMechanics(
   // Step 1: Calculate all visual sizes first
   const sizeAnalysis = analyzeSystemSizes(objects);
   
+  // Process in parent-first order to ensure parent radii are calculated before children
+  // First pass: Calculate visual radii for all non-child objects (stars, planets)
   for (const obj of objects) {
-    const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis);
-    results.set(obj.id, { visualRadius });
+    if (!obj.orbit?.parent || obj.classification !== 'moon') {
+      const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results);
+      results.set(obj.id, { visualRadius });
+    }
+  }
+  
+  // Second pass: Calculate visual radii for child objects (moons) using parent radii
+  for (const obj of objects) {
+    if (obj.orbit?.parent && obj.classification === 'moon') {
+      const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results);
+      results.set(obj.id, { visualRadius });
+    }
   }
   
   // Step 2: Use FIXED orbital scaling - no more dynamic scaling

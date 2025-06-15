@@ -2,14 +2,21 @@
 const nextConfig = {
   reactStrictMode: true,
   webpack: (config) => {
+    // Align webpack aliases with tsconfig.json path mappings
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': './engine',
+      // Match tsconfig.json: "@/*": ["./*"]
+      '@': '.',
+      // Specific engine aliases for better organization
+      '@engine': './engine',
+      '@components': './components',
+      '@lib': './lib',
+      '@types': './types',
+      '@hooks': './hooks',
+      // Keep engine-specific aliases for internal engine imports
       '@core': './engine/core',
-      '@components': './engine/components',
       '@utils': './engine/utils',
-      '@assets': './assets',
-      '@types': './engine/types'
+      '@assets': './assets'
     };
     return config;
   }

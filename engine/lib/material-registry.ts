@@ -1,5 +1,5 @@
-import type { EffectsLevel } from './types/effects-level'
-import { validateMaterialQualityProgression } from './types/effects-level'
+import type { EffectsLevel } from '@/lib/types/effects-level'
+import { validateMaterialQualityProgression } from '@/lib/types/effects-level'
 import type { ShaderMaterial } from 'three'
 
 export interface MaterialDefinition {

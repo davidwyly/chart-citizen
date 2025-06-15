@@ -2,9 +2,9 @@
 
 import React, { useMemo } from "react"
 import * as THREE from "three"
-import { calculateHabitableZoneAndSnowLine, getLuminosityForSpectralType } from "@/engine/utils/stellar-zones"
+import { useStellarZones, calculateZoneOpacity } from "@/engine/hooks/use-stellar-zones"
 import type { ViewType } from "@lib/types/effects-level"
-import { OrbitalSystemData, isStar } from "@/engine/types/orbital-system"
+import { OrbitalSystemData } from "@/engine/types/orbital-system"
 
 interface StellarZonesProps {
   systemData: OrbitalSystemData
@@ -19,55 +19,16 @@ export function StellarZones({
   orbitalScale, 
   showZones = true 
 }: StellarZonesProps) {
-  // Calculate zones based on primary star's properties
-  const zones = useMemo(() => {
-    const stars = systemData.objects.filter(isStar)
-    if (stars.length === 0) return null
-    
-    const primaryStar = stars[0]
-    if (!primaryStar) return null
-
-    try {
-      // Get spectral type from star properties
-      let spectralType = 'G2V' // Default to Sun-like star
-      
-      // Check for spectral type in properties
-      if (primaryStar.properties.spectral_type) {
-        spectralType = primaryStar.properties.spectral_type
-      } else {
-        // Infer spectral type from temperature
-        const temp = primaryStar.properties.color_temperature || primaryStar.properties.temperature
-        if (temp) {
-          if (temp > 30000) spectralType = 'O5V'
-          else if (temp > 10000) spectralType = 'B5V'
-          else if (temp > 7500) spectralType = 'A5V'
-          else if (temp > 6000) spectralType = 'F5V'
-          else if (temp > 5200) spectralType = 'G2V'
-          else if (temp > 3700) spectralType = 'K5V'
-          else spectralType = 'M5V'
-        }
-      }
-
-      // Calculate zones
-      const zoneData = calculateHabitableZoneAndSnowLine(spectralType)
-      
-      return {
-        habitableZone: {
-          inner: zoneData.habitableZone.inner * orbitalScale,
-          outer: zoneData.habitableZone.outer * orbitalScale
-        },
-        snowLine: zoneData.snowLine * orbitalScale,
-        spectralType
-      }
-    } catch (error) {
-      console.warn('Failed to calculate stellar zones:', error)
-      return null
-    }
-  }, [systemData.objects, orbitalScale])
+  // Use custom hook for zone calculations
+  const zones = useStellarZones(systemData, {
+    showZones,
+    orbitalScale,
+    viewType
+  })
 
   // Create ring geometries for zones
   const ringGeometries = useMemo(() => {
-    if (!zones || !showZones) return null
+    if (!zones) return null
 
     const createRingGeometry = (innerRadius: number, outerRadius: number, segments = 64) => {
       const shape = new THREE.Shape()
@@ -91,14 +52,16 @@ export function StellarZones({
       habitableZone: createRingGeometry(zones.habitableZone.inner, zones.habitableZone.outer),
       snowLine: createCircleGeometry(zones.snowLine)
     }
-  }, [zones, showZones])
+  }, [zones])
 
-  // Zone materials
+  // Zone materials with opacity based on view type
   const materials = useMemo(() => {
+    const opacity = calculateZoneOpacity(viewType)
+    
     const habitableZoneMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color(0x00ff00), // Green for habitable zone
       transparent: true,
-      opacity: viewType === "realistic" ? 0.15 : 0.25,
+      opacity: opacity.habitableZone,
       side: THREE.DoubleSide,
       depthWrite: false
     })
@@ -106,15 +69,14 @@ export function StellarZones({
     const snowLineMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color(0x87ceeb), // Light blue for frost line
       transparent: true,
-      opacity: viewType === "realistic" ? 0.3 : 0.5,
-      side: THREE.DoubleSide,
-      depthWrite: false
+      opacity: opacity.snowLine,
+      side: THREE.DoubleSide,    depthWrite: false
     })
 
     return { habitableZoneMaterial, snowLineMaterial }
   }, [viewType])
 
-  if (!zones || !ringGeometries || !showZones) {
+  if (!zones || !ringGeometries) {
     return null
   }
 

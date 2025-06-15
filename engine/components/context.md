@@ -10,6 +10,10 @@ This directory contains all React components used throughout the application. Co
 - `ui/`: Reusable UI components and primitives
 - `__tests__/`: Test files for components in this directory
 
+## Key Components
+
+- `orbital-path.tsx`: **Orbital animation component** that handles the movement of celestial objects along their calculated orbits. Manages orbital visualization, time-based position updates, and parent-child object relationships for moons orbiting planets. **Features pause-fix** that ensures orbital positions update immediately when switching view modes while paused, preventing incorrect positioning until unpause.
+
 ## File Organization Rules
 
 1. Each component should be in its own file with a `.tsx` extension

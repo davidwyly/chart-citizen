@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 import { extend } from "@react-three/fiber"
 import { TerrestrialPlanetMaterial } from "./materials/terrestrial-planet-material"
-import type { CatalogObject } from "@/engine/lib/system-loader"
+import type { CatalogObject } from "@/engine/system-loader"
 
 // Register the custom shader material
 extend({ TerrestrialPlanetMaterial })

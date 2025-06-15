@@ -1,4 +1,4 @@
-import type { CatalogObject } from "./system-loader"
+import type { CatalogObject } from "../system-loader"
 
 export interface PlanetCustomizations {
   // Physical properties

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useSystemStore } from '@/engine/core/mode-system/mode-system';
 import type { Mode } from '@/engine/core/mode-system/types';
-import type { ViewType } from '@/engine/lib/types/effects-level';
+import type { ViewType } from '@/lib/types/effects-level';
 
 describe('Setup System', () => {
   beforeEach(() => {

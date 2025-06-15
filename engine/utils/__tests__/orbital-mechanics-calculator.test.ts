@@ -271,6 +271,42 @@ describe('orbital-mechanics-calculator', () => {
       expect(mechanics1).toBe(mechanics2);
     });
 
+    it('should use proportional scaling for moons in realistic mode', () => {
+      // Test the new proportional parent-child scaling feature
+      const star = createTestStar('sol', 695700); // Sun
+      const earth = createTestPlanet('earth', 'sol', 6371, 1.0); // Earth
+      const luna = createTestMoon('luna', 'earth', 1737.4, 0.00257); // Luna
+      const mars = createTestPlanet('mars', 'sol', 3389.5, 1.52); // Mars  
+      const phobos = createTestMoon('phobos', 'mars', 22.2, 0.00006); // Phobos
+      
+      const objects = [star, earth, luna, mars, phobos];
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      
+      const earthData = mechanics.get('earth')!;
+      const lunaData = mechanics.get('luna')!;
+      const marsData = mechanics.get('mars')!;
+      const phobosData = mechanics.get('phobos')!;
+      
+      // Calculate visual ratios
+      const earthLunaVisualRatio = lunaData.visualRadius / earthData.visualRadius;
+      const marsPhobosVisualRatio = phobosData.visualRadius / marsData.visualRadius;
+      
+      // Calculate real physical ratios
+      const earthLunaRealRatio = 1737.4 / 6371; // ≈ 0.27
+      const marsPhobosRealRatio = 22.2 / 3389.5; // ≈ 0.007
+      
+      // Earth-Luna should have near-perfect proportional scaling
+      expect(earthLunaVisualRatio).toBeCloseTo(earthLunaRealRatio, 2);
+      
+      // Phobos may hit minimum size constraints due to being extremely small
+      // but should still be reasonably close or respect minimum visibility
+      expect(phobosData.visualRadius).toBeGreaterThan(0.01); // Minimum visibility
+      
+      // Visual ratios should be much more realistic than before
+      expect(earthLunaVisualRatio).toBeLessThan(0.5); // Luna shouldn't appear half Earth's size
+      expect(marsPhobosVisualRatio).toBeLessThan(0.1); // Phobos shouldn't appear 1/10 Mars's size
+    });
+
     it('should clear memoization when cache is cleared', () => {
       const objects = createSolarSystem();
       

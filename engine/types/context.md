@@ -1,8 +1,21 @@
-# Engine Types Directory Context
+# Engine Types Directory
 
-This directory contains type definitions and configuration systems for the engine layer.
+This directory contains TypeScript type definitions for the chart-citizen engine.
 
 ## Files
+
+- **orbital-system.ts** - Core types for orbital mechanics and celestial objects (OrbitalSystemData, CelestialObject, etc.)
+- **stellar-zones.ts** - Types for stellar habitability zones and frost lines with comprehensive zone configurations
+- **mode.ts** - Types for different viewing modes (realistic, navigational, profile) and their features
+- **catalog.ts** - Types for celestial object catalog data (CatalogObject, CatalogData) used for loading object properties from catalog files
+
+# Types Context
+
+This directory contains TypeScript type definitions and interfaces used throughout the engine:
+
+- `orbital-system.ts`: Comprehensive type definitions for celestial objects, orbital systems, and spatial data including classifications, properties, and system metadata
+- `view-mode-config.ts`: Configuration interfaces for different view modes (realistic, navigational, profile) with scaling and rendering parameters
+- `stellar-zones.ts`: **NEW** Type definitions for stellar zone configuration, including zone types (habitable, frost, sublimation), styling options, visibility settings, and calculation results with predefined configurations for different zone types
 
 - `view-mode-config.ts`: Unified view mode configuration system that defines how objects should be rendered and how the camera should behave across all view modes (realistic, navigational, profile), using PURELY radius-based camera positioning that eliminates all object-type-based hardcoded logic.
 

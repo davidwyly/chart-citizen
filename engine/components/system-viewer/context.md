@@ -12,7 +12,7 @@ This directory contains the core components and logic for rendering interactive 
 - **object-details-panel.tsx** - UI panel displaying detailed information about focused objects including real vs visual properties
 - **system-breadcrumb.tsx** - Navigation breadcrumb showing current system and selected object hierarchy
 - **loading-states.tsx** - Loading and error state components for system data loading
-- **components/** - Sub-directory containing specialized components like stellar zones, scene lighting, and UI elements
+- **components/** - Sub-directory containing specialized components like stellar zones, scene lighting, orbital paths, and UI elements
 - **hooks/** - Sub-directory containing React hooks for object selection, system data management, and other stateful logic
 
 ## Core Components

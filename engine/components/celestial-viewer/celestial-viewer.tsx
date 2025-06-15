@@ -18,12 +18,16 @@ import { CelestialObjectRenderer } from '../system-viewer/system-objects-rendere
 
 interface CelestialViewerProps {
   initialObjectType?: string
+  mode?: string
 }
 
-export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
+export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialObject = searchParams.get('object') || initialObjectType || 'sol-star'
+  
+  // Determine the current mode from props, URL, or default to realistic
+  const currentMode = mode || searchParams.get('mode') || 'realistic'
 
   const [selectedObjectId, setSelectedObjectId] = useState<string>(initialObject)
   const [celestialObject, setCelestialObject] = useState<CelestialObject | null>(null)
@@ -75,9 +79,10 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
         if (selectedObjectId === 'black-hole' || selectedObjectId === 'protostar') {
           setCelestialObject(null) // Special objects handled separately in render
         } else {
-          // Load the 'sol' system and find the object within it for now.
-          // A more robust solution might dynamically determine which system to load.
-          const systemData = await engineSystemLoader.loadSystem('sol', 'realistic') // Assuming 'sol' for now
+          // Determine which system to load based on the object ID or default to 'sol'
+          // TODO: Implement proper system detection based on object catalog
+          const systemId = selectedObjectId.startsWith('sol-') ? 'sol' : 'sol' // Default to sol for now
+          const systemData = await engineSystemLoader.loadSystem(currentMode, systemId)
           if (systemData) {
             const foundObject = systemData.objects.find(obj => obj.id === selectedObjectId)
             if (foundObject) {
@@ -113,7 +118,7 @@ export function CelestialViewer({ initialObjectType }: CelestialViewerProps) {
     }
 
     loadObject()
-  }, [selectedObjectId])
+  }, [selectedObjectId, currentMode])
 
   // Mouse event handlers for resizing
   const handleMouseMove = useCallback((e: MouseEvent) => {

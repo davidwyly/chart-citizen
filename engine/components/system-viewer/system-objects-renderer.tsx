@@ -4,7 +4,7 @@ import React, { useMemo, useCallback } from "react"
 import * as THREE from "three"
 
 import { InteractiveObject } from "../3d-ui/interactive-object"
-import { OrbitalPath } from "../orbital-path"
+import { OrbitalPath } from "./components/orbital-path"
 import { StellarZones } from "./components/stellar-zones"
 import { 
   calculateSystemOrbitalMechanics,

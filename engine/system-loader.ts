@@ -10,6 +10,20 @@ import {
   isBelt
 } from './types/orbital-system'
 
+// Re-export types that are commonly imported from system-loader
+export type { 
+  OrbitalSystemData, 
+  CelestialObject, 
+  StarmapData,
+  LightingConfig,
+  JumpPoint 
+} from './types/orbital-system'
+
+export type { CatalogObject, CatalogData } from './types/catalog'
+
+// Legacy compatibility - export SystemData as alias to OrbitalSystemData
+export type SystemData = OrbitalSystemData
+
 export class EngineSystemLoader {
   private loadedSystems: Map<string, OrbitalSystemData> = new Map()
   private loadingPromises: Map<string, Promise<OrbitalSystemData | null>> = new Map()
