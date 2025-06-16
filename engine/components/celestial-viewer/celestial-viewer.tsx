@@ -290,7 +290,8 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
                     object={celestialObject}
                     scale={objectScale}
                     starPosition={[0,0,0]} // Assuming central star for this viewer
-                    isSelected={false} // No selection in this viewer
+                    isSelected={true} // Show effects for the displayed object
+                    shaderParams={shaderParams} // Pass shader parameters for effects like gravity warp
                     onHover={() => {}} // No hover in this viewer
                     onSelect={() => {}} // No select in this viewer
                     onFocus={() => {}} // No focus in this viewer

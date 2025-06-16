@@ -150,6 +150,40 @@ export function ObjectInfo({ selectedObjectId, celestialObject }: ObjectInfoProp
             </div>
           </div>
         )}
+
+        {/* Timeline - Mission History */}
+        {(celestialObject as any).timeline && (
+          <div>
+            <h4 className="text-sm font-medium text-gray-300 mb-2 border-b border-gray-700 pb-1">Mission History</h4>
+            <div className="space-y-3 text-sm">
+              {(celestialObject as any).timeline.map((event: any, index: number) => (
+                <div key={index} className="border-l-2 border-blue-500 pl-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-blue-400 font-medium text-xs">
+                      {new Date(event.date).getFullYear()}
+                    </span>
+                    {event.agency && (
+                      <span className="px-1 py-0.5 bg-gray-700 text-gray-300 text-xs rounded">
+                        {event.agency}
+                      </span>
+                    )}
+                    {event.mission_type && (
+                      <span className="px-1 py-0.5 bg-blue-900 text-blue-200 text-xs rounded">
+                        {event.mission_type}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-gray-200 font-medium text-xs mb-1">
+                    {event.title}
+                  </div>
+                  <div className="text-gray-400 text-xs leading-relaxed">
+                    {event.description}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

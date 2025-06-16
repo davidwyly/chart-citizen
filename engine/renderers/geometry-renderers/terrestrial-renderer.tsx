@@ -6,9 +6,10 @@ import * as THREE from "three"
 import { extend } from "@react-three/fiber"
 import { TerrestrialPlanetMaterial } from "../planets/materials/terrestrial-planet-material"
 import { PlanetRingsRenderer } from "../planets/planet-rings-renderer"
+import { InteractiveObject } from "../../components/3d-ui/interactive-object"
 import type { GeometryRendererProps, RingCapableRenderer } from "./types"
 
-// Register the custom shader material
+// Register the custom shader materials
 extend({ TerrestrialPlanetMaterial })
 
 /**
@@ -21,6 +22,8 @@ export function TerrestrialRenderer({
   starPosition = [0, 0, 0],
   position = [0, 0, 0],
   isSelected,
+  planetSystemSelected = false,
+  shaderParams,
   onHover,
   onSelect,
   onFocus,
@@ -70,6 +73,8 @@ export function TerrestrialRenderer({
       materialRef.current.lightDirection = lightDirection
     }
 
+
+
     if (planetRef.current) {
       // Handle rotation (including retrograde if specified)
       const direction = properties.axial_tilt && properties.axial_tilt > 90 ? -1 : 1
@@ -77,26 +82,7 @@ export function TerrestrialRenderer({
     }
   })
 
-  const handleClick = (event: any) => {
-    event.stopPropagation()
-    if (planetRef.current && onSelect) {
-      onSelect(object.id, planetRef.current, object.name)
-    }
-  }
 
-  const handlePointerEnter = () => {
-    onHover?.(object.id)
-  }
-
-  const handlePointerLeave = () => {
-    onHover?.(null)
-  }
-
-  const handleFocus = () => {
-    if (planetRef.current && onFocus) {
-      onFocus(planetRef.current, object.name, scale, properties.radius, properties.mass, 0)
-    }
-  }
 
   // Register ref for external access
   React.useEffect(() => {
@@ -106,53 +92,63 @@ export function TerrestrialRenderer({
   }, [object.id, registerRef])
 
   return (
-    <group ref={planetRef} position={position}>
-      {/* Main planet surface */}
-      <mesh 
-        onClick={handleClick}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-        onDoubleClick={handleFocus}
-      >
-        <sphereGeometry args={[radius, 64, 64]} />
-        {/* @ts-ignore */}
-        <terrestrialPlanetMaterial
-          ref={materialRef}
-          landColor={landColor}
-          seaColor={oceanColor}
-          sandColor={sandColor}
-          atmosphereColor={atmosphereColor}
-          rotationSpeed={0.2}
-          terrainScale={noiseScale}
-          cloudScale={1.5}
-          nightLightIntensity={hasNightLights}
-          cloudOpacity={hasClouds * 0.6}
-        />
-      </mesh>
+    <InteractiveObject
+      objectId={object.id}
+      objectName={object.name}
+      objectType={object.classification === 'star' ? 'star' : object.classification === 'planet' ? 'planet' : object.classification === 'moon' ? 'moon' : 'planet'}
+      radius={radius}
+      position={position}
+      isSelected={isSelected}
+      planetSystemSelected={planetSystemSelected}
+      onHover={(id, hovered) => onHover?.(hovered ? id : null)}
+      onSelect={onSelect}
+      onFocus={(obj, name, visualSize) => onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)}
+      registerRef={registerRef}
+      showLabel={true}
+    >
+      <group ref={planetRef}>
+        {/* Main planet surface */}
+        <mesh>
+          <sphereGeometry args={[radius, 64, 64]} />
+          {/* @ts-ignore */}
+          <terrestrialPlanetMaterial
+            ref={materialRef}
+            landColor={landColor}
+            seaColor={oceanColor}
+            sandColor={sandColor}
+            atmosphereColor={atmosphereColor}
+            rotationSpeed={0.2}
+            terrainScale={noiseScale}
+            cloudScale={1.5}
+            nightLightIntensity={hasNightLights}
+            cloudOpacity={hasClouds * 0.6}
+          />
+        </mesh>
 
-      {/* Ring system if present */}
-      {object.rings && object.rings.length > 0 && (
-        <group>
-          {object.rings.map((ring, index) => (
-            <PlanetRingsRenderer
-              key={ring.id}
-              planetRadius={radius}
-              innerRadius={ring.radius_start}
-              outerRadius={ring.radius_end}
-              color={ring.color || "#c0c0c0"}
-              transparency={1 - (ring.opacity || 70) / 100}
-              divisions={6}
-              noiseScale={0.5}
-              noiseStrength={0.3}
-              dustDensity={ring.density === 'dense' ? 0.9 : ring.density === 'moderate' ? 0.6 : 0.3}
-              shadowIntensity={0.5}
-              rotation={planetRef.current?.rotation}
-              lightPosition={starPosition}
-            />
-          ))}
-        </group>
-      )}
-    </group>
+        {/* Ring system if present */}
+        {object.rings && object.rings.length > 0 && (
+          <group>
+            {object.rings.map((ring, index) => (
+              <PlanetRingsRenderer
+                key={ring.id}
+                planetRadius={radius}
+                innerRadius={ring.radius_start}
+                outerRadius={ring.radius_end}
+                color={ring.color || "#c0c0c0"}
+                transparency={1 - (ring.opacity || 70) / 100}
+                divisions={6}
+                noiseScale={0.5}
+                noiseStrength={0.3}
+                dustDensity={ring.density === 'dense' ? 0.9 : ring.density === 'moderate' ? 0.6 : 0.3}
+                shadowIntensity={0.5}
+                rotation={planetRef.current?.rotation}
+                lightPosition={starPosition}
+              />
+            ))}
+          </group>
+        )}
+      </group>
+    </InteractiveObject>
   )
 }
 

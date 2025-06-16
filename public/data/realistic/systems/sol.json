@@ -36,7 +36,7 @@
       "id": "mercury",
       "name": "Mercury",
       "classification": "planet",
-      "geometry_type": "terrestrial",
+      "geometry_type": "rocky",
       "properties": {
         "mass": 0.055,
         "radius": 2439.7,
@@ -109,7 +109,51 @@
         "eccentricity": 0.007,
         "inclination": 3.4,
         "orbital_period": 225
-      }
+      },
+      "timeline": [
+        {
+          "date": "1962-12-14",
+          "title": "Mariner 2 Flyby",
+          "description": "First successful planetary flyby mission, confirming Venus's extremely hot surface temperature and dense atmosphere.",
+          "mission_type": "flyby",
+          "agency": "NASA"
+        },
+        {
+          "date": "1970-12-15",
+          "title": "Venera 7 Landing",
+          "description": "First spacecraft to successfully land on Venus and transmit data from the surface, operating for 23 minutes.",
+          "mission_type": "lander",
+          "agency": "USSR"
+        },
+        {
+          "date": "1974-02-05",
+          "title": "Mariner 10 Flyby",
+          "description": "Used Venus's gravitational field for gravity assist, becoming the first spacecraft to use this technique while capturing the first close-up ultraviolet images of Venus clouds.",
+          "mission_type": "flyby",
+          "agency": "NASA"
+        },
+        {
+          "date": "1985-06-11",
+          "title": "Vega 1 Landing",
+          "description": "Successfully landed on Venus, deploying scientific instruments that operated for 56 minutes under intense atmospheric pressure.",
+          "mission_type": "lander",
+          "agency": "USSR"
+        },
+        {
+          "date": "1985-06-15",
+          "title": "Vega 2 Landing",
+          "description": "Touched down on Venus collecting data on atmospheric composition and surface characteristics for 57 minutes.",
+          "mission_type": "lander",
+          "agency": "USSR"
+        },
+        {
+          "date": "1990-08-10",
+          "title": "Magellan Orbital Mapping",
+          "description": "Mapped 98% of Venus's surface using radar imaging over three mapping cycles, revealing a landscape dominated by volcanic features.",
+          "mission_type": "orbiter",
+          "agency": "NASA"
+        }
+      ]
     },
     {
       "id": "earth",
@@ -220,7 +264,51 @@
         "eccentricity": 0.093,
         "inclination": 1.9,
         "orbital_period": 687
-      }
+      },
+      "timeline": [
+        {
+          "date": "1965-07-15",
+          "title": "Mariner 4 Flyby",
+          "description": "First successful flyby of Mars, taking the first close-up images of the Martian surface and revealing a cratered, Moon-like landscape.",
+          "mission_type": "flyby",
+          "agency": "NASA"
+        },
+        {
+          "date": "1976-07-20",
+          "title": "Viking 1 Landing",
+          "description": "First successful U.S. landing on Mars, operating for over 6 years and providing detailed images and scientific data from the surface.",
+          "mission_type": "lander",
+          "agency": "NASA"
+        },
+        {
+          "date": "1997-07-04",
+          "title": "Mars Pathfinder Landing",
+          "description": "Delivered the first Mars rover, Sojourner, which explored the Martian surface for 85 days, analyzing rocks and soil composition.",
+          "mission_type": "lander",
+          "agency": "NASA"
+        },
+        {
+          "date": "2004-01-04",
+          "title": "Spirit Rover Landing",
+          "description": "Mars Exploration Rover Spirit landed and operated for over 6 years, discovering evidence of past water activity on Mars.",
+          "mission_type": "rover",
+          "agency": "NASA"
+        },
+        {
+          "date": "2012-08-06",
+          "title": "Curiosity Rover Landing",
+          "description": "Nuclear-powered rover landed in Gale Crater, conducting advanced scientific analysis and confirming ancient habitable environments.",
+          "mission_type": "rover",
+          "agency": "NASA"
+        },
+        {
+          "date": "2021-02-18",
+          "title": "Perseverance Rover Landing",
+          "description": "Most advanced Mars rover lands with Ingenuity helicopter, searching for signs of ancient microbial life and collecting samples for future return.",
+          "mission_type": "rover",
+          "agency": "NASA"
+        }
+      ]
     },
     {
       "id": "jupiter",
@@ -261,7 +349,37 @@
         "eccentricity": 0.048,
         "inclination": 1.3,
         "orbital_period": 4333
-      }
+      },
+      "timeline": [
+        {
+          "date": "1973-12-04",
+          "title": "Pioneer 10 Flyby",
+          "description": "First spacecraft to traverse the asteroid belt and reach Jupiter, providing the first close-up images of the gas giant.",
+          "mission_type": "flyby",
+          "agency": "NASA"
+        },
+        {
+          "date": "1979-03-05",
+          "title": "Voyager 1 Flyby",
+          "description": "Discovered Jupiter's ring system and active volcanism on Io, revolutionizing our understanding of the Jovian system.",
+          "mission_type": "flyby",
+          "agency": "NASA"
+        },
+        {
+          "date": "1995-12-07",
+          "title": "Galileo Orbital Mission",
+          "description": "First spacecraft to orbit Jupiter, studying the planet and its moons for 8 years, discovering evidence of subsurface oceans on Europa.",
+          "mission_type": "orbiter",
+          "agency": "NASA"
+        },
+        {
+          "date": "2016-07-04",
+          "title": "Juno Orbital Mission",
+          "description": "Polar-orbiting mission studying Jupiter's interior structure, magnetic field, and atmospheric dynamics with unprecedented detail.",
+          "mission_type": "orbiter",
+          "agency": "NASA"
+        }
+      ]
     },
     {
       "id": "saturn",
@@ -307,7 +425,7 @@
       "id": "uranus",
       "name": "Uranus",
       "classification": "planet",
-      "geometry_type": "terrestrial",
+      "geometry_type": "gas_giant",
       "properties": {
         "mass": 14.5,
         "radius": 25362,
@@ -347,7 +465,7 @@
       "id": "neptune",
       "name": "Neptune",
       "classification": "planet",
-      "geometry_type": "terrestrial",
+      "geometry_type": "gas_giant",
       "properties": {
         "mass": 17.1,
         "radius": 24622,
@@ -555,7 +673,7 @@
       "id": "titan",
       "name": "Titan",
       "classification": "moon",
-      "geometry_type": "rocky",
+      "geometry_type": "terrestrial",
       "properties": {
         "mass": 0.0225,
         "radius": 2574,

@@ -71,7 +71,7 @@ export function ObjectControls({
 
   const isProtostar = selectedObjectId === 'protostar'
   const isBlackHole = selectedObjectId === 'black-hole'
-  const isHabitablePlanet = ['earth-like', 'desert-world', 'ocean-world-habitable', 'ice-world'].includes(selectedObjectId)
+  const isHabitablePlanet = ['earth', 'earth-like', 'desert-world', 'ocean-world-habitable', 'ice-world'].includes(selectedObjectId)
 
   return (
     <div className="flex h-full flex-col p-4 overflow-y-auto">
@@ -303,15 +303,15 @@ export function ObjectControls({
         </div>
       )}
 
-      {/* Generic Shader Properties for other objects */}
-      {!isProtostar && !isBlackHole && !isHabitablePlanet && (
+      {/* Shader Properties for planets and other celestial objects */}
+      {!isProtostar && !isBlackHole && (
         <div className="mb-6">
           <h3 className="text-md font-medium text-gray-200 mb-3 border-b border-gray-700 pb-1">
-            Shader Properties
+            Visual Effects
           </h3>
           {renderSlider(
             "intensity",
-            "Intensity",
+            "Surface Brightness",
             shaderParams.intensity,
             0.1,
             3,
@@ -320,7 +320,7 @@ export function ObjectControls({
           )}
           {renderSlider(
             "speed",
-            "Speed",
+            "Rotation Speed",
             shaderParams.speed,
             0.1,
             5,
@@ -329,7 +329,7 @@ export function ObjectControls({
           )}
           {renderSlider(
             "distortion",
-            "Distortion",
+            "Atmospheric Effects",
             shaderParams.distortion,
             0.1,
             3,
@@ -338,7 +338,7 @@ export function ObjectControls({
           )}
           {renderSlider(
             "diskSpeed",
-            "Disk Speed",
+            "Cloud Movement",
             shaderParams.diskSpeed,
             0.1,
             5,
@@ -347,7 +347,7 @@ export function ObjectControls({
           )}
           {renderSlider(
             "lensingStrength",
-            "Lensing Strength",
+            "Gravity Warp Effect",
             shaderParams.lensingStrength,
             0.1,
             3,
@@ -356,7 +356,7 @@ export function ObjectControls({
           )}
           {renderSlider(
             "diskBrightness",
-            "Disk Brightness",
+            "Overall Luminosity",
             shaderParams.diskBrightness,
             0.1,
             3,

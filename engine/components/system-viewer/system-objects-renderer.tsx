@@ -46,6 +46,8 @@ export const CelestialObjectRenderer = React.memo(({
   scale, 
   starPosition,
   isSelected,
+  planetSystemSelected = false,
+  shaderParams,
   onHover,
   onSelect,
   onFocus,
@@ -55,6 +57,15 @@ export const CelestialObjectRenderer = React.memo(({
   scale: number
   starPosition: [number, number, number]
   isSelected: boolean
+  planetSystemSelected?: boolean
+  shaderParams?: {
+    intensity?: number
+    speed?: number
+    distortion?: number
+    diskSpeed?: number
+    lensingStrength?: number
+    diskBrightness?: number
+  }
   onHover: (objectId: string | null) => void
   onSelect?: (id: string, object: THREE.Object3D, name: string) => void
   onFocus?: (object: THREE.Object3D, name: string, size: number, radius?: number, mass?: number, orbitRadius?: number) => void
@@ -70,6 +81,8 @@ export const CelestialObjectRenderer = React.memo(({
       starPosition={starPosition}
       position={[0, 0, 0]}
       isSelected={isSelected}
+      planetSystemSelected={planetSystemSelected}
+      shaderParams={shaderParams}
       onHover={onHover}
       onSelect={onSelect}
       onFocus={onFocus}
@@ -121,10 +134,36 @@ export function SystemObjectsRenderer({
     return Math.sqrt(Math.pow(semiMajorAxis, 3)) * 2.0
   }, [])
 
+  // Calculate hierarchical selection information
+  const getHierarchicalSelectionInfo = useCallback((object: CelestialObject) => {
+    const isSelected = selectedObjectId === object.id;
+    
+    // For moons, check if parent planet or sibling moon is selected
+    let planetSystemSelected = false;
+    if (object.classification === 'moon' && object.orbit?.parent) {
+      const parentId = object.orbit.parent;
+      
+      // Check if parent planet is selected
+      if (selectedObjectId === parentId) {
+        planetSystemSelected = true;
+      }
+      
+      // Check if any sibling moon is selected
+      if (!planetSystemSelected && selectedObjectId) {
+        const selectedObject = systemData.objects.find(obj => obj.id === selectedObjectId);
+        if (selectedObject?.classification === 'moon' && selectedObject.orbit?.parent === parentId) {
+          planetSystemSelected = true;
+        }
+      }
+    }
+    
+    return { isSelected, planetSystemSelected };
+  }, [selectedObjectId, systemData.objects]);
+
   // Render a celestial object with its orbit
   const renderCelestialObject = useCallback((object: CelestialObject, parentPosition: [number, number, number] = [0, 0, 0]) => {
     const { visualSize } = getObjectSizing(object.id);
-    const isSelected = selectedObjectId === object.id;
+    const { isSelected, planetSystemSelected } = getHierarchicalSelectionInfo(object);
     const scale = visualSize;
 
     // Handle objects with orbits
@@ -160,6 +199,7 @@ export function SystemObjectsRenderer({
             scale={scale}
             starPosition={primaryStarPosition}
             isSelected={isSelected}
+            planetSystemSelected={planetSystemSelected}
             onHover={onObjectHover}
             onSelect={onObjectSelect}
             onFocus={onObjectFocus}
@@ -197,6 +237,7 @@ export function SystemObjectsRenderer({
               scale={0.01} // Very small invisible object for interaction
               starPosition={primaryStarPosition}
               isSelected={isSelected}
+              planetSystemSelected={planetSystemSelected}
               onHover={onObjectHover}
               onSelect={onObjectSelect}
               onFocus={onObjectFocus}
@@ -214,6 +255,7 @@ export function SystemObjectsRenderer({
             scale={scale}
             starPosition={primaryStarPosition}
             isSelected={isSelected}
+            planetSystemSelected={planetSystemSelected}
             onHover={onObjectHover}
             onSelect={onObjectSelect}
             onFocus={onObjectFocus}

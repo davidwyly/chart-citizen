@@ -10,10 +10,10 @@ interface ViewModeSelectorProps {
 
 const VIEW_TYPES = [
   {
-    id: "realistic" as ViewType,
-    label: "Realistic",
+    id: "explorational" as ViewType,
+    label: "Explorational",
     icon: Eye,
-    description: "Realistic proportions and distances",
+    description: "Relative size and distances",
   },
   {
     id: "navigational" as ViewType,
@@ -25,7 +25,7 @@ const VIEW_TYPES = [
     id: "profile" as ViewType,
     label: "Profile",
     icon: Gamepad,
-    description: "Orthographic profile view for schematic layouts",
+    description: "Orthographic profile view",
   },
 ]
 

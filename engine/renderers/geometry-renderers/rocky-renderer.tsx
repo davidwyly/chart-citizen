@@ -4,6 +4,7 @@ import React, { useRef, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { PlanetRingsRenderer } from "../planets/planet-rings-renderer"
+import { InteractiveObject } from "../../components/3d-ui/interactive-object"
 import type { GeometryRendererProps } from "./types"
 
 /**
@@ -16,6 +17,8 @@ export function RockyRenderer({
   starPosition = [0, 0, 0],
   position = [0, 0, 0],
   isSelected,
+  planetSystemSelected = false,
+  shaderParams,
   onHover,
   onSelect,
   onFocus,
@@ -88,26 +91,7 @@ export function RockyRenderer({
     }
   })
 
-  const handleClick = (event: any) => {
-    event.stopPropagation()
-    if (bodyRef.current && onSelect) {
-      onSelect(object.id, bodyRef.current, object.name)
-    }
-  }
 
-  const handlePointerEnter = () => {
-    onHover?.(object.id)
-  }
-
-  const handlePointerLeave = () => {
-    onHover?.(null)
-  }
-
-  const handleFocus = () => {
-    if (bodyRef.current && onFocus) {
-      onFocus(bodyRef.current, object.name, scale, properties.radius, properties.mass, 0)
-    }
-  }
 
   // Register ref for external access
   React.useEffect(() => {
@@ -122,47 +106,56 @@ export function RockyRenderer({
   const metalness = 0.1 // Rocky bodies are typically not very metallic
 
   return (
-    <group ref={bodyRef} position={position}>
-      {/* Main rocky surface */}
-      <mesh 
-        ref={surfaceRef}
-        onClick={handleClick}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-        onDoubleClick={handleFocus}
-      >
-        <sphereGeometry args={[radius, 32, 32]} />
-        <meshStandardMaterial
-          map={surfaceTexture}
-          roughness={roughness}
-          metalness={metalness}
-          color={properties.surface_color || "#C0C0C0"}
-        />
-      </mesh>
+    <InteractiveObject
+      objectId={object.id}
+      objectName={object.name}
+      objectType={object.classification === 'star' ? 'star' : object.classification === 'planet' ? 'planet' : object.classification === 'moon' ? 'moon' : 'planet'}
+      radius={radius}
+      position={position}
+      isSelected={isSelected}
+      planetSystemSelected={planetSystemSelected}
+      onHover={(id, hovered) => onHover?.(hovered ? id : null)}
+      onSelect={onSelect}
+      onFocus={(obj, name, visualSize) => onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)}
+      registerRef={registerRef}
+      showLabel={true}
+    >
+      <group ref={bodyRef}>
+        {/* Main rocky surface */}
+        <mesh ref={surfaceRef}>
+          <sphereGeometry args={[radius, 32, 32]} />
+          <meshStandardMaterial
+            map={surfaceTexture}
+            roughness={roughness}
+            metalness={metalness}
+            color={properties.surface_color || "#C0C0C0"}
+          />
+        </mesh>
 
-      {/* Ring system if present (rare but possible for large moons) */}
-      {object.rings && object.rings.length > 0 && (
-        <group>
-          {object.rings.map((ring, index) => (
-            <PlanetRingsRenderer
-              key={ring.id}
-              planetRadius={radius}
-              innerRadius={ring.radius_start}
-              outerRadius={ring.radius_end}
-              color={ring.color || "#888888"}
-              transparency={1 - (ring.opacity || 50) / 100}
-              divisions={4}
-              noiseScale={0.3}
-              noiseStrength={0.2}
-              dustDensity={ring.density === 'dense' ? 0.7 : ring.density === 'moderate' ? 0.4 : 0.2}
-              shadowIntensity={0.3}
-              rotation={bodyRef.current?.rotation}
-              lightPosition={starPosition}
-            />
-          ))}
-        </group>
-      )}
-    </group>
+        {/* Ring system if present (rare but possible for large moons) */}
+        {object.rings && object.rings.length > 0 && (
+          <group>
+            {object.rings.map((ring, index) => (
+              <PlanetRingsRenderer
+                key={ring.id}
+                planetRadius={radius}
+                innerRadius={ring.radius_start}
+                outerRadius={ring.radius_end}
+                color={ring.color || "#888888"}
+                transparency={1 - (ring.opacity || 50) / 100}
+                divisions={4}
+                noiseScale={0.3}
+                noiseStrength={0.2}
+                dustDensity={ring.density === 'dense' ? 0.7 : ring.density === 'moderate' ? 0.4 : 0.2}
+                shadowIntensity={0.3}
+                rotation={bodyRef.current?.rotation}
+                lightPosition={starPosition}
+              />
+            ))}
+          </group>
+        )}
+      </group>
+    </InteractiveObject>
   )
 }
 
