@@ -12,10 +12,13 @@ export function StarfieldSkybox() {
   // Create the starfield material
   const material = createStarfieldMaterial()
 
-  // Keep the skybox centered on the camera
-  useFrame(() => {
+  // Keep the skybox centered on the camera and update time uniform
+  useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.position.copy(camera.position)
+    }
+    if (material.uniforms.iTime) {
+      material.uniforms.iTime.value = state.clock.getElapsedTime();
     }
   })
 

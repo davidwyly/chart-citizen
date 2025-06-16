@@ -1,9 +1,12 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
+import { TerrestrialControls, ShaderEditor } from './controls'
+import type { CelestialObject } from '@/engine/types/orbital-system'
 
 interface ObjectControlsProps {
   selectedObjectId: string
+  celestialObject?: CelestialObject | null
   objectScale: number
   shaderScale: number
   shaderParams: {
@@ -26,6 +29,8 @@ interface ObjectControlsProps {
   onShaderScaleChange: (scale: number) => void
   onShaderParamChange: (param: string, value: number) => void
   onHabitabilityParamChange?: (param: string, value: number) => void
+  onPropertyChange?: (property: string, value: number) => void
+  onShaderUpdate?: (vertexShader: string, fragmentShader: string) => void
   objectType?: string
   showStats: boolean
   onToggleStats: () => void
@@ -33,6 +38,7 @@ interface ObjectControlsProps {
 
 export function ObjectControls({
   selectedObjectId,
+  celestialObject,
   objectScale,
   shaderScale,
   shaderParams,
@@ -40,7 +46,9 @@ export function ObjectControls({
   onObjectScaleChange,
   onShaderScaleChange,
   onShaderParamChange,
-  onHabitabilityParamChange
+  onHabitabilityParamChange,
+  onPropertyChange,
+  onShaderUpdate
 }: ObjectControlsProps) {
   const renderSlider = (
     id: string,
@@ -69,6 +77,25 @@ export function ObjectControls({
     </div>
   )
 
+  // Geometry-specific controls based on celestial object type
+  const getGeometryControls = () => {
+    if (!celestialObject || !onPropertyChange) return null
+    
+    switch (celestialObject.geometry_type) {
+      case 'terrestrial':
+        return (
+          <TerrestrialControls 
+            properties={celestialObject.properties}
+            onChange={onPropertyChange}
+          />
+        )
+      // TODO: Add other geometry types (rocky, gas_giant, star, exotic)
+      default:
+        return null
+    }
+  }
+
+  // Legacy detection for backward compatibility during transition
   const isProtostar = selectedObjectId === 'protostar'
   const isBlackHole = selectedObjectId === 'black-hole'
   const isHabitablePlanet = ['earth', 'earth-like', 'desert-world', 'ocean-world-habitable', 'ice-world'].includes(selectedObjectId)
@@ -101,6 +128,18 @@ export function ObjectControls({
           onShaderScaleChange
         )}
       </div>
+
+      {/* Geometry-specific Properties */}
+      {getGeometryControls()}
+
+      {/* Live Shader Editor */}
+      {celestialObject && onShaderUpdate && (
+        <ShaderEditor 
+          onShaderUpdate={onShaderUpdate}
+          currentVertexShader=""
+          currentFragmentShader=""
+        />
+      )}
 
       {/* Protostar-specific Properties */}
       {isProtostar && (

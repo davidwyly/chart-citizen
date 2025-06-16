@@ -5,8 +5,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Preload } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
-import { BlackHole } from '../3d-ui/black-hole'
-import { Protostar } from '../3d-ui/protostar'
+
 import { StarfieldSkybox } from '../skybox/starfield-skybox'
 import { ObjectControls } from './object-controls'
 import { ObjectInfo } from './object-info'
@@ -15,6 +14,317 @@ import { engineSystemLoader } from '@/engine/system-loader'
 import { CelestialObject } from '@/engine/types/orbital-system'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CelestialObjectRenderer } from '../system-viewer/system-objects-renderer'
+
+// Add function to create celestial object data for catalog objects
+function createCatalogCelestialObject(objectId: string): CelestialObject | null {
+  const catalogObjects: Record<string, CelestialObject> = {
+    // Stars
+    'g2v-main-sequence': {
+      id: 'g2v-main-sequence',
+      name: 'G2V Main Sequence Star',
+      classification: 'star',
+      geometry_type: 'star',
+      properties: {
+        mass: 1.0,
+        radius: 695700,
+        temperature: 5778,
+        luminosity: 100,
+        stellar_class: 'G2V',
+        color_temperature: 5778,
+        solar_activity: 30,
+        corona_thickness: 25,
+        variability: 5
+      }
+    },
+    'm2v-red-dwarf': {
+      id: 'm2v-red-dwarf',
+      name: 'M2V Red Dwarf',
+      classification: 'star',
+      geometry_type: 'star',
+      properties: {
+        mass: 0.4,
+        radius: 278280,
+        temperature: 3500,
+        luminosity: 4,
+        stellar_class: 'M2V',
+        color_temperature: 3500,
+        solar_activity: 60,
+        corona_thickness: 10,
+        variability: 15
+      }
+    },
+    'protostar': {
+      id: 'protostar',
+      name: 'Protostar',
+      classification: 'star',
+      geometry_type: 'star',
+      properties: {
+        mass: 0.8,
+        radius: 1391400, // Larger than main sequence
+        temperature: 3000,
+        luminosity: 10,
+        stellar_class: 'T Tauri',
+        color_temperature: 3000,
+        solar_activity: 80,
+        corona_thickness: 40,
+        variability: 25,
+        nebula_density: 0.8,
+        accretion_rate: 0.5
+      }
+    },
+    
+    // Terrestrial Planets
+    'terrestrial-rocky': {
+      id: 'terrestrial-rocky',
+      name: 'Terrestrial Rocky Planet',
+      classification: 'planet',
+      geometry_type: 'terrestrial',
+      properties: {
+        mass: 0.8,
+        radius: 5500,
+        temperature: 280,
+        atmosphere: 15,
+        water: 5,
+        tectonics: 60,
+        population: 0,
+        soil_tint: 30,        // Rocky brown soil
+        temperature_class: 55, // Moderate temperature
+        geomagnetism: 40,     // Weak magnetic field
+        flora: 5              // Minimal vegetation
+      }
+    },
+    'terrestrial-oceanic': {
+      id: 'terrestrial-oceanic',
+      name: 'Oceanic Planet',
+      classification: 'planet',
+      geometry_type: 'terrestrial',
+      properties: {
+        mass: 1.2,
+        radius: 6800,
+        temperature: 290,
+        atmosphere: 80,
+        water: 95,
+        tectonics: 30,
+        population: 0,
+        soil_tint: 65,        // Dark oceanic sediment
+        temperature_class: 60, // Temperate
+        geomagnetism: 70,     // Strong magnetic field
+        flora: 40             // Aquatic flora
+      }
+    },
+    'smog-planet': {
+      id: 'smog-planet',
+      name: 'Smog Planet',
+      classification: 'planet',
+      geometry_type: 'terrestrial',
+      properties: {
+        mass: 0.9,
+        radius: 6000,
+        temperature: 450,
+        atmosphere: 95,
+        water: 0,
+        tectonics: 80,
+        population: 0,
+        soil_tint: 15,        // Polluted grey soil
+        temperature_class: 85, // Hot
+        geomagnetism: 20,     // Very weak magnetic field
+        flora: 0              // No vegetation
+      }
+    },
+    
+    // Habitable Planets
+    'earth-like': {
+      id: 'earth-like',
+      name: 'Earth-like World',
+      classification: 'planet',
+      geometry_type: 'terrestrial',
+      properties: {
+        mass: 1.0,
+        radius: 6371,
+        temperature: 288,
+        atmosphere: 70,
+        water: 70,
+        tectonics: 50,
+        population: 80,
+        soil_tint: 45,        // Earth-like brown soil
+        temperature_class: 60, // Temperate zone
+        geomagnetism: 75,     // Strong protective magnetic field
+        flora: 80             // Rich vegetation
+      }
+    },
+    'desert-world': {
+      id: 'desert-world',
+      name: 'Desert World',
+      classification: 'planet',
+      geometry_type: 'terrestrial',
+      properties: {
+        mass: 0.9,
+        radius: 6000,
+        temperature: 310,
+        atmosphere: 30,
+        water: 10,
+        tectonics: 40,
+        population: 20,
+        soil_tint: 25,        // Sandy desert soil
+        temperature_class: 75, // Hot but livable
+        geomagnetism: 50,     // Moderate magnetic field
+        flora: 15             // Desert vegetation
+      }
+    },
+    'ocean-world-habitable': {
+      id: 'ocean-world-habitable',
+      name: 'Ocean World',
+      classification: 'planet',
+      geometry_type: 'terrestrial',
+      properties: {
+        mass: 1.1,
+        radius: 6500,
+        temperature: 285,
+        atmosphere: 85,
+        water: 90,
+        tectonics: 20,
+        population: 60,
+        soil_tint: 70,        // Dark oceanic sediment
+        temperature_class: 58, // Temperate
+        geomagnetism: 80,     // Very strong magnetic field
+        flora: 70             // Rich aquatic flora
+      }
+    },
+    'ice-world': {
+      id: 'ice-world',
+      name: 'Ice World',
+      classification: 'planet',
+      geometry_type: 'terrestrial',
+      properties: {
+        mass: 0.8,
+        radius: 5800,
+        temperature: 250,
+        atmosphere: 40,
+        water: 80,
+        tectonics: 30,
+        population: 15,
+        soil_tint: 55,        // Frozen soil
+        temperature_class: 25, // Cold/ice world
+        geomagnetism: 60,     // Good magnetic field
+        flora: 10             // Hardy cold-weather flora
+      }
+    },
+    
+         // Gas Giants
+     'gas-giant': {
+       id: 'gas-giant',
+       name: 'Gas Giant',
+       classification: 'planet',
+       geometry_type: 'gas_giant',
+       properties: {
+         mass: 317.8,
+         radius: 69911,
+         temperature: 165,
+         band_contrast: 80,
+         storm_activity: 60,
+         ring_density: 'moderate' as const,
+         storm_intensity: 70,  // Great red spot activity
+         cloud_opacity: 85,    // Thick atmosphere
+         hue_shift: 30,        // Orange-brown tint
+         rotation_speed: 90    // Fast rotation
+       },
+       rings: [
+         {
+           id: 'gas-giant-ring-1',
+           geometry_type: 'ring',
+           name: 'Main Ring',
+           radius_start: 1.8,
+           radius_end: 2.5,
+           inclination: 0,
+           density: 'moderate' as const,
+           composition: ['ice', 'rock'],
+           opacity: 60,
+           color: '#c0c0c0'
+         }
+       ]
+     },
+     'gas-giant-ice': {
+       id: 'gas-giant-ice',
+       name: 'Ice Giant',
+       classification: 'planet',
+       geometry_type: 'gas_giant',
+       properties: {
+         mass: 17.1,
+         radius: 24622,
+         temperature: 76,
+         band_contrast: 40,
+         storm_activity: 30,
+         ring_density: 'sparse' as const,
+         storm_intensity: 25,  // Mild storm activity
+         cloud_opacity: 70,    // Visible but less dense
+         hue_shift: 70,        // Blue-green tint
+         rotation_speed: 75    // Moderate rotation
+       }
+     },
+     
+     // Rocky Bodies (Moons/Asteroids)
+     'rocky-moon': {
+       id: 'rocky-moon',
+       name: 'Rocky Moon',
+       classification: 'moon',
+       geometry_type: 'rocky',
+       properties: {
+         mass: 0.012,
+         radius: 1737,
+         temperature: 250,
+         albedo: 12,
+         surface_variance: 80,
+         crater_density: 90,
+         regolith_depth: 50,
+         surface_color: '#888888',
+         soil_tint: 40,          // Greyish lunar soil
+         ice_coverage: 5,        // Minimal polar ice
+         temperature_class: 45   // Cold but not extreme
+       }
+     },
+     'asteroid': {
+       id: 'asteroid',
+       name: 'Large Asteroid',
+       classification: 'belt',
+       geometry_type: 'rocky',
+       properties: {
+         mass: 0.0001,
+         radius: 500,
+         temperature: 200,
+         albedo: 8,
+         surface_variance: 95,
+         crater_density: 70,
+         regolith_depth: 20,
+         surface_color: '#666666',
+         soil_tint: 25,          // Dark metallic surface
+         ice_coverage: 0,        // No ice
+         temperature_class: 30   // Very cold
+       }
+     },
+     
+     // Special Objects
+     'black-hole': {
+       id: 'black-hole',
+       name: 'Black Hole',
+       classification: 'compact-object',
+       geometry_type: 'exotic',
+       properties: {
+         mass: 10.0, // Solar masses
+         radius: 30, // Schwarzschild radius in km
+         temperature: 0,
+         accretion_disk: true,
+         disk_temperature: 10000,
+         tint: '#ff4500',
+         intensity: 100,        // Maximum effect strength
+         distortion: 66,        // Strong gravitational lensing
+         disk_speed: 75,        // Rapid accretion disk rotation
+         disk_brightness: 80    // Bright accretion disk
+       }
+     }
+  }
+  
+  return catalogObjects[objectId] || null
+}
 
 interface CelestialViewerProps {
   initialObjectType?: string
@@ -69,6 +379,15 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
     showTopographicLines: false,
   })
 
+  // Unified property overrides for geometry-specific controls
+  const [objectPropertyOverrides, setObjectPropertyOverrides] = useState<Record<string, any>>({})
+
+  // Custom shader state for live shader editor
+  const [customShaders, setCustomShaders] = useState<{
+    vertex: string | null
+    fragment: string | null
+  }>({ vertex: null, fragment: null })
+
   // Load celestial object data
   useEffect(() => {
     console.time('loadObjectTimer');  // Start timing
@@ -76,28 +395,33 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
       setIsLoading(true)
       setLoadError(null)
       try {
-        if (selectedObjectId === 'black-hole' || selectedObjectId === 'protostar') {
-          setCelestialObject(null) // Special objects handled separately in render
+        // First try to create from catalog
+        const catalogObject = createCatalogCelestialObject(selectedObjectId)
+        if (catalogObject) {
+          setCelestialObject(catalogObject)
+          // Clear property overrides when changing objects
+          setObjectPropertyOverrides({})
         } else {
-          // Determine which system to load based on the object ID or default to 'sol'
-          // TODO: Implement proper system detection based on object catalog
-          const systemId = selectedObjectId.startsWith('sol-') ? 'sol' : 'sol' // Default to sol for now
+          // Fallback to loading from system data
+          const systemId = selectedObjectId.startsWith('sol-') ? 'sol' : 'sol'
           const systemData = await engineSystemLoader.loadSystem(currentMode, systemId)
           if (systemData) {
             const foundObject = systemData.objects.find(obj => obj.id === selectedObjectId)
             if (foundObject) {
               setCelestialObject(foundObject)
+              // Clear property overrides when changing objects
+              setObjectPropertyOverrides({})
             } else {
-              setLoadError(`Object "${selectedObjectId}" not found in Sol system`)
-              // Fallback to default if not found
-              if (selectedObjectId !== 'sol-star') {
-                console.log(`Falling back to default object 'sol-star'`)
-                setSelectedObjectId('sol-star')
+              setLoadError(`Object "${selectedObjectId}" not found`)
+              // Fallback to default
+              if (selectedObjectId !== 'g2v-main-sequence') {
+                console.log(`Falling back to default object 'g2v-main-sequence'`)
+                setSelectedObjectId('g2v-main-sequence')
                 return
               }
             }
           } else {
-            setLoadError(`Failed to load Sol system`)
+            setLoadError(`Failed to load system data`)
           }
         }
       } catch (error) {
@@ -105,15 +429,15 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
         setLoadError(`Error loading object: ${selectedObjectId}`)
         setCelestialObject(null)
         
-        // Fallback to a default object if the requested one doesn't exist
-        if (selectedObjectId !== 'sol-star') {
-          console.log(`Falling back to default object 'sol-star'`)
-          setSelectedObjectId('sol-star')
-          return // This will trigger the effect again with the fallback
+        // Fallback to a default object
+        if (selectedObjectId !== 'g2v-main-sequence') {
+          console.log(`Falling back to default object 'g2v-main-sequence'`)
+          setSelectedObjectId('g2v-main-sequence')
+          return
         }
       } finally {
         setIsLoading(false)
-        console.timeEnd('loadObjectTimer')  // End timing
+        console.timeEnd('loadObjectTimer')
       }
     }
 
@@ -183,6 +507,32 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
     const finalValue = param === 'showTopographicLines' ? value > 0 : value
     setHabitabilityParams(prev => ({ ...prev, [param]: finalValue }))
   }
+
+  const handlePropertyChange = (property: string, value: number) => {
+    setObjectPropertyOverrides(prev => ({
+      ...prev,
+      [property]: value
+    }))
+  }
+
+  const handleShaderUpdate = (vertexShader: string, fragmentShader: string) => {
+    setCustomShaders({
+      vertex: vertexShader,
+      fragment: fragmentShader
+    })
+    console.log('Updated custom shaders:', { vertexShader, fragmentShader })
+  }
+
+  // Create effective properties by merging base properties with overrides
+  const effectiveObject = celestialObject ? {
+    ...celestialObject,
+    properties: {
+      ...celestialObject.properties,
+      ...objectPropertyOverrides
+    },
+    // Add custom shaders if available
+    customShaders: customShaders.vertex && customShaders.fragment ? customShaders : undefined
+  } : null
 
   if (isLoading) {
     return (
@@ -260,48 +610,26 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
             />
 
             {/* Selected object */}
-            {(() => {
-              if (selectedObjectId === 'black-hole') {
-                return (
-                  <BlackHole
-                    scale={objectScale}
-                    shaderScale={shaderScale}
-                    customizations={{
-                      shader: shaderParams
-                    }}
-                  />
-                )
-              } else if (selectedObjectId === 'protostar') {
-                return (
-                  <Protostar
-                    scale={objectScale}
-                    effectScale={shaderScale}
-                    density={shaderParams.intensity}
-                    starBrightness={shaderParams.distortion}
-                    starHue={shaderParams.diskSpeed}
-                    nebulaHue={shaderParams.lensingStrength}
-                    rotationSpeed={shaderParams.speed}
-                    spin={0}
-                  />
-                )
-              } else if (celestialObject) {
-                return (
-                  <CelestialObjectRenderer
-                    object={celestialObject}
-                    scale={objectScale}
-                    starPosition={[0,0,0]} // Assuming central star for this viewer
-                    isSelected={true} // Show effects for the displayed object
-                    shaderParams={shaderParams} // Pass shader parameters for effects like gravity warp
-                    onHover={() => {}} // No hover in this viewer
-                    onSelect={() => {}} // No select in this viewer
-                    onFocus={() => {}} // No focus in this viewer
-                    registerRef={() => {}} // No ref registration needed
-                  />
-                )
-              } else {
-                return null
-              }
-            })()}
+            {effectiveObject ? (
+              <CelestialObjectRenderer
+                object={effectiveObject}
+                scale={objectScale}
+                starPosition={[10, 5, 10]} // Position of the simulated star light
+                isSelected={true} // Show effects for the displayed object
+                planetSystemSelected={false} // Not relevant in single object viewer
+                shaderParams={shaderParams} // Pass shader parameters for effects
+                onHover={() => {}} // No hover in this viewer
+                onSelect={() => {}} // No select in this viewer
+                onFocus={() => {}} // No focus in this viewer
+                registerRef={() => {}} // No ref registration needed
+              />
+            ) : (
+              // Fallback if no object is loaded
+              <mesh>
+                <sphereGeometry args={[1, 16, 16]} />
+                <meshBasicMaterial color="#666666" wireframe />
+              </mesh>
+            )}
 
             {/* Post-processing */}
             <EffectComposer>
@@ -363,6 +691,7 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
         >
           <ObjectControls
             selectedObjectId={selectedObjectId}
+            celestialObject={effectiveObject as any}
             objectScale={objectScale}
             shaderScale={shaderScale}
             shaderParams={shaderParams}
@@ -371,6 +700,8 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
             onShaderScaleChange={setShaderScale}
             onShaderParamChange={handleShaderParamChange}
             onHabitabilityParamChange={handleHabitabilityParamChange}
+            onPropertyChange={handlePropertyChange}
+            onShaderUpdate={handleShaderUpdate}
             objectType={celestialObject?.geometry_type || selectedObjectId}
             showStats={showStats}
             onToggleStats={() => setShowStats(prev => !prev)}
@@ -389,7 +720,7 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
           style={{ height: `${100 - rightControlsHeight}%` }}
         >
           <ObjectInfo
-            celestialObject={celestialObject}
+            celestialObject={effectiveObject as any}
             selectedObjectId={selectedObjectId}
           />
         </div>

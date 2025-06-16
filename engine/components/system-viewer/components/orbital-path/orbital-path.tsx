@@ -61,7 +61,14 @@ export function OrbitalPath({
   const groupRef = useRef<THREE.Group>(null)
   const lineRef = useRef<THREE.Line>(null)
   const timeRef = useRef<number>(0)
-  const startAngleRef = useRef<number>(Math.random() * Math.PI * 2) // Random starting position
+  const startAngleRef = useRef<number>(viewType === 'profile' ? 0 : Math.random() * Math.PI * 2)
+
+  // Ensure we realign to 0° whenever the component is switched into profile view at runtime
+  useEffect(() => {
+    if (viewType === 'profile') {
+      startAngleRef.current = 0;
+    }
+  }, [viewType]);
 
   // Calculate orbit points for visualization
   const orbitPoints = useMemo(() => {
@@ -126,10 +133,10 @@ export function OrbitalPath({
       }
     }
 
-    // Skip time-based animation if paused, but still allow position updates
-    if (isPaused) return;
+    // Skip dynamic orbital motion if paused or when in static profile view mode
+    if (isPaused || viewType === 'profile') return;
 
-    // Update time - use a consistent time step to avoid jitter
+    // Update time – use a consistent time step to avoid jitter
     const timeStep = delta * (timeMultiplier || 1) * (1 / Math.max(0.1, orbitalPeriod)) * 0.1
     timeRef.current += timeStep
 

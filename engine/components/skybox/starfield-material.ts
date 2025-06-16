@@ -12,6 +12,7 @@ void main() {
 const fragmentShader = `
 precision highp float;
 varying vec3 vDirection;
+uniform float iTime;
 
 float hash(vec3 p) {
   p = fract(p * 0.3183099 + vec3(0.1, 0.2, 0.3));
@@ -129,13 +130,53 @@ void main() {
   float star = faint + bright;
   vec3 starColor = mix(warm, cool, colorMix);
 
+  // --- Twinkling Stars (from user) ---
+  float twinkleColor = 0.0;
+  
+  // Quantize the direction vector to stabilize hash for subtle rotations
+  // This effectively snaps the direction to a very fine grid
+  float quantizationFactor = 1000.0; // Adjust as needed
+  vec3 quantizedDir = floor(dir * quantizationFactor) / quantizationFactor;
+
+  // Use stable hash for star positions (fixed in world space)
+  float starSeed = stableHash(quantizedDir * 800.0);
+  
+  // Use a smoothstep to fade stars in/out instead of a hard cutoff
+  // This avoids the "pop-in" effect during rotation
+  float threshold = 0.998;
+  float fade = smoothstep(threshold - 0.0005, threshold + 0.0005, starSeed);
+
+  // Only create twinkling stars for a small percentage of positions and if faded in
+  if (fade > 0.0) {
+    // Use a different seed for flicker properties (also stable in space)
+    float flickerSeed = stableHash(quantizedDir * 1200.0);
+    
+    // Much slower, more natural flicker rate
+    float slowTime = iTime * 0.3; // Slow down the time significantly
+    float flickerRate = flickerSeed * 2.0 + 1.0; // Vary flicker rate per star (1-3)
+    
+    // Gentle sine wave flicker with some randomness
+    float baseFlicker = sin(slowTime * flickerRate + flickerSeed * 6.28) * 0.5 + 0.5;
+    float randomFlicker = sin(slowTime * flickerRate * 1.7 + flickerSeed * 12.56) * 0.3 + 0.7;
+    
+    // Combine for natural-looking twinkle
+    float twinkleIntensity = baseFlicker * randomFlicker;
+    
+    // Make the twinkle more subtle and vary brightness per star
+    float starBrightness = flickerSeed * 0.4 + 0.3; // 0.3 to 0.7 brightness range
+    twinkleColor = starBrightness * twinkleIntensity * 0.6 * fade; // Reduce overall intensity and apply fade
+  }
+  
   // --- Final composite ---
-  vec3 finalColor = milkyWay + gasClouds + starColor * star;
+  vec3 finalColor = milkyWay + gasClouds + starColor * star + vec3(twinkleColor);
   gl_FragColor = vec4(finalColor, 1.0);
 }`;
 
 export function createStarfieldMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
+    uniforms: {
+      iTime: { value: 0.0 },
+    },
     vertexShader,
     fragmentShader,
     side: THREE.BackSide,

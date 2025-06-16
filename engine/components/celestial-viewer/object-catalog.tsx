@@ -20,7 +20,7 @@ interface CatalogCategory {
 
 export function ObjectCatalog({ selectedObjectId, onObjectSelect }: ObjectCatalogProps) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Stars', 'Terrestrial Planets', 'Habitable Planets', 'Gas Giants', 'Special Objects'])
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Stars', 'Terrestrial Planets', 'Habitable Planets', 'Gas Giants', 'Rocky Bodies', 'Special Objects'])
 
   // Organize objects by category
   const categories: CatalogCategory[] = [
@@ -125,6 +125,25 @@ export function ObjectCatalog({ selectedObjectId, onObjectSelect }: ObjectCatalo
           description: 'A Neptune-like planet with icy composition',
           category: 'jovian',
           subtype: 'ice-giant'
+        }
+      ]
+    },
+    {
+      name: 'Rocky Bodies',
+      objects: [
+        {
+          id: 'rocky-moon',
+          name: 'Rocky Moon',
+          description: 'A cratered moon with regolith surface',
+          category: 'rocky',
+          subtype: 'moon'
+        },
+        {
+          id: 'asteroid',
+          name: 'Large Asteroid',
+          description: 'A heavily cratered asteroid with rough surface',
+          category: 'rocky',
+          subtype: 'asteroid'
         }
       ]
     },

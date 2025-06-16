@@ -45,8 +45,8 @@ export function useObjectSelection(
   // Store refs to all objects in the scene for parent-child relationships
   const objectRefsMap = useRef<Map<string, THREE.Object3D>>(new Map())
 
-  // Store timeout reference to prevent overlapping timeouts
-  const unpauseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // Track if we're waiting for animation to complete
+  const waitingForAnimationRef = useRef<boolean>(false)
 
   // Helper function to get object data from system data
   const getObjectData = useCallback((objectId: string) => {
@@ -54,6 +54,14 @@ export function useObjectSelection(
 
     return systemData.objects.find(obj => obj.id === objectId)
   }, [systemData])
+
+  // Handle animation completion
+  const handleAnimationComplete = useCallback(() => {
+    if (waitingForAnimationRef.current) {
+      waitingForAnimationRef.current = false
+      unpauseSimulation()
+    }
+  }, [unpauseSimulation])
 
   // Enhanced handle object focus with additional properties
   const handleObjectFocus = useCallback((
@@ -77,15 +85,16 @@ export function useObjectSelection(
 
   // Handle object selection with explicit pause state management
   const handleObjectSelect = useCallback((objectId: string, object: THREE.Object3D, name: string) => {
-    // Clear any existing unpause timeout
-    if (unpauseTimeoutRef.current) {
-      clearTimeout(unpauseTimeoutRef.current)
-      unpauseTimeoutRef.current = null
-    }
+    // Check if we're selecting the same object
+    const isSameObject = state.selectedObjectId === objectId
 
-    // Always pause when selecting an object (if not already paused)
-    if (!isPaused) {
+    // Only pause if we're selecting a different object and not already paused
+    if (!isSameObject && !isPaused) {
       pauseSimulation()
+      waitingForAnimationRef.current = true
+    } else if (isSameObject && isPaused) {
+      // If selecting the same object and we're paused, unpause immediately
+      unpauseSimulation()
     }
 
     setState(prev => {
@@ -101,12 +110,6 @@ export function useObjectSelection(
         ? objectData.orbit.semi_major_axis 
         : null
 
-      // Set timeout to unpause after camera navigation completes
-      unpauseTimeoutRef.current = setTimeout(() => {
-        unpauseSimulation()
-        unpauseTimeoutRef.current = null
-      }, 1000) // Adjust delay as needed
-
       return {
         ...prev,
         selectedObjectId: objectId,
@@ -120,7 +123,7 @@ export function useObjectSelection(
         focusedObjectOrbitRadius: orbitalSemiMajorAxis
       }
     })
-  }, [viewType, systemData, getObjectData, pauseSimulation, unpauseSimulation, isPaused])
+  }, [viewType, systemData, getObjectData, pauseSimulation, unpauseSimulation, isPaused, state.selectedObjectId])
 
   // Handle object hover
   const handleObjectHover = useCallback((objectId: string | null) => {
@@ -163,14 +166,7 @@ export function useObjectSelection(
     objectRefsMap.current = new Map()
   }, [systemData])
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (unpauseTimeoutRef.current) {
-        clearTimeout(unpauseTimeoutRef.current)
-      }
-    }
-  }, [])
+  // No cleanup needed for animation completion approach
 
   return {
     ...state,
@@ -180,6 +176,7 @@ export function useObjectSelection(
     handleObjectHover,
     handleCanvasClick,
     handleStopFollowing,
-    handleBackButtonClick
+    handleBackButtonClick,
+    handleAnimationComplete
   }
 }

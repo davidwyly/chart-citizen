@@ -14,6 +14,7 @@ interface UnifiedCameraControllerProps {
   focusMass?: number
   focusOrbitRadius?: number
   viewMode: ViewType
+  onAnimationComplete?: () => void
 }
 
 export interface UnifiedCameraControllerRef {
@@ -32,6 +33,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     focusMass,
     focusOrbitRadius,
     viewMode,
+    onAnimationComplete,
   }: UnifiedCameraControllerProps, ref) {
     const { camera, controls } = useThree()
     const controlsRef = useRef<any>(controls)
@@ -174,11 +176,15 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           if (controlsRef.current) {
             controlsRef.current.enabled = true
           }
+
+          if (onAnimationComplete) {
+            onAnimationComplete()
+          }
         }
       }
 
       animate()
-    }, [camera, calculateMaxOrbitRadius, viewConfig, viewMode, createEasingFunction])
+    }, [camera, calculateMaxOrbitRadius, viewConfig, viewMode, createEasingFunction, onAnimationComplete])
 
     // Set initial system view
     useEffect(() => {
@@ -388,6 +394,10 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
 
             // Update last position
             lastObjectPositionRef.current.copy(position)
+
+            if (onAnimationComplete) {
+              onAnimationComplete()
+            }
           }
         }
 
@@ -400,7 +410,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           controlsRef.current.enabled = true
         }
       }
-    }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, camera, viewConfig, createEasingFunction])
+    }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, camera, viewConfig, createEasingFunction, onAnimationComplete])
 
     // Continuously follow the focused object
     useFrame(() => {

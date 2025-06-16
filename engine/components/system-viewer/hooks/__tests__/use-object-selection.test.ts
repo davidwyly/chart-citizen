@@ -51,7 +51,7 @@ describe('useObjectSelection pause/unpause behavior', () => {
 
   it('should pause immediately when object is selected (if not already paused)', () => {
     const { result } = renderHook(() => 
-      useObjectSelection(mockSystemData, 'realistic', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
     )
 
     const mockObject = new THREE.Object3D()
@@ -67,7 +67,7 @@ describe('useObjectSelection pause/unpause behavior', () => {
 
   it('should not pause again if already paused', () => {
     const { result } = renderHook(() => 
-      useObjectSelection(mockSystemData, 'realistic', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, true)
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, true)
     )
 
     const mockObject = new THREE.Object3D()
@@ -83,7 +83,7 @@ describe('useObjectSelection pause/unpause behavior', () => {
 
   it('should unpause after camera navigation completes', () => {
     const { result } = renderHook(() => 
-      useObjectSelection(mockSystemData, 'realistic', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
     )
 
     const mockObject = new THREE.Object3D()
@@ -95,12 +95,12 @@ describe('useObjectSelection pause/unpause behavior', () => {
     // Should pause immediately
     expect(mockPauseSimulation).toHaveBeenCalledTimes(1)
 
-    // Fast-forward time to trigger the unpause
+    // Simulate animation completion
     act(() => {
-      vi.advanceTimersByTime(1000)
+      result.current.handleAnimationComplete()
     })
 
-    // Should unpause after delay
+    // Should unpause after animation completes
     expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1)
   })
 
@@ -109,7 +109,7 @@ describe('useObjectSelection pause/unpause behavior', () => {
     
     const { result, rerender } = renderHook(
       ({ isPausedState }) => 
-        useObjectSelection(mockSystemData, 'realistic', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, isPausedState),
+        useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, isPausedState),
       { initialProps: { isPausedState: isPaused } }
     )
 
@@ -127,27 +127,20 @@ describe('useObjectSelection pause/unpause behavior', () => {
     // Re-render with updated pause state
     rerender({ isPausedState: isPaused })
 
-    // Second selection before first timeout completes (now system is paused)
+    // Second selection of same object while paused - should unpause immediately
     act(() => {
       result.current.handleObjectSelect('earth', mockObject2, 'Earth')
     })
 
-    // Should have paused only once (since already paused after first selection)
+    // Should have paused only once, and unpaused once immediately due to same object selection
     expect(mockPauseSimulation).toHaveBeenCalledTimes(1)
-
-    // Fast-forward past timeout
-    act(() => {
-      vi.advanceTimersByTime(1000)
-    })
-
-    // Should have unpaused once (the second timeout should have cleared the first)
     expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1)
   })
 
   it('should maintain consistent behavior regardless of initial pause state', () => {
     // Test with initially unpaused state
     const { result: unpausedResult } = renderHook(() => 
-      useObjectSelection(mockSystemData, 'realistic', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
     )
 
     const mockObject = new THREE.Object3D()
@@ -157,7 +150,7 @@ describe('useObjectSelection pause/unpause behavior', () => {
     })
 
     act(() => {
-      vi.advanceTimersByTime(1000)
+      unpausedResult.current.handleAnimationComplete()
     })
 
     expect(mockPauseSimulation).toHaveBeenCalledTimes(1)
@@ -169,18 +162,38 @@ describe('useObjectSelection pause/unpause behavior', () => {
 
     // Test with initially paused state
     const { result: pausedResult } = renderHook(() => 
-      useObjectSelection(mockSystemData, 'realistic', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, true)
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, true)
     )
 
     act(() => {
       pausedResult.current.handleObjectSelect('earth', mockObject, 'Earth')
     })
 
+    // Should not pause again when already paused, and should not unpause without animation completion
+    expect(mockPauseSimulation).toHaveBeenCalledTimes(0)
+    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(0)
+  })
+
+  it('should unpause immediately when selecting the same object while paused', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, true)
+    )
+
+    const mockObject = new THREE.Object3D()
+    
+    // First selection - should not pause since already paused
     act(() => {
-      vi.advanceTimersByTime(1000)
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
     })
 
-    // Should not pause again, but should still unpause
+    expect(mockPauseSimulation).toHaveBeenCalledTimes(0)
+    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(0)
+
+    // Select the same object again while paused - should unpause immediately
+    act(() => {
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+    })
+
     expect(mockPauseSimulation).toHaveBeenCalledTimes(0)
     expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1)
   })

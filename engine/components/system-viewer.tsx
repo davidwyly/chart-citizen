@@ -109,6 +109,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     handleCanvasClick,
     handleStopFollowing,
     handleBackButtonClick,
+    handleAnimationComplete,
   } = useObjectSelection(systemData, viewType, setTimeMultiplier, pauseSimulation, unpauseSimulation, isPaused)
 
   // Get focused object properties for unified camera controller
@@ -308,6 +309,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
               focusMass={focusedObjectProperties?.mass}
               focusOrbitRadius={focusedObjectProperties?.orbitRadius}
               viewMode={viewType}
+              onAnimationComplete={handleAnimationComplete}
             />
 
             {/* OrbitControls with improved settings */}
