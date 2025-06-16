@@ -6,9 +6,9 @@ import { OrbitControls, Preload } from "@react-three/drei"
 import { EffectComposer, Bloom } from "@react-three/postprocessing"
 import { Suspense } from "react"
 import * as THREE from "three"
-import { CatalogObjectWrapper } from "./system-viewer/catalog-object-wrapper"
+import { CelestialObjectRenderer } from "@/engine/components/system-viewer/system-objects-renderer"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
-import { engineSystemLoader, type SystemData } from "@/engine/system-loader"
+import { OrbitalSystemData, CelestialObject } from "@/engine/types/orbital-system"
 import { BlackHole } from "./3d-ui/black-hole"
 import { SystemViewer } from "./system-viewer"
 
@@ -146,15 +146,20 @@ export function DebugViewer({ objectType }: DebugViewerProps) {
   }, [objectType])
 
   // Mock system data for the debug viewer
-  const mockSystemData: SystemData = {
+  const mockSystemData: OrbitalSystemData = {
     id: "debug-system",
     name: "Debug System",
     description: "Debug system for shader testing",
-    barycenter: [0, 0, 0] as [number, number, number],
-    stars: [{
-      id: "debug-star",
-      catalog_ref: "debug-star",
-      name: "Debug Star",
+    objects: [{
+      id: "debug-object",
+      name: selectedObject?.name || "Debug Object",
+      classification: selectedObject?.type === "star" ? "star" : "planet", // Simplified classification
+      geometry_type: "terrestrial", // Default geometry type
+      properties: {
+        mass: 1.0,
+        radius: 1.0,
+        temperature: 100
+      },
       position: [0, 0, 0] as [number, number, number]
     }],
     lighting: {
@@ -200,7 +205,7 @@ export function DebugViewer({ objectType }: DebugViewerProps) {
       >
         <Suspense fallback={null}>
           {/* Basic scene setup */}
-          <SceneLighting systemData={mockSystemData} viewType="realistic" />
+          <SceneLighting systemData={mockSystemData} viewType="explorational" />
           
           {/* Orbit controls */}
           <OrbitControls
@@ -232,17 +237,14 @@ export function DebugViewer({ objectType }: DebugViewerProps) {
               }}
             />
           ) : (
-            <CatalogObjectWrapper
-              objectId="debug-object"
-              catalogRef={objectType}
-              position={[0, 0, 0]}
+            <CelestialObjectRenderer
+              object={mockSystemData.objects[0]}
               scale={objectScale}
-              shaderScale={shaderScale}
-              customizations={{
-                shader: {
-                  ...shaderParams
-                }
-              }}
+              starPosition={[0, 0, 0]}
+              isSelected={false}
+              onHover={() => {}}
+              onSelect={() => {}}
+              registerRef={() => {}}
             />
           )}
 

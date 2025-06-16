@@ -126,7 +126,7 @@ describe('Orbital Mechanics Validation - Fixed Issues', () => {
   describe('Orbital Distance Accuracy', () => {
     it('should place planets at correct distances in realistic mode', () => {
       const objects = createSolarSystemTestData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       // Expected vs actual orbital distances (in AU from original data)
       const expectedDistances = {
@@ -167,9 +167,9 @@ describe('Orbital Mechanics Validation - Fixed Issues', () => {
       expect(results.jupiter.error).toBeLessThan(25); // Jupiter may still have some adjustment due to collision detection
     });
 
-    it('should maintain proper size scaling for stars in realistic mode', () => {
+    it('should maintain proper size scaling for stars in explorational mode', () => {
       const objects = createSolarSystemTestData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const sunData = mechanics.get('sol-star')!;
       const mercuryData = mechanics.get('mercury')!;
@@ -186,7 +186,7 @@ describe('Orbital Mechanics Validation - Fixed Issues', () => {
 
     it('should prevent orbital collisions while maintaining accuracy', () => {
       const objects = createSolarSystemTestData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       // Get all planets in order
       const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter'];
@@ -216,7 +216,7 @@ describe('Orbital Mechanics Validation - Fixed Issues', () => {
     it('should maintain planetary ordering across all view modes', () => {
       const objects = createSolarSystemTestData();
       
-      const realisticMechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const realisticMechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       const navMechanics = calculateSystemOrbitalMechanics(objects, 'navigational');
       const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile');
       
@@ -251,11 +251,11 @@ describe('Orbital Mechanics Validation - Fixed Issues', () => {
       const objects = createSolarSystemTestData();
       
       const start1 = performance.now();
-      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'explorational');
       const time1 = performance.now() - start1;
       
       const start2 = performance.now();
-      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'explorational');
       const time2 = performance.now() - start2;
       
       // Second calculation should be much faster (cached)

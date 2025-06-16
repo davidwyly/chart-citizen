@@ -1,7 +1,7 @@
 # Orbital Mechanics System
 
 ## Overview
-Ensures proper scaling and positioning of celestial objects across all view modes (realistic, navigational, profile), preventing orbiting objects from rendering inside parents.
+Ensures proper scaling and positioning of celestial objects across all view modes (explorational, navigational, profile), preventing orbiting objects from rendering inside parents.
 
 ## Problem Statement
 
@@ -26,7 +26,7 @@ Each view mode has its own scaling profile:
 
 ```typescript
 const VIEW_MODE_SCALINGS: Record<ViewType, ViewModeScaling> = {
-  realistic: {
+  explorational: {
     // Proportional scaling based on actual sizes
     objectScaling: { star: 0.000001, planet: 0.0001, moon: 0.0002 },
     orbitScaling: 1.0, // Keep AU distances proportional
@@ -53,7 +53,7 @@ Minimum safe distances as multiples of parent visual radius:
 
 ```typescript
 const ORBITAL_SAFETY_MULTIPLIERS = {
-  realistic: 2.5,    // 2.5x parent radius minimum
+  explorational: 2.5,    // 2.5x parent radius minimum
   navigational: 3.0, // 3x parent radius minimum
   profile: 3.5,      // 3.5x parent radius minimum (more spacing needed)
 };
@@ -74,7 +74,7 @@ export function classifyObject(object: CelestialObject): ObjectClass {
 
 ### `calculateVisualRadius(object, viewType)`
 Calculates visual rendering radius for any object in any view mode:
-- **Realistic Mode**: Scaled actual radius with minimum sizes.
+- **Explorational Mode**: Scaled actual radius with minimum sizes.
 - **Navigational/Profile**: Fixed sizes per object type.
 - Ensures minimum visibility.
 
@@ -111,7 +111,7 @@ Main function processing an entire system:
 import { calculateSystemOrbitalMechanics } from '@/engine/utils/orbital-mechanics-calculator';
 
 // Calculate mechanics for entire system
-const mechanics = calculateSystemOrbitalMechanics(systemData.objects, 'realistic');
+const mechanics = calculateSystemOrbitalMechanics(systemData.objects, 'explorational');
 
 // Get data for specific object
 const planetData = mechanics.get('earth');
@@ -148,10 +148,10 @@ const orbit = legacy.getObjectOrbitDistance(objectId);
 
 ## View Mode Behaviors
 
-### Realistic Mode
-- **Purpose**: Scientific accuracy, proportional scaling.
+### Explorational Mode
+- **Purpose**: Proportional scaling, educational visualization.
 - **Object Sizes**: Scaled from actual radius data with minimums for visibility.
-- **Orbital Distances**: Proportional to actual AU distances, but safe.
+- **Orbital Distances**: Proportional to actual AU distances, but safe orbital clearing.
 - **Use Cases**: Educational visualization, immersive experience.
 
 ### Navigational Mode

@@ -323,7 +323,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
       const objects = createSolarSystemTestData();
       
       // Test all view modes
-      const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
       
       for (const viewMode of viewModes) {
         const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -341,20 +341,20 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         const jupiterData = mechanics.get('jupiter')!;
         
         // Size relationships should be maintained
-        if (viewMode === 'realistic') {
-          // In realistic mode, stars are kept small for proper orbital mechanics
+        if (viewMode === 'explorational') {
+          // In explorational mode, stars are kept small for proper orbital mechanics
           // Jupiter should be larger than Mars, but Sun may be smaller than Jupiter
           expect(jupiterData.visualRadius).toBeGreaterThan(marsData.visualRadius);
           expect(solData.visualRadius).toBeGreaterThan(0); // Sun should still be visible
         } else {
-          // In non-realistic modes, traditional size hierarchy applies
+          // In non-explorational modes, traditional size hierarchy applies
           expect(solData.visualRadius).toBeGreaterThan(jupiterData.visualRadius);
           expect(jupiterData.visualRadius).toBeGreaterThan(marsData.visualRadius);
         }
       }
     });
 
-    it('should handle fixed sizes correctly in non-realistic modes', () => {
+    it('should handle fixed sizes correctly in non-explorational modes', () => {
       const objects = createSolarSystemTestData();
       
       // Navigational mode should use fixed sizes
@@ -371,25 +371,26 @@ describe('System Viewer Orbital Mechanics Integration', () => {
     it('should scale orbital distances correctly for each view mode', () => {
       const objects = createSolarSystemTestData();
       
-      const realisticMechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const explorationalMechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       const navMechanics = calculateSystemOrbitalMechanics(objects, 'navigational');
       const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile');
       
       // Mars should have orbital distance in all modes
-      const marsRealistic = realisticMechanics.get('mars')!;
+      const marsExplorational = explorationalMechanics.get('mars')!;
       const marsNav = navMechanics.get('mars')!;
       const marsProfile = profileMechanics.get('mars')!;
       
-      expect(marsRealistic.orbitDistance).toBeGreaterThan(0);
+      expect(marsExplorational.orbitDistance).toBeGreaterThan(0);
       expect(marsNav.orbitDistance).toBeGreaterThan(0);
       expect(marsProfile.orbitDistance).toBeGreaterThan(0);
       
       // Different view modes should have different orbital scaling
-      // Realistic has higher orbital scaling (8.0) than navigational (4.0) and profile (2.5)
-      // However, collision detection may adjust these, so we just verify they're all positive
-      expect(marsRealistic.orbitDistance!).toBeGreaterThan(0);
-      expect(marsNav.orbitDistance!).toBeGreaterThan(0);
-      expect(marsProfile.orbitDistance!).toBeGreaterThan(0);
+      // However, collision detection may cause objects to be positioned differently
+      // than raw orbital scaling would suggest, especially when moon systems are involved
+      
+      // Profile mode should generally have the smallest distances due to lowest scaling (4.0)
+      expect(marsProfile.orbitDistance!).toBeLessThan(marsNav.orbitDistance!);
+      expect(marsNav.orbitDistance!).toBeLessThan(marsExplorational.orbitDistance!);
     });
   });
 
@@ -397,7 +398,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
     it('should position asteroid belt correctly between Mars and Jupiter', () => {
       const objects = createSolarSystemTestData();
       
-      for (const viewMode of ['realistic', 'navigational', 'profile'] as ViewType[]) {
+      for (const viewMode of ['explorational', 'navigational', 'profile'] as ViewType[]) {
         const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
         
         const marsData = mechanics.get('mars')!;
@@ -433,7 +434,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
     it('should prevent orbital collisions between adjacent objects', () => {
       const objects = createSolarSystemTestData();
       
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       // Get all objects orbiting the star (excluding the star itself)
       const orbitingObjects = objects
@@ -483,7 +484,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
 
   describe('Step 4: System Viewer Rendering Integration', () => {
 
-    it('should render system with realistic view mode', () => {
+    it('should render system with explorational view mode', () => {
       const objects = createSolarSystemTestData();
       const systemData = createSystemData(objects);
       
@@ -493,7 +494,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
             <SystemObjectsRenderer
               {...defaultProps}
               systemData={systemData}
-              viewType="realistic"
+              viewType="explorational"
             />
           </Canvas>
         );
@@ -538,7 +539,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
       const objects = createSolarSystemTestData();
       const systemData = createSystemData(objects);
       
-      const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
       
       viewModes.forEach(viewMode => {
         expect(() => {
@@ -560,7 +561,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
     it('should maintain relative positioning across view modes', () => {
       const objects = createSolarSystemTestData();
       
-      const realisticMechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const explorationalMechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       const navMechanics = calculateSystemOrbitalMechanics(objects, 'navigational');
       const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile');
       
@@ -580,44 +581,44 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         return positions;
       };
       
-      const realisticOrdering = getOrdering(realisticMechanics);
+      const explorationalOrdering = getOrdering(explorationalMechanics);
       const navOrdering = getOrdering(navMechanics);
       const profileOrdering = getOrdering(profileMechanics);
       
       // All view modes should have the same ordering
-      expect(realisticOrdering).toEqual(navOrdering);
+      expect(explorationalOrdering).toEqual(navOrdering);
       expect(navOrdering).toEqual(profileOrdering);
       
       // Expected ordering: Mercury, Venus, Earth, Mars, Asteroid Belt, Jupiter
       const expectedOrdering = ['mercury', 'venus', 'earth', 'mars', 'asteroid-belt', 'jupiter'];
-      expect(realisticOrdering).toEqual(expectedOrdering);
+      expect(explorationalOrdering).toEqual(expectedOrdering);
     });
 
     it('should validate orbital distance ratios across view modes', () => {
       const objects = createSolarSystemTestData();
       
-      const realisticMechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const explorationalMechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       const navMechanics = calculateSystemOrbitalMechanics(objects, 'navigational');
       
       // Get Earth and Mars distances for ratio comparison
-      const earthRealistic = realisticMechanics.get('earth')!.orbitDistance!;
-      const marsRealistic = realisticMechanics.get('mars')!.orbitDistance!;
+      const earthExplorational = explorationalMechanics.get('earth')!.orbitDistance!;
+      const marsExplorational = explorationalMechanics.get('mars')!.orbitDistance!;
       const earthNav = navMechanics.get('earth')!.orbitDistance!;
       const marsNav = navMechanics.get('mars')!.orbitDistance!;
       
       // Calculate ratios
-      const realisticRatio = marsRealistic / earthRealistic;
+      const explorationalRatio = marsExplorational / earthExplorational;
       const navRatio = marsNav / earthNav;
       
       // The ratios should be similar (within 25% tolerance) to maintain proportional relationships
       // Note: Collision detection may adjust objects differently in each view mode
       const tolerance = 0.25;
-      expect(Math.abs(realisticRatio - navRatio) / realisticRatio).toBeLessThan(tolerance);
+      expect(Math.abs(explorationalRatio - navRatio) / explorationalRatio).toBeLessThan(tolerance);
       
       console.log('Distance ratios (Mars/Earth):', {
-        realistic: realisticRatio,
+        explorational: explorationalRatio,
         navigational: navRatio,
-        difference: Math.abs(realisticRatio - navRatio),
+        difference: Math.abs(explorationalRatio - navRatio),
       });
     });
   });
@@ -625,7 +626,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
   describe('Step 6: Orbital Distance Validation and Issue Detection', () => {
     it('should detect and report orbital distance discrepancies', () => {
       const objects = createSolarSystemTestData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       // Expected vs actual orbital distances (in AU from original data)
       const expectedDistances = {
@@ -641,7 +642,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
       Object.entries(expectedDistances).forEach(([objectId, expectedAU]) => {
         const mechanicsData = mechanics.get(objectId);
         if (mechanicsData?.orbitDistance) {
-          // Convert back to AU for comparison (assuming 8.0 scaling factor for realistic mode)
+          // Convert back to AU for comparison (assuming 8.0 scaling factor for explorational mode)
           const actualAU = mechanicsData.orbitDistance / 8.0;
           const discrepancy = Math.abs(actualAU - expectedAU) / expectedAU;
           
@@ -667,7 +668,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
 
     it('should validate asteroid belt positioning relative to planets', () => {
       const objects = createSolarSystemTestData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const marsData = mechanics.get('mars')!;
       const beltData = mechanics.get('asteroid-belt')!;
@@ -731,7 +732,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
 
       const objects = [star, belt];
       const systemData = createSystemData(objects);
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const beltData = mechanics.get('test-belt')!;
       expect(beltData.beltData).toBeDefined();
@@ -744,7 +745,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
             <SystemObjectsRenderer
               {...defaultProps}
               systemData={systemData}
-              viewType="realistic"
+              viewType="explorational"
             />
           </Canvas>
         );
@@ -793,7 +794,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
 
       const objects = [star, belt1, belt2];
       const systemData = createSystemData(objects);
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const belt1Data = mechanics.get('belt1')!;
       const belt2Data = mechanics.get('belt2')!;
@@ -808,7 +809,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
             <SystemObjectsRenderer
               {...defaultProps}
               systemData={systemData}
-              viewType="realistic"
+              viewType="explorational"
             />
           </Canvas>
         );
@@ -821,7 +822,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
     describe('Basic Parent-Child Size Requirements', () => {
       it('should ensure stars are larger than their planets in all view modes', () => {
         const objects = createSolarSystemTestData();
-        const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+        const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
         
         viewModes.forEach(viewMode => {
           const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -846,7 +847,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
 
       it('should ensure planets are larger than their moons in all view modes', () => {
         const objects = createComplexSystemWithMoons();
-        const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+        const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
         
         viewModes.forEach(viewMode => {
           const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -871,7 +872,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
 
       it('should maintain hierarchical size ordering: star > planet > moon', () => {
         const objects = createComplexSystemWithMoons();
-        const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+        const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
         
         viewModes.forEach(viewMode => {
           const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -904,7 +905,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
     describe('Exception Handling for Special Objects', () => {
       it('should properly handle belts and rings as exceptions to size hierarchy', () => {
         const objects = createSolarSystemTestData();
-        const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+        const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
         
         const starData = mechanics.get('sol-star')!;
         const beltData = mechanics.get('asteroid-belt')!;
@@ -966,7 +967,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         };
 
         const objects = [star, planet, rings];
-        const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+        const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
         
         const planetData = mechanics.get('ringed-planet')!;
         const ringData = mechanics.get('planet-rings')!;
@@ -993,7 +994,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
         
         systemTypes.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1050,7 +1051,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
     describe('Size Ratio Requirements', () => {
       it('should maintain reasonable size ratios between parents and children', () => {
         const objects = createComplexSystemWithMoons();
-        const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+        const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
         
         const starData = mechanics.get('main-star')!;
         const planetData = mechanics.get('giant-planet')!;
@@ -1074,7 +1075,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
 
       it('should maintain minimum size differences across all view modes', () => {
         const objects = createComplexSystemWithMoons();
-        const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+        const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
         
         viewModes.forEach(viewMode => {
           const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1112,7 +1113,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         radius: 2000,       // From starfield-skybox.tsx - sphereGeometry args
       },
       viewModeConfigs: {
-        realistic: {
+        explorational: {
           absoluteMinDistance: 0.3,
           absoluteMaxDistance: 100,
         },
@@ -1135,7 +1136,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1172,7 +1173,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1223,7 +1224,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1269,7 +1270,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1317,7 +1318,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1363,7 +1364,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1402,7 +1403,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -1451,7 +1452,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           const systemScales: { [viewMode: string]: number } = {};
           
           viewModes.forEach(viewMode => {
@@ -1480,25 +1481,25 @@ describe('System Viewer Orbital Mechanics Integration', () => {
           });
           
           // Compare scales between view modes
-          const realisticScale = systemScales['realistic'];
+          const explorationalScale = systemScales['explorational'];
           const navScale = systemScales['navigational'];
           const profileScale = systemScales['profile'];
           
           // Scales should be in the same order of magnitude
-          const realisticNavRatio = realisticScale / navScale;
-          const realisticProfileRatio = realisticScale / profileScale;
+          const explorationalNavRatio = explorationalScale / navScale;
+          const explorationalProfileRatio = explorationalScale / profileScale;
           
-          expect(realisticNavRatio).toBeGreaterThan(0.1);
-          expect(realisticNavRatio).toBeLessThan(10.0);
-          expect(realisticProfileRatio).toBeGreaterThan(0.1);
-          expect(realisticProfileRatio).toBeLessThan(10.0);
+          expect(explorationalNavRatio).toBeGreaterThan(0.1);
+          expect(explorationalNavRatio).toBeLessThan(10.0);
+          expect(explorationalProfileRatio).toBeGreaterThan(0.1);
+          expect(explorationalProfileRatio).toBeLessThan(10.0);
           
           console.log(`${name} - Scale consistency:`, {
-            realistic: realisticScale.toFixed(1),
+            explorational: explorationalScale.toFixed(1),
             navigational: navScale.toFixed(1),
             profile: profileScale.toFixed(1),
-            realisticNavRatio: realisticNavRatio.toFixed(2),
-            realisticProfileRatio: realisticProfileRatio.toFixed(2),
+            explorationalNavRatio: explorationalNavRatio.toFixed(2),
+            explorationalProfileRatio: explorationalProfileRatio.toFixed(2),
           });
         });
       });
@@ -1540,7 +1541,7 @@ describe('System Viewer Orbital Mechanics Integration', () => {
         ];
 
         systems.forEach(({ name, objects }) => {
-          const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+          const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
           
           viewModes.forEach(viewMode => {
             const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);

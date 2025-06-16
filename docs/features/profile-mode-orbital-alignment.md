@@ -8,8 +8,8 @@ View star systems in a top-down, diagrammatic format with planets aligned on a s
 - Profile mode: Orbital paths drawn with equidistant spacing (not astronomical distances).
 - Profile mode: Orbits visible and clearly distinct.
 - Profile mode: All planets visible, even if previously hidden.
-- Realistic/Navigational modes: Original 3D perspective maintained.
-- Realistic mode: Actual astronomical distances for orbital paths.
+- Explorational/Navigational modes: Original 3D perspective maintained.
+- Explorational mode: Actual astronomical distances for orbital paths.
 - Navigational mode: Equidistant orbital paths in 3D perspective.
 
 ## Implementation Strategy

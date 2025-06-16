@@ -64,8 +64,8 @@ describe('Camera System', () => {
       store.setViewMode('profile');
       expect(store.getViewMode()).toBe('profile');
       
-      store.setViewMode('realistic');
-      expect(store.getViewMode()).toBe('realistic');
+      store.setViewMode('explorational');
+      expect(store.getViewMode()).toBe('explorational');
     });
 
     it('should get view mode scaling', () => {

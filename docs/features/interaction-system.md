@@ -49,7 +49,7 @@ Intuitive, responsive interaction with celestial objects (selection, navigation,
 ```
 
 ## View Mode Support
-- Realistic: Full interaction capabilities.
+- Explorational: Full interaction capabilities.
 - Navigational: Simplified controls, enhanced visibility.
 - Profile: Focused on specific features.
 

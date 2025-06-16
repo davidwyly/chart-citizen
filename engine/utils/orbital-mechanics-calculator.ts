@@ -1,19 +1,106 @@
+/**
+ * ORBITAL MECHANICS CALCULATOR
+ * ============================
+ * 
+ * This module calculates visual radii and orbital positions for celestial objects across different view modes.
+ * It handles complex dependencies between parent-child relationships, moon systems, and collision detection.
+ * 
+ * CRITICAL ORDER OF OPERATIONS:
+ * =============================
+ * 
+ * The calculation follows a strict 5-step process to resolve circular dependencies and ensure collision-free layouts:
+ * 
+ * 1. VISUAL RADIUS CALCULATION (Two-Pass)
+ *    ├── Pass 1: Calculate visual radii for all non-moon objects (stars, planets, belts)
+ *    │   - Uses logarithmic scaling in explorational mode
+ *    │   - Uses fixed sizes in navigational/profile modes
+ *    │   - Must be done first as moons depend on parent sizes
+ *    └── Pass 2: Calculate visual radii for moons
+ *        - In explorational mode: proportional to parent size
+ *        - In other modes: uses fixed moon size
+ *        - Requires parent visual radii to be calculated first
+ * 
+ * 2. ORBITAL POSITION CALCULATION (Two-Pass Algorithm)
+ *    ├── Pass 1: Calculate all moon orbits within their parent systems
+ *    │   - Sorts moons by original AU distance
+ *    │   - Places moons with proper spacing and safety factors
+ *    │   - Records orbitDistance for each moon
+ *    │   - CRITICAL: Must be done before planets to avoid circular dependency
+ *    └── Pass 2: Calculate planet and belt orbits
+ *        - Uses effective orbital radius (including moon systems)
+ *        - Now works correctly because moon positions are known
+ *        - Handles collision avoidance between sibling objects
+ * 
+ * 3. GLOBAL COLLISION DETECTION AND ADJUSTMENT
+ *    - Checks for overlaps between objects orbiting the same parent
+ *    - Uses ACTUAL calculated positions (not raw AU values)
+ *    - Adjusts orbits outward to prevent collisions
+ *    - Handles both regular orbits and belt objects
+ * 
+ * 4. PARENT-CHILD SIZE HIERARCHY ENFORCEMENT
+ *    - Ensures parents are larger than their children
+ *    - Scales objects proportionally when needed
+ *    - Respects view mode constraints
+ * 
+ * 5. MEMOIZATION AND CACHING
+ *    - Caches results to avoid recalculation
+ *    - Uses object configuration + view mode as cache key
+ * 
+ * DEPENDENCY RESOLUTION:
+ * ======================
+ * 
+ * The two-pass algorithm in step 2 solves a critical circular dependency:
+ * 
+ * PROBLEM:
+ * - To calculate Earth's orbit position, we need its effective orbital radius (including moons)
+ * - To calculate effective orbital radius, we need moon orbit distances
+ * - But moon orbit distances depend on Earth's position being calculated first
+ * 
+ * SOLUTION:
+ * - Pass 1: Calculate all moon orbits independently within their parent systems
+ * - Pass 2: Calculate planet orbits using the now-available moon positions
+ * 
+ * This ensures that when calculateEffectiveOrbitalRadius() is called for planets,
+ * all moon orbitDistance values are already available.
+ * 
+ * VIEW MODE DIFFERENCES:
+ * ======================
+ * 
+ * - EXPLORATIONAL (orbitScaling: 8.0): Logarithmic size scaling, proportional moon sizes
+ * - NAVIGATIONAL (orbitScaling: 6.0): Fixed sizes, higher safety factors
+ * - PROFILE (orbitScaling: 4.0): Fixed sizes, compact layout
+ * 
+ * Each mode has different scaling factors and safety multipliers to achieve
+ * the desired visual appearance while maintaining collision-free layouts.
+ * 
+ * COLLISION PREVENTION:
+ * =====================
+ * 
+ * The system prevents three types of collisions:
+ * 1. Parent-child collisions (moons inside planets, planets inside stars)
+ * 2. Sibling collisions (adjacent planets, adjacent moons)
+ * 3. Moon system overlaps (one planet's moon system overlapping another planet)
+ * 
+ * The effective orbital radius calculation ensures that when placing objects,
+ * the full extent of their moon systems is considered.
+ */
+
 import { ViewType } from '@lib/types/effects-level';
 import { CelestialObject, isOrbitData, isBeltOrbitData } from '@/engine/types/orbital-system';
 
 // Simple view mode configurations - FIXED and reliable scaling
 export const VIEW_CONFIGS = {
-  realistic: {
+  explorational: {
     maxVisualSize: 2.0,
     minVisualSize: 0.02,
-    orbitScaling: 8.0, // Keep realistic as baseline
+    orbitScaling: 8.0, // Keep explorational as baseline
     safetyMultiplier: 2.5,
     minDistance: 0.1,
   },
   navigational: {
     maxVisualSize: 2.5,
     minVisualSize: 0.05,
-    orbitScaling: 6.0, // Adjusted from 4.0 to be more proportional (3/4 of realistic)
+    orbitScaling: 6.0, // Adjusted from 4.0 to be more proportional (3/4 of explorational)
     safetyMultiplier: 3.0,
     minDistance: 0.2,
     fixedSizes: {
@@ -28,7 +115,7 @@ export const VIEW_CONFIGS = {
   profile: {
     maxVisualSize: 1.5,
     minVisualSize: 0.03,
-    orbitScaling: 4.0, // Adjusted from 2.5 to be more proportional (1/2 of realistic)
+    orbitScaling: 4.0, // Adjusted from 2.5 to be more proportional (1/2 of explorational)
     safetyMultiplier: 3.5,
     minDistance: 0.3,
     fixedSizes: {
@@ -72,8 +159,8 @@ function calculateVisualRadius(
   const config = VIEW_CONFIGS[viewType];
   const radiusKm = object.properties.radius || 1;
   
-  // Use fixed sizes for non-realistic modes - IMPROVED CLASSIFICATION LOGIC
-  if (viewType !== 'realistic' && 'fixedSizes' in config) {
+  // Use fixed sizes for non-explorational modes - IMPROVED CLASSIFICATION LOGIC
+  if (viewType !== 'explorational' && 'fixedSizes' in config) {
     // Use geometry_type for better differentiation, fallback to classification
     let sizeKey = object.classification || 'asteroid';
     
@@ -99,8 +186,8 @@ function calculateVisualRadius(
     return fixedSize;
   }
   
-  // REALISTIC MODE: Implement proportional parent-child scaling
-  if (viewType === 'realistic') {
+  // EXPLORATIONAL MODE: Implement proportional parent-child scaling
+  if (viewType === 'explorational') {
     // For child objects (moons), scale proportionally to their parent
     if (object.orbit?.parent && object.classification === 'moon') {
       const parent = allObjects.find(obj => obj.id === object.orbit!.parent);
@@ -224,62 +311,40 @@ function calculateEffectiveOrbitalClearance(
   results: Map<string, any>,
   config: any
 ): number {
-  const objectVisualRadius = results.get(object.id)?.visualRadius || 0;
-  
-  // Find all moons that will orbit this object
-  const moons = allObjects.filter(moon => 
-    moon.orbit?.parent === object.id && isOrbitData(moon.orbit)
-  );
-  
-  if (moons.length === 0) {
-    // No moons, just return the object's visual radius
-    return objectVisualRadius;
+  // Handle belts specially - they have their own clearance logic
+  if (results.get(object.id)?.beltData) {
+    const beltData = results.get(object.id)?.beltData;
+    return (beltData.outerRadius - beltData.innerRadius) / 2; // Half the belt width
   }
-  
-  // Find the innermost moon orbit (this determines minimum clearance needed)
-  let innermostMoonDistance = Infinity;
-  for (const moon of moons) {
-    if (moon.orbit && isOrbitData(moon.orbit)) {
-      const moonOrbitDistance = (results.get(moon.id)?.orbitDistance !== undefined)
-        ? (results.get(moon.id)!.orbitDistance as number)
-        : moon.orbit.semi_major_axis * config.orbitScaling;
-      const moonVisualRadius = results.get(moon.id)?.visualRadius || 0;
-      
-      // The moon's inner edge is its orbit distance minus its visual radius
-      const moonInnerEdge = moonOrbitDistance - moonVisualRadius;
-      innermostMoonDistance = Math.min(innermostMoonDistance, moonInnerEdge);
-    }
-  }
-  
-  // If we have moons, we need clearance to the innermost moon's inner edge
-  // Otherwise, just use the object's visual radius
-  return innermostMoonDistance === Infinity ? objectVisualRadius : innermostMoonDistance;
+
+  // For any non-belt object, the clearance required on its inner side is the same as its
+  // effective orbital radius on the outer side. This includes the full extent of its moon system.
+  return calculateEffectiveOrbitalRadius(object, allObjects, results, config);
 }
 
 /**
- * Calculate absolute position of an object from the system center
+ * Calculate absolute position of an object from the system center based on RAW orbit data, not cleared results.
+ * This is used for the initial global collision check.
  */
-function calculateAbsolutePosition(
+function calculateRawAbsolutePosition(
   object: CelestialObject,
   objects: CelestialObject[],
-  results: Map<string, any>
+  config: any
 ): number {
   if (!object.orbit?.parent) {
-    // Root object (star) is at position 0
     return 0;
   }
   
-  // Find parent and get its absolute position
   const parent = objects.find(obj => obj.id === object.orbit!.parent);
   if (!parent) return 0;
   
-  const parentAbsolutePosition = calculateAbsolutePosition(parent, objects, results);
-  // For belts, use the centerRadius from beltData, otherwise use orbitDistance
-  const objectOrbitDistance = (object.orbit && isBeltOrbitData(object.orbit))
-    ? results.get(object.id)?.beltData?.centerRadius || 0
-    : results.get(object.id)?.orbitDistance || 0;
+  const parentAbsolutePosition = calculateRawAbsolutePosition(parent, objects, config);
+
+  const objectOrbitAU = (object.orbit && isBeltOrbitData(object.orbit))
+    ? (object.orbit.inner_radius + object.orbit.outer_radius) / 2
+    : (object.orbit && isOrbitData(object.orbit)) ? object.orbit.semi_major_axis : 0;
   
-  return parentAbsolutePosition + objectOrbitDistance;
+  return parentAbsolutePosition + (objectOrbitAU * config.orbitScaling);
 }
 
 /**
@@ -298,13 +363,26 @@ function adjustForGlobalCollisions(
   
   const primaryOrbiters = objects.filter(obj => obj.orbit?.parent === primaryStar.id);
   
-  // Sort by absolute position
-  const sortedOrbiters = primaryOrbiters.map(obj => ({
-    object: obj,
-    absolutePosition: calculateAbsolutePosition(obj, objects, results),
-    outermostEffectiveRadius: calculateEffectiveOrbitalRadius(obj, objects, results, config),
-    innermostEffectiveRadius: calculateEffectiveOrbitalClearance(obj, objects, results, config)
-  })).sort((a, b) => a.absolutePosition - b.absolutePosition);
+  // Sort by ACTUAL calculated orbit distances, not raw AU values
+  const sortedOrbiters = primaryOrbiters.map(obj => {
+    // Use the actual calculated orbit distance if available, otherwise fall back to raw calculation
+    let actualPosition: number;
+    
+    if (obj.orbit && isBeltOrbitData(obj.orbit)) {
+      const beltData = results.get(obj.id)?.beltData;
+      actualPosition = beltData ? beltData.centerRadius : calculateRawAbsolutePosition(obj, objects, config);
+    } else {
+      const orbitDistance = results.get(obj.id)?.orbitDistance;
+      actualPosition = orbitDistance !== undefined ? orbitDistance : calculateRawAbsolutePosition(obj, objects, config);
+    }
+    
+    return {
+      object: obj,
+      absolutePosition: actualPosition,
+      outermostEffectiveRadius: calculateEffectiveOrbitalRadius(obj, objects, results, config),
+      innermostEffectiveRadius: calculateEffectiveOrbitalClearance(obj, objects, results, config)
+    };
+  }).sort((a, b) => a.absolutePosition - b.absolutePosition);
   
   // Check for overlaps and adjust
   for (let i = 1; i < sortedOrbiters.length; i++) {
@@ -320,9 +398,30 @@ function adjustForGlobalCollisions(
     if (current.absolutePosition < requiredCenterPosition) {
       // Collision detected! Adjust this object's orbit
       const adjustment = requiredCenterPosition - current.absolutePosition;
-      const currentOrbitDistance = results.get(current.object.id)?.orbitDistance || 0;
       
-      results.get(current.object.id)!.orbitDistance = currentOrbitDistance + adjustment;
+      if (current.object.orbit && isBeltOrbitData(current.object.orbit)) {
+        // Adjust belt position
+        const beltData = results.get(current.object.id)?.beltData;
+        if (beltData) {
+          const beltWidth = beltData.outerRadius - beltData.innerRadius;
+          const newCenterRadius = requiredCenterPosition;
+          const newInnerRadius = newCenterRadius - beltWidth / 2;
+          const newOuterRadius = newCenterRadius + beltWidth / 2;
+          
+          results.set(current.object.id, {
+            ...results.get(current.object.id),
+            beltData: {
+              innerRadius: newInnerRadius,
+              outerRadius: newOuterRadius,
+              centerRadius: newCenterRadius,
+            }
+          });
+        }
+      } else {
+        // Adjust regular orbit
+        const currentOrbitDistance = results.get(current.object.id)?.orbitDistance || 0;
+        results.get(current.object.id)!.orbitDistance = currentOrbitDistance + adjustment;
+      }
       
       // Update the sorted array for subsequent checks
       current.absolutePosition = requiredCenterPosition;
@@ -336,14 +435,34 @@ function adjustForGlobalCollisions(
 }
 
 /**
- * Simple orbit clearing algorithm - the heart of the system
+ * CORE ORBITAL POSITIONING ALGORITHM (Two-Pass System)
+ * =====================================================
+ * 
+ * This function implements the critical two-pass algorithm that resolves the circular dependency
+ * between planet positions and moon positions. This is the heart of the collision-free layout system.
+ * 
+ * CIRCULAR DEPENDENCY PROBLEM:
+ * - To place Earth correctly, we need to know its effective orbital radius (including Luna)
+ * - To calculate effective orbital radius, we need Luna's orbit distance
+ * - But Luna's orbit distance depends on Earth's position being calculated first
+ * 
+ * TWO-PASS SOLUTION:
+ * - Pass 1: Calculate ALL moon orbits independently within their parent systems
+ * - Pass 2: Calculate planet/belt orbits using the now-available moon positions
+ * 
+ * This ensures that when calculateEffectiveOrbitalRadius() is called for planets,
+ * all moon orbitDistance values are already available, breaking the circular dependency.
+ * 
+ * @param objects - All celestial objects in the system
+ * @param results - Map containing visual radii (calculated in previous step)
+ * @param config - View mode configuration with scaling factors
  */
 function calculateClearedOrbits(
   objects: CelestialObject[],
   results: Map<string, any>,
   config: typeof VIEW_CONFIGS[keyof typeof VIEW_CONFIGS]
 ): void {
-  // Group objects by parent
+  // Group objects by their parent for efficient processing
   const parentGroups = new Map<string, CelestialObject[]>();
   
   for (const obj of objects) {
@@ -356,15 +475,75 @@ function calculateClearedOrbits(
     }
   }
   
-  // Process each parent's children
+  // ========================================================================
+  // PASS 1: MOON ORBIT CALCULATION
+  // ========================================================================
+  // Calculate all moon orbits FIRST to break the circular dependency.
+  // This ensures that when we calculate planet effective orbital radii in Pass 2,
+  // all moon positions are already known.
+  
+  parentGroups.forEach((children, parentId) => {
+    const parent = objects.find(obj => obj.id === parentId);
+    if (!parent) return;
+    
+    // Only process moons in this pass - planets and belts are handled in Pass 2
+    const moons = children.filter(child => child.classification === 'moon');
+    if (moons.length === 0) return;
+    
+    const parentVisualRadius = results.get(parentId)?.visualRadius || 0;
+    
+    // Sort moons by their original orbital distance (AU) to maintain natural ordering
+    moons.sort((a, b) => {
+      const aAU = a.orbit && isOrbitData(a.orbit) ? a.orbit.semi_major_axis : 0;
+      const bAU = b.orbit && isOrbitData(b.orbit) ? b.orbit.semi_major_axis : 0;
+      return aAU - bAU;
+    });
+    
+    // Start placing moon orbits after the parent's safe zone
+    let nextAvailableDistance = Math.max(
+      parentVisualRadius * config.safetyMultiplier,
+      config.minDistance
+    );
+
+    // Place each moon with proper spacing to prevent moon-to-moon collisions
+    for (const moon of moons) {
+      if (moon.orbit && isOrbitData(moon.orbit)) {
+        const moonVisualRadius = results.get(moon.id)?.visualRadius || 0;
+        const desiredDistance = moon.orbit.semi_major_axis * config.orbitScaling;
+        
+        // Moon's actual orbit distance should be at least the desired distance
+        // and also clear the previous moon with proper spacing
+        const actualDistance = Math.max(desiredDistance, nextAvailableDistance);
+        
+        // CRITICAL: Record the final orbit distance for use in Pass 2
+        results.get(moon.id)!.orbitDistance = actualDistance;
+        
+        // Next moon must clear this moon's outer edge with proper minimum distance
+        // Use a larger safety factor for moons to prevent collisions
+        const moonSafetyFactor = Math.max(config.safetyMultiplier, 2.0); // At least 2x safety
+        nextAvailableDistance = actualDistance + (moonVisualRadius * moonSafetyFactor) + config.minDistance;
+      }
+    }
+  });
+
+  // ========================================================================
+  // PASS 2: PLANET AND BELT ORBIT CALCULATION
+  // ========================================================================
+  // Now that all moon positions are known, we can safely calculate planet orbits
+  // using their effective orbital radii (which include their moon systems).
+  
   parentGroups.forEach((children, parentId) => {
     const parent = objects.find(obj => obj.id === parentId);
     if (!parent) return;
     
     const parentVisualRadius = results.get(parentId)?.visualRadius || 0;
     
-    // Sort children by their original orbital distance (AU)
-    children.sort((a, b) => {
+    // Only process non-moon children in this pass (planets, belts)
+    const nonMoonChildren = children.filter(child => child.classification !== 'moon');
+    if (nonMoonChildren.length === 0) return;
+    
+    // Sort children by their original orbital distance (AU) to maintain natural ordering
+    nonMoonChildren.sort((a, b) => {
       const aAU = a.orbit && isOrbitData(a.orbit) ? a.orbit.semi_major_axis : 
                   a.orbit && isBeltOrbitData(a.orbit) ? a.orbit.inner_radius : 0;
       const bAU = b.orbit && isOrbitData(b.orbit) ? b.orbit.semi_major_axis :
@@ -381,57 +560,60 @@ function calculateClearedOrbits(
     // Keep track of previously placed child so we can account for its full size
     let previousChild: { actualDistance: number; effectiveRadius: number } | null = null;
 
-    for (const child of children) {
+    // Place each planet/belt with collision avoidance
+    for (const child of nonMoonChildren) {
       const childVisualRadius = results.get(child.id)?.visualRadius || 0;
 
       if (child.orbit && isOrbitData(child.orbit)) {
-        // Regular orbit - desired position based on raw AU scaling
+        // REGULAR PLANET ORBIT CALCULATION
+        // =================================
+        
+        // Desired position based on raw AU scaling
         const desiredDistance = child.orbit.semi_major_axis * config.orbitScaling;
 
-        // Minimum inner edge required for this child to not intersect the previous object's system
-        // `previousChild.actualDistance + previousChild.effectiveRadius` is the outer edge of the previous system.
-        // `config.minDistance` is the required clearance.
+        // CRITICAL: Calculate effective orbital radius including moon systems
+        // This now works correctly because all moon positions were calculated in Pass 1
+        const effectiveOrbitalRadius = calculateEffectiveOrbitalRadius(child, objects, results, config);
+
+        // Calculate minimum clearance needed from previous object
         const requiredInnerEdge = previousChild
           ? previousChild.actualDistance + previousChild.effectiveRadius + config.minDistance
-          : nextAvailableDistance; // For the very first child, this is based on parent's safe zone
+          : nextAvailableDistance;
 
-        // The center of the child's orbit should be its required inner edge plus its visual radius
-        const requiredCenter = requiredInnerEdge + childVisualRadius;
+        // The center of the child's orbit should account for its own moon system clearance
+        const requiredCenter = requiredInnerEdge + effectiveOrbitalRadius;
 
-        // The actual distance (center of orbit) should be at least its desired distance, and
-        // also at least the required center to avoid collision.
+        // Final position is the maximum of desired position and collision-free position
         const actualDistance = Math.max(desiredDistance, requiredCenter);
 
         // Record the final orbit distance
         results.get(child.id)!.orbitDistance = actualDistance;
 
-        // How much space does this object (plus moons) need
-        const effectiveOrbitalRadius = calculateEffectiveOrbitalRadius(child, objects, results, config);
-
-        // Update trackers for the next child in the loop
+        // Update tracking for next object
         previousChild = {
           actualDistance,
           effectiveRadius: effectiveOrbitalRadius,
         };
 
-        // Next orbit must clear this object's entire system with a small margin
-        // This nextAvailableDistance now represents the *outer edge* of the current object's system + minDistance
         nextAvailableDistance = actualDistance + effectiveOrbitalRadius + config.minDistance;
 
       } else if (child.orbit && isBeltOrbitData(child.orbit)) {
-        // Belt objects
+        // BELT OBJECT CALCULATION
+        // =======================
+        
         const desiredInnerRadius = child.orbit.inner_radius * config.orbitScaling;
         const desiredOuterRadius = child.orbit.outer_radius * config.orbitScaling;
         const beltWidth = desiredOuterRadius - desiredInnerRadius;
 
-        // Also account for previous object clearance
+        // Account for previous object clearance
         const clearanceFromPrevious = previousChild
           ? previousChild.actualDistance + previousChild.effectiveRadius + config.minDistance
           : 0;
 
         const actualInnerRadius = Math.max(desiredInnerRadius, nextAvailableDistance, clearanceFromPrevious);
-        const actualOuterRadius = actualInnerRadius + Math.max(beltWidth, config.minDistance); // Ensure minimum belt width
+        const actualOuterRadius = actualInnerRadius + Math.max(beltWidth, config.minDistance);
 
+        // Store belt data
         results.set(child.id, {
           ...results.get(child.id),
           beltData: {
@@ -441,12 +623,12 @@ function calculateClearedOrbits(
           }
         });
 
+        // Update tracking for next object
         previousChild = {
           actualDistance: (actualInnerRadius + actualOuterRadius) / 2,
           effectiveRadius: (actualOuterRadius - actualInnerRadius) / 2,
         };
 
-        // Next orbit must clear the belt's outer edge
         nextAvailableDistance = actualOuterRadius + config.minDistance;
       }
     }
@@ -503,17 +685,17 @@ function enforceParentChildSizeHierarchy(
         const minParentSize = childData.visualRadius * 1.2; // Parent should be at least 20% larger
         
         // Don't make the parent too large - respect view mode constraints
-        const maxAllowedParentSize = viewType === 'realistic' 
+        const maxAllowedParentSize = viewType === 'explorational' 
           ? Math.min(minParentSize, config.maxVisualSize)
           : minParentSize;
         
         // Update parent size
         parentData.visualRadius = maxAllowedParentSize;
         
-        // If parent is now too large for realistic mode orbital mechanics, 
+        // If parent is now too large for explorational mode orbital mechanics, 
         // we need to scale down the child instead
-        if (viewType === 'realistic' && parentObj.classification === 'star' && maxAllowedParentSize > 1.0) {
-          // For stars in realistic mode, prefer to scale down children rather than make star too large
+        if (viewType === 'explorational' && parentObj.classification === 'star' && maxAllowedParentSize > 1.0) {
+          // For stars in explorational mode, prefer to scale down children rather than make star too large
           const maxStarSize = 1.0; // Max star size for orbital mechanics
           const scaleDownFactor = maxStarSize / maxAllowedParentSize;
           
@@ -546,17 +728,29 @@ function enforceParentChildSizeHierarchy(
 }
 
 /**
- * Main function - calculate everything once and memoize
+ * Calculates the visual and orbital parameters for a system of celestial objects.
+ * This is the main entry point for the orbital mechanics calculations.
+ * 
+ * CRITICAL: This function follows a strict 5-step process to resolve circular dependencies.
+ * The order of operations MUST NOT be changed without understanding the dependency chain.
+ * 
+ * @param objects - Array of celestial objects to calculate positions for
+ * @param viewType - View mode that determines scaling and sizing behavior
+ * @param isPaused - Whether the system is paused (for rendering compatibility)
+ * @returns Map of object IDs to their calculated visual and orbital properties
  */
 export function calculateSystemOrbitalMechanics(
   objects: CelestialObject[],
-  viewType: ViewType
+  viewType: ViewType,
+  isPaused: boolean = false
 ): Map<string, {
   visualRadius: number;
   orbitDistance?: number;
   beltData?: { innerRadius: number; outerRadius: number; centerRadius: number };
 }> {
-  // Check if we can use memoized results
+  // STEP 0: Check memoization cache
+  // ===============================
+  // Avoid recalculation if we've already processed this exact configuration
   const calculationKey = generateCalculationKey(objects, viewType);
   if (memoizedResults && lastCalculationKey === calculationKey) {
     return memoizedResults;
@@ -564,11 +758,15 @@ export function calculateSystemOrbitalMechanics(
   
   const results = new Map();
   
-  // Step 1: Calculate all visual sizes first
+  // STEP 1: VISUAL RADIUS CALCULATION (Two-Pass)
+  // =============================================
+  // Must be done first as all subsequent calculations depend on visual sizes
+  
+  // Analyze the size range for logarithmic scaling in explorational mode
   const sizeAnalysis = analyzeSystemSizes(objects);
   
-  // Process in parent-first order to ensure parent radii are calculated before children
-  // First pass: Calculate visual radii for all non-child objects (stars, planets)
+  // PASS 1A: Calculate visual radii for all non-moon objects (stars, planets, belts)
+  // This must be done first because moons in explorational mode scale proportionally to their parents
   for (const obj of objects) {
     if (!obj.orbit?.parent || obj.classification !== 'moon') {
       const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results);
@@ -576,7 +774,8 @@ export function calculateSystemOrbitalMechanics(
     }
   }
   
-  // Second pass: Calculate visual radii for child objects (moons) using parent radii
+  // PASS 1B: Calculate visual radii for moons using their parent's visual radius
+  // This depends on parents being calculated first (above)
   for (const obj of objects) {
     if (obj.orbit?.parent && obj.classification === 'moon') {
       const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results);
@@ -584,20 +783,33 @@ export function calculateSystemOrbitalMechanics(
     }
   }
   
-  // Step 2: Use FIXED orbital scaling - no more dynamic scaling
-  const config = { ...VIEW_CONFIGS[viewType] };
-  // REMOVED: Dynamic orbital scaling that was causing issues
+  // STEP 2: ORBITAL POSITION CALCULATION (Two-Pass Algorithm)
+  // ==========================================================
+  // This is the core of the dependency resolution system
   
-  // Step 3: Calculate cleared orbital positions
+  const config = { ...VIEW_CONFIGS[viewType] };
+  
+  // CRITICAL: calculateClearedOrbits uses a two-pass algorithm to resolve circular dependencies:
+  // - Pass 1: Calculate all moon orbits first (independent of planet positions)
+  // - Pass 2: Calculate planet orbits using the now-available moon positions
+  // This prevents the circular dependency where planets need moon positions but moons need planet positions
   calculateClearedOrbits(objects, results, config);
   
-  // Step 4: Global collision detection and adjustment
+  // STEP 3: GLOBAL COLLISION DETECTION AND ADJUSTMENT
+  // ==================================================
+  // Now that all objects have initial positions, check for and resolve any remaining collisions
+  // This uses the ACTUAL calculated positions (not raw AU values) to ensure accuracy
   adjustForGlobalCollisions(objects, viewType, results, config);
   
-  // Step 5: Enforce parent-child size hierarchy
+  // STEP 4: PARENT-CHILD SIZE HIERARCHY ENFORCEMENT
+  // ================================================
+  // Ensure visual hierarchy is maintained (parents larger than children)
+  // This is done last to avoid interfering with collision calculations
   enforceParentChildSizeHierarchy(objects, results, viewType);
   
-  // Memoize the results
+  // STEP 5: MEMOIZATION AND CACHING
+  // ================================
+  // Cache the results for future calls with the same configuration
   memoizedResults = results;
   lastCalculationKey = calculationKey;
   

@@ -49,7 +49,7 @@ Ensures smooth, efficient rendering of complex celestial systems with high visua
 ```
 
 ## View Mode Support
-- Realistic: Full detail, accurate scaling.
+- Explorational: Full detail, proportional scaling for educational purposes.
 - Navigational: Simplified effects, enhanced visibility.
 - Profile: Focused on specific features.
 

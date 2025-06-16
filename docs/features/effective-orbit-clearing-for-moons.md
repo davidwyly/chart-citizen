@@ -94,7 +94,7 @@ Effective clearing radius: max(0.5, 1.1) = 1.1 units (Moon system extends beyond
 ### Visual Accuracy
 - ✅ **No Orbital Overlaps**: Other planets properly clear moon systems
 - ✅ **Realistic Spacing**: Maintains proper celestial body relationships
-- ✅ **Consistent Behavior**: Works across all view modes (realistic, navigational, profile)
+- ✅ **Consistent Behavior**: Works across all view modes (explorational, navigational, profile)
 
 ### Astronomical Correctness  
 - ✅ **Hill Sphere Respect**: Accounts for gravitational influence zones
@@ -108,7 +108,7 @@ Effective clearing radius: max(0.5, 1.1) = 1.1 units (Moon system extends beyond
 
 ## View Mode Behavior
 
-### Realistic Mode
+### Eplorational Mode
 - Uses actual orbital distances and moon sizes
 - Respects astronomical proportions
 - Most accurate representation of moon system extents

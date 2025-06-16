@@ -1,4 +1,4 @@
-export type ViewType = 'realistic' | 'navigational' | 'profile'
+export type ViewType = 'explorational' | 'navigational' | 'profile'
 
 export type EffectsLevel = 'low' | 'medium' | 'high'
 
@@ -68,5 +68,5 @@ export function isValidEffectsLevel(level: string): level is EffectsLevel {
 }
 
 export function isValidViewType(type: string): type is ViewType {
-  return ['realistic', 'navigational', 'profile'].includes(type)
+  return ['explorational', 'navigational', 'profile'].includes(type)
 } 

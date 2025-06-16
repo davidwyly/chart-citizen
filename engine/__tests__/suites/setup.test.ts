@@ -13,7 +13,7 @@ describe('Setup System', () => {
       const store = useSystemStore.getState();
       
       expect(store.getMode()).toBe('realistic');
-      expect(store.getViewMode()).toBe('realistic');
+      expect(store.getViewMode()).toBe('explorational');
       expect(store.getViewFeatures()).toBeDefined();
       expect(store.getDataSource()).toBeNull();
     });
@@ -38,8 +38,8 @@ describe('Setup System', () => {
     it('should handle view mode switches correctly', () => {
       const store = useSystemStore.getState();
       
-      store.setViewMode('realistic');
-      expect(store.getViewMode()).toBe('realistic');
+      store.setViewMode('explorational');
+      expect(store.getViewMode()).toBe('explorational');
       
       store.setViewMode('navigational');
       expect(store.getViewMode()).toBe('navigational');
@@ -94,7 +94,7 @@ describe('Setup System', () => {
       store.optimizeRendering('profile');
       expect(store.getDetailLevel()).toBe('low');
       
-      store.optimizeRendering('realistic');
+      store.optimizeRendering('explorational');
       expect(store.getDetailLevel()).toBe('medium');
     });
   });

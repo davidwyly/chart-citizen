@@ -46,7 +46,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     }, [controls])
 
     // Get current view mode configuration
-    const viewConfig = VIEW_MODE_CONFIGS[viewMode] || VIEW_MODE_CONFIGS.realistic
+    const viewConfig = VIEW_MODE_CONFIGS[viewMode] || VIEW_MODE_CONFIGS.explorational
 
     // Calculate the furthest orbital radius in the system
     const calculateMaxOrbitRadius = useCallback(() => {

@@ -110,7 +110,7 @@ export const DEFAULT_STELLAR_ZONES_CONFIG: StellarZonesConfig = {
     }
   },
   opacity: {
-    realistic: {
+    explorational: {
       habitable: 0.15,
       frost: 0.3,
       sublimation: 0.25

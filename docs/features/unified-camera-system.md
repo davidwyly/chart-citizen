@@ -2,7 +2,7 @@
 
 ## User Story
 
-Consistent, predictable camera behavior across view modes (realistic, navigational, profile) to avoid jarring changes in object focus, animations, or viewing angles.
+Consistent, predictable camera behavior across view modes (explorational, navigational, profile) to avoid jarring changes in object focus, animations, or viewing angles.
 
 ## Problem Statement
 
@@ -61,7 +61,7 @@ Unified camera system uses a **configuration-driven architecture**:
 ```typescript
 // View mode profiles with all camera behavior
 export const VIEW_MODE_CONFIGS = {
-  realistic: { /* config */ },
+  explorational: { /* config */ },
   navigational: { /* config */ },
   profile: { /* config */ }
 }
@@ -102,7 +102,7 @@ export interface DualObjectProperties {
 - **Distance Constraints**: Camera distances respect min/max bounds.
 
 ### Integration Testing  
-- **View Mode Switching**: Smooth transitions between realistic ↔ navigational ↔ profile.
+- **View Mode Switching**: Smooth transitions between explorational ↔ navigational ↔ profile.
 - **Object Focus**: Appropriate camera distances for all object types.
 - **Animation Consistency**: Correct easing functions and durations per view mode.
 - **System Scaling**: Properties scale correctly with system size.

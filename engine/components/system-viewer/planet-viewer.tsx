@@ -3,12 +3,12 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars, Preload } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { usePerformanceMonitor } from '@/lib/performance-monitor'
-import { CatalogObjectWrapper } from './catalog-object-wrapper'
 import { SceneLighting } from './components/scene-lighting'
-import { type SystemData } from '@/engine/system-loader'
+import { OrbitalSystemData, CelestialObject } from '@/engine/types/orbital-system'
+import { CelestialObjectRenderer } from '@/engine/components/system-viewer/system-objects-renderer'
 
 interface PlanetViewerProps {
-  systemData: SystemData
+  systemData: OrbitalSystemData
   planetId: string
   onBack: () => void
 }
@@ -19,7 +19,7 @@ export function PlanetViewer({ systemData, planetId, onBack }: PlanetViewerProps
   // Calculate if performance is low based on FPS
   const isLowPerformance = fps < 30
 
-  const planet = systemData.planets?.find(p => p.id === planetId)
+  const planet = systemData.objects?.find(obj => obj.id === planetId)
   
   if (!planet) {
     return (
@@ -44,13 +44,17 @@ export function PlanetViewer({ systemData, planetId, onBack }: PlanetViewerProps
         gl={{ alpha: true, antialias: !isLowPerformance }}
       >
         <Suspense fallback={null}>
-          <SceneLighting systemData={systemData} viewType="realistic" />
+          <SceneLighting systemData={systemData} viewType="explorational" />
           
-          <CatalogObjectWrapper
-            objectId={planet.id}
-            catalogRef={planet.catalog_ref}
-            position={[0, 0, 0]}
-            scale={5}
+          <CelestialObjectRenderer
+            object={planet}
+            scale={5} // Scale for the individual planet viewer
+            starPosition={[0, 0, 0]} // Assuming no other stars in this isolated view
+            isSelected={false}
+            onHover={() => {}}
+            onSelect={() => {}}
+            onFocus={() => {}}
+            registerRef={() => {}} // No ref registration needed in this isolated viewer
           />
 
           <OrbitControls enablePan={true} maxDistance={50} minDistance={1} />

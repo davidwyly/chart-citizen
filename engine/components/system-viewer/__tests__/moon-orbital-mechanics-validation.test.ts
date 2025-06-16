@@ -183,7 +183,7 @@ describe('Moon Orbital Mechanics Validation', () => {
   describe('Earth-Moon System Validation', () => {
     it('should position Luna correctly relative to Earth in all view modes', () => {
       const objects = createEarthMoonSystemData();
-      const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
       
       viewModes.forEach(viewMode => {
         const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -211,8 +211,8 @@ describe('Moon Orbital Mechanics Validation', () => {
         });
         
         // Validate clearance ratios for visual interpretation
-        if (viewMode === 'realistic') {
-          // In realistic mode, maintain some proportionality but ensure visibility
+        if (viewMode === 'explorational') {
+          // In explorational mode, maintain some proportionality but ensure visibility
           expect(moonOrbitDistance / earthVisualRadius).toBeGreaterThan(2.0); // At least 2x clearance
         } else if (viewMode === 'navigational') {
           // In navigational mode, focus on clear separation for navigation
@@ -226,7 +226,7 @@ describe('Moon Orbital Mechanics Validation', () => {
 
     it('should maintain moon-planet size relationships across view modes', () => {
       const objects = createEarthMoonSystemData();
-      const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
       
       viewModes.forEach(viewMode => {
         const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -234,8 +234,8 @@ describe('Moon Orbital Mechanics Validation', () => {
         const earthData = mechanics.get('earth')!;
         const moonData = mechanics.get('luna')!;
         
-        if (viewMode === 'realistic') {
-          // In realistic mode, maintain some proportionality
+        if (viewMode === 'explorational') {
+          // In explorational mode, maintain some proportionality
           // Earth should be larger than Moon, but Moon should still be visible
           expect(earthData.visualRadius).toBeGreaterThan(moonData.visualRadius);
           expect(moonData.visualRadius).toBeGreaterThan(0.02); // Minimum visibility
@@ -263,7 +263,7 @@ describe('Moon Orbital Mechanics Validation', () => {
   describe('Jupiter System Validation', () => {
     it('should position Galilean moons correctly relative to Jupiter', () => {
       const objects = createJupiterSystemData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const jupiterData = mechanics.get('jupiter')!;
       const ioData = mechanics.get('io')!;
@@ -300,7 +300,7 @@ describe('Moon Orbital Mechanics Validation', () => {
 
     it('should maintain proper spacing between Jupiter moons for visual clarity', () => {
       const objects = createJupiterSystemData();
-      const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
       
       viewModes.forEach(viewMode => {
         const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -335,11 +335,11 @@ describe('Moon Orbital Mechanics Validation', () => {
   describe('Moon System Multiplier Validation', () => {
     it('should apply system multiplier consistently to moon orbits', () => {
       const objects = createEarthMoonSystemData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const moonData = mechanics.get('luna')!;
       const originalSemiMajorAxis = 0.00257; // AU
-      const expectedScaling = 8.0; // Realistic mode orbital scaling
+      const expectedScaling = 8.0; // Explorational mode orbital scaling
       
       // The moon's orbit should be scaled by the system multiplier
       // But also adjusted for minimum visibility requirements
@@ -358,7 +358,7 @@ describe('Moon Orbital Mechanics Validation', () => {
 
     it('should ensure moons are visible and interpretable in all view modes', () => {
       const objects = createJupiterSystemData();
-      const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
       
       viewModes.forEach(viewMode => {
         const mechanics = calculateSystemOrbitalMechanics(objects, viewMode);
@@ -375,8 +375,8 @@ describe('Moon Orbital Mechanics Validation', () => {
           // Moon should be clearly outside parent planet
           const clearanceRatio = moonData.orbitDistance! / jupiterData.visualRadius;
           
-          if (viewMode === 'realistic') {
-            // Realistic mode: some proportionality but ensure visibility
+          if (viewMode === 'explorational') {
+            // Explorational mode: some proportionality but ensure visibility
             expect(clearanceRatio).toBeGreaterThan(1.5);
           } else if (viewMode === 'navigational') {
             // Navigational mode: optimize for navigation clarity
@@ -400,7 +400,7 @@ describe('Moon Orbital Mechanics Validation', () => {
   describe('Moon Collision Detection and Adjustment', () => {
     it('should prevent moon-planet collisions while maintaining orbital hierarchy', () => {
       const objects = createJupiterSystemData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const jupiterData = mechanics.get('jupiter')!;
       const moons = ['io', 'europa', 'ganymede', 'callisto'];
@@ -424,7 +424,7 @@ describe('Moon Orbital Mechanics Validation', () => {
 
     it('should prevent moon-moon collisions while maintaining correct ordering', () => {
       const objects = createJupiterSystemData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const moons = ['io', 'europa', 'ganymede', 'callisto'];
       const moonData = moons.map(id => ({
@@ -452,14 +452,14 @@ describe('Moon Orbital Mechanics Validation', () => {
   });
 
   describe('View Mode Specific Moon Requirements', () => {
-    it('should optimize moon positioning for realistic mode interpretation', () => {
+    it('should optimize moon positioning for explorational mode interpretation', () => {
       const objects = createEarthMoonSystemData();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic');
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational');
       
       const earthData = mechanics.get('earth')!;
       const moonData = mechanics.get('luna')!;
       
-      // In realistic mode, show size variation but ensure visibility
+      // In explorational mode, show size variation but ensure visibility
       const sizeRatio = earthData.visualRadius / moonData.visualRadius;
       expect(sizeRatio).toBeGreaterThan(1.0); // Earth larger than Moon
       expect(sizeRatio).toBeLessThan(20.0); // But Moon still visible

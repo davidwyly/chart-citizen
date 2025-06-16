@@ -62,7 +62,7 @@ export interface DualObjectProperties {
 
 // View mode configurations
 export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
-  realistic: {
+  explorational: {
     objectScaling: {
       star: 2.5,
       planet: 1.8,
@@ -218,7 +218,7 @@ export function createDualProperties(
   viewMode: string,
   systemScale: number = 1.0
 ): DualObjectProperties {
-  const config = VIEW_MODE_CONFIGS[viewMode] || VIEW_MODE_CONFIGS.realistic
+  const config = VIEW_MODE_CONFIGS[viewMode] || VIEW_MODE_CONFIGS.explorational
   const objectType = determineObjectType(objectName, realMass, realRadius)
   
   // Calculate visual properties based on object type scaling

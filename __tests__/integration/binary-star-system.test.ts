@@ -159,16 +159,16 @@ describe('Binary Star System Features', () => {
       }
     });
 
-    // Test in realistic mode
-    store.setViewMode('realistic');
-    const realisticPositions = {
+    // Test in explorational mode
+    store.setViewMode('explorational');
+    const explorationalPositions = {
       starA: store.getObjectProperties('star-a')?.position,
       starB: store.getObjectProperties('star-b')?.position,
       starC: store.getObjectProperties('star-c')?.position
     };
-    expect(realisticPositions.starA).not.toEqual(realisticPositions.starB);
-    expect(realisticPositions.starA).not.toEqual(realisticPositions.starC);
-    expect(realisticPositions.starB).not.toEqual(realisticPositions.starC);
+    expect(explorationalPositions.starA).not.toEqual(explorationalPositions.starB);
+    expect(explorationalPositions.starA).not.toEqual(explorationalPositions.starC);
+    expect(explorationalPositions.starB).not.toEqual(explorationalPositions.starC);
 
     // Test in navigational mode
     store.setViewMode('navigational');

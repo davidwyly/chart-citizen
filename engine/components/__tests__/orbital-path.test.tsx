@@ -19,7 +19,7 @@ describe('OrbitalPath', () => {
     eccentricity: 0.1,
     inclination: 0,
     orbitalPeriod: 365,
-    viewType: 'realistic' as ViewType,
+    viewType: 'explorational' as ViewType,
     timeMultiplier: 1,
     isPaused: false,
   }
@@ -141,8 +141,8 @@ describe('OrbitalPath', () => {
       expect(container).toBeTruthy()
     })
 
-    it('renders orbit in realistic mode', () => {
-      const { container } = renderInCanvas({ viewType: 'realistic' })
+    it('renders orbit in explorational mode', () => {
+      const { container } = renderInCanvas({ viewType: 'explorational' })
       expect(container).toBeTruthy()
     })
   })

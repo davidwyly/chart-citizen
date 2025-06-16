@@ -1,13 +1,13 @@
-# Proportional Parent-Child Scaling in Realistic Mode
+# Proportional Parent-Child Scaling in Explorational Mode
 
 ## Overview
 
-This feature implements proportional scaling for child objects (moons) relative to their parent objects (planets) in realistic mode, ensuring that visual size relationships match real-world proportions.
+This feature implements proportional scaling for child objects (moons) relative to their parent objects (planets) in explorational mode, ensuring that visual size relationships match real-world proportions.
 
 ## Problem Statement
 
 ### Before Implementation
-In realistic mode, all celestial objects used system-wide logarithmic scaling based on the entire system's size range. This caused several issues:
+In explorational mode, all celestial objects used system-wide logarithmic scaling based on the entire system's size range. This caused several issues:
 
 - **Disproportionate Moon Sizes**: Moons appeared too large relative to their parent planets
 - **Lost Scale Context**: The relationship between a moon and its parent was not preserved
@@ -22,7 +22,7 @@ In realistic mode, all celestial objects used system-wide logarithmic scaling ba
 
 ### Core Algorithm
 
-For child objects (moons) in realistic mode:
+For child objects (moons) in explorational mode:
 1. **Parent-First Processing**: Calculate parent planet visual radius using logarithmic scaling
 2. **Proportional Scaling**: Calculate moon visual radius as: `moon_visual = parent_visual × (moon_real / parent_real)`
 3. **Minimum Visibility**: Apply minimum size constraints to ensure very small moons remain visible
@@ -61,7 +61,7 @@ for (const obj of objects) {
 
 #### Proportional Calculation Logic
 ```typescript
-if (viewType === 'realistic') {
+if (viewType === 'explorational') {
   // For child objects (moons), scale proportionally to their parent
   if (object.orbit?.parent && object.classification === 'moon') {
     const parent = allObjects.find(obj => obj.id === object.orbit!.parent);

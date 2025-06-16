@@ -8,9 +8,9 @@ describe('Mode System', () => {
       const store = useSystemStore.getState();
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       
-      // Test realistic mode
-      store.setViewMode('realistic' as ViewType);
-      expect(store.getViewMode()).toBe('realistic');
+      // Test explorational mode
+      store.setViewMode('explorational' as ViewType);
+      expect(store.getViewMode()).toBe('explorational');
       expect(store.getViewFeatures().scientificInfo).toBe(true);
       expect(store.getViewFeatures().educationalContent).toBe(true);
       

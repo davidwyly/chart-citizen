@@ -9,8 +9,8 @@ describe('Mode System Features', () => {
   it('should switch between view modes correctly', () => {
     const store = useSystemStore.getState();
     
-    // Test Realistic mode
-    store.setViewMode('realistic');
+    // Test Explorational mode
+    store.setViewMode('explorational');
     let features = store.getViewFeatures();
     expect(features.scientificInfo).toBe(true);
     expect(features.gameInfo).toBe(false);
@@ -31,8 +31,8 @@ describe('Mode System Features', () => {
   it('should handle mode-specific data correctly', () => {
     const store = useSystemStore.getState();
     
-    // Test Realistic mode data
-    store.setViewMode('realistic');
+    // Test Explorational mode data
+    store.setViewMode('explorational');
     const scientificData = {
       type: 'realistic' as const,
       content: {

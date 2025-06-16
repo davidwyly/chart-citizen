@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { SystemViewer } from '@/engine/components/system-viewer'
 // import type { ViewType } from '@/lib/types/effects-level'
-type ViewType = 'realistic' | 'navigational' | 'profile';
+type ViewType = 'explorational' | 'navigational' | 'profile';
 import Link from 'next/link'
 
 export default function TestOrbitSpacingPage() {
-  const [viewType, setViewType] = useState<ViewType>('realistic')
+  const [viewType, setViewType] = useState<ViewType>('explorational')
   const [orbitalData, setOrbitalData] = useState<{[key: string]: number[]}>({
-    realistic: [],
+    explorational: [],
     navigational: [],
     profile: []
   })
@@ -19,7 +19,7 @@ export default function TestOrbitSpacingPage() {
   useEffect(() => {
     // Simulate the orbital spacing that would be calculated in each mode
     setOrbitalData({
-      realistic: [10, 150, 400], // Realistic astronomical values
+      explorational: [10, 150, 400], // Explorational proportional values
       navigational: [50, 100, 150], // Equidistant navigational values
       profile: [50, 100, 150], // Same equidistant pattern in profile view
     })
@@ -29,10 +29,10 @@ export default function TestOrbitSpacingPage() {
     <div className="flex flex-col h-screen">
       <div className="flex space-x-4 p-4 bg-gray-800 text-white">
         <button 
-          className={`px-3 py-1 rounded ${viewType === 'realistic' ? 'bg-blue-600' : 'bg-gray-600'}`}
-          onClick={() => setViewType('realistic')}
+          className={`px-3 py-1 rounded ${viewType === 'explorational' ? 'bg-blue-600' : 'bg-gray-600'}`}
+          onClick={() => setViewType('explorational')}
         >
-          Realistic Mode
+          Explorational Mode
         </button>
         <button 
           className={`px-3 py-1 rounded ${viewType === 'navigational' ? 'bg-blue-600' : 'bg-gray-600'}`}
@@ -55,9 +55,9 @@ export default function TestOrbitSpacingPage() {
       <div className="p-4 bg-gray-100 dark:bg-gray-800">
         <h2 className="text-xl font-bold mb-3">Orbital Spacing Visualization</h2>
         <div className="flex items-center mb-2">
-          <div className="w-20">Realistic:</div>
+          <div className="w-20">Explorational:</div>
           <div className="h-8 bg-gray-200 flex-1 relative">
-            {orbitalData.realistic.map((position, i) => (
+            {orbitalData.explorational.map((position, i) => (
               <div 
                 key={i}
                 className="absolute h-8 w-2 bg-blue-500"
@@ -103,7 +103,7 @@ export default function TestOrbitSpacingPage() {
         <div className="p-3 bg-gray-300 dark:bg-gray-700 rounded">
           <p className="mb-2"><strong>Note:</strong> In this visualization:</p>
           <ul className="list-disc pl-5">
-            <li>Realistic mode: Uses actual astronomical distances (uneven spacing)</li>
+            <li>Explorational mode: Uses proportional astronomical distances (uneven spacing)</li>
             <li>Navigational mode: Uses equidistant spacing to show orbital relationships clearly</li>
             <li>Profile mode: Also uses equidistant spacing but with top-down view</li>
           </ul>

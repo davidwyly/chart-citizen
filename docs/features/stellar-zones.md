@@ -9,7 +9,7 @@ See habitable zones (green) and frost lines around stars to understand liquid wa
 1. **Habitable Zone Visualization**: Green-tinted ring around stars (liquid water area).
 2. **Frost Line Visualization**: Blue line/ring around stars (water ice formation distance).
 3. **Spectral Type Calculation**: Auto-calculate zones based on star's spectral type/luminosity.
-4. **View Mode Adaptation**: Zones scale appropriately with view modes (realistic, navigational, profile).
+4. **View Mode Adaptation**: Zones scale appropriately with view modes (explorational, navigational, profile).
 5. **Performance Optimization**: Efficient zone rendering without performance impact.
 
 ### Should Have

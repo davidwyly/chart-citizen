@@ -41,21 +41,21 @@ function calculateNavigationalOrbitalRadius(
   systemData: any
 ): number {
   // Only apply the scaling logic for navigational and profile modes
-  if (viewType !== "navigational" && viewType !== "profile") {
-    // For realistic mode, this function shouldn't be called, but just in case
+  if (viewType !== "navigational" && viewType !== "profile" && viewType !== "explorational") {
+    // For explorational mode, this function shouldn't be called, but just in case
     const baseSpacing = ORBITAL_SCALE * 0.5
     return baseSpacing * (index + 1)
   }
 
-  // Calculate scaling factor to match realistic mode's system size
+  // Calculate scaling factor to match explorational mode's system size
   if (!systemData.planets || systemData.planets.length === 0) {
     const baseSpacing = ORBITAL_SCALE * 0.5
     const gameOffset = viewType === "profile" ? ORBITAL_SCALE : 0.0
     return baseSpacing * (index + 1) + gameOffset
   }
 
-  // Find the outermost realistic orbital radius
-  const maxRealisticRadius = Math.max(
+  // Find the outermost explorational orbital radius
+  const maxExplorationalRadius = Math.max(
     ...systemData.planets.map((planet: any) => planet.orbit?.semi_major_axis || 0)
   )
 
@@ -65,8 +65,8 @@ function calculateNavigationalOrbitalRadius(
   const gameOffset = viewType === "profile" ? ORBITAL_SCALE : 0.0
   const maxNavigationalRadius = baseSpacing * (maxNavigationalIndex + 1) + gameOffset
 
-  // Calculate scaling factor to make outermost navigational orbit match realistic
-  const scalingFactor = maxNavigationalRadius > 0 ? maxRealisticRadius / maxNavigationalRadius : 1.0
+  // Calculate scaling factor to make outermost navigational orbit match explorational
+  const scalingFactor = maxNavigationalRadius > 0 ? maxExplorationalRadius / maxNavigationalRadius : 1.0
 
   // Apply the scaling factor to maintain equidistant spacing but match system size
   return (baseSpacing * (index + 1) + gameOffset) * scalingFactor
@@ -87,9 +87,9 @@ describe('Orbital Scaling Logic', () => {
     expect(spacing1).toBeCloseTo(spacing2, 5)
   })
 
-  it('should scale navigational mode to match realistic mode system size', () => {
-    // Get the outermost realistic orbit
-    const maxRealisticRadius = Math.max(
+  it('should scale navigational mode to match explorational mode system size', () => {
+    // Get the outermost explorational orbit
+    const maxExplorationalRadius = Math.max(
       ...mockSystemData.planets.map(planet => planet.orbit.semi_major_axis)
     )
     
@@ -102,15 +102,15 @@ describe('Orbital Scaling Logic', () => {
       mockSystemData
     )
 
-    // The outermost navigational orbit should match the outermost realistic orbit
-    expect(maxNavigationalRadius).toBeCloseTo(maxRealisticRadius, 5)
+    // The outermost navigational orbit should match the outermost explorational orbit
+    expect(maxNavigationalRadius).toBeCloseTo(maxExplorationalRadius, 5)
   })
 
-  it('should preserve realistic mode orbital radii', () => {
-    // In realistic mode, planets should use their actual semi_major_axis values
-    const realisticRadii = mockSystemData.planets.map(planet => planet.orbit.semi_major_axis)
+  it('should preserve explorational mode orbital radii', () => {
+    // In explorational mode, planets should use their actual semi_major_axis values
+    const explorationalRadii = mockSystemData.planets.map(planet => planet.orbit.semi_major_axis)
     
-    expect(realisticRadii).toEqual([10, 20, 40])
+    expect(explorationalRadii).toEqual([10, 20, 40])
   })
 
   it('should handle edge cases gracefully', () => {

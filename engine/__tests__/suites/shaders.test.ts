@@ -30,8 +30,8 @@ describe('Shader System', () => {
     it('should adjust detail levels based on mode', () => {
       const store = useSystemStore.getState();
       
-      // Test realistic mode (medium detail)
-      store.optimizeRendering('realistic');
+      // Test explorational mode (medium detail)
+      store.optimizeRendering('explorational');
       expect(store.getDetailLevel()).toBe('medium');
       
       // Test profile mode (low detail for performance)
@@ -144,7 +144,7 @@ describe('Shader System', () => {
       const store = useSystemStore.getState();
       
       // Test performance optimization for different modes
-      store.optimizeRendering('realistic');
+      store.optimizeRendering('explorational');
       expect(store.getDetailLevel()).toBe('medium');
       
       store.optimizeRendering('navigational');

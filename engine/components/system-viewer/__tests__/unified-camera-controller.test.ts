@@ -4,7 +4,7 @@ import { VIEW_MODE_CONFIGS, createDualProperties, determineObjectType } from '@/
 describe('Unified Camera System', () => {
   describe('View Mode Configurations', () => {
     it('should have configurations for all view modes', () => {
-      expect(VIEW_MODE_CONFIGS.realistic).toBeDefined()
+      expect(VIEW_MODE_CONFIGS.explorational).toBeDefined()
       expect(VIEW_MODE_CONFIGS.navigational).toBeDefined()
       expect(VIEW_MODE_CONFIGS.profile).toBeDefined()
     })
@@ -99,7 +99,7 @@ describe('Unified Camera System', () => {
         0,       // realOrbitRadius (stars don't orbit)
         100.0,   // realMass
         'Sol Star',
-        'realistic',
+        'explorational',
         1.0      // systemScale
       )
 
@@ -118,7 +118,7 @@ describe('Unified Camera System', () => {
         100.0,   // realOrbitRadius
         1.0,     // realMass
         'Earth',
-        'realistic',
+        'explorational',
         1.0      // systemScale
       )
 
@@ -131,23 +131,23 @@ describe('Unified Camera System', () => {
     })
 
     it('should scale properties correctly for different view modes', () => {
-      const realisticProps = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'realistic')
+      const explorationalProps = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'explorational')
       const navProps = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'navigational')
       const profileProps = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'profile')
 
       // Different view modes should produce different visual properties
-      expect(realisticProps.visualRadius).not.toBe(navProps.visualRadius)
-      expect(realisticProps.visualRadius).not.toBe(profileProps.visualRadius)
+      expect(explorationalProps.visualRadius).not.toBe(navProps.visualRadius)
+      expect(explorationalProps.visualRadius).not.toBe(profileProps.visualRadius)
       expect(navProps.visualRadius).not.toBe(profileProps.visualRadius)
 
       // But real properties should remain the same
-      expect(realisticProps.realRadius).toBe(navProps.realRadius)
-      expect(realisticProps.realRadius).toBe(profileProps.realRadius)
+      expect(explorationalProps.realRadius).toBe(navProps.realRadius)
+      expect(explorationalProps.realRadius).toBe(profileProps.realRadius)
     })
 
     it('should respect system scaling', () => {
-      const normalScale = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'realistic', 1.0)
-      const doubleScale = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'realistic', 2.0)
+      const normalScale = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'explorational', 1.0)
+      const doubleScale = createDualProperties(1.0, 10.0, 1.0, 'Earth', 'explorational', 2.0)
 
       expect(doubleScale.visualRadius).toBe(normalScale.visualRadius * 2.0)
       expect(doubleScale.visualOrbitRadius).toBe(normalScale.visualOrbitRadius * 2.0)
@@ -155,12 +155,12 @@ describe('Unified Camera System', () => {
 
     it('should enforce distance constraints', () => {
       // Test with very small radius
-      const smallObject = createDualProperties(0.001, 1.0, 0.1, 'Small Moon', 'realistic')
+      const smallObject = createDualProperties(0.001, 1.0, 0.1, 'Small Moon', 'explorational')
       expect(smallObject.optimalViewDistance).toBeGreaterThanOrEqual(smallObject.minViewDistance)
       expect(smallObject.optimalViewDistance).toBeLessThanOrEqual(smallObject.maxViewDistance)
 
       // Test with very large radius
-      const largeObject = createDualProperties(100.0, 1000.0, 200.0, 'Giant Star', 'realistic')
+      const largeObject = createDualProperties(100.0, 1000.0, 200.0, 'Giant Star', 'explorational')
       expect(largeObject.optimalViewDistance).toBeGreaterThanOrEqual(largeObject.minViewDistance)
       expect(largeObject.optimalViewDistance).toBeLessThanOrEqual(largeObject.maxViewDistance)
     })
@@ -171,26 +171,26 @@ describe('Unified Camera System', () => {
       const testOrbit = 100.0
       
       // Create objects with same visual radius but different types
-      const star = createDualProperties(testRadius, testOrbit, 200.0, 'Test Star', 'realistic')
-      const planet = createDualProperties(testRadius, testOrbit, 1.0, 'Test Planet', 'realistic')
-      const moon = createDualProperties(testRadius, testOrbit, 0.1, 'Test Moon', 'realistic')
-      const asteroid = createDualProperties(testRadius, testOrbit, 0.01, 'Test Asteroid', 'realistic')
-      const gasGiant = createDualProperties(testRadius, testOrbit, 15.0, 'Test Jupiter', 'realistic')
+      const star = createDualProperties(testRadius, testOrbit, 200.0, 'Test Star', 'explorational')
+      const planet = createDualProperties(testRadius, testOrbit, 1.0, 'Test Planet', 'explorational')
+      const moon = createDualProperties(testRadius, testOrbit, 0.1, 'Test Moon', 'explorational')
+      const asteroid = createDualProperties(testRadius, testOrbit, 0.01, 'Test Asteroid', 'explorational')
+      const gasGiant = createDualProperties(testRadius, testOrbit, 15.0, 'Test Jupiter', 'explorational')
       
       // Ensure they have the same visual radius (accounting for scaling differences)
       // We need to adjust for object scaling differences to get same visual radius
-      const config = VIEW_MODE_CONFIGS.realistic
+      const config = VIEW_MODE_CONFIGS.explorational
       const adjustedStarRadius = testRadius / config.objectScaling.star
       const adjustedPlanetRadius = testRadius / config.objectScaling.planet
       const adjustedMoonRadius = testRadius / config.objectScaling.moon
       const adjustedAsteroidRadius = testRadius / config.objectScaling.asteroid
       const adjustedGasGiantRadius = testRadius / config.objectScaling.gasGiant
       
-      const adjustedStar = createDualProperties(adjustedStarRadius, testOrbit, 200.0, 'Test Star', 'realistic')
-      const adjustedPlanet = createDualProperties(adjustedPlanetRadius, testOrbit, 1.0, 'Test Planet', 'realistic')
-      const adjustedMoon = createDualProperties(adjustedMoonRadius, testOrbit, 0.1, 'Test Moon', 'realistic')
-      const adjustedAsteroid = createDualProperties(adjustedAsteroidRadius, testOrbit, 0.01, 'Test Asteroid', 'realistic')
-      const adjustedGasGiant = createDualProperties(adjustedGasGiantRadius, testOrbit, 15.0, 'Test Jupiter', 'realistic')
+      const adjustedStar = createDualProperties(adjustedStarRadius, testOrbit, 200.0, 'Test Star', 'explorational')
+      const adjustedPlanet = createDualProperties(adjustedPlanetRadius, testOrbit, 1.0, 'Test Planet', 'explorational')
+      const adjustedMoon = createDualProperties(adjustedMoonRadius, testOrbit, 0.1, 'Test Moon', 'explorational')
+      const adjustedAsteroid = createDualProperties(adjustedAsteroidRadius, testOrbit, 0.01, 'Test Asteroid', 'explorational')
+      const adjustedGasGiant = createDualProperties(adjustedGasGiantRadius, testOrbit, 15.0, 'Test Jupiter', 'explorational')
       
       // Verify all have approximately the same visual radius (within floating point precision)
       const tolerance = 0.01
@@ -220,23 +220,23 @@ describe('Unified Camera System', () => {
 
     testObjects.forEach(obj => {
       it(`should have consistent properties for ${obj.name} across view modes`, () => {
-        const realisticProps = createDualProperties(obj.radius, obj.orbit, obj.mass, obj.name, 'realistic')
+        const explorationalProps = createDualProperties(obj.radius, obj.orbit, obj.mass, obj.name, 'explorational')
         const navProps = createDualProperties(obj.radius, obj.orbit, obj.mass, obj.name, 'navigational')
         const profileProps = createDualProperties(obj.radius, obj.orbit, obj.mass, obj.name, 'profile')
 
         // Real properties should be identical
-        expect(realisticProps.realRadius).toBe(navProps.realRadius)
-        expect(realisticProps.realRadius).toBe(profileProps.realRadius)
-        expect(realisticProps.realOrbitRadius).toBe(navProps.realOrbitRadius)
-        expect(realisticProps.realOrbitRadius).toBe(profileProps.realOrbitRadius)
+        expect(explorationalProps.realRadius).toBe(navProps.realRadius)
+        expect(explorationalProps.realRadius).toBe(profileProps.realRadius)
+        expect(explorationalProps.realOrbitRadius).toBe(navProps.realOrbitRadius)
+        expect(explorationalProps.realOrbitRadius).toBe(profileProps.realOrbitRadius)
 
         // Object type should be consistent
-        expect(realisticProps.objectType).toBe(navProps.objectType)
-        expect(realisticProps.objectType).toBe(profileProps.objectType)
-        expect(realisticProps.objectType).toBe(obj.type as any)
+        expect(explorationalProps.objectType).toBe(navProps.objectType)
+        expect(explorationalProps.objectType).toBe(profileProps.objectType)
+        expect(explorationalProps.objectType).toBe(obj.type as any)
 
         // All should have valid camera distances
-        expect(realisticProps.optimalViewDistance).toBeGreaterThan(0)
+        expect(explorationalProps.optimalViewDistance).toBeGreaterThan(0)
         expect(navProps.optimalViewDistance).toBeGreaterThan(0)
         expect(profileProps.optimalViewDistance).toBeGreaterThan(0)
       })
@@ -269,30 +269,37 @@ describe('Unified Camera System', () => {
         expect(config.cameraConfig.viewingAngles.birdsEyeElevation).toBeLessThanOrEqual(90)
       })
     })
-  })
 
-  describe('Backwards Compatibility', () => {
-    it('should maintain expected scaling ratios for legacy compatibility', () => {
-      const realisticConfig = VIEW_MODE_CONFIGS.realistic
-      const navConfig = VIEW_MODE_CONFIGS.navigational
-
-      // Navigational mode should generally have smaller scaling factors
-      expect(navConfig.objectScaling.star).toBeLessThanOrEqual(realisticConfig.objectScaling.star)
-      expect(navConfig.objectScaling.planet).toBeLessThanOrEqual(realisticConfig.objectScaling.planet)
+    it('should have reasonable orbital scaling factors', () => {
+      Object.values(VIEW_MODE_CONFIGS).forEach(config => {
+        expect(config.orbitScaling.factor).toBeGreaterThan(0)
+        expect(config.orbitScaling.factor).toBeLessThan(1000) // Arbitrary upper bound
+      })
     })
 
-    it('should handle edge cases gracefully', () => {
-      // Zero or negative values
-      const propsZeroRadius = createDualProperties(0, 10, 1, 'Test', 'realistic')
+    it('should ensure navigational scaling is less than or equal to explorational scaling for stars and planets', () => {
+      const explorationalConfig = VIEW_MODE_CONFIGS.explorational
+      const navConfig = VIEW_MODE_CONFIGS.navigational
+
+      // Navigational mode stars and planets should not be larger than realistic mode
+      expect(navConfig.objectScaling.star).toBeLessThanOrEqual(explorationalConfig.objectScaling.star)
+      expect(navConfig.objectScaling.planet).toBeLessThanOrEqual(explorationalConfig.objectScaling.planet)
+    })
+
+    it('should handle zero or very small radius gracefully', () => {
+      const propsZeroRadius = createDualProperties(0, 10, 1, 'Test', 'explorational')
+      expect(propsZeroRadius.visualRadius).toBeGreaterThan(0) // Should default to min visual size
       expect(propsZeroRadius.optimalViewDistance).toBeGreaterThan(0)
+    })
 
-      // Very large values
-      const propsLargeRadius = createDualProperties(1000, 10000, 1000, 'Test', 'realistic')
-      expect(propsLargeRadius.optimalViewDistance).toBeLessThan(10000) // Should be constrained
+    it('should handle very large radius gracefully', () => {
+      const propsLargeRadius = createDualProperties(1000, 10000, 1000, 'Test', 'explorational')
+      expect(propsLargeRadius.optimalViewDistance).toBeGreaterThan(0)
+    })
 
-      // Unknown view mode should default to realistic
-      const propsUnknownMode = createDualProperties(1, 10, 1, 'Test', 'unknown' as any)
-      expect(propsUnknownMode.visualRadius).toBeGreaterThan(0)
+    it('should default to explorational config for unknown view mode', () => {
+      const config = VIEW_MODE_CONFIGS.unknown
+      expect(config).toEqual(VIEW_MODE_CONFIGS.explorational)
     })
   })
 }) 

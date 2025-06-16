@@ -59,7 +59,7 @@ Detailed visualization of planet types, surface features, atmospheric effects, a
 ```
 
 ## View Mode Support
-- Realistic: Full detail, accurate scaling.
+- Explorational: Full detail, proportional scaling for educational purposes.
 - Navigational: Simplified effects, enhanced visibility.
 - Profile: Focused on specific features.
 

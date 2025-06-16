@@ -8,8 +8,6 @@ All notable changes to this project will be documented in this file.
 - **BREAKING**: Removed confusing dual `app/` + `apps/` structure
 - **IMPROVED**: Consolidated to single `app/` directory following Next.js 13+ App Router conventions
 - **ADDED**: Dynamic mode routing with `app/[mode]/` pattern
-- **MOVED**: `apps/realistic/realistic-app.tsx` → `app/[mode]/realistic/realistic-mode-view.tsx`
-- **MOVED**: `apps/star-citizen/star-citizen-app.tsx` → `app/[mode]/star-citizen/star-citizen-mode-view.tsx`
 - **UPDATED**: All import paths to use `@/engine/` references
 - **ENHANCED**: Mode-specific metadata and error handling
 

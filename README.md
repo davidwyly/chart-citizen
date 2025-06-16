@@ -134,16 +134,14 @@ The Celestial Rendering Engine is designed with a clear architectural structure 
 ## 🎮 Simulation Modes
 
 ### **Realistic Mode** (`/realistic`)
-- Scientifically accurate astronomical data
-- Real-world physics and scaling
-- Educational content and scientific information
+- Educational content and real historical and scientific information
 - Data sourced from astronomical catalogs
 
 ### **Star Citizen Mode** (`/star-citizen`)
 - Game-inspired universe simulation
-- Star Citizen lore-accurate systems
+- Star Citizen lore-accurate systems and history
 - Gameplay-oriented interface and interactions
-- Enhanced visual effects for immersion
+- Enhanced visual effects for immersion and polish
 
 ## 🚫 Post-Processing Policy
 
@@ -157,7 +155,7 @@ The Celestial Rendering Engine is designed with a clear architectural structure 
 ## 🔧 Key Technical Features
 
 ### **🎯 Dynamic View Modes**
-- Realistic Mode: Displays star systems considering astronomical distances and size, modified for human interpretation.
+- Explorational Mode: Displays star systems considering astronomical distances and size, modified for human interpretation.
 - Navigational Mode: Provides equidistant orbital paths in 3D perspective for easier navigation.
 - Profile Mode: Top-down diagrammatic view with equidistant orbital paths and orthographic projection, designed for understanding orbital hierarchy and easily drilling down into points of interest (future)
 

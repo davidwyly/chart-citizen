@@ -62,7 +62,7 @@ export function useSystemViewer() {
 export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: SystemViewerProps) {
   const [timeMultiplier, setTimeMultiplier] = useState(1)
   const [isPaused, setIsPaused] = useState(false)
-  const [viewType, setViewType] = useState<ViewType>("realistic")
+  const [viewType, setViewType] = useState<ViewType>("explorational")
   const [currentZoom, setCurrentZoom] = useState<number>(1)
   const cameraControllerRef = useRef<UnifiedCameraControllerRef>(null)
   const [isSystemSelected, setIsSystemSelected] = useState(false)

@@ -1,4 +1,4 @@
-export type ViewMode = 'realistic' | 'navigational' | 'profile';
+export type ViewMode = 'explorational' | 'navigational' | 'profile';
 
 export interface ViewModeScaling {
   ORBITAL_SCALE: number;

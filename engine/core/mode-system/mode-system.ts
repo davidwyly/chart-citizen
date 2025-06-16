@@ -10,7 +10,7 @@ const DEFAULT_FEATURES: ModeFeatures = {
   jumpPointInfo: false,
 };
 
-const REALISTIC_FEATURES: ModeFeatures = {
+const EXPLORATIONAL_FEATURES: ModeFeatures = {
   scientificInfo: true,
   educationalContent: true,
   gameInfo: false,

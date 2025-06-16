@@ -3,8 +3,8 @@ import { getViewModeScaling } from '@/engine/core/mode-system/view-mode.constant
 import { ViewMode } from '@/engine/types/view-mode.types';
 
 describe('View Modes', () => {
-  it('should return correct scaling for realistic mode', () => {
-    const scaling = getViewModeScaling('realistic');
+  it('should return correct scaling for explorational mode', () => {
+    const scaling = getViewModeScaling('explorational');
     expect(scaling).toEqual({
       STAR_SCALE: 1.0,
       PLANET_SCALE: 1.0,
@@ -36,9 +36,9 @@ describe('View Modes', () => {
     });
   });
 
-  it('should default to realistic scaling for invalid mode', () => {
+  it('should default to explorational scaling for invalid mode', () => {
     // @ts-expect-error - Testing invalid mode
     const scaling = getViewModeScaling('invalid');
-    expect(scaling).toEqual(getViewModeScaling('realistic'));
+    expect(scaling).toEqual(getViewModeScaling('explorational'));
   });
 }); 
