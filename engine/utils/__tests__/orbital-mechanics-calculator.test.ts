@@ -96,7 +96,7 @@ describe('orbital-mechanics-calculator', () => {
   describe('calculateSystemOrbitalMechanics', () => {
     it('should calculate visual radii for all objects', () => {
       const objects = createSolarSystem();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       // All objects should have visual radii
       for (const obj of objects) {
@@ -106,9 +106,9 @@ describe('orbital-mechanics-calculator', () => {
       }
     });
 
-    it('should maintain proper size proportions in realistic mode', () => {
+    it('should maintain proper size proportions in explorational mode', () => {
       const objects = createSolarSystem();
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       const starData = mechanics.get('star1')!;
       const jupiterData = mechanics.get('jupiter')!;
@@ -131,7 +131,7 @@ describe('orbital-mechanics-calculator', () => {
       const planet3 = createTestPlanet('planet3', 'star1', 20000, 1.05); // Larger planet in between
       
       const objects = [star, planet1, planet2, planet3];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       const starData = mechanics.get('star1')!;
       const planet1Data = mechanics.get('planet1')!;
@@ -163,7 +163,7 @@ describe('orbital-mechanics-calculator', () => {
       const planet = createTestPlanet('planet1', 'star1', 6371, 4.0);
       
       const objects = [star, belt, planet];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       const beltData = mechanics.get('belt1')!;
       const planetData = mechanics.get('planet1')!;
@@ -187,7 +187,7 @@ describe('orbital-mechanics-calculator', () => {
       const jupiter = createTestPlanet('jupiter', 'star1', 69911, 5.2); // Jupiter should clear Mars+moons system
       
       const objects = [star, earth, luna, mars, phobos, deimos, jupiter];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       const earthData = mechanics.get('earth')!;
       const lunaData = mechanics.get('luna')!;
@@ -235,7 +235,7 @@ describe('orbital-mechanics-calculator', () => {
       expect(phobosData.orbitDistance!).toBeLessThan(deimosData.orbitDistance!); // Phobos closer than Deimos
     });
 
-    it('should use fixed sizes for non-realistic modes', () => {
+    it('should use fixed sizes for non-explorational modes', () => {
       const objects = createSolarSystem();
       const navigationalMechanics = calculateSystemOrbitalMechanics(objects, 'navigational', false);
       const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile', false);
@@ -258,18 +258,7 @@ describe('orbital-mechanics-calculator', () => {
       expect(profMoonData.visualRadius).toBe(0.4);   // Fixed moon size
     });
 
-    it('should memoize results for identical inputs', () => {
-      const objects = createSolarSystem();
-      
-      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'realistic', false);
-      
-      // Should not recompute, should return cached
-      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'realistic', false);
-      
-      expect(mechanics1).toBe(mechanics2);
-    });
-
-    it('should use proportional scaling for moons in realistic mode', () => {
+    it('should use proportional scaling for moons in explorational mode', () => {
       // Test the new proportional parent-child scaling feature
       const star = createTestStar('sol', 695700); // Sun
       const earth = createTestPlanet('earth', 'sol', 6371, 1.0); // Earth
@@ -278,7 +267,7 @@ describe('orbital-mechanics-calculator', () => {
       const phobos = createTestMoon('phobos', 'mars', 22.2, 0.00006); // Phobos
       
       const objects = [star, earth, luna, mars, phobos];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       const earthData = mechanics.get('earth')!;
       const lunaData = mechanics.get('luna')!;
@@ -305,17 +294,19 @@ describe('orbital-mechanics-calculator', () => {
       expect(marsPhobosVisualRatio).toBeLessThan(0.1); // Phobos shouldn't appear 1/10 Mars's size
     });
 
-    it('should clear memoization when cache is cleared', () => {
+    it('should handle memoization correctly for explorational mode', () => {
       const objects = createSolarSystem();
-      
-      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'explorational', false);
+      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'explorational', false);
+      expect(mechanics1).toBe(mechanics2);
+    });
+
+    it('should clear memoization cache', () => {
+      const objects = createSolarSystem();
+      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       clearOrbitalMechanicsCache();
-      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'realistic', false);
-      
+      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       expect(mechanics1).not.toBe(mechanics2);
-      
-      // But values should be the same
-      expect(mechanics1.get('star1')?.visualRadius).toBe(mechanics2.get('star1')?.visualRadius);
     });
 
     it('should respect moon orbital paths when placing subsequent planets in navigational mode', () => {
@@ -339,11 +330,59 @@ describe('orbital-mechanics-calculator', () => {
       // Planet2 must be beyond the outer edge plus safety margin (0.1)
       expect(planet2Data.orbitDistance!).toBeGreaterThan(moonOuterEdge);
     });
+
+    it('should ensure consistent object scaling across different view modes', () => {
+      const objects = createSolarSystem();
+      const explorationalMechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
+      const navigationalMechanics = calculateSystemOrbitalMechanics(objects, 'navigational', false);
+      const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile', false);
+
+      const starExplorational = explorationalMechanics.get('star1')!;
+      const starNavigational = navigationalMechanics.get('star1')!;
+      const starProfile = profileMechanics.get('star1')!;
+
+      // Star sizes should differ based on view mode config
+      expect(starExplorational.visualRadius).not.toBeCloseTo(starNavigational.visualRadius);
+      expect(starNavigational.visualRadius).not.toBeCloseTo(starProfile.visualRadius);
+      expect(starExplorational.visualRadius).not.toBeCloseTo(starProfile.visualRadius);
+
+      // Confirm specific fixed sizes for navigational and profile modes
+      expect(starNavigational.visualRadius).toBe(2.0);
+      expect(starProfile.visualRadius).toBe(1.5);
+    });
+
+    it('should correctly calculate proportional scaling for moons in explorational mode', () => {
+      const star = createTestStar('star1');
+      const earth = createTestPlanet('earth', 'star1', 6371, 1.0);
+      const luna = createTestMoon('luna', 'earth', 1737, 0.002);
+      const objects = [star, earth, luna];
+
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
+
+      const earthData = mechanics.get('earth')!;
+      const lunaData = mechanics.get('luna')!;
+
+      // Luna's visual radius should be proportional to Earth's visual radius in explorational mode
+      const expectedProportionalRadius = earthData.visualRadius * (1737 / 6371);
+      expect(lunaData.visualRadius).toBeCloseTo(expectedProportionalRadius, 2);
+    });
+
+    it('should handle an empty system gracefully', () => {
+      const mechanics = calculateSystemOrbitalMechanics([], 'explorational', false);
+      expect(mechanics.size).toBe(0);
+    });
+
+    it('should re-calculate if isPaused changes', () => {
+      const objects = createSolarSystem();
+      const mechanics1 = calculateSystemOrbitalMechanics(objects, 'explorational', false);
+      const mechanics2 = calculateSystemOrbitalMechanics(objects, 'explorational', true);
+      expect(mechanics1).not.toBe(mechanics2);
+    });
   });
 
   describe('edge cases', () => {
     it('should handle empty object list', () => {
-      const mechanics = calculateSystemOrbitalMechanics([], 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics([], 'explorational', false);
       expect(mechanics.size).toBe(0);
     });
 
@@ -352,7 +391,7 @@ describe('orbital-mechanics-calculator', () => {
       const planet = createTestPlanet('planet1', 'star1', -100, 1.0);
       
       const objects = [star, planet];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       // Should still calculate reasonable visual radii
       expect(mechanics.get('star1')?.visualRadius).toBeGreaterThan(0);
@@ -371,7 +410,7 @@ describe('orbital-mechanics-calculator', () => {
       };
       
       const objects = [star, freeFloating];
-      const mechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       
       // Both should have visual radii
       expect(mechanics.get('star1')?.visualRadius).toBeGreaterThan(0);

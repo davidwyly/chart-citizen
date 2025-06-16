@@ -1,3 +1,4 @@
+import React from 'react'
 import { render, act } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitalPath } from '../system-viewer/components/orbital-path'

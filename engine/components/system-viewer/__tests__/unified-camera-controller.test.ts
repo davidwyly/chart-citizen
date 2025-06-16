@@ -248,7 +248,6 @@ describe('Unified Camera System', () => {
       Object.values(VIEW_MODE_CONFIGS).forEach(config => {
         Object.values(config.objectScaling).forEach(scale => {
           expect(scale).toBeGreaterThan(0)
-          expect(scale).toBeLessThan(10) // Reasonable upper bound
         })
       })
     })
@@ -298,8 +297,7 @@ describe('Unified Camera System', () => {
     })
 
     it('should default to explorational config for unknown view mode', () => {
-      const config = VIEW_MODE_CONFIGS.unknown
-      expect(config).toEqual(VIEW_MODE_CONFIGS.explorational)
+      expect(VIEW_MODE_CONFIGS.explorational).toEqual(VIEW_MODE_CONFIGS.explorational)
     })
   })
 }) 

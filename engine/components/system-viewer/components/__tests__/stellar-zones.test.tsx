@@ -1,3 +1,4 @@
+import React from 'react'
 import { render } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
 import { StellarZones } from '../stellar-zones'
@@ -62,7 +63,7 @@ describe('StellarZones Component', () => {
         <TestWrapper>
           <StellarZones
             systemData={mockSystemDataG2}
-            viewType="realistic"
+            viewType="explorational"
             orbitalScale={1.0}
             showZones={true}
           />
@@ -76,7 +77,7 @@ describe('StellarZones Component', () => {
       <TestWrapper>
         <StellarZones
           systemData={mockSystemDataG2}
-          viewType="realistic"
+          viewType="explorational"
           orbitalScale={1.0}
           showZones={true}
         />
@@ -92,7 +93,7 @@ describe('StellarZones Component', () => {
       <TestWrapper>
         <StellarZones
           systemData={mockSystemDataK1}
-          viewType="realistic"
+          viewType="explorational"
           orbitalScale={1.0}
           showZones={true}
         />
@@ -107,7 +108,7 @@ describe('StellarZones Component', () => {
       <TestWrapper>
         <StellarZones
           systemData={mockSystemDataM5}
-          viewType="realistic"
+          viewType="explorational"
           orbitalScale={1.0}
           showZones={true}
         />
@@ -150,7 +151,7 @@ describe('StellarZones Component', () => {
       <TestWrapper>
         <StellarZones
           systemData={mockSystemDataG2}
-          viewType="realistic"
+          viewType="explorational"
           orbitalScale={1.0}
           showZones={false}
         />
@@ -166,7 +167,7 @@ describe('StellarZones Component', () => {
         <TestWrapper>
           <StellarZones
             systemData={mockEmptySystemData}
-            viewType="realistic"
+            viewType="explorational"
             orbitalScale={1.0}
             showZones={true}
           />
@@ -180,7 +181,7 @@ describe('StellarZones Component', () => {
       <TestWrapper>
         <StellarZones
           systemData={mockSystemDataG2}
-          viewType="realistic"
+          viewType="explorational"
           orbitalScale={1.0}
           showZones={true}
         />
@@ -191,7 +192,7 @@ describe('StellarZones Component', () => {
       <TestWrapper>
         <StellarZones
           systemData={mockSystemDataG2}
-          viewType="realistic"
+          viewType="explorational"
           orbitalScale={2.0}
           showZones={true}
         />
@@ -234,7 +235,7 @@ describe('StellarZones Component', () => {
         <TestWrapper>
           <StellarZones
             systemData={systemDataTempStar}
-            viewType="realistic"
+            viewType="explorational"
             orbitalScale={1.0}
             showZones={true}
           />

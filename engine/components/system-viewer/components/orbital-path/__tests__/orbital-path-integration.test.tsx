@@ -1,3 +1,4 @@
+import React from 'react'
 import { render } from '@testing-library/react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitalPath } from '../orbital-path';
@@ -24,7 +25,7 @@ describe('OrbitalPath Integration Tests', () => {
     showOrbit: true,
     timeMultiplier: 1,
     isPaused: false,
-    viewType: 'realistic' as ViewType,
+    viewType: 'explorational' as ViewType,
     objectRefsMap: mockObjectRefsMap,
   };
 
@@ -52,7 +53,7 @@ describe('OrbitalPath Integration Tests', () => {
     });
 
     it('supports all view types used by system viewer', () => {
-      const viewTypes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const viewTypes: ViewType[] = ['explorational', 'navigational', 'profile'];
       
       viewTypes.forEach(viewType => {
         const { container } = renderInCanvas({ viewType });
@@ -138,7 +139,7 @@ describe('OrbitalPath Integration Tests', () => {
             <OrbitalPath 
               {...defaultProps} 
               semiMajorAxis={10 + i}
-              viewType={i % 2 === 0 ? 'realistic' : 'navigational'}
+              viewType={i % 2 === 0 ? 'explorational' : 'navigational'}
               timeMultiplier={1 + i * 0.1}
             />
           </Canvas>

@@ -1,9 +1,35 @@
+import React from 'react'
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { CelestialViewer } from '../celestial-viewer'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-vi.mock('../../../engine/system-loader', () => ({
+// Mock Next.js router
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => ({
+    get: vi.fn().mockReturnValue(null),
+  }),
+  usePathname: () => '/test',
+}))
+
+vi.mock('../../../system-loader', () => ({
+  engineSystemLoader: {
+    loadStarmap: vi.fn().mockResolvedValue({}),
+    loadSystem: vi.fn().mockResolvedValue({}),
+    getAvailableSystems: vi.fn().mockResolvedValue([]),
+    isSystemLoaded: vi.fn().mockReturnValue(false),
+    isSystemLoading: vi.fn().mockReturnValue(false),
+    getLoadingStatus: vi.fn().mockReturnValue('not-loaded'),
+    clearCache: vi.fn(),
+  },
   loadCatalogObject: vi.fn().mockResolvedValue({
     id: 'g2v-main-sequence',
     name: 'G2V Main Sequence Star',
@@ -101,7 +127,7 @@ describe('CelestialViewer', () => {
   it('handles errors gracefully', async () => {
     // Mock a loading error
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.spyOn(require('../../../engine/system-loader'), 'loadCatalogObject')
+    vi.spyOn(require('../../../system-loader'), 'loadCatalogObject')
       .mockRejectedValueOnce(new Error('Failed to load object'))
 
     render(<CelestialViewer />)

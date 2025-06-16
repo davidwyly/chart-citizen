@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
+import React from 'react'
 import { BlackHole } from '../black-hole'
 import { describe, it, expect } from 'vitest'
 

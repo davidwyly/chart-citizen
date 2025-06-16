@@ -6,7 +6,8 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: [
-      './engine/renderers/geometry-renderers/__tests__/setup.ts'
+      './engine/renderers/geometry-renderers/__tests__/setup.ts',
+      './vitest.setup.ts',
     ],
   },
   resolve: {

@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react'
 import type { CelestialObject } from '@/engine/types/orbital-system'
 
 interface ObjectInfoProps {

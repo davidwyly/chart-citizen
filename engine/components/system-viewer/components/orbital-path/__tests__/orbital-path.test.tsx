@@ -1,3 +1,4 @@
+import React from 'react'
 import { render } from '@testing-library/react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitalPath } from '../orbital-path';
@@ -20,7 +21,7 @@ const mockProps = {
   showOrbit: true,
   timeMultiplier: 1,
   isPaused: false,
-  viewType: 'realistic' as const,
+  viewType: 'explorational' as const,
 };
 
 // Helper to render component in Canvas

@@ -281,7 +281,7 @@ describe('Comprehensive Orbital Collision Detection', () => {
     clearOrbitalMechanicsCache();
   });
 
-  const viewModes: ViewType[] = ['realistic', 'navigational', 'profile'];
+  const viewModes: ViewType[] = ['explorational', 'navigational', 'profile'];
 
   describe('Basic Parent-Child Collision Prevention', () => {
     viewModes.forEach(viewMode => {
@@ -571,12 +571,12 @@ describe('Comprehensive Orbital Collision Detection', () => {
     it('should maintain collision-free arrangements across all view modes', () => {
       const objects = createComplexSystem();
       
-      const realisticMechanics = calculateSystemOrbitalMechanics(objects, 'realistic', false);
+      const realisticMechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
       const navMechanics = calculateSystemOrbitalMechanics(objects, 'navigational', false);
       const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile', false);
 
       const mechanicsMap = {
-        realistic: realisticMechanics,
+        explorational: realisticMechanics,
         navigational: navMechanics,
         profile: profileMechanics,
       };

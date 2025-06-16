@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
+import React from 'react'
 import { ObjectCatalog } from '../object-catalog'
 
 describe('ObjectCatalog', () => {

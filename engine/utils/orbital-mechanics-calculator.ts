@@ -100,7 +100,7 @@ export const VIEW_CONFIGS = {
   navigational: {
     maxVisualSize: 2.5,
     minVisualSize: 0.05,
-    orbitScaling: 6.0, // Adjusted from 4.0 to be more proportional (3/4 of explorational)
+    orbitScaling: 0.6, // Much smaller scaling for compact view
     safetyMultiplier: 3.0,
     minDistance: 0.2,
     fixedSizes: {
@@ -115,7 +115,7 @@ export const VIEW_CONFIGS = {
   profile: {
     maxVisualSize: 1.5,
     minVisualSize: 0.03,
-    orbitScaling: 4.0, // Adjusted from 2.5 to be more proportional (1/2 of explorational)
+    orbitScaling: 0.3, // Even more compact for profile view
     safetyMultiplier: 3.5,
     minDistance: 0.3,
     fixedSizes: {
@@ -154,9 +154,9 @@ function calculateVisualRadius(
   viewType: ViewType, 
   sizeAnalysis: { logMinRadius: number; logRange: number },
   allObjects: CelestialObject[],
-  results: Map<string, any>
+  results: Map<string, any>,
+  config: typeof VIEW_CONFIGS[keyof typeof VIEW_CONFIGS]
 ): number {
-  const config = VIEW_CONFIGS[viewType];
   const radiusKm = object.properties.radius || 1;
   
   // Use fixed sizes for non-explorational modes - IMPROVED CLASSIFICATION LOGIC
@@ -747,6 +747,7 @@ export function calculateSystemOrbitalMechanics(
   visualRadius: number;
   orbitDistance?: number;
   beltData?: { innerRadius: number; outerRadius: number; centerRadius: number };
+  animationSpeed?: number;
 }> {
   // STEP 0: Check memoization cache
   // ===============================
@@ -765,11 +766,14 @@ export function calculateSystemOrbitalMechanics(
   // Analyze the size range for logarithmic scaling in explorational mode
   const sizeAnalysis = analyzeSystemSizes(objects);
   
+  // Get the configuration for this view type
+  const config = VIEW_CONFIGS[viewType];
+  
   // PASS 1A: Calculate visual radii for all non-moon objects (stars, planets, belts)
   // This must be done first because moons in explorational mode scale proportionally to their parents
   for (const obj of objects) {
     if (!obj.orbit?.parent || obj.classification !== 'moon') {
-      const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results);
+      const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results, config);
       results.set(obj.id, { visualRadius });
     }
   }
@@ -778,7 +782,7 @@ export function calculateSystemOrbitalMechanics(
   // This depends on parents being calculated first (above)
   for (const obj of objects) {
     if (obj.orbit?.parent && obj.classification === 'moon') {
-      const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results);
+      const visualRadius = calculateVisualRadius(obj, viewType, sizeAnalysis, objects, results, config);
       results.set(obj.id, { visualRadius });
     }
   }
@@ -787,19 +791,20 @@ export function calculateSystemOrbitalMechanics(
   // ==========================================================
   // This is the core of the dependency resolution system
   
-  const config = { ...VIEW_CONFIGS[viewType] };
+  // Use the config already declared above
+  const orbitConfig = { ...config };
   
   // CRITICAL: calculateClearedOrbits uses a two-pass algorithm to resolve circular dependencies:
   // - Pass 1: Calculate all moon orbits first (independent of planet positions)
   // - Pass 2: Calculate planet orbits using the now-available moon positions
   // This prevents the circular dependency where planets need moon positions but moons need planet positions
-  calculateClearedOrbits(objects, results, config);
+  calculateClearedOrbits(objects, results, orbitConfig);
   
   // STEP 3: GLOBAL COLLISION DETECTION AND ADJUSTMENT
   // ==================================================
   // Now that all objects have initial positions, check for and resolve any remaining collisions
   // This uses the ACTUAL calculated positions (not raw AU values) to ensure accuracy
-  adjustForGlobalCollisions(objects, viewType, results, config);
+  adjustForGlobalCollisions(objects, viewType, results, orbitConfig);
   
   // STEP 4: PARENT-CHILD SIZE HIERARCHY ENFORCEMENT
   // ================================================
@@ -807,7 +812,21 @@ export function calculateSystemOrbitalMechanics(
   // This is done last to avoid interfering with collision calculations
   enforceParentChildSizeHierarchy(objects, results, viewType);
   
-  // STEP 5: MEMOIZATION AND CACHING
+  // STEP 5: ANIMATION SPEED CALCULATION
+  // ====================================
+  // Calculate animation speeds based on orbital periods
+  for (const obj of objects) {
+    const result = results.get(obj.id);
+    if (result && obj.orbit && 'orbital_period' in obj.orbit && obj.orbit.orbital_period) {
+      // Animation speed is inversely proportional to orbital period
+      // Base speed for Earth (365 days) = 1.0
+      const baseSpeed = 1.0;
+      const earthPeriod = 365; // days
+      result.animationSpeed = baseSpeed * (earthPeriod / obj.orbit.orbital_period);
+    }
+  }
+  
+  // STEP 6: MEMOIZATION AND CACHING
   // ================================
   // Cache the results for future calls with the same configuration
   memoizedResults = results;

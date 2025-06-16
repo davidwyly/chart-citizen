@@ -1,6 +1,6 @@
 import { OrbitalSystemData } from './orbital-system'
 
-export type Mode = 'realistic' | 'navigational' | 'profile';
+export type Mode = 'explorational' | 'navigational' | 'profile';
 
 export interface ModeFeatures {
   scientificInfo: boolean;

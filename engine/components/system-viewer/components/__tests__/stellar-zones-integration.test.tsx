@@ -1,3 +1,4 @@
+import React from 'react'
 import { render } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
 import { StellarZones } from '../stellar-zones'
@@ -88,7 +89,7 @@ describe('StellarZones Integration Tests', () => {
           <TestWrapper>
             <StellarZones
               systemData={solSystemData}
-              viewType="realistic"
+              viewType="explorational"
               orbitalScale={1.0}
               showZones={true}
             />
@@ -103,7 +104,7 @@ describe('StellarZones Integration Tests', () => {
           <TestWrapper>
             <StellarZones
               systemData={alphaCentauriSystemData}
-              viewType="realistic"
+              viewType="explorational"
               orbitalScale={1.0}
               showZones={true}
             />
@@ -118,7 +119,7 @@ describe('StellarZones Integration Tests', () => {
           <TestWrapper>
             <StellarZones
               systemData={proximaCentauriSystemData}
-              viewType="realistic"
+              viewType="explorational"
               orbitalScale={1.0}
               showZones={true}
             />
@@ -130,7 +131,7 @@ describe('StellarZones Integration Tests', () => {
 
   describe('Orbital Scaling Integration', () => {
     it('integrates properly with orbital mechanics calculator scaling', () => {
-      const viewTypes: ViewType[] = ['realistic', 'navigational', 'profile']
+      const viewTypes: ViewType[] = ['explorational', 'navigational', 'profile']
       
              viewTypes.forEach(viewType => {
          // Calculate orbital mechanics for the system
@@ -162,7 +163,7 @@ describe('StellarZones Integration Tests', () => {
             <TestWrapper>
               <StellarZones
                 systemData={solSystemData}
-                viewType="realistic"
+                viewType="explorational"
                 orbitalScale={scale}
                 showZones={true}
               />
@@ -175,7 +176,7 @@ describe('StellarZones Integration Tests', () => {
 
   describe('Cross-View-Mode Consistency', () => {
     it('maintains zone calculation consistency across view modes', () => {
-      const viewTypes: ViewType[] = ['realistic', 'navigational', 'profile']
+      const viewTypes: ViewType[] = ['explorational', 'navigational', 'profile']
       const results: any[] = []
 
       viewTypes.forEach(viewType => {
@@ -199,7 +200,7 @@ describe('StellarZones Integration Tests', () => {
     })
 
     it('handles view mode opacity changes correctly', () => {
-      const viewTypes: ViewType[] = ['realistic', 'navigational', 'profile']
+      const viewTypes: ViewType[] = ['explorational', 'navigational', 'profile']
       
       viewTypes.forEach(viewType => {
         expect(() => {
@@ -225,7 +226,7 @@ describe('StellarZones Integration Tests', () => {
           <TestWrapper>
             <StellarZones
               systemData={solSystemData}
-              viewType="realistic"
+              viewType="explorational"
               orbitalScale={1.0}
               showZones={true}
             />
@@ -240,7 +241,7 @@ describe('StellarZones Integration Tests', () => {
           <TestWrapper>
             <StellarZones
               systemData={proximaCentauriSystemData}
-              viewType="realistic"
+              viewType="explorational"
               orbitalScale={1.0}
               showZones={true}
             />
@@ -267,7 +268,7 @@ describe('StellarZones Integration Tests', () => {
           <TestWrapper>
             <StellarZones
               systemData={tempSystemData}
-              viewType="realistic"
+              viewType="explorational"
               orbitalScale={1.0}
               showZones={true}
             />
@@ -299,7 +300,7 @@ describe('StellarZones Integration Tests', () => {
           <TestWrapper>
             <StellarZones
               systemData={invalidSystemData}
-              viewType="realistic"
+              viewType="explorational"
               orbitalScale={1.0}
               showZones={true}
             />
@@ -317,7 +318,7 @@ describe('StellarZones Integration Tests', () => {
             <TestWrapper>
               <StellarZones
                 systemData={solSystemData}
-                viewType="realistic"
+                viewType="explorational"
                 orbitalScale={scale}
                 showZones={true}
               />

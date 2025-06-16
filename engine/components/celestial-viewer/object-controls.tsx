@@ -1,5 +1,7 @@
 "use client"
 
+import React, { useState, useEffect } from 'react'
+
 interface ObjectControlsProps {
   selectedObjectId: string
   objectScale: number

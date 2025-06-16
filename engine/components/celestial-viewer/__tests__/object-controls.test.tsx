@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 import { ObjectControls } from '../object-controls'
 import type { CatalogObject } from '@/engine/system-loader'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -36,10 +37,12 @@ describe('ObjectControls', () => {
       rotationSpeed: 0.2,
       showTopographicLines: false,
     },
+    showStats: false,
     onShaderScaleChange: mockOnShaderScaleChange,
     onObjectScaleChange: mockOnObjectScaleChange,
     onShaderParamChange: mockOnShaderParamsChange,
-    onHabitabilityParamChange: mockOnHabitabilityParamChange
+    onHabitabilityParamChange: mockOnHabitabilityParamChange,
+    onToggleStats: vi.fn()
   }
 
   const baseObjectProps = {

@@ -148,22 +148,23 @@ describe('Shader Compilation Tests', () => {
       const material = new TerrestrialPlanetMaterial({})
       const shader = material.fragmentShader
       
-      const functionDeclarations = [
-        'hash3_3',
-        'perlin_noise3',
-        'sdWeirdSphere',
-        'height',
-        'terrain',
-        'getTerrainColor',
-        'spiral',
-        'pos3to2',
-        'pos2to3',
-        'cloud',
-        'nightLight',
+      // Check for specific function signatures with their correct return types
+      const functionChecks = [
+        { name: 'hash3_3', signature: 'vec3 hash3_3(' },
+        { name: 'perlin_noise3', signature: 'float perlin_noise3(' },
+        { name: 'sdWeirdSphere', signature: 'float sdWeirdSphere(' },
+        { name: 'height', signature: 'float height(' },
+        { name: 'terrain', signature: 'vec2 terrain(' },
+        { name: 'getTerrainColor', signature: 'vec3 getTerrainColor(' },
+        { name: 'spiral', signature: 'vec2 spiral(' },
+        { name: 'pos3to2', signature: 'vec2 pos3to2(' },
+        { name: 'pos2to3', signature: 'vec3 pos2to3(' },
+        { name: 'cloud', signature: 'float cloud(' },
+        { name: 'nightLight', signature: 'float nightLight(' },
       ]
 
-      functionDeclarations.forEach(func => {
-        expect(shader).toContain(`float ${func}(`)
+      functionChecks.forEach(({ name, signature }) => {
+        expect(shader).toContain(signature)
       })
     })
   })

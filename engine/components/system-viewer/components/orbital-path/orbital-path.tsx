@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useRef, useMemo, useEffect, useCallback } from "react"
+import React, { useRef, useMemo, useEffect, useCallback } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import type { ViewType } from "@/lib/types/effects-level"
@@ -30,7 +29,7 @@ const calculateOrbitalPosition = (
 ): THREE.Vector3 => {
   let x, y, z
 
-  // Elliptical orbit for realistic mode
+  // Elliptical orbit for explorational mode
   // Calculate semi-minor axis from semi-major axis and eccentricity
   const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity)
 
@@ -56,7 +55,7 @@ export function OrbitalPath({
   isPaused = false,
   parentObjectId,
   objectRefsMap,
-  viewType = "realistic",
+  viewType = "explorational",
   children,
 }: OrbitalPathProps) {
   const groupRef = useRef<THREE.Group>(null)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense, useRef, useCallback } from 'react'
+import React, { useState, useEffect, Suspense, useRef, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Preload } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
