@@ -5,7 +5,7 @@ The view modes system provides different visualization perspectives for celestia
 
 ## Core View Modes
 
-### Realistic View
+### Explorational View
 - Purpose: Accurate representation of celestial objects with proportional scaling
 - Features:
   - Proportional object sizes based on actual dimensions
@@ -64,12 +64,38 @@ The view modes system provides different visualization perspectives for celestia
   - Space station location
   - Educational system structure visualization
 
+### Scientific View
+- Purpose: True-to-life astronomical scale representation for scientific accuracy
+- Features:
+  - Authentic astronomical scaling:
+    - Objects maintain true size ratios relative to each other
+    - No artificial size inflation for visibility
+    - Extremely small scaling factors (0.001 max visual size)
+  - Accurate orbital distances:
+    - 1.0 orbital scaling factor (no compression)
+    - True astronomical unit distances
+    - Minimal safety factors (1.1x) for scientific precision
+  - Enhanced camera system:
+    - 10x radius multiplier for proper viewing of vast scales
+    - Extended zoom range (up to 1000x object radius)
+    - Precise positioning for scientific observation
+  - Scientific feature set:
+    - Scientific information display
+    - Educational content integration
+    - Research-focused interface
+- Use Cases:
+  - Scientific research and education
+  - Astronomical scale comprehension
+  - Professional astronomy applications
+  - Academic demonstrations
+  - Understanding true cosmic scales
+
 ## Mode Integration
 
 ### Reality Mode Integration
-- Realistic View:
-  - True astronomical scales
-  - Scientific accuracy
+- Explorational View:
+  - Proportional astronomical scales
+  - Scientific accuracy with visibility enhancements
   - Educational information
 - Navigational View:
   - Simplified but accurate scales
@@ -79,10 +105,14 @@ The view modes system provides different visualization perspectives for celestia
   - Detailed scientific information
   - Educational focus
   - Research-oriented display
+- Scientific View:
+  - True astronomical scales
+  - Maximum scientific accuracy
+  - Professional research applications
 
 ### Star Citizen Mode Integration
-- Realistic View:
-  - Game-accurate scales
+- Explorational View:
+  - Game-accurate proportional scales
   - Star Citizen universe accuracy
   - Game-specific effects
 - Navigational View:
@@ -93,6 +123,10 @@ The view modes system provides different visualization perspectives for celestia
   - Game lore information
   - Game-specific details
   - Player-focused display
+- Scientific View:
+  - True-to-lore astronomical scales
+  - Star Citizen universe scientific accuracy
+  - Enhanced immersion for scale appreciation
 
 ## Implementation Details
 

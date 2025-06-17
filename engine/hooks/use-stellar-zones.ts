@@ -3,6 +3,40 @@ import { calculateHabitableZoneAndSnowLine } from '@/engine/utils/stellar-zones'
 import type { ViewType } from '@lib/types/effects-level'
 import type { OrbitalSystemData, CelestialObject } from '@/engine/types/orbital-system'
 
+// Stellar classification temperature thresholds (in Kelvin)
+const STELLAR_TEMPERATURE_THRESHOLDS = {
+  O_CLASS: 30000,   // O-type stars (blue-white, very hot)
+  B_CLASS: 10000,   // B-type stars (blue-white, hot)
+  A_CLASS: 7500,    // A-type stars (white)
+  F_CLASS: 6000,    // F-type stars (yellow-white)
+  G_CLASS: 5200,    // G-type stars (yellow, like our Sun)
+  K_CLASS: 3700,    // K-type stars (orange)
+  // M-type stars (red, coolest) are below K_CLASS threshold
+} as const
+
+// Zone opacity constants for different view types
+const ZONE_OPACITY_CONFIGS = {
+  explorational: {
+    habitableZone: 0.2,
+    snowLine: 0.4
+  },
+  navigational: {
+    habitableZone: 0.25,
+    snowLine: 0.5
+  },
+  profile: {
+    habitableZone: 0.2,
+    snowLine: 0.4
+  }
+} as const
+
+// Default fallback values
+const DEFAULT_SPECTRAL_TYPE = 'G2V' // Sun-like star
+const DEFAULT_OPACITY = {
+  habitableZone: 0.2,
+  snowLine: 0.4
+} as const
+
 // Type definitions for zone data
 export interface StellarZoneData {
   habitableZone: {
@@ -92,7 +126,7 @@ function inferSpectralType(star: CelestialObject): string {
   }
 
   // Default to Sun-like star
-  return 'G2V'
+  return DEFAULT_SPECTRAL_TYPE
 }
 
 /**
@@ -102,12 +136,12 @@ function inferSpectralType(star: CelestialObject): string {
  * @returns Spectral type string
  */
 function inferSpectralTypeFromTemperature(temperature: number): string {
-  if (temperature > 30000) return 'O5V'
-  if (temperature > 10000) return 'B5V'
-  if (temperature > 7500) return 'A5V'
-  if (temperature > 6000) return 'F5V'
-  if (temperature > 5200) return 'G2V'
-  if (temperature > 3700) return 'K5V'
+  if (temperature > STELLAR_TEMPERATURE_THRESHOLDS.O_CLASS) return 'O5V'
+  if (temperature > STELLAR_TEMPERATURE_THRESHOLDS.B_CLASS) return 'B5V'
+  if (temperature > STELLAR_TEMPERATURE_THRESHOLDS.A_CLASS) return 'A5V'
+  if (temperature > STELLAR_TEMPERATURE_THRESHOLDS.F_CLASS) return 'F5V'
+  if (temperature > STELLAR_TEMPERATURE_THRESHOLDS.G_CLASS) return 'G2V'
+  if (temperature > STELLAR_TEMPERATURE_THRESHOLDS.K_CLASS) return 'K5V'
   return 'M5V'
 }
 
@@ -122,26 +156,5 @@ export function calculateZoneOpacity(viewType: ViewType): {
   habitableZone: number
   snowLine: number
 } {
-  switch (viewType) {
-    case 'realistic':
-      return {
-        habitableZone: 0.15,
-        snowLine: 0.3
-      }
-    case 'navigational':
-      return {
-        habitableZone: 0.25,
-        snowLine: 0.5
-      }
-    case 'profile':
-      return {
-        habitableZone: 0.2,
-        snowLine: 0.4
-      }
-    default:
-      return {
-        habitableZone: 0.2,
-        snowLine: 0.4
-      }
-  }
+  return ZONE_OPACITY_CONFIGS[viewType] || DEFAULT_OPACITY
 } 

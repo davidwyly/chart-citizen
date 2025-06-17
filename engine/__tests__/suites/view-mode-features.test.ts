@@ -45,6 +45,19 @@ describe('View Mode Features', () => {
     });
   });
 
+  it('should have correct features for scientific view mode', () => {
+    const store = useSystemStore.getState();
+    store.setViewMode('scientific');
+    
+    const features = store.getViewFeatures();
+    expect(features).toEqual({
+      scientificInfo: true,
+      educationalContent: true,
+      gameInfo: false,
+      jumpPointInfo: false
+    });
+  });
+  
   it('should allow toggling individual features', () => {
     const store = useSystemStore.getState();
     store.setMode('realistic');
@@ -56,5 +69,23 @@ describe('View Mode Features', () => {
     // Toggle it back on
     store.toggleFeature('scientificInfo');
     expect(store.getViewFeatures().scientificInfo).toBe(true);
+  });
+  
+  it('should maintain view mode consistency when switching modes', () => {
+    const store = useSystemStore.getState();
+    
+    // Test scientific mode maintains correct features
+    store.setViewMode('scientific');
+    let features = store.getViewFeatures();
+    expect(features.scientificInfo).toBe(true);
+    expect(features.educationalContent).toBe(true);
+    expect(features.gameInfo).toBe(false);
+    
+    // Switch to navigational and back
+    store.setViewMode('navigational');
+    store.setViewMode('scientific');
+    features = store.getViewFeatures();
+    expect(features.scientificInfo).toBe(true);
+    expect(features.educationalContent).toBe(true);
   });
 }); 

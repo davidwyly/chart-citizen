@@ -1,7 +1,7 @@
 # Orbital Mechanics System
 
 ## Overview
-Ensures proper scaling and positioning of celestial objects across all view modes (explorational, navigational, profile), preventing orbiting objects from rendering inside parents.
+Ensures proper scaling and positioning of celestial objects across all view modes (explorational, navigational, profile, scientific), preventing orbiting objects from rendering inside parents.
 
 ## Problem Statement
 
@@ -43,6 +43,12 @@ const VIEW_MODE_SCALINGS: Record<ViewType, ViewModeScaling> = {
     objectScaling: { star: 0.0, planet: 0.0, moon: 0.0 }, // Use fixed sizes
     orbitScaling: 0.4, // More compressed for profile view
     minSizes: { star: 1.5, planet: 0.8, moon: 0.4 } // Smaller fixed sizes
+  },
+  scientific: {
+    // True-to-life astronomical scaling
+    objectScaling: { star: 1.0, planet: 1.0, moon: 1.0 }, // No artificial scaling
+    orbitScaling: 1.0, // True astronomical distances
+    minSizes: { star: 0.00001, planet: 0.00001, moon: 0.00001 } // Minimal visibility threshold
   }
 };
 ```
@@ -56,6 +62,7 @@ const ORBITAL_SAFETY_MULTIPLIERS = {
   explorational: 2.5,    // 2.5x parent radius minimum
   navigational: 3.0, // 3x parent radius minimum
   profile: 3.5,      // 3.5x parent radius minimum (more spacing needed)
+  scientific: 1.1,   // 1.1x parent radius minimum (minimal for scientific accuracy)
 };
 ```
 
@@ -76,6 +83,7 @@ export function classifyObject(object: CelestialObject): ObjectClass {
 Calculates visual rendering radius for any object in any view mode:
 - **Explorational Mode**: Scaled actual radius with minimum sizes.
 - **Navigational/Profile**: Fixed sizes per object type.
+- **Scientific Mode**: True-to-life scaling with minimal size thresholds.
 - Ensures minimum visibility.
 
 ### `calculateSafeOrbitDistance(child, parent, viewType)`

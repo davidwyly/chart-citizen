@@ -8,9 +8,9 @@ import { OrbitalPath } from "./components/orbital-path"
 import { StellarZones } from "./components/stellar-zones"
 import { 
   calculateSystemOrbitalMechanics,
-  clearOrbitalMechanicsCache,
-  VIEW_CONFIGS
+  clearOrbitalMechanicsCache
 } from "@/engine/utils/orbital-mechanics-calculator"
+import { getOrbitalMechanicsConfig } from "@/engine/core/view-modes/compatibility"
 import { GeometryRendererFactory } from "@/engine/renderers/geometry-renderers"
 import type { ViewType } from "@lib/types/effects-level"
 import { 
@@ -320,10 +320,15 @@ export function SystemObjectsRenderer({
     )
   }, [objectHierarchy.rootObjects, renderObjectWithChildren])
 
-  // Get the orbital scaling from VIEW_CONFIGS based on the current viewType
+  // Get the orbital scaling from the new registry system
   const orbitalScaling = useMemo(() => {
-    const viewConfig = VIEW_CONFIGS[viewType];
-    return viewConfig?.orbitScaling || 1.0; // Default to 1.0 if not found
+    try {
+      const viewConfig = getOrbitalMechanicsConfig(viewType);
+      return viewConfig?.orbitScaling || 1.0;
+    } catch (error) {
+      console.warn(`Failed to get orbital scaling for ${viewType}, using fallback:`, error);
+      return 1.0;
+    }
   }, [viewType]);
 
   return (

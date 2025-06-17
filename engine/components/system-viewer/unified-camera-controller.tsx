@@ -3,7 +3,8 @@
 import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react"
 import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
-import { VIEW_MODE_CONFIGS, createDualProperties, type DualObjectProperties } from "@/engine/types/view-mode-config"
+import { createDualProperties, type DualObjectProperties } from "@/engine/types/view-mode-config"
+import { getViewModeConfig } from "@/engine/core/view-modes/compatibility"
 import type { ViewType } from "@lib/types/effects-level"
 
 interface UnifiedCameraControllerProps {
@@ -48,7 +49,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     }, [controls])
 
     // Get current view mode configuration
-    const viewConfig = VIEW_MODE_CONFIGS[viewMode] || VIEW_MODE_CONFIGS.explorational
+    const viewConfig = getViewModeConfig(viewMode)
 
     // Calculate the furthest orbital radius in the system
     const calculateMaxOrbitRadius = useCallback(() => {

@@ -12,12 +12,18 @@ import type { OrbitData, BeltOrbitData, CelestialObject } from '../orbital-syste
 describe('Orbital System Type Guards Bug Tests', () => {
   describe('isOrbitData type guard bugs', () => {
     it('should handle non-object values gracefully', () => {
-      // 🐛 BUG: The 'in' operator throws TypeError for non-objects
-      expect(() => isOrbitData('not-an-object' as any)).toThrow(TypeError);
-      expect(() => isOrbitData(null as any)).toThrow(TypeError);
-      expect(() => isOrbitData(undefined as any)).toThrow(TypeError);
-      expect(() => isOrbitData(123 as any)).toThrow(TypeError);
-      expect(() => isOrbitData(true as any)).toThrow(TypeError);
+      // Functions should handle non-objects gracefully and return false
+      expect(() => isOrbitData('not-an-object' as any)).not.toThrow();
+      expect(() => isOrbitData(null as any)).not.toThrow();
+      expect(() => isOrbitData(undefined as any)).not.toThrow();
+      expect(() => isOrbitData(123 as any)).not.toThrow();
+      expect(() => isOrbitData(true as any)).not.toThrow();
+      
+      expect(isOrbitData('not-an-object' as any)).toBe(false);
+      expect(isOrbitData(null as any)).toBe(false);
+      expect(isOrbitData(undefined as any)).toBe(false);
+      expect(isOrbitData(123 as any)).toBe(false);
+      expect(isOrbitData(true as any)).toBe(false);
     });
 
     it('should return false for non-orbit objects', () => {
@@ -50,10 +56,14 @@ describe('Orbital System Type Guards Bug Tests', () => {
 
   describe('isBeltOrbitData type guard bugs', () => {
     it('should handle non-object values gracefully', () => {
-      // 🐛 BUG: Same issue as isOrbitData
-      expect(() => isBeltOrbitData('not-an-object' as any)).toThrow(TypeError);
-      expect(() => isBeltOrbitData(null as any)).toThrow(TypeError);
-      expect(() => isBeltOrbitData(undefined as any)).toThrow(TypeError);
+      // Functions should handle non-objects gracefully and return false
+      expect(() => isBeltOrbitData('not-an-object' as any)).not.toThrow();
+      expect(() => isBeltOrbitData(null as any)).not.toThrow();
+      expect(() => isBeltOrbitData(undefined as any)).not.toThrow();
+      
+      expect(isBeltOrbitData('not-an-object' as any)).toBe(false);
+      expect(isBeltOrbitData(null as any)).toBe(false);
+      expect(isBeltOrbitData(undefined as any)).toBe(false);
     });
 
     it('should return true for valid belt data', () => {

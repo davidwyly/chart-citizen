@@ -3,8 +3,11 @@
 Overview of key Chart-Citizen features and links to detailed documentation.
 
 ## View Modes
-- **Star Citizen Mode**: Displays Star Citizen-inspired star systems with unique visuals/navigation. [star-citizen-mode.md](./star-citizen-mode.md)
+- **Explorational Mode**: Proportional astronomical scaling modified for human interpretation
+- **Navigational Mode**: Equidistant orbital paths with standardized object sizes for easy navigation
 - **Profile Mode**: Top-down diagrammatic view with equidistant orbital paths and orthographic projection. [profile-mode-orbital-alignment.md](./profile-mode-orbital-alignment.md)
+- **Scientific Mode**: True-to-life astronomical scale representation with authentic size ratios and orbital distances
+- **Star Citizen Mode**: Displays Star Citizen-inspired star systems with unique visuals/navigation. [star-citizen-mode.md](./star-citizen-mode.md)
 - **View Modes**: Comprehensive view mode system documentation. [view-modes.md](./view-modes.md)
 
 ## Camera System

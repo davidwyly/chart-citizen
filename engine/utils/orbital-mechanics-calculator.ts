@@ -87,55 +87,7 @@
 
 import { ViewType } from '@lib/types/effects-level';
 import { CelestialObject, isOrbitData, isBeltOrbitData } from '@/engine/types/orbital-system';
-
-// Simple view mode configurations - FIXED and reliable scaling
-export const VIEW_CONFIGS = {
-  explorational: {
-    maxVisualSize: 0.8, // Smaller max size to prevent star from being too large
-    minVisualSize: 0.02,
-    orbitScaling: 8.0, // Keep explorational as baseline
-    safetyMultiplier: 2.5,
-    minDistance: 0.1,
-  },
-  // Alias 'realistic' to 'explorational' for compatibility
-  realistic: {
-    maxVisualSize: 0.8, // Smaller max size to prevent star from being too large
-    minVisualSize: 0.02,
-    orbitScaling: 8.0, // Keep explorational as baseline
-    safetyMultiplier: 2.5,
-    minDistance: 0.1,
-  },
-  navigational: {
-    maxVisualSize: 2.5,
-    minVisualSize: 0.05,
-    orbitScaling: 0.6, // Much smaller scaling for compact view
-    safetyMultiplier: 3.0,
-    minDistance: 0.2,
-    fixedSizes: {
-      star: 2.0,
-      planet: 1.2,
-      moon: 0.6,
-      asteroid: 0.3,
-      belt: 0.8,
-      barycenter: 0.0,
-    },
-  },
-  profile: {
-    maxVisualSize: 1.5,
-    minVisualSize: 0.03,
-    orbitScaling: 0.3, // Even more compact for profile view
-    safetyMultiplier: 3.5,
-    minDistance: 0.3,
-    fixedSizes: {
-      star: 1.5,
-      planet: 0.8,
-      moon: 0.4,
-      asteroid: 0.2,
-      belt: 0.6,
-      barycenter: 0.0,
-    },
-  },
-};
+import { getOrbitalMechanicsConfig } from '@/engine/core/view-modes/compatibility';
 
 // Memoized results - calculate once, use forever
 let memoizedResults: Map<string, {
@@ -163,12 +115,21 @@ function calculateVisualRadius(
   sizeAnalysis: { logMinRadius: number; logRange: number },
   allObjects: CelestialObject[],
   results: Map<string, any>,
-  config: typeof VIEW_CONFIGS[keyof typeof VIEW_CONFIGS]
+  config: any
 ): number {
   const radiusKm = object.properties.radius || 1;
   
-  // Use fixed sizes for non-explorational modes - IMPROVED CLASSIFICATION LOGIC
-  if (viewType !== 'explorational' && 'fixedSizes' in config) {
+  // SCIENTIFIC MODE: Use true-to-life scaling with actual radius values
+  if (viewType === 'scientific') {
+    // Scale the actual radius directly with minimal visual scaling
+    const logRadius = Math.log10(radiusKm + 1);
+    const normalizedLog = (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange;
+    const visualRadius = config.minVisualSize + (normalizedLog * (config.maxVisualSize - config.minVisualSize));
+    return Math.max(visualRadius, config.minVisualSize);
+  }
+  
+  // Use fixed sizes for non-explorational/non-scientific modes
+  if (viewType !== 'explorational' && viewType !== 'scientific' && 'fixedSizes' in config) {
     // Use geometry_type for better differentiation, fallback to classification
     let sizeKey = object.classification || 'asteroid';
     
@@ -468,7 +429,7 @@ function adjustForGlobalCollisions(
 function calculateClearedOrbits(
   objects: CelestialObject[],
   results: Map<string, any>,
-  config: typeof VIEW_CONFIGS[keyof typeof VIEW_CONFIGS]
+  config: any
 ): void {
   // Group objects by their parent for efficient processing
   const parentGroups = new Map<string, CelestialObject[]>();
@@ -651,7 +612,7 @@ function enforceParentChildSizeHierarchy(
   results: Map<string, any>,
   viewType: ViewType
 ): void {
-  const config = VIEW_CONFIGS[viewType];
+  const config = getOrbitalMechanicsConfig(viewType);
   
   // Build parent-child relationships
   const parentChildMap = new Map<string, string[]>();
@@ -775,7 +736,7 @@ export function calculateSystemOrbitalMechanics(
   const sizeAnalysis = analyzeSystemSizes(objects);
   
   // Get the configuration for this view type
-  const config = VIEW_CONFIGS[viewType];
+  const config = getOrbitalMechanicsConfig(viewType);
   
   // PASS 1A: Calculate visual radii for all non-moon objects (stars, planets, belts)
   // This must be done first because moons in explorational mode scale proportionally to their parents

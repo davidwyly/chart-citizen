@@ -179,23 +179,23 @@ export function isBeltOrbitData(orbit: OrbitData | BeltOrbitData): orbit is Belt
 }
 
 export function isStar(object: CelestialObject): boolean {
-  return object.classification === 'star'
+  return object != null && object.classification === 'star'
 }
 
 export function isPlanet(object: CelestialObject): boolean {
-  return object.classification === 'planet' || object.classification === 'dwarf-planet'
+  return object != null && (object.classification === 'planet' || object.classification === 'dwarf-planet')
 }
 
 export function isMoon(object: CelestialObject): boolean {
-  return object.classification === 'moon'
+  return object != null && object.classification === 'moon'
 }
 
 export function isBelt(object: CelestialObject): boolean {
-  return object.classification === 'belt'
+  return object != null && object.classification === 'belt'
 }
 
 export function isBarycenter(object: CelestialObject): boolean {
-  return object.classification === 'barycenter'
+  return object != null && object.classification === 'barycenter'
 }
 
 // Helper function to determine geometry type from classification
