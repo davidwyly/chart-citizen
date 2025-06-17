@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { Play, Pause, FastForward } from "lucide-react"
 
 interface TimeControlsProps {

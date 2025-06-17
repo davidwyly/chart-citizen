@@ -91,7 +91,15 @@ import { CelestialObject, isOrbitData, isBeltOrbitData } from '@/engine/types/or
 // Simple view mode configurations - FIXED and reliable scaling
 export const VIEW_CONFIGS = {
   explorational: {
-    maxVisualSize: 2.0,
+    maxVisualSize: 0.8, // Smaller max size to prevent star from being too large
+    minVisualSize: 0.02,
+    orbitScaling: 8.0, // Keep explorational as baseline
+    safetyMultiplier: 2.5,
+    minDistance: 0.1,
+  },
+  // Alias 'realistic' to 'explorational' for compatibility
+  realistic: {
+    maxVisualSize: 0.8, // Smaller max size to prevent star from being too large
     minVisualSize: 0.02,
     orbitScaling: 8.0, // Keep explorational as baseline
     safetyMultiplier: 2.5,

@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { Eye, Zap, Gamepad } from "lucide-react"
 import type { ViewType } from "@lib/types/effects-level"
 

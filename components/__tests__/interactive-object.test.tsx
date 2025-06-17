@@ -3,10 +3,11 @@ import { render, fireEvent, act } from '@testing-library/react'
 import { InteractiveObject } from '../../engine/components/3d-ui/interactive-object'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
+import { vi } from 'vitest'
 
 // Mock Three.js objects and behaviors
-jest.mock('three', () => {
-  const actualThree = jest.requireActual('three')
+vi.mock('three', async () => {
+  const actualThree = await vi.importActual('three')
   return {
     ...actualThree,
     Group: class MockGroup {
@@ -31,7 +32,7 @@ jest.mock('three', () => {
 })
 
 // Mock @react-three/drei Html component
-jest.mock('@react-three/drei', () => ({
+vi.mock('@react-three/drei', () => ({
   Html: ({ children }: { children: React.ReactNode }) => <div data-testid="html-label">{children}</div>
 }))
 
@@ -54,7 +55,7 @@ describe('InteractiveObject', () => {
   }
 
   it('calls onSelect when object is clicked', () => {
-    const onSelect = jest.fn()
+    const onSelect = vi.fn()
     const { container } = renderWithCanvas(
       <InteractiveObject
         {...defaultProps}
@@ -78,7 +79,7 @@ describe('InteractiveObject', () => {
   })
 
   it('calls onSelect when label is clicked', () => {
-    const onSelect = jest.fn()
+    const onSelect = vi.fn()
     const { getByTestId } = renderWithCanvas(
       <InteractiveObject
         {...defaultProps}
@@ -137,7 +138,7 @@ describe('InteractiveObject', () => {
   })
 
   it('handles hover states correctly', () => {
-    const onHover = jest.fn()
+    const onHover = vi.fn()
     const { container } = renderWithCanvas(
       <InteractiveObject
         {...defaultProps}

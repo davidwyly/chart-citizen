@@ -1,11 +1,13 @@
+import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
+import { vi } from 'vitest'
 import { Sidebar } from '../sidebar'
 import type { ViewType } from '@lib/types/effects-level'
 import type { SystemData } from '@engine/system-loader'
 
 // Mock useFrame
-jest.mock('@react-three/fiber', () => ({
-  useFrame: jest.fn((callback) => {
+vi.mock('@react-three/fiber', () => ({
+  useFrame: vi.fn((callback) => {
     callback({ clock: { getElapsedTime: () => 0 } })
   }),
 }))
@@ -15,12 +17,20 @@ describe('Sidebar', () => {
     id: 'test-system',
     name: 'Test System',
     description: 'Test system description',
-    barycenter: [0, 0, 0],
-    stars: [],
-    planets: [],
-    moons: [],
-    belts: [],
-    jump_points: [],
+    objects: [
+      {
+        id: 'test-star',
+        name: 'Test Star',
+        classification: 'star',
+        geometry_type: 'star',
+        properties: {
+          mass: 1.0,
+          radius: 696000,
+          temperature: 5778,
+          luminosity: 1.0
+        }
+      }
+    ],
     lighting: {
       primary_star: 'test-star',
       ambient_level: 0.5,
@@ -38,9 +48,9 @@ describe('Sidebar', () => {
   }
 
   const defaultProps = {
-    onViewTypeChange: jest.fn(),
-    onTimeMultiplierChange: jest.fn(),
-    onPauseToggle: jest.fn(),
+    onViewTypeChange: vi.fn(),
+    onTimeMultiplierChange: vi.fn(),
+    onPauseToggle: vi.fn(),
     currentViewType: 'realistic' as ViewType,
     currentTimeMultiplier: 1,
     isPaused: false,
@@ -48,40 +58,40 @@ describe('Sidebar', () => {
     systemData: mockSystemData,
     availableSystems: mockAvailableSystems,
     currentSystem: 'test-system',
-    onSystemChange: jest.fn(),
+    onSystemChange: vi.fn(),
     focusedName: 'Test Object',
     focusedObjectSize: 1000,
-    onStopFollowing: jest.fn(),
+    onStopFollowing: vi.fn(),
     error: null,
     loadingProgress: '100%',
     mode: 'realistic' as const
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Basic Rendering', () => {
     it('renders in collapsed state by default', () => {
       render(<Sidebar {...defaultProps} />)
-      expect(screen.getByText('Chart Citizen')).not.toBeVisible()
-      expect(screen.getByRole('button', { name: /collapse/i })).not.toBeVisible()
+      expect(screen.queryByText('Chart Citizen')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /collapse/i })).not.toBeInTheDocument()
     })
 
     it('expands and collapses when toggle button is clicked', () => {
-      render(<Sidebar {...defaultProps} />)
+      render(<Sidebar {...defaultProps} mode="star-citizen" />)
       
       // Initially collapsed
-      expect(screen.getByText('Chart Citizen')).not.toBeVisible()
+      expect(screen.queryByRole('heading', { name: 'Chart Citizen' })).not.toBeInTheDocument()
       
       // Expand
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
-      expect(screen.getByText('Chart Citizen')).toBeVisible()
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
+      expect(screen.getByRole('heading', { name: 'Chart Citizen' })).toBeVisible()
       expect(screen.getByRole('button', { name: /collapse/i })).toBeVisible()
       
       // Collapse
       fireEvent.click(screen.getByRole('button', { name: /collapse/i }))
-      expect(screen.getByText('Chart Citizen')).not.toBeVisible()
+      expect(screen.queryByRole('heading', { name: 'Chart Citizen' })).not.toBeInTheDocument()
     })
   })
 
@@ -90,7 +100,10 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} />)
       
       // Expand sidebar first
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
+      
+      // Navigation section is open by default, close it first
+      fireEvent.click(screen.getByText('Navigation'))
       
       // Click options section
       fireEvent.click(screen.getByText('Options'))
@@ -99,29 +112,32 @@ describe('Sidebar', () => {
       
       // Click again to collapse
       fireEvent.click(screen.getByText('Options'))
-      expect(screen.queryByText('View Mode')).not.toBeVisible()
+      expect(screen.queryByText('View Mode')).not.toBeInTheDocument()
     })
 
     it('toggles navigation section', () => {
       render(<Sidebar {...defaultProps} />)
       
       // Expand sidebar first
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
       
-      // Click navigation section
-      fireEvent.click(screen.getByText('Navigation'))
-      expect(screen.getByText('Current System')).toBeVisible()
+      // Navigation section is open by default, should see content
+      expect(screen.getByText('Available Systems')).toBeVisible()
       
-      // Click again to collapse
+      // Click navigation section to collapse
       fireEvent.click(screen.getByText('Navigation'))
-      expect(screen.queryByText('Current System')).not.toBeVisible()
+      expect(screen.queryByText('Available Systems')).not.toBeInTheDocument()
+      
+      // Click again to expand
+      fireEvent.click(screen.getByText('Navigation'))
+      expect(screen.getByText('Available Systems')).toBeVisible()
     })
 
     it('toggles system info section', () => {
       render(<Sidebar {...defaultProps} />)
       
       // Expand sidebar first
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
       
       // Click system info section
       fireEvent.click(screen.getByText('System Info'))
@@ -130,7 +146,7 @@ describe('Sidebar', () => {
       
       // Click again to collapse
       fireEvent.click(screen.getByText('System Info'))
-      expect(screen.queryByText('Test system description')).not.toBeVisible()
+      expect(screen.queryByText('Test system description')).not.toBeInTheDocument()
     })
   })
 
@@ -139,7 +155,9 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} />)
       
       // Expand sidebar and options section
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
+      // Close navigation section first
+      fireEvent.click(screen.getByText('Navigation'))
       fireEvent.click(screen.getByText('Options'))
       
       // Change view mode
@@ -153,23 +171,21 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} />)
       
       // Expand sidebar and options section
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
+      // Close navigation section first
+      fireEvent.click(screen.getByText('Navigation'))
       fireEvent.click(screen.getByText('Options'))
       
-      // Test pause/play
-      fireEvent.click(screen.getByRole('button', { name: /pause/i }))
+      // Test pause/play - find the button with the pause icon
+      const pauseButton = screen.getByRole('button', { name: '' })
+      fireEvent.click(pauseButton)
       expect(defaultProps.onPauseToggle).toHaveBeenCalled()
       
-      // Test speed controls
-      fireEvent.click(screen.getByRole('button', { name: /faster/i }))
+      // Test speed presets - these don't exist in the current implementation
+      // so let's test the slider instead
+      const slider = screen.getByRole('slider')
+      fireEvent.change(slider, { target: { value: '2' } })
       expect(defaultProps.onTimeMultiplierChange).toHaveBeenCalledWith(2)
-      
-      fireEvent.click(screen.getByRole('button', { name: /slower/i }))
-      expect(defaultProps.onTimeMultiplierChange).toHaveBeenCalledWith(0.5)
-      
-      // Test speed presets
-      fireEvent.click(screen.getByText('5x'))
-      expect(defaultProps.onTimeMultiplierChange).toHaveBeenCalledWith(5)
     })
   })
 
@@ -177,9 +193,8 @@ describe('Sidebar', () => {
     it('displays and updates system selection', () => {
       render(<Sidebar {...defaultProps} />)
       
-      // Expand sidebar and navigation section
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
-      fireEvent.click(screen.getByText('Navigation'))
+      // Expand sidebar - navigation section is open by default
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
       
       // Change system
       fireEvent.click(screen.getByText('Other System'))
@@ -192,27 +207,27 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} />)
       
       // Expand sidebar and system info section
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
       fireEvent.click(screen.getByText('System Info'))
       
       expect(screen.getByText('Test System')).toBeVisible()
       expect(screen.getByText('Test system description')).toBeVisible()
-      expect(screen.getByText(/discovered:/i)).toBeVisible()
-      expect(screen.getByText(/last updated:/i)).toBeVisible()
+      expect(screen.getByText('Stars: 1')).toBeVisible()
+      expect(screen.getByText('Planets: 0')).toBeVisible()
     })
 
     it('displays focused object information', () => {
       render(<Sidebar {...defaultProps} />)
       
       // Expand sidebar and system info section
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
       fireEvent.click(screen.getByText('System Info'))
       
-      expect(screen.getByText('Focused: Test Object')).toBeVisible()
-      expect(screen.getByText('Size: 1,000 km')).toBeVisible()
+      expect(screen.getByText('Following: Test Object')).toBeVisible()
+      expect(screen.getByText('Visual size: 1000.000')).toBeVisible()
       
       // Test stop following
-      fireEvent.click(screen.getByText('Stop Following'))
+      fireEvent.click(screen.getByText('Stop following'))
       expect(defaultProps.onStopFollowing).toHaveBeenCalled()
     })
   })
@@ -221,19 +236,21 @@ describe('Sidebar', () => {
     it('displays loading progress', () => {
       render(<Sidebar {...defaultProps} loadingProgress="50%" />)
       
-      // Expand sidebar
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      // Expand sidebar and system info section where loading is displayed
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
+      fireEvent.click(screen.getByText('System Info'))
       
-      expect(screen.getByText('Loading: 50%')).toBeVisible()
+      expect(screen.getByText('50%')).toBeVisible()
     })
 
     it('displays error state', () => {
       render(<Sidebar {...defaultProps} error="Test error" />)
       
-      // Expand sidebar
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      // Expand sidebar and system info section where error is displayed
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
+      fireEvent.click(screen.getByText('System Info'))
       
-      expect(screen.getByText('Error: Test error')).toBeVisible()
+      expect(screen.getByText('Test error')).toBeVisible()
     })
   })
 
@@ -242,18 +259,18 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} mode="star-citizen" />)
       
       // Expand sidebar
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
       
-      expect(screen.getByText('Chart Citizen')).toBeVisible()
+      expect(screen.getByRole('heading', { name: 'Chart Citizen' })).toBeVisible()
     })
 
     it('displays correct title for realistic mode', () => {
       render(<Sidebar {...defaultProps} mode="realistic" />)
       
       // Expand sidebar
-      fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+      fireEvent.click(screen.getByTestId('sidebar-toggle'))
       
-      expect(screen.getByText('3D Starfield')).toBeVisible()
+      expect(screen.getByRole('heading', { name: '3D Starfield' })).toBeVisible()
     })
   })
 }) 

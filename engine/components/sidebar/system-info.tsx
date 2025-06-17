@@ -1,9 +1,10 @@
 "use client"
 
-import type { SystemData } from "@/engine/system-loader"
+import React from "react"
+import type { OrbitalSystemData } from "@/engine/types/orbital-system"
 
 interface SystemInfoProps {
-  systemData: SystemData | null
+  systemData: OrbitalSystemData | null
   focusedName: string
   focusedObjectSize: number | null
   onStopFollowing: () => void
@@ -23,6 +24,12 @@ export function SystemInfo({
     return <div className="text-sm text-gray-400">No system data available</div>
   }
 
+  // Calculate object counts
+  const stars = systemData.objects.filter(obj => obj.classification === 'star').length
+  const planets = systemData.objects.filter(obj => obj.classification === 'planet' || obj.classification === 'dwarf-planet').length
+  const moons = systemData.objects.filter(obj => obj.classification === 'moon').length
+  const jumpPoints = systemData.objects.filter(obj => obj.classification === 'compact-object').length // Assuming jump points are compact objects
+
   return (
     <div className="space-y-3">
       <div>
@@ -31,10 +38,10 @@ export function SystemInfo({
       </div>
 
       <div className="text-xs space-y-1">
-        <div>Stars: {systemData.stars.length}</div>
-        <div>Planets: {systemData.planets?.length || 0}</div>
-        <div>Moons: {systemData.moons?.length || 0}</div>
-        {systemData.jump_points && <div>Jump Points: {systemData.jump_points.length}</div>}
+        <div>Stars: {stars}</div>
+        <div>Planets: {planets}</div>
+        <div>Moons: {moons}</div>
+        {jumpPoints > 0 && <div>Jump Points: {jumpPoints}</div>}
       </div>
 
       {/* Focused object info */}

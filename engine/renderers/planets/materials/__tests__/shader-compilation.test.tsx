@@ -78,7 +78,6 @@ describe('Shader Compilation Tests', () => {
       
       expect(material.vertexShader).toContain('void main()')
       expect(material.vertexShader).toContain('gl_Position')
-      expect(material.vertexShader).toContain('vNormal')
       expect(material.vertexShader).toContain('vPosition')
     })
 
@@ -91,14 +90,15 @@ describe('Shader Compilation Tests', () => {
       expect(material.fragmentShader).toContain('void main()')
       expect(material.fragmentShader).toContain('gl_FragColor')
       
-      expect(material.fragmentShader).toContain('perlin_noise3')
-      expect(material.fragmentShader).toContain('hash3_3')
-      expect(material.fragmentShader).toContain('sdWeirdSphere')
-      expect(material.fragmentShader).toContain('height')
-      expect(material.fragmentShader).toContain('terrain')
+      // Check for actual functions in the current shader
+      expect(material.fragmentShader).toContain('hash')
+      expect(material.fragmentShader).toContain('noise')
+      expect(material.fragmentShader).toContain('fbm')
+      expect(material.fragmentShader).toContain('terrainHeight')
+      expect(material.fragmentShader).toContain('terrainFactors')
       expect(material.fragmentShader).toContain('getTerrainColor')
-      expect(material.fragmentShader).toContain('cloud')
-      expect(material.fragmentShader).toContain('nightLight')
+      expect(material.fragmentShader).toContain('cloudLayer')
+      expect(material.fragmentShader).toContain('nightLights')
     })
 
     it('should not contain problematic shader declarations', () => {
@@ -148,19 +148,18 @@ describe('Shader Compilation Tests', () => {
       const material = new TerrestrialPlanetMaterial({})
       const shader = material.fragmentShader
       
-      // Check for specific function signatures with their correct return types
+      // Check for actual function signatures in the current shader
       const functionChecks = [
-        { name: 'hash3_3', signature: 'vec3 hash3_3(' },
-        { name: 'perlin_noise3', signature: 'float perlin_noise3(' },
-        { name: 'sdWeirdSphere', signature: 'float sdWeirdSphere(' },
-        { name: 'height', signature: 'float height(' },
-        { name: 'terrain', signature: 'vec2 terrain(' },
+        { name: 'hash', signature: 'float hash(' },
+        { name: 'noise', signature: 'float noise(' },
+        { name: 'fbm', signature: 'float fbm(' },
+        { name: 'rotateY', signature: 'vec3 rotateY(' },
+        { name: 'sphericalUV', signature: 'vec2 sphericalUV(' },
+        { name: 'terrainHeight', signature: 'float terrainHeight(' },
+        { name: 'terrainFactors', signature: 'vec2 terrainFactors(' },
         { name: 'getTerrainColor', signature: 'vec3 getTerrainColor(' },
-        { name: 'spiral', signature: 'vec2 spiral(' },
-        { name: 'pos3to2', signature: 'vec2 pos3to2(' },
-        { name: 'pos2to3', signature: 'vec3 pos2to3(' },
-        { name: 'cloud', signature: 'float cloud(' },
-        { name: 'nightLight', signature: 'float nightLight(' },
+        { name: 'nightLights', signature: 'float nightLights(' },
+        { name: 'cloudLayer', signature: 'float cloudLayer(' },
       ]
 
       functionChecks.forEach(({ name, signature }) => {

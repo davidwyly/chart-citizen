@@ -1,19 +1,31 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { PerformanceMonitor } from '../performance-monitor'
+import { PerformanceMonitor } from '@/lib/performance-monitor'
 
 describe('PerformanceMonitor', () => {
   let monitor: PerformanceMonitor
+  let mockTime: number
+  let advanceMockTime: (ms: number) => void
 
   beforeEach(() => {
+    // Mock performance.now to return predictable values
+    mockTime = 1000 // Start at a non-zero time
+    advanceMockTime = (ms: number) => {
+      mockTime += ms
+    }
+    
+    vi.spyOn(performance, 'now').mockImplementation(() => mockTime)
     monitor = new PerformanceMonitor()
-    vi.useFakeTimers()
+    // Advance time slightly to establish a baseline
+    advanceMockTime(16.67) // One frame at 60fps
   })
 
   afterEach(() => {
-    vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
   it('should initialize with zero metrics', () => {
+    // Advance time to get a valid delta
+    advanceMockTime(16.67) // ~60 FPS
     const metrics = monitor.update()
     expect(metrics.fps).toBeGreaterThan(0)
     expect(metrics.frameTime).toBeGreaterThan(0)
@@ -23,7 +35,7 @@ describe('PerformanceMonitor', () => {
   it('should detect low performance when FPS is below threshold', () => {
     // Simulate low FPS by advancing time slowly
     for (let i = 0; i < 60; i++) {
-      vi.advanceTimersByTime(100) // 10 FPS
+      advanceMockTime(100) // 10 FPS
       monitor.update()
     }
 
@@ -35,7 +47,7 @@ describe('PerformanceMonitor', () => {
   it('should maintain performance history', () => {
     // Simulate varying FPS
     for (let i = 0; i < 60; i++) {
-      vi.advanceTimersByTime(16.67) // ~60 FPS
+      advanceMockTime(16.67) // ~60 FPS
       monitor.update()
     }
 
@@ -47,21 +59,21 @@ describe('PerformanceMonitor', () => {
   it('should return correct performance level', () => {
     // Test critical level
     for (let i = 0; i < 60; i++) {
-      vi.advanceTimersByTime(100) // 10 FPS
+      advanceMockTime(100) // 10 FPS
       monitor.update()
     }
     expect(monitor.getPerformanceLevel()).toBe('critical')
 
     // Test warning level
     for (let i = 0; i < 60; i++) {
-      vi.advanceTimersByTime(33.33) // 30 FPS
+      advanceMockTime(33.33) // 30 FPS
       monitor.update()
     }
     expect(monitor.getPerformanceLevel()).toBe('warning')
 
     // Test good level
     for (let i = 0; i < 60; i++) {
-      vi.advanceTimersByTime(16.67) // 60 FPS
+      advanceMockTime(16.67) // 60 FPS
       monitor.update()
     }
     expect(monitor.getPerformanceLevel()).toBe('good')
@@ -70,9 +82,9 @@ describe('PerformanceMonitor', () => {
   it('should handle rapid frame time changes', () => {
     // Simulate frame time spikes
     for (let i = 0; i < 30; i++) {
-      vi.advanceTimersByTime(16.67) // Normal frame
+      advanceMockTime(16.67) // Normal frame
       monitor.update()
-      vi.advanceTimersByTime(100) // Slow frame
+      advanceMockTime(100) // Slow frame
       monitor.update()
     }
 

@@ -6,8 +6,8 @@ import { Canvas } from '@react-three/fiber'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 // Mock Three.js objects and behaviors
-vi.mock('three', () => {
-  const actualThree = vi.importActual('three')
+vi.mock('three', async () => {
+  const actualThree = await vi.importActual('three')
   return {
     ...actualThree,
     Group: class MockGroup {
@@ -27,13 +27,29 @@ vi.mock('three', () => {
       sub() { return this }
       negate() { return this }
       crossVectors() { return this }
+    },
+    Color: class MockColor {
+      constructor(r?: number, g?: number, b?: number) {
+        this.r = r || 0
+        this.g = g || 0
+        this.b = b || 0
+      }
+      r: number
+      g: number
+      b: number
+      set() { return this }
+      setHex() { return this }
+      setRGB() { return this }
+      copy() { return this }
+      clone() { return new (this.constructor as any)() }
     }
   }
 })
 
-// Mock @react-three/drei Html component
+// Mock @react-three/drei components
 vi.mock('@react-three/drei', () => ({
-  Html: ({ children }: { children: React.ReactNode }) => <div data-testid="html-label">{children}</div>
+  Html: ({ children }: { children: React.ReactNode }) => <div data-testid="html-label">{children}</div>,
+  shaderMaterial: vi.fn(() => class MockShaderMaterial {})
 }))
 
 describe('InteractiveObject', () => {

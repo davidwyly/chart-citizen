@@ -1,5 +1,7 @@
 "use client"
 
+import React from 'react'
+
 interface SystemSelectorProps {
   availableSystems: Record<string, any>
   currentSystem: string

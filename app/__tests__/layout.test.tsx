@@ -1,8 +1,9 @@
 import { render } from '@testing-library/react'
 import RootLayout from '../layout'
+import { vi } from 'vitest'
 
 // Mock next/font/google
-jest.mock('next/font/google', () => ({
+vi.mock('next/font/google', () => ({
   Inter: () => ({
     className: 'mocked-inter-font',
     style: { fontFamily: 'Inter' }

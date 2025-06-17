@@ -345,4 +345,4 @@ export function TerrestrialRenderer({
 }
 
 // Mark this renderer as ring-capable
-;(TerrestrialRenderer as any).supportsRings = true 
+TerrestrialRenderer.supportsRings = true 

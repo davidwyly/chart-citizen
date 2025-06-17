@@ -1,7 +1,6 @@
 import { shaderMaterial } from "@react-three/drei"
 import * as THREE from "three"
 import { extend } from "@react-three/fiber"
-import type { EffectsLevel } from '@lib/types/effects-level'
 
 export const TerrestrialPlanetMaterial = shaderMaterial(
   {
@@ -19,27 +18,22 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     nightLightIntensity: 0.8,
     cloudOpacity: 0.6,
   },
-  // Vertex shader
+
+  // Vertex Shader
   `
     uniform vec3 lightDirection;
-    
-    varying vec3 vNormal;
     varying vec3 vPosition;
-    varying float vDiffuse;
-    
+
     void main() {
-      vNormal = normalize(normalMatrix * normal);
-      vPosition = position;
-      
-      // Calculate diffuse lighting in vertex shader
-      vec3 worldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
-      vDiffuse = max(dot(worldNormal, normalize(lightDirection)), 0.0);
-      
+      vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
-  // Fragment shader
+
+  // Fragment Shader
   `
+    precision mediump float;
+
     uniform float time;
     uniform vec3 landColor;
     uniform vec3 seaColor;
@@ -53,234 +47,121 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     uniform float cloudOpacity;
     uniform vec3 lightDirection;
 
-    varying vec3 vNormal;
     varying vec3 vPosition;
-    varying float vDiffuse;
 
-    #define mod3_ vec3(.1031, .22369, .13787)
-    #define PI 3.1415926359
+    #define PI 3.14159265359
 
-    // Hash function for noise generation
-    vec3 hash3_3(vec3 p3) {
-      p3 = fract(p3 * mod3_);
-      p3 += dot(p3, p3.yxz + 120.0);
-      vec3 random3 = fract(vec3((p3.x + p3.y) * p3.z, (p3.x+p3.z) * p3.y, (p3.y+p3.z) * p3.x));
-      return normalize(-1. + 2. * random3);
+    float hash(vec3 p) {
+      return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
     }
 
-    // 3D Perlin noise
-    float perlin_noise3(vec3 p) {
-      vec3 pi = floor(p);
-      vec3 pf = p - pi;
-      
-      // 5th order interpolant from Improved Perlin Noise
-      vec3 pf3 = pf * pf * pf;
-      vec3 pf4 = pf3 * pf;
-      vec3 pf5 = pf4 * pf;
-      vec3 w = 6. * pf5 - 15. * pf4 + 10. * pf3;
-      
-      return mix(
-        mix(
-          mix(
-            dot(pf - vec3(0, 0, 0), hash3_3(pi + vec3(0, 0, 0))), 
-            dot(pf - vec3(1, 0, 0), hash3_3(pi + vec3(1, 0, 0))),
-            w.x),
-          mix(
-            dot(pf - vec3(0, 0, 1), hash3_3(pi + vec3(0, 0, 1))), 
-            dot(pf - vec3(1, 0, 1), hash3_3(pi + vec3(1, 0, 1))),
-            w.x),
-          w.z),
-        mix(
-          mix(
-            dot(pf - vec3(0, 1, 0), hash3_3(pi + vec3(0, 1, 0))), 
-            dot(pf - vec3(1, 1, 0), hash3_3(pi + vec3(1, 1, 0))),
-            w.x),
-          mix(
-            dot(pf - vec3(0, 1, 1), hash3_3(pi + vec3(0, 1, 1))), 
-            dot(pf - vec3(1, 1, 1), hash3_3(pi + vec3(1, 1, 1))),
-            w.x),
-          w.z),
-        w.y);
+    float noise(vec3 p) {
+      vec3 i = floor(p);
+      vec3 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+                     mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                 mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                     mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
     }
 
-    // Distance to a sphere with perlin noise perturbations
-    float sdWeirdSphere(vec3 pos, float frequency) {
-      float noise = perlin_noise3(pos * frequency) / (1. * frequency * 1.32);
-      return mix(length(pos) - 0.2, noise, 0.85);
+    float fbm(vec3 p) {
+      float f = 0.0;
+      float a = 0.5;
+      for (int i = 0; i < 5; i++) {
+        f += a * noise(p);
+        p *= 2.0;
+        a *= 0.5;
+      }
+      return f;
     }
 
-    // Generate terrain height
-    float height(vec3 p) {
-      float ret = sdWeirdSphere(p, 128.0 * terrainScale);
-      ret += sdWeirdSphere(p, 64.0 * terrainScale);
-      ret += sdWeirdSphere(p, 32.0 * terrainScale);
-      ret += sdWeirdSphere(p, 16.0 * terrainScale);
-      ret += sdWeirdSphere(p, 8.0 * terrainScale);
-      ret += sdWeirdSphere(p, 4.0 * terrainScale);
-      ret += sdWeirdSphere(p, 2.0 * terrainScale);
-      ret += sdWeirdSphere(p, 1.0 * terrainScale);
-      ret /= 2.0;
-      ret -= 0.5;
-      return ret;
+    vec3 rotateY(vec3 p, float angle) {
+      float c = cos(angle);
+      float s = sin(angle);
+      return vec3(
+        c * p.x - s * p.z,
+        p.y,
+        s * p.x + c * p.z
+      );
     }
 
-    // Generate terrain properties (temperature, snow factor)
-    vec2 terrain(vec3 p, float h) {
-      float col = sdWeirdSphere(p, 32.0 * terrainScale);
-      col += sdWeirdSphere(p, 16.0 * terrainScale);
-      col += sdWeirdSphere(p, 4.0 * terrainScale);
-      
-      float t = 1.0 - (abs(p.y * 1.2) - max(h, 0.0) * 0.05);
-      t = min((t + col) / 2.0, 1.0);
-      t = pow(t, 0.5) - 0.15;
-      
-      float s = abs((abs(p.y) - 0.5) * 2.0);
-      s = min((s + col) / 2.0, 1.0) + 0.25;
-      
+    vec2 sphericalUV(vec3 p) {
+      float r = length(p);
+      float y = clamp(p.y / r, -1.0, 1.0);
+      return vec2(
+        atan(-p.z, p.x) / (2.0 * PI) + 0.5,
+        acos(y) / PI
+      );
+    }
+
+    float terrainHeight(vec3 p) {
+      return fbm(p * terrainScale * 4.0) - 0.5;
+    }
+
+    vec2 terrainFactors(vec3 p, float h) {
+      float t = 1.0 - abs(p.y);
+      float s = abs(p.y);
+      t += fbm(p * 2.0);
+      s += fbm(p * 2.0);
       return vec2(t, s);
     }
 
-    // Generate terrain color
-    vec3 getTerrainColor(vec3 p, vec2 th, float h) {
-      // Snow caps
-      if(th.x < 0.2)
-        return snowColor * pow(1.0 - min(th.x / 0.2, 1.0), 0.125) * 2.0;
-      
-      // Ocean
-      if(h < 0.0)
-        return seaColor * (1.0 + h * 2.0);
-      
-      // Land - mix between sand and grass based on terrain properties
-      float lp = (th.x + th.y * 3.0) / 3.0;
-      lp = clamp(lp, 0.0, 1.0);
-      
-      return mix(sandColor, landColor, pow(lp, 8.0)) * (pow(h, 0.25) + 0.5);
+    vec3 getTerrainColor(vec3 p, vec2 tf, float h) {
+      if (h < 0.0) return seaColor * (1.0 + h * 2.0);
+      if (tf.x < 0.2) return snowColor;
+      float f = clamp((tf.x + tf.y * 0.5) * 0.5, 0.0, 1.0);
+      return mix(sandColor, landColor, pow(f, 2.0)) * (0.5 + h);
     }
 
-    // Spiral function for cloud distortion
-    vec2 spiral(vec2 uv) {
-      float reps = 2.0;
-      vec2 uv2 = fract(uv * reps);
-      vec2 center = floor(fract(uv * reps)) + 0.5;
-      vec2 delta = uv2 - center;
-      float dist = length(delta);
-      
-      vec2 offset = vec2(delta.y, -delta.x);
-      float blend = clamp((0.5 - dist) * 2.0, 0.0, 1.0);
-      blend = pow(blend, 1.5);
-      offset *= clamp(blend, 0.0, 1.0);
-      
-      return uv + offset * vec2(1.0, 1.0) * 1.1 + vec2(time * -0.03, 0.0);
+    float nightLights(vec3 p, float h, vec2 tf) {
+      float l = fbm(p * 32.0) * 2.0;
+      return l * (tf.x > 0.2 ? tf.y : 0.0) * (h > 0.0 ? 1.0 : 0.0);
     }
 
-    // Convert 3D position to 2D UV coordinates (spherical mapping)
-    vec2 pos3to2(vec3 pos) {
-      float r = length(pos);
-      float safeY = clamp(pos.y / r, -1.0, 1.0);
-      float Y = acos(safeY) / PI;
-      float X = atan(-pos.z, pos.x) / (2.0 * PI) + 0.5;
-      return clamp(vec2(X, Y), 0.001, 0.999);
-    }
-
-    // Convert 2D UV back to 3D position
-    vec3 pos2to3(vec2 pos) {
-      float X = sin(pos.y * PI) * cos(pos.x * PI * 2.0);
-      float Y = cos(pos.y * PI);
-      float Z = -sin(pos.y * PI) * sin(pos.x * PI * 2.0);
-      return vec3(X, Y, Z);
-    }
-
-    // Generate cloud density
-    float cloud(vec3 p) {
-      // Rotate clouds independently for more dynamic effect
-      vec3 t = p;
-      float cloudRotation = time * 0.05;
-      p.x = t.x * cos(cloudRotation) - t.z * sin(cloudRotation);
-      p.z = t.x * sin(cloudRotation) + t.z * cos(cloudRotation);
-      
-      vec2 uv = pos3to2(p);
-      vec3 cp = pos2to3(spiral(uv * 2.0 * cloudScale) + spiral(uv * 3.0 * cloudScale));
-      
-      float c = perlin_noise3(cp * vec3(8.0, 16.0, 8.0));
-      c += perlin_noise3(cp * vec3(4.0, 8.0, 4.0)) * 2.0;
-      c += perlin_noise3(cp * vec3(1.0, 2.0, 1.0)) * 3.0;
-      c += perlin_noise3(cp * vec3(32.0, 64.0, 32.0));
-      c -= perlin_noise3(p * 1.5);
-      c -= perlin_noise3(p * 5.0);
-      
-      // Reduce clouds near poles
-      float latitudeFactor = abs((abs(p.y) - 0.5) * 2.0);
-      c += latitudeFactor;
-      
-      return max(c, 0.0);
-    }
-
-    // Generate night lights
-    float nightLight(vec3 pos, float h, vec2 th) {
-      float l = perlin_noise3(pos * vec3(128.0, 128.0, 128.0)) * 3.0;
-      
-      float p = perlin_noise3(pos * vec3(32.0, 32.0, 32.0)) * 2.0;
-      p += perlin_noise3(pos * vec3(8.0, 8.0, 8.0));
-      p += perlin_noise3(pos * vec3(16.0, 16.0, 16.0));
-      p -= perlin_noise3(pos * vec3(4.0, 4.0, 4.0)) * 4.0;
-      
-      l *= clamp(p, 0.0, 1.0) * max(th.x - 0.2, 0.0) * th.y * 2.0;
-      
-      return l * (h > 0.0 ? 1.0 : 0.0);
+    float cloudLayer(vec3 p) {
+      float c = fbm(p * 8.0);
+      c += fbm(p * 2.0) * 0.5;
+      return clamp(c, 0.0, 1.0);
     }
 
     void main() {
-      vec3 normal = normalize(vNormal);
-      
-      // Use the surface normal for terrain generation (local space)
-      vec3 surfaceNormal = normalize(vPosition);
-      
-      // Rotate position based on time for planet rotation
       float angle = time * rotationSpeed;
-      vec3 rotatedPos = vec3(
-        surfaceNormal.x * cos(angle) - surfaceNormal.z * sin(angle),
-        surfaceNormal.y,
-        surfaceNormal.x * sin(angle) + surfaceNormal.z * cos(angle)
-      );
-      
-      // Generate terrain
-      float h = height(rotatedPos);
-      vec2 terrainProps = terrain(rotatedPos, h);
-      vec3 terrainColor = getTerrainColor(rotatedPos, terrainProps, h);
-      
-      // Use diffuse lighting from vertex shader
-      float diffuse = vDiffuse;
-      float ambient = 0.15; // Slightly higher ambient for better visibility
-      
-      // Apply lighting to terrain
-      vec3 color = terrainColor * (diffuse + ambient);
-      
-      // Add specular highlights for water bodies
+      vec3 rotated = rotateY(normalize(vPosition), angle);
+
+      float h = terrainHeight(rotated);
+      vec2 tf = terrainFactors(rotated, h);
+      vec3 baseColor = getTerrainColor(rotated, tf, h);
+
+      vec3 lightDir = normalize(lightDirection);
+      vec3 normal = normalize(rotated);
+      float diffuse = max(dot(normal, lightDir), 0.0);
+      float ambient = 0.15;
+      vec3 color = baseColor * (diffuse + ambient);
+
       if (h < 0.0) {
-        vec3 viewDir = normalize(-vPosition); // View direction in eye space
-        vec3 lightDir = normalize(lightDirection);
+        vec3 viewDir = normalize(-rotated);
         vec3 reflectDir = reflect(-lightDir, normal);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
-        color += vec3(1.0) * spec * diffuse * 0.8;
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 12.0);
+        color += vec3(1.0) * spec * diffuse * 0.6;
       }
-      
-      // Add night lights on dark side (when diffuse lighting is low)
-      float nightLights = nightLight(rotatedPos, h, terrainProps);
-      float nightFactor = 1.0 - smoothstep(0.0, 0.3, diffuse);
-      color += vec3(1.0, 0.8, 0.3) * nightLights * nightFactor * nightLightIntensity;
-      
-      // Add animated clouds
-      float cloudDensity = cloud(rotatedPos) * cloudOpacity;
+
+      float night = nightLights(rotated, h, tf);
+      float nightFactor = pow(1.0 - diffuse, 2.0);
+      color += vec3(1.0, 0.8, 0.3) * night * nightFactor * nightLightIntensity;
+
+      float cloud = cloudLayer(rotated) * cloudOpacity;
       vec3 cloudColor = vec3(0.9, 0.95, 1.0) * (diffuse + ambient);
-      color = mix(color, cloudColor, clamp(cloudDensity, 0.0, 0.8));
-      
+      color = mix(color, cloudColor, clamp(cloud, 0.0, 0.6));
+
       gl_FragColor = vec4(color, 1.0);
     }
   `
 )
 
-// Extend React Three Fiber with the material
 extend({ TerrestrialPlanetMaterial })
+
+
 
 // Helper function to create material with quality level
 export function createTerrestrialPlanetMaterial(qualityLevel: EffectsLevel = 'high') {

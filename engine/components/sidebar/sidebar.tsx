@@ -55,7 +55,7 @@ export function Sidebar({
   mode = "realistic"
 }: SidebarProps) {
   const [openSection, setOpenSection] = useState<string>("navigation")
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true)
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? "" : section)

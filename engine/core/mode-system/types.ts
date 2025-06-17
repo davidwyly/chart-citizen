@@ -1,6 +1,6 @@
-export type Mode = 'realistic' | 'navigational' | 'profile';
+export type Mode = 'explorational' | 'navigational' | 'profile';
 
-export type ViewMode = 'realistic' | 'navigational' | 'profile';
+export type ViewMode = 'explorational' | 'navigational' | 'profile';
 
 export interface ModeFeatures {
   scientificInfo: boolean;

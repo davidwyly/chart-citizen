@@ -1,3 +1,4 @@
+import React from 'react'
 import { usePerformanceMonitor } from '@/lib/performance-monitor'
 
 export function PerformanceWarning() {

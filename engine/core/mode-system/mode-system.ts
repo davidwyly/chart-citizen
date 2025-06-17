@@ -75,8 +75,8 @@ interface SystemStore extends ModeState {
 
 export const useSystemStore = create<SystemStore>((set, get) => ({
   mode: 'realistic',
-  viewMode: 'realistic',
-  features: REALISTIC_FEATURES,
+  viewMode: 'explorational',
+  features: EXPLORATIONAL_FEATURES,
   dataSource: null,
   objects: new Map(),
   selectedObject: null,
@@ -86,7 +86,7 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
 
   setMode: (mode) => {
     set((state) => {
-      const features = mode === 'realistic' ? REALISTIC_FEATURES :
+      const features = mode === 'realistic' ? EXPLORATIONAL_FEATURES :
                       mode === 'navigational' ? NAVIGATIONAL_FEATURES :
                       PROFILE_FEATURES;
       return {
@@ -102,8 +102,8 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
   reset: () => {
     set({
       mode: 'realistic',
-      viewMode: 'realistic',
-      features: REALISTIC_FEATURES,
+      viewMode: 'explorational',
+      features: EXPLORATIONAL_FEATURES,
       dataSource: null,
       objects: new Map(),
       selectedObject: null,

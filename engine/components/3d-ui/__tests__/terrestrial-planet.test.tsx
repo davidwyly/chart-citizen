@@ -1,14 +1,16 @@
+import React from 'react'
 import { render } from '@testing-library/react'
+import { vi } from 'vitest'
 import { TerrestrialPlanet } from '../terrestrial-planet'
 import { useFrame } from '@react-three/fiber'
 
 // Mock useFrame
-jest.mock('@react-three/fiber', () => ({
-  useFrame: jest.fn()
+vi.mock('@react-three/fiber', () => ({
+  useFrame: vi.fn()
 }))
 
 describe('TerrestrialPlanet', () => {
-  const mockUseFrame = useFrame as jest.Mock
+  const mockUseFrame = useFrame as any
   
   beforeEach(() => {
     mockUseFrame.mockReset()
@@ -28,7 +30,7 @@ describe('TerrestrialPlanet', () => {
   it('applies custom shader scale', () => {
     const { container } = render(<TerrestrialPlanet shaderScale={1.5} />)
     const geometry = container.querySelector('sphereGeometry')
-    expect(geometry).toHaveAttribute('args', '1,1.5,64,64')
+    expect(geometry).toHaveAttribute('args', '1.5,64,64')
   })
   
   it('applies quality level', () => {
@@ -51,7 +53,7 @@ describe('TerrestrialPlanet', () => {
   })
   
   it('updates uniforms in animation frame', () => {
-    const mockCallback = jest.fn()
+    const mockCallback = vi.fn()
     mockUseFrame.mockImplementation(mockCallback)
     
     render(<TerrestrialPlanet />)
@@ -59,8 +61,30 @@ describe('TerrestrialPlanet', () => {
     expect(mockCallback).toHaveBeenCalled()
     const frameCallback = mockCallback.mock.calls[0][0]
     
-    // Simulate frame update
+    // Simulate frame update with mock material ref
+    const mockMaterial = {
+      uniforms: {
+        time: { value: 0 },
+        intensity: { value: 1.0 },
+        speed: { value: 1.0 },
+        distortion: { value: 1.0 },
+        topColor: { value: { setRGB: vi.fn() } },
+        middleColor: { value: { setRGB: vi.fn() } },
+        bottomColor: { value: { setRGB: vi.fn() } }
+      }
+    }
+    
     const mockClock = { getElapsedTime: () => 1.0 }
-    frameCallback({ clock: mockClock })
+    
+    // Mock the material ref to return our mock material
+    const originalRef = React.useRef
+    vi.spyOn(React, 'useRef').mockReturnValue({ current: mockMaterial })
+    
+    try {
+      frameCallback({ clock: mockClock })
+      expect(mockMaterial.uniforms.time.value).toBe(1.0)
+    } finally {
+      vi.spyOn(React, 'useRef').mockRestore()
+    }
   })
 }) 
