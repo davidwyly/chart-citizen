@@ -15,7 +15,7 @@ const ROMAN_NUMERALS = [
 ]
 
 export function toRomanNumeral(num: number): string {
-  if (num <= 0 || num > 3999) {
+  if (num <= 0 || num > 3999 || !Number.isInteger(num)) {
     throw new Error('Number must be between 1 and 3999')
   }
 

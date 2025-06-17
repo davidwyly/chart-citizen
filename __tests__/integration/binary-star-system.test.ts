@@ -52,7 +52,7 @@ describe('Binary Star System Features', () => {
     const store = useSystemStore.getState();
     
     // Create primary binary pair (Alpha Centauri A & B)
-    const primaryStar = store.createStarObject({
+    store.createStarObject({
       id: 'alpha-centauri-a',
       type: 'star',
       position: { x: -0.5, y: 0, z: 0 },
@@ -60,12 +60,11 @@ describe('Binary Star System Features', () => {
         name: 'Alpha Centauri A',
         radius: 1.1,
         temperature: 5790,
-        spectralType: 'G2V',
-        isBinary: true
+        spectralType: 'G2V'
       }
     });
 
-    const secondaryStar = store.createStarObject({
+    store.createStarObject({
       id: 'alpha-centauri-b',
       type: 'star',
       position: { x: 0.5, y: 0, z: 0 },
@@ -73,13 +72,12 @@ describe('Binary Star System Features', () => {
         name: 'Alpha Centauri B',
         radius: 0.9,
         temperature: 5260,
-        spectralType: 'K1V',
-        isBinary: true
+        spectralType: 'K1V'
       }
     });
 
     // Create tertiary star (Proxima Centauri)
-    const tertiaryStar = store.createStarObject({
+    store.createStarObject({
       id: 'proxima-centauri',
       type: 'star',
       position: { x: 0, y: 2, z: 0 }, // Positioned above the binary pair
@@ -87,8 +85,7 @@ describe('Binary Star System Features', () => {
         name: 'Proxima Centauri',
         radius: 0.15,
         temperature: 3042,
-        spectralType: 'M5.5Ve',
-        isTertiary: true
+        spectralType: 'M5.5Ve'
       }
     });
 
@@ -113,8 +110,10 @@ describe('Binary Star System Features', () => {
     expect(primaryProps?.position).not.toEqual(tertiaryProps?.position);
     expect(secondaryProps?.position).not.toEqual(tertiaryProps?.position);
 
-    // Verify binary relationship
-    expect(primaryProps?.properties.isBinary).toBe(true);
+    // Verify the store automatically set binary/tertiary flags based on creation order
+    // First star created has no special flag
+    // Second star gets isBinary = true
+    // Third star gets isTertiary = true
     expect(secondaryProps?.properties.isBinary).toBe(true);
     expect(tertiaryProps?.properties.isTertiary).toBe(true);
   });
@@ -130,8 +129,7 @@ describe('Binary Star System Features', () => {
       properties: {
         name: 'Star A',
         radius: 1.0,
-        temperature: 6000,
-        isBinary: true
+        temperature: 6000
       }
     });
 
@@ -142,8 +140,7 @@ describe('Binary Star System Features', () => {
       properties: {
         name: 'Star B',
         radius: 0.8,
-        temperature: 5000,
-        isBinary: true
+        temperature: 5000
       }
     });
 
@@ -154,8 +151,7 @@ describe('Binary Star System Features', () => {
       properties: {
         name: 'Star C',
         radius: 0.2,
-        temperature: 3000,
-        isTertiary: true
+        temperature: 3000
       }
     });
 

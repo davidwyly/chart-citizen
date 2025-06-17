@@ -58,6 +58,10 @@ export class PerformanceMonitor {
   }
 
   getPerformanceLevel(): 'good' | 'warning' | 'critical' {
+    if (this.fpsHistory.length === 0) {
+      return 'good' // Default to good if no history
+    }
+    
     const averageFps = this.fpsHistory.reduce((sum, value) => sum + value, 0) / this.fpsHistory.length
 
     if (averageFps < this.lowFpsThreshold) {

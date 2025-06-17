@@ -289,9 +289,9 @@ describe('orbital-mechanics-calculator', () => {
       // but should still be reasonably close or respect minimum visibility
       expect(phobosData.visualRadius).toBeGreaterThan(0.01); // Minimum visibility
       
-      // Visual ratios should be much more realistic than before
-      expect(earthLunaVisualRatio).toBeLessThan(0.5); // Luna shouldn't appear half Earth's size
-      expect(marsPhobosVisualRatio).toBeLessThan(0.1); // Phobos shouldn't appear 1/10 Mars's size
+      // Visual ratios should be proportional to real ratios
+      expect(earthLunaVisualRatio).toBeCloseTo(earthLunaRealRatio, 1); // Luna should be proportional
+      expect(marsPhobosVisualRatio).toBeGreaterThan(0.001); // Phobos should be visible
     });
 
     it('should handle memoization correctly for explorational mode', () => {

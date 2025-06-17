@@ -82,7 +82,9 @@ describe('Setup System', () => {
       store.createStarObject({ type: 'star', position: { x: 0, y: 0, z: 0 } });
       store.createPlanetObject({ type: 'planet', position: { x: 1, y: 1, z: 1 } });
       
-      const objects = Array.from(store.objects.values());
+      // Get fresh store state to see the updated objects
+      const updatedStore = useSystemStore.getState();
+      const objects = Array.from(updatedStore.objects.values());
       expect(objects.length).toBe(2);
     });
   });

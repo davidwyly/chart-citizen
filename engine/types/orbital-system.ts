@@ -171,11 +171,11 @@ export interface StarmapData {
 
 // Utility type guards
 export function isOrbitData(orbit: OrbitData | BeltOrbitData): orbit is OrbitData {
-  return 'semi_major_axis' in orbit
+  return orbit != null && typeof orbit === 'object' && 'semi_major_axis' in orbit
 }
 
 export function isBeltOrbitData(orbit: OrbitData | BeltOrbitData): orbit is BeltOrbitData {
-  return 'inner_radius' in orbit
+  return orbit != null && typeof orbit === 'object' && 'inner_radius' in orbit
 }
 
 export function isStar(object: CelestialObject): boolean {

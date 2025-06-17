@@ -22,7 +22,7 @@ describe('ObjectFactory', () => {
   const baseCatalog: CatalogObject = {
     id: 'test-object',
     name: 'Test Object',
-    engine_object: 'star',
+    engine_object: 'main-sequence-star',
     category: 'star',
     mass: 1.0,
     radius: 1.0,
@@ -93,7 +93,7 @@ describe('ObjectFactory', () => {
   })
 
   it('renders PlanetRenderer for category terrestrial', () => {
-    const catalogData = { ...baseCatalog, category: 'terrestrial' }
+    const catalogData = { ...baseCatalog, engine_object: 'terrestrial-planet', category: 'terrestrial' }
     const { getByTestId } = render(<ObjectFactory catalogData={catalogData} />)
     expect(getByTestId('planet-renderer')).toBeInTheDocument()
   })
@@ -123,7 +123,7 @@ describe('ObjectFactory', () => {
   })
 
   it('renders PlanetRenderer for category moon', () => {
-    const catalogData = { ...baseCatalog, category: 'moon' }
+    const catalogData = { ...baseCatalog, engine_object: 'terrestrial-moon', category: 'moon' }
     const { getByTestId } = render(<ObjectFactory catalogData={catalogData} />)
     expect(getByTestId('planet-renderer')).toBeInTheDocument()
   })

@@ -76,7 +76,7 @@ interface SystemStore extends ModeState {
 export const useSystemStore = create<SystemStore>((set, get) => ({
   mode: 'realistic',
   viewMode: 'explorational',
-  features: EXPLORATIONAL_FEATURES,
+  features: { ...DEFAULT_FEATURES },
   dataSource: null,
   objects: new Map(),
   selectedObject: null,
@@ -103,7 +103,7 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
     set({
       mode: 'realistic',
       viewMode: 'explorational',
-      features: EXPLORATIONAL_FEATURES,
+      features: { ...DEFAULT_FEATURES },
       dataSource: null,
       objects: new Map(),
       selectedObject: null,
@@ -114,7 +114,15 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
   },
 
   setViewMode: (mode) => {
-    set({ viewMode: mode });
+    set((state) => {
+      const features = mode === 'explorational' ? EXPLORATIONAL_FEATURES :
+                      mode === 'navigational' ? NAVIGATIONAL_FEATURES :
+                      PROFILE_FEATURES;
+      return {
+        viewMode: mode,
+        features
+      };
+    });
   },
 
   getViewMode: () => get().viewMode,
@@ -170,6 +178,7 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
       objects: new Map(state.objects).set(id, { 
         ...params, 
         id,
+        type: 'star',
         position,
         properties: {
           ...params.properties,
@@ -181,9 +190,13 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
   },
 
   createPlanetObject: (params) => {
-    const id = `planet-${Date.now()}`;
+    const id = params.id || `planet-${Date.now()}`;
     set((state) => ({
-      objects: new Map(state.objects).set(id, { ...params, id })
+      objects: new Map(state.objects).set(id, { 
+        ...params, 
+        id,
+        type: 'planet'
+      })
     }));
   },
 

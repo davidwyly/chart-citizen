@@ -147,11 +147,11 @@ let memoizedResults: Map<string, {
 let lastCalculationKey = '';
 
 /**
- * Generate a key for memoization based on objects and view type
+ * Generate a key for memoization based on objects, view type, and paused state
  */
-function generateCalculationKey(objects: CelestialObject[], viewType: ViewType): string {
+function generateCalculationKey(objects: CelestialObject[], viewType: ViewType, isPaused: boolean): string {
   const objectsKey = objects.map(obj => `${obj.id}-${obj.properties.radius}-${obj.orbit?.parent || 'root'}`).join('|');
-  return `${viewType}-${objectsKey}`;
+  return `${viewType}-${isPaused}-${objectsKey}`;
 }
 
 /**
@@ -760,7 +760,7 @@ export function calculateSystemOrbitalMechanics(
   // STEP 0: Check memoization cache
   // ===============================
   // Avoid recalculation if we've already processed this exact configuration
-  const calculationKey = generateCalculationKey(objects, viewType);
+  const calculationKey = generateCalculationKey(objects, viewType, isPaused);
   if (memoizedResults && lastCalculationKey === calculationKey) {
     return memoizedResults;
   }

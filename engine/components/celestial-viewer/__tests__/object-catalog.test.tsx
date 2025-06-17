@@ -35,6 +35,7 @@ describe('ObjectCatalog', () => {
         />
       )
 
+      // Stars category should be expanded by default, find the star object directly
       const firstObject = screen.getByText('G2V Main Sequence Star')
       fireEvent.click(firstObject)
       expect(mockOnSelect).toHaveBeenCalledWith('g2v-main-sequence')
@@ -49,6 +50,7 @@ describe('ObjectCatalog', () => {
         />
       )
 
+      // Stars category should be expanded by default
       const starObjects = [
         'G2V Main Sequence Star',
         'M2V Red Dwarf',
@@ -174,13 +176,19 @@ describe('ObjectCatalog', () => {
 
       const starsCategory = screen.getByText('Stars')
       
-      // Should be expanded by default, so objects should be visible
+      // Stars category starts expanded by default, so objects should be visible
       expect(screen.getByText('G2V Main Sequence Star')).toBeInTheDocument()
       
       // Click to collapse
       fireEvent.click(starsCategory)
       
-      // Objects should still be visible since all categories start expanded
+      // Objects should now be hidden
+      expect(screen.queryByText('G2V Main Sequence Star')).not.toBeInTheDocument()
+      
+      // Click to expand again
+      fireEvent.click(starsCategory)
+      
+      // Objects should be visible again
       expect(screen.getByText('G2V Main Sequence Star')).toBeInTheDocument()
     })
   })

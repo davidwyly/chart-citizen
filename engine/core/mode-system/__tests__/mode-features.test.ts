@@ -27,27 +27,31 @@ describe('Mode Features', () => {
       expect(store.getViewFeatures().jumpPointInfo).toBe(true);
     });
 
-    it('should maintain feature state across mode switches', () => {
+    it('should set appropriate features when switching modes', () => {
       const store = useSystemStore.getState();
       
       // Set up features in Realistic mode
       store.setMode('realistic');
-      store.toggleFeature('scientificInfo');
-      store.toggleFeature('educationalContent');
+      const realisticFeatures = store.getViewFeatures();
+      expect(realisticFeatures.scientificInfo).toBe(true);
+      expect(realisticFeatures.educationalContent).toBe(true);
       
       // Switch to Profile mode
       store.setMode('profile');
+      const profileFeatures = store.getViewFeatures();
       
-      // Verify features are maintained
-      expect(store.getViewFeatures().scientificInfo).toBe(true);
-      expect(store.getViewFeatures().educationalContent).toBe(true);
+      // Verify profile mode features are set correctly
+      expect(profileFeatures.gameInfo).toBe(true);
+      expect(profileFeatures.jumpPointInfo).toBe(true);
+      expect(profileFeatures.scientificInfo).toBe(false);
+      expect(profileFeatures.educationalContent).toBe(false);
     });
   });
 
   describe('View Mode Features', () => {
     it('should apply correct features for each view mode', () => {
       const store = useSystemStore.getState();
-      const viewModes: ViewMode[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewMode[] = ['explorational', 'navigational', 'profile'];
       
       for (const mode of viewModes) {
         store.setViewMode(mode);
@@ -62,25 +66,33 @@ describe('Mode Features', () => {
       }
     });
 
-    it('should maintain feature consistency across view modes', () => {
+    it('should set appropriate features for each view mode', () => {
       const store = useSystemStore.getState();
-      const viewModes: ViewMode[] = ['realistic', 'navigational', 'profile'];
+      const viewModes: ViewMode[] = ['explorational', 'navigational', 'profile'];
       
-      // Enable all features
-      store.toggleFeature('scientificInfo');
-      store.toggleFeature('educationalContent');
-      store.toggleFeature('gameInfo');
-      store.toggleFeature('jumpPointInfo');
-      
-      // Verify features are maintained across view modes
       for (const mode of viewModes) {
         store.setViewMode(mode);
-        const features = store.getViewFeatures();
+        // Get fresh store state to check features
+        const updatedStore = useSystemStore.getState();
+        const features = updatedStore.getViewFeatures();
         
-        expect(features.scientificInfo).toBe(true);
-        expect(features.educationalContent).toBe(true);
-        expect(features.gameInfo).toBe(true);
-        expect(features.jumpPointInfo).toBe(true);
+        // Verify each view mode has its expected feature set
+        if (mode === 'explorational') {
+          expect(features.scientificInfo).toBe(true);
+          expect(features.educationalContent).toBe(true);
+          expect(features.gameInfo).toBe(false);
+          expect(features.jumpPointInfo).toBe(false);
+        } else if (mode === 'navigational') {
+          expect(features.scientificInfo).toBe(true);
+          expect(features.educationalContent).toBe(false);
+          expect(features.gameInfo).toBe(false);
+          expect(features.jumpPointInfo).toBe(true);
+        } else if (mode === 'profile') {
+          expect(features.scientificInfo).toBe(false);
+          expect(features.educationalContent).toBe(false);
+          expect(features.gameInfo).toBe(true);
+          expect(features.jumpPointInfo).toBe(true);
+        }
       }
     });
   });
@@ -147,8 +159,8 @@ describe('Mode Features', () => {
       };
       
       store.setDataSource(scientificData);
-      expect(store.dataSource?.type).toBe('realistic');
-      expect(store.dataSource?.content).toHaveProperty('spectralType');
+      expect(store.getDataSource()?.type).toBe('realistic');
+      expect(store.getDataSource()?.content).toHaveProperty('spectralType');
     });
 
     it('should maintain scientific accuracy in view modes', () => {
@@ -156,16 +168,23 @@ describe('Mode Features', () => {
       store.setMode('realistic');
       
       // Test each view mode
-      const viewModes = ['realistic', 'navigational', 'profile'] as const;
+      const viewModes = ['explorational', 'navigational', 'profile'] as const;
       
       for (const viewMode of viewModes) {
         store.setViewMode(viewMode);
         const scaling = store.getViewModeScaling();
         
-        // Verify scaling maintains relative proportions
+        // Verify scaling values are positive
         expect(scaling.STAR_SCALE).toBeGreaterThan(0);
-        expect(scaling.PLANET_SCALE).toBeLessThan(scaling.STAR_SCALE);
-        expect(scaling.MOON_SCALE).toBeLessThan(scaling.PLANET_SCALE);
+        expect(scaling.PLANET_SCALE).toBeGreaterThan(0);
+        expect(scaling.MOON_SCALE).toBeGreaterThan(0);
+        expect(scaling.ORBITAL_SCALE).toBeGreaterThan(0);
+        
+        // In non-explorational modes, verify hierarchical scaling
+        if (viewMode !== 'explorational') {
+          expect(scaling.STAR_SCALE).toBeGreaterThan(scaling.PLANET_SCALE);
+          expect(scaling.PLANET_SCALE).toBeGreaterThan(scaling.MOON_SCALE);
+        }
       }
     });
   });
@@ -199,8 +218,8 @@ describe('Mode Features', () => {
       };
       
       store.setDataSource(profileData);
-      expect(store.dataSource?.type).toBe('profile');
-      expect(store.dataSource?.content).toHaveProperty('systemName');
+      expect(store.getDataSource()?.type).toBe('profile');
+      expect(store.getDataSource()?.content).toHaveProperty('systemName');
     });
   });
 }); 

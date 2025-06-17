@@ -26,7 +26,7 @@ describe('SystemViewer', () => {
   describe('Rendering', () => {
     it('renders without crashing', () => {
       render(<SystemViewer {...defaultProps} />)
-      expect(screen.getByRole('generic')).toBeInTheDocument()
+      expect(screen.getByText(/Loading sol/)).toBeInTheDocument()
     })
   })
 

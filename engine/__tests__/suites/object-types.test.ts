@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useSystemStore } from '@/engine/core/mode-system/mode-system';
 import type { SystemData, CelestialObject } from '@/engine/types/mode';
 
@@ -114,9 +114,8 @@ describe('Object Types', () => {
     const starObject = store.getObjectProperties('test-star');
     expect(starObject).toBeDefined();
 
-    // Test planet object creation
+    // Test planet object creation - note: createPlanetObject generates its own ID
     const planetParams = {
-      id: 'test-planet',
       type: 'planet',
       position: { x: 1, y: 0, z: 0 },
       properties: {
@@ -127,7 +126,11 @@ describe('Object Types', () => {
     };
     
     store.createPlanetObject(planetParams);
-    const planetObject = store.getObjectProperties('test-planet');
+    // Since createPlanetObject generates an ID, we need to find the planet in the objects map
+    const currentState = useSystemStore.getState();
+    const planets = Array.from(currentState.objects.values()).filter(obj => obj.type === 'planet');
+    expect(planets.length).toBeGreaterThan(0);
+    const planetObject = planets[0];
     expect(planetObject).toBeDefined();
   });
 
@@ -140,13 +143,20 @@ describe('Object Types', () => {
       properties: { radius: 1.0 }
     });
 
+    // Verify object was created
+    const starObject = store.getObjectProperties('test-star');
+    expect(starObject).toBeDefined();
+    expect(starObject?.type).toBe('star');
+
     // Test object selection
     store.selectObject('test-star');
-    expect(store.selectedObject?.id).toBe('test-star');
+    const currentState = useSystemStore.getState();
+    expect(currentState.selectedObject?.id).toBe('test-star');
 
     // Test object hover
     store.setHoveredObject('test-star');
-    expect(store.getHoveredObject()).toBe('test-star');
+    const updatedState = useSystemStore.getState();
+    expect(updatedState.getHoveredObject()).toBe('test-star');
 
     // Test object removal
     store.removeObject('test-star');
