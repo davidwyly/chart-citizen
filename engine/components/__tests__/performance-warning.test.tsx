@@ -1,14 +1,15 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { PerformanceWarning } from '../performance-warning'
 import { usePerformanceMonitor } from '@/lib/performance-monitor'
 
 // Mock the performance monitor hook
-jest.mock('@/lib/performance-monitor', () => ({
-  usePerformanceMonitor: jest.fn()
+vi.mock('@/lib/performance-monitor', () => ({
+  usePerformanceMonitor: vi.fn()
 }))
 
 describe('PerformanceWarning', () => {
-  const mockUsePerformanceMonitor = usePerformanceMonitor as jest.Mock
+  const mockUsePerformanceMonitor = usePerformanceMonitor as any
 
   beforeEach(() => {
     mockUsePerformanceMonitor.mockReset()

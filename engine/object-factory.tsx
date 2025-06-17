@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { StarRenderer } from "@/engine/renderers/stars/star-renderer"
 import { PlanetRenderer } from "@/engine/renderers/planets/planet-renderer"
 import { GasGiantRenderer } from "@/engine/renderers/planets/gas-giant-renderer"

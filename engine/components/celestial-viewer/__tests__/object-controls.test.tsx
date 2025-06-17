@@ -199,12 +199,12 @@ describe('ObjectControls', () => {
         />
       )
 
-      expect(screen.getByRole('slider', { name: /Intensity/i })).toBeInTheDocument()
-      expect(screen.getByLabelText(/^Speed:/i)).toBeInTheDocument()
-      expect(screen.getByRole('slider', { name: /Distortion/i })).toBeInTheDocument()
-      expect(screen.getByLabelText(/^Disk Speed:/i)).toBeInTheDocument()
-      expect(screen.getByRole('slider', { name: /Lensing Strength/i })).toBeInTheDocument()
-      expect(screen.getByRole('slider', { name: /Disk Brightness/i })).toBeInTheDocument()
+      expect(screen.getByLabelText(/Surface Brightness:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Rotation Speed:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Atmospheric Effects:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Cloud Movement:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Gravity Warp Effect:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Overall Luminosity:/)).toBeInTheDocument()
 
       // Old tests
       expect(screen.queryByText('Atmospheric Bands')).not.toBeInTheDocument()
@@ -267,12 +267,12 @@ describe('ObjectControls', () => {
         />
       )
 
-      expect(screen.getByRole('slider', { name: /Intensity/i })).toBeInTheDocument()
-      expect(screen.getByLabelText(/^Speed:/i)).toBeInTheDocument()
-      expect(screen.getByRole('slider', { name: /Distortion/i })).toBeInTheDocument()
-      expect(screen.getByLabelText(/^Disk Speed:/i)).toBeInTheDocument()
-      expect(screen.getByRole('slider', { name: /Lensing Strength/i })).toBeInTheDocument()
-      expect(screen.getByRole('slider', { name: /Disk Brightness/i })).toBeInTheDocument()
+      expect(screen.getByLabelText(/Surface Brightness:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Rotation Speed:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Atmospheric Effects:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Cloud Movement:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Gravity Warp Effect:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Overall Luminosity:/)).toBeInTheDocument()
 
       // Old tests
       expect(screen.queryByText('Stellar Flare Activity')).not.toBeInTheDocument()

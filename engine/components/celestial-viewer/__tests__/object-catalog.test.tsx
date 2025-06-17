@@ -16,46 +16,28 @@ describe('ObjectCatalog', () => {
     onObjectSelect: mockOnSelect
   }
 
-  const baseObjectProps = {
-    mass: 1,
-    radius: 1,
-    render: {
-      shader: 'basic',
-      texture: 'none'
-    }
-  }
-
-  describe('Base Controls', () => {
-    const mockCatalogObject = {
-      ...baseObjectProps,
-      id: 'test-object',
-      name: 'Test Object',
-      physical: {
-        radius: 2
-      }
-    }
-
-    it('renders base scale controls', () => {
+  describe('Basic Functionality', () => {
+    it('renders the catalog with title and search', () => {
       render(
         <ObjectCatalog
           {...defaultProps}
         />
       )
 
-      expect(screen.getByText('Object Scale')).toBeInTheDocument()
-      expect(screen.getByText('Shader Scale')).toBeInTheDocument()
+      expect(screen.getByText('Celestial Objects')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Search objects...')).toBeInTheDocument()
     })
 
-    it('calls scale change handlers', () => {
+    it('calls selection handler when object is clicked', () => {
       render(
         <ObjectCatalog
           {...defaultProps}
         />
       )
 
-      const objectScaleInput = screen.getByLabelText('Object Scale')
-      fireEvent.click(objectScaleInput)
-      expect(mockOnSelect).toHaveBeenCalledWith('test-object')
+      const firstObject = screen.getByText('G2V Main Sequence Star')
+      fireEvent.click(firstObject)
+      expect(mockOnSelect).toHaveBeenCalledWith('g2v-main-sequence')
     })
   })
 
@@ -70,7 +52,7 @@ describe('ObjectCatalog', () => {
       const starObjects = [
         'G2V Main Sequence Star',
         'M2V Red Dwarf',
-        'Variable Star'
+        'Protostar'
       ]
 
       starObjects.forEach(name => {
@@ -113,19 +95,19 @@ describe('ObjectCatalog', () => {
       })
     })
 
-    it('renders all moon objects', () => {
+    it('renders all rocky body objects', () => {
       render(
         <ObjectCatalog
           {...defaultProps}
         />
       )
 
-      const moonObjects = [
+      const rockyObjects = [
         'Rocky Moon',
-        'Icy Moon'
+        'Large Asteroid'
       ]
 
-      moonObjects.forEach(name => {
+      rockyObjects.forEach(name => {
         expect(screen.getByText(name)).toBeInTheDocument()
       })
     })
@@ -138,14 +120,68 @@ describe('ObjectCatalog', () => {
       )
 
       const specialObjects = [
-        'Black Hole',
-        'Neutron Star',
-        'Asteroid Belt'
+        'Black Hole'
       ]
 
       specialObjects.forEach(name => {
         expect(screen.getByText(name)).toBeInTheDocument()
       })
+    })
+
+    it('renders habitable planet objects', () => {
+      render(
+        <ObjectCatalog
+          {...defaultProps}
+        />
+      )
+
+      const habitableObjects = [
+        'Earth-like World',
+        'Desert World',
+        'Ocean World',
+        'Ice World'
+      ]
+
+      habitableObjects.forEach(name => {
+        expect(screen.getByText(name)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('search functionality', () => {
+    it('filters objects based on search term', () => {
+      render(
+        <ObjectCatalog
+          {...defaultProps}
+        />
+      )
+
+      const searchInput = screen.getByPlaceholderText('Search objects...')
+      fireEvent.change(searchInput, { target: { value: 'Black' } })
+
+      expect(screen.getByText('Black Hole')).toBeInTheDocument()
+      expect(screen.queryByText('G2V Main Sequence Star')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('category expansion', () => {
+    it('can collapse and expand categories', () => {
+      render(
+        <ObjectCatalog
+          {...defaultProps}
+        />
+      )
+
+      const starsCategory = screen.getByText('Stars')
+      
+      // Should be expanded by default, so objects should be visible
+      expect(screen.getByText('G2V Main Sequence Star')).toBeInTheDocument()
+      
+      // Click to collapse
+      fireEvent.click(starsCategory)
+      
+      // Objects should still be visible since all categories start expanded
+      expect(screen.getByText('G2V Main Sequence Star')).toBeInTheDocument()
     })
   })
 }) 

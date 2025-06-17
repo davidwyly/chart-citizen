@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { vi, expect } from 'vitest'
+import React from 'react'
 import '@testing-library/jest-dom/vitest'
 import { ObjectControls } from '../object-controls'
 
@@ -24,7 +25,9 @@ describe('ObjectControls - Habitable Planet Integration', () => {
     onObjectScaleChange: vi.fn(),
     onShaderScaleChange: vi.fn(),
     onShaderParamChange: vi.fn(),
-    onHabitabilityParamChange: vi.fn()
+    onHabitabilityParamChange: vi.fn(),
+    showStats: false,
+    onToggleStats: vi.fn()
   }
 
   beforeEach(() => {

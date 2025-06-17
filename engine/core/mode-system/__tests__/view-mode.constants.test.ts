@@ -4,8 +4,8 @@ import { ViewMode } from '../../../types/view-mode.types'
 
 describe('View Mode Constants', () => {
   describe('getViewModeScaling', () => {
-    it('should return correct scaling for realistic mode', () => {
-      const scaling = getViewModeScaling('realistic')
+    it('should return correct scaling for explorational mode', () => {
+      const scaling = getViewModeScaling('explorational')
       expect(scaling).toEqual({
         ORBITAL_SCALE: 200.0,
         STAR_SCALE: 1.0,
@@ -37,7 +37,7 @@ describe('View Mode Constants', () => {
       })
     })
 
-    it('should handle invalid view mode by defaulting to realistic', () => {
+    it('should handle invalid view mode by defaulting to explorational', () => {
       const scaling = getViewModeScaling('invalid' as ViewMode)
       expect(scaling).toEqual({
         ORBITAL_SCALE: 200.0,
@@ -49,7 +49,7 @@ describe('View Mode Constants', () => {
     })
 
     it('should ensure all scaling values are positive', () => {
-      const viewModes: ViewMode[] = ['realistic', 'navigational', 'profile']
+      const viewModes: ViewMode[] = ['explorational', 'navigational', 'profile']
       
       for (const mode of viewModes) {
         const scaling = getViewModeScaling(mode)
@@ -61,18 +61,25 @@ describe('View Mode Constants', () => {
       }
     })
 
-    it('should maintain relative proportions between scales', () => {
-      const viewModes: ViewMode[] = ['realistic', 'navigational', 'profile']
+    it('should maintain relative proportions between scales for modes where scaling differs', () => {
+      // Check navigational mode (where scaling is different)
+      const navScaling = getViewModeScaling('navigational')
+      expect(navScaling.STAR_SCALE).toBeGreaterThan(navScaling.PLANET_SCALE)
+      expect(navScaling.PLANET_SCALE).toBeGreaterThan(navScaling.MOON_SCALE)
       
-      for (const mode of viewModes) {
-        const scaling = getViewModeScaling(mode)
-        expect(scaling.STAR_SCALE).toBeGreaterThan(scaling.PLANET_SCALE)
-        expect(scaling.PLANET_SCALE).toBeGreaterThan(scaling.MOON_SCALE)
-      }
+      // Check profile mode (where scaling is different)  
+      const profileScaling = getViewModeScaling('profile')
+      expect(profileScaling.STAR_SCALE).toBeGreaterThan(profileScaling.PLANET_SCALE)
+      expect(profileScaling.PLANET_SCALE).toBeGreaterThan(profileScaling.MOON_SCALE)
+      
+      // Note: explorational mode has equal scaling (1.0) for STAR, PLANET, and MOON
+      const explorationScaling = getViewModeScaling('explorational')
+      expect(explorationScaling.STAR_SCALE).toBe(explorationScaling.PLANET_SCALE)
+      expect(explorationScaling.PLANET_SCALE).toBe(explorationScaling.MOON_SCALE)
     })
 
     it('should return correct scaling for each view mode', () => {
-      const modes: ViewMode[] = ['realistic', 'navigational', 'profile']
+      const modes: ViewMode[] = ['explorational', 'navigational', 'profile']
       for (const mode of modes) {
         const scaling = getViewModeScaling(mode)
         expect(scaling).toHaveProperty('STAR_SCALE')
@@ -82,10 +89,10 @@ describe('View Mode Constants', () => {
       }
     })
 
-    it('should default to realistic scaling for invalid mode', () => {
+    it('should default to explorational scaling for invalid mode', () => {
       // @ts-expect-error
       const scaling = getViewModeScaling('invalid')
-      expect(scaling).toEqual(getViewModeScaling('realistic'))
+      expect(scaling).toEqual(getViewModeScaling('explorational'))
     })
   })
 }) 

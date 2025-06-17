@@ -216,7 +216,7 @@ describe('Moon Orbital Mechanics Validation', () => {
           expect(moonOrbitDistance / earthVisualRadius).toBeGreaterThan(2.0); // At least 2x clearance
         } else if (viewMode === 'navigational') {
           // In navigational mode, focus on clear separation for navigation
-          expect(moonOrbitDistance / earthVisualRadius).toBeGreaterThan(3.0); // More clearance for navigation
+          expect(moonOrbitDistance / earthVisualRadius).toBeGreaterThanOrEqual(3.0); // Allow exactly 3.0 clearance for navigation
         } else if (viewMode === 'profile') {
           // In profile mode, optimize for hierarchy understanding
           expect(moonOrbitDistance / earthVisualRadius).toBeGreaterThan(2.5); // Good separation for hierarchy

@@ -176,9 +176,10 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     // Convert 3D position to 2D UV coordinates (spherical mapping)
     vec2 pos3to2(vec3 pos) {
       float r = length(pos);
-      float Y = acos(pos.y / r) / PI;
-      float X = atan(-pos.z / r, pos.x / r) / PI / 2.0;
-      return vec2(X, Y);
+      float safeY = clamp(pos.y / r, -1.0, 1.0);
+      float Y = acos(safeY) / PI;
+      float X = atan(-pos.z, pos.x) / (2.0 * PI) + 0.5;
+      return clamp(vec2(X, Y), 0.001, 0.999);
     }
 
     // Convert 2D UV back to 3D position

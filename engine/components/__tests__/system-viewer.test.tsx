@@ -1,22 +1,26 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { SystemViewer } from '../system-viewer'
 import React from 'react'
 
-jest.mock('@react-three/fiber', () => ({
-  ...jest.requireActual('@react-three/fiber'),
-  Canvas: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
-}))
+vi.mock('@react-three/fiber', async () => {
+  const actual = await vi.importActual('@react-three/fiber')
+  return {
+    ...actual,
+    Canvas: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  }
+})
 
 describe('SystemViewer', () => {
   const defaultProps = {
     mode: 'realistic',
     systemId: 'sol',
-    onFocus: jest.fn(),
-    onSystemChange: jest.fn(),
+    onFocus: vi.fn(),
+    onSystemChange: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Rendering', () => {

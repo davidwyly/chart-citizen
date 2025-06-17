@@ -1,7 +1,7 @@
 import { ViewModeState, ViewMode, ViewModeScaling } from '../../types/view-mode.types';
 
-export const REALISTIC_VIEW_MODE: ViewModeState = {
-  currentViewMode: 'realistic',
+export const EXPLORATIONAL_VIEW_MODE: ViewModeState = {
+  currentViewMode: 'explorational',
   scaling: {
     STAR_SCALE: 1.0,
     PLANET_SCALE: 1.0,
@@ -35,26 +35,26 @@ export const PROFILE_VIEW_MODE: ViewModeState = {
 
 export const getViewMode = (mode: string): ViewModeState => {
   switch (mode) {
-    case 'realistic':
-      return REALISTIC_VIEW_MODE;
+    case 'explorational':
+      return EXPLORATIONAL_VIEW_MODE;
     case 'navigational':
       return NAVIGATIONAL_VIEW_MODE;
     case 'profile':
       return PROFILE_VIEW_MODE;
     default:
-      return REALISTIC_VIEW_MODE;
+      return EXPLORATIONAL_VIEW_MODE;
   }
 };
 
 export const getViewModeScaling = (mode: ViewMode): ViewModeScaling => {
   switch (mode) {
-    case 'realistic':
-      return REALISTIC_VIEW_MODE.scaling;
+    case 'explorational':
+      return EXPLORATIONAL_VIEW_MODE.scaling;
     case 'navigational':
       return NAVIGATIONAL_VIEW_MODE.scaling;
     case 'profile':
       return PROFILE_VIEW_MODE.scaling;
     default:
-      return REALISTIC_VIEW_MODE.scaling;
+      return EXPLORATIONAL_VIEW_MODE.scaling;
   }
 }; 

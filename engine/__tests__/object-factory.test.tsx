@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
+import { expect, describe, it, vi } from 'vitest'
+import React from 'react'
 import { ObjectFactory } from '../object-factory'
 import type { CatalogObject } from '../system-loader'
 
