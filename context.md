@@ -57,4 +57,27 @@ This is a Next.js application for visualizing and interacting with celestial sys
 - ✅ **Test Infrastructure**: Comprehensive test suite with proper type safety
 - ✅ **Mode System**: Clean separation between realistic and Star Citizen universes
 - ✅ **Performance**: Built-in monitoring and automatic quality scaling
-- ✅ **Moon System**: Complete overhaul with proper orbital mechanics and hierarchical navigation 
+- ✅ **Moon System**: Complete overhaul with proper orbital mechanics and hierarchical navigation
+
+## ⚙️ Scripts
+
+- `npm run dev`: Starts the development server and opens `http://localhost:3000/viewer`.
+- `npm run dev:star-citizen`: Starts the development server and opens `http://localhost:3000/star-citizen`.
+- `npm run dev:realistic`: Starts the development server and opens `http://localhost:3000/realistic`.
+- `npm run build`: Builds the Next.js application for production.
+- `npm run start`: Starts the Next.js production server.
+- `npm run lint`: Runs ESLint to check for code quality issues.
+- `npm run type-check`: Runs TypeScript compiler to check for type errors.
+- `npm run test`: Runs all Vitest tests.
+- `npm run test:modes`: Runs Vitest tests specific to view modes.
+- `npm run test:view-modes`: Runs Vitest tests specific to modes.
+- `npm run test:engine`: Runs Vitest tests specific to the engine.
+- `npm run test:shaders`: Runs Vitest tests specific to shaders.
+- `npm run test:camera`: Runs Vitest tests specific to the camera.
+- `npm run test:data`: Runs Vitest tests specific to data integrity.
+- `npm run test:objects`: Runs Vitest tests specific to objects.
+- `npm run test:setup`: Runs Vitest tests specific to setup.
+- `npm run test:features`: Runs Vitest tests specific to features.
+- `npm run test:coverage`: Runs Vitest with code coverage reporting.
+- `npm run test:watch`: Runs Vitest in watch mode.
+- `npm run test:profile`: Runs profiling tests. 

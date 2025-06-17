@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev ; Start-Sleep -Seconds 30; open-cli http://localhost:3000/viewer/terrestrial-rocky",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -21,7 +21,9 @@
     "test:features": "vitest run __tests__/suites/features.test.ts",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "test:profile": "node run-profile-tests.js"
+    "test:profile": "node run-profile-tests.js",
+    "dev:star-citizen": "next dev ; Start-Sleep -Seconds 30; open-cli http://localhost:3000/star-citizen",
+    "dev:realistic": "next dev ; Start-Sleep -Seconds 30; open-cli http://localhost:3000/realistic"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -107,6 +109,7 @@
     "glob": "^11.0.2",
     "identity-obj-proxy": "^3.0.0",
     "jsdom": "^26.1.0",
+    "open-cli": "^8.0.0",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5",

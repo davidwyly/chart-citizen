@@ -191,75 +191,65 @@ Node.js 18+ and pnpm (recommended)
 ### **Installation & Development**
 ```bash
 # Install dependencies
-pnpm install
+pnpm install --no-optional
 
 # Start development server
 pnpm dev
 
-# Run tests
+# Start development server for Star Citizen mode
+pnpm dev:star-citizen
+
+# Start development server for Realistic mode
+pnpm dev:realistic
+
+# Run all tests
 pnpm test
+
+# Run tests for specific modes
+pnpm test:modes
+
+# Run tests for specific view modes
+pnpm test:view-modes
+
+# Run tests for the engine
+pnpm test:engine
+
+# Run tests for shaders
+pnpm test:shaders
+
+# Run tests for camera
+pnpm test:camera
+
+# Run tests for data integrity
+pnpm test:data
+
+# Run tests for objects
+pnpm test:objects
+
+# Run tests for setup
+pnpm test:setup
+
+# Run tests for features
+pnpm test:features
+
+# Run tests with coverage report
+pnpm test:coverage
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run profiling tests
+pnpm test:profile
 
 # Build for production
 pnpm build
 
-# Type checking
-pnpm type-check
+# Start production server
+pnpm start
 
 # Linting
 pnpm lint
+
+# Type checking
+pnpm type-check
 ```
-
-### **Available Routes**
-- `/` - Landing page
-- `/realistic` - Realistic universe simulation
-- `/star-citizen` - Star Citizen universe simulation
-- `/viewer/[objectType]` - Individual celestial viewer
-
-## 📁 Adding New Features
-
-### **New Celestial Object Type**
-1. Create `engine/renderers/[object-type]/` directory
-2. Implement renderer component with proper TypeScript types
-3. Add to `engine/object-factory.tsx` registry
-4. Add catalog data to `public/data/shared/object-catalog/`
-5. Write tests in `engine/renderers/[object-type]/__tests__/`
-
-### **Adding Visual Effects**
-1. Create Effect Component: In `engine/renderers/[object-type]/effects/`, create `[effect-name].tsx`.
-2. Create Associated Material (if needed): In `engine/renderers/[object-type]/materials/`, create `[purpose]-material.ts`.
-3. Integrate in Renderer: In the main renderer component, add `<NewEffect ... />`.
-
-### **New UI Component**
-1. Create component in appropriate `components/` subdirectory
-2. Export from `components/index.ts` if reusable
-3. Add context entry to local `context.md`
-4. Include tests alongside component file
-
-### **New Mode/Universe**
-1. Add mode directory under `app/[mode]/[new-mode]/`
-2. Create mode view component
-3. Add data files under `public/data/[new-mode]/`
-4. Update mode validation in `app/[mode]/page.tsx`
-5. Add feature documentation in `docs/features/`
-
-## 🏗️ Architecture Principles
-
-1. **Separation of Concerns**: Clear boundaries between UI, engine, and data layers
-2. **Type Safety**: Comprehensive TypeScript coverage with strict configuration
-3. **Performance First**: Built-in monitoring and automatic quality scaling
-4. **Modular Design**: Component-based architecture for maintainability
-5. **Test-Driven**: Tests alongside all features and critical functionality
-6. **Documentation**: Living documentation that stays current with code
-
-## 🤝 Contributing
-
-1. **Read Context Files**: Each directory has a `context.md` explaining its purpose
-2. **Follow Patterns**: Use existing patterns for file organization and naming
-3. **Update Documentation**: Keep `context.md` files current when adding/changing files
-4. **Write Tests**: Include tests for new functionality
-5. **Type Safety**: Ensure all new code has proper TypeScript types
-6. **Performance**: Consider performance impact of new features
-
----
-
-**🌟 Chart Citizen** - Explore the universe, one star system at a time. 

@@ -18,14 +18,16 @@ This directory contains control components for the celestial viewer.
 - Optional descriptions for user guidance
 
 ### Terrestrial Controls
-- Seven parameter sliders for comprehensive planet customization
+- Eight parameter sliders for comprehensive planet customization
 - Default values with fallbacks for missing properties
 - Real-time shader parameter updates
 - Temperature-based visual effects
+- Terrain seed parameter for different distribution patterns
 
 ### Shader Editor
 - Live syntax validation before compilation
 - Real-time shader compilation and application
+- Automatic loading of existing shaders based on object type (terrestrial, gas_giant, star, etc.)
 - Example shader loading for learning
 - Full uniform support for all planet parameters
 - Error reporting with helpful messages

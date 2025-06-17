@@ -99,6 +99,18 @@ export function TerrestrialControls({ properties, onChange }: TerrestrialControl
         unit="%"
         description="Vegetation coverage and tint"
       />
+      
+      <ParameterSlider
+        id="seed"
+        label="Terrain Seed"
+        value={properties.seed || 0}
+        min={0}
+        max={1000}
+        step={1}
+        onChange={(value) => onChange('seed', value)}
+        unit=""
+        description="Change terrain distribution pattern"
+      />
     </div>
   )
 } 

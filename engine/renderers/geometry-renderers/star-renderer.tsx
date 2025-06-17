@@ -129,6 +129,18 @@ export function StarRenderer({
       setCurrentLuminosity(luminosity + variation)
     }
 
+    // Update custom shader uniforms if present
+    if (coreRef.current?.material && (coreRef.current.material as any).uniforms) {
+      const uniforms = (coreRef.current.material as any).uniforms
+      if (uniforms.time) uniforms.time.value = time
+      if (uniforms.intensity) uniforms.intensity.value = currentLuminosity
+      if (uniforms.luminosity) uniforms.luminosity.value = currentLuminosity
+      if (uniforms.colorTemperature) uniforms.colorTemperature.value = colorTemperature
+      if (uniforms.solarActivity) uniforms.solarActivity.value = solarActivity
+      if (uniforms.coronaThickness) uniforms.coronaThickness.value = coronaThickness
+      if (uniforms.variability) uniforms.variability.value = variability
+    }
+
     // Rotate star slowly
     if (starRef.current) {
       starRef.current.rotation.y += 0.001
@@ -179,12 +191,33 @@ export function StarRenderer({
         onDoubleClick={handleFocus}
       >
         <sphereGeometry args={[radius, 64, 64]} />
-        <meshStandardMaterial
-          map={starTexture}
-          color={starColor}
-          emissive={starColor}
-          emissiveIntensity={currentLuminosity}
-        />
+        {/* Use custom shader if available, otherwise use default star material */}
+        {(object as any).customShaders ? (
+          <shaderMaterial
+            vertexShader={(object as any).customShaders.vertex}
+            fragmentShader={(object as any).customShaders.fragment}
+            uniforms={{
+              time: { value: 0 },
+              intensity: { value: currentLuminosity },
+              speed: { value: 1.0 },
+              distortion: { value: 1.0 },
+              // Star specific uniforms
+              colorTemperature: { value: colorTemperature },
+              luminosity: { value: currentLuminosity },
+              solarActivity: { value: solarActivity },
+              coronaThickness: { value: coronaThickness },
+              variability: { value: variability }
+            }}
+            transparent
+          />
+        ) : (
+          <meshStandardMaterial
+            map={starTexture}
+            color={starColor}
+            emissive={starColor}
+            emissiveIntensity={currentLuminosity}
+          />
+        )}
       </mesh>
 
       {/* Corona effect */}

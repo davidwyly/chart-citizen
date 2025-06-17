@@ -40,7 +40,8 @@ export function TerrestrialRenderer({
   const rotationRate = 0.0002 / (properties.rotation_period || 24.0)
 
   // Extract all terrestrial properties with defaults
-  const soilTint = (properties.soil_tint || 45) / 100         // 0-1 range
+  const soilTint = (properties.soil_tint || 45) / 100
+  const seed = (properties.seed || 0) / 1000         // Normalize 0-1000 to 0-1 range
   const waterCoverage = (properties.water || 50) / 100        // 0-1 range  
   const temperatureClass = (properties.temperature_class || 50) / 100  // 0-1 range
   const tectonics = (properties.tectonics || 50) / 100        // 0-1 range
@@ -54,67 +55,82 @@ export function TerrestrialRenderer({
   const hasClouds = hasAtmosphere > 0 ? 1.0 : 0.0
   const hasNightLights = population > 0.1 ? 1.0 : 0.0
 
-  // Calculate temperature-dependent colors
-  const calculateSoilColor = () => {
-    // Base soil color affected by temperature and soil tint
-    const hotness = temperatureClass
-    const coolness = 1 - temperatureClass
-    const tint = soilTint
-    
-    // Cold: more blue/grey, Hot: more red/brown, Tint: varies hue
-    const r = 0.4 + hotness * 0.3 + tint * 0.2
-    const g = 0.3 + coolness * 0.2 + tint * 0.3
-    const b = 0.2 + coolness * 0.4 + (1 - tint) * 0.1
-    
-    return new THREE.Color(r, g, b)
-  }
-
-  const calculateOceanColor = () => {
-    // Ocean color affected by temperature
-    const hotness = temperatureClass
-    if (hotness < 0.33) {
-      // Cold = more ice-like
-      return new THREE.Color(0.7, 0.8, 0.9) // Ice blue
-    } else if (hotness > 0.66) {
-      // Hot = more tropical
-      return new THREE.Color(0.0, 0.5, 0.8) // Deep blue
-    } else {
-      // Temperate
-      return new THREE.Color(0.1, 0.6, 0.9) // Normal blue
-    }
-  }
-
-  const calculateFloraColor = () => {
-    // Flora color affected by population and temperature
-    const floraIntensity = flora * (1 - population * 0.5) // Less flora with more population
-    const hotness = temperatureClass
-    
-    if (hotness < 0.33) {
-      // Cold = more evergreen
-      return new THREE.Color(0.1 + floraIntensity * 0.2, 0.3 + floraIntensity * 0.4, 0.1)
-    } else if (hotness > 0.66) {
-      // Hot = more desert-like
-      return new THREE.Color(0.3 + floraIntensity * 0.3, 0.4 + floraIntensity * 0.3, 0.1)
-    } else {
-      // Temperate = lush green
-      return new THREE.Color(0.2 + floraIntensity * 0.3, 0.5 + floraIntensity * 0.3, 0.1 + floraIntensity * 0.1)
-    }
-  }
-
-  // Extract colors from properties with calculated variations
-  const landColor = calculateSoilColor()
-  const oceanColor = calculateOceanColor()
-  const sandColor = new THREE.Color(0.8 + soilTint * 0.2, 0.7 + soilTint * 0.2, 0.4 + soilTint * 0.1)
-  const floraColor = calculateFloraColor()
-  const cloudColor = new THREE.Color(1, 1, 1)
-  const nightLightColor = new THREE.Color(1, 1, 0.6)
-  const atmosphereColor = new THREE.Color(0.5, 0.7, 0.9)
-
-  // Calculate terrain parameters
-  const noiseScale = tectonics * 2.0 // More dramatic scaling
+  // Use refs to store colors and parameters that need to be updated in real-time
+  const landColorRef = useRef(new THREE.Color(0.4, 0.3, 0.2))
+  const oceanColorRef = useRef(new THREE.Color(0.1, 0.6, 0.9))
+  const sandColorRef = useRef(new THREE.Color(0.8, 0.7, 0.4))
+  const floraColorRef = useRef(new THREE.Color(0.2, 0.5, 0.1))
+  const atmosphereColorRef = useRef(new THREE.Color(0.5, 0.7, 0.9))
+  const nightLightColorRef = useRef(new THREE.Color(1, 1, 0.6))
+  const noiseScaleRef = useRef(2.0)
 
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime()
+
+    // Recalculate colors based on current properties for real-time updates
+    const calculateSoilColor = () => {
+      // Base soil color affected by temperature and soil tint
+      const hotness = temperatureClass
+      const coolness = 1 - temperatureClass
+      const tint = soilTint
+      
+      // Cold: more blue/grey, Hot: more red/brown, Tint: varies hue
+      const r = 0.4 + hotness * 0.3 + tint * 0.2
+      const g = 0.3 + coolness * 0.2 + tint * 0.3
+      const b = 0.2 + coolness * 0.4 + (1 - tint) * 0.1
+      
+      return new THREE.Color(r, g, b)
+    }
+
+    const calculateOceanColor = () => {
+      // Ocean color affected by temperature
+      const hotness = temperatureClass
+      if (hotness < 0.33) {
+        // Cold = more ice-like
+        return new THREE.Color(0.7, 0.8, 0.9) // Ice blue
+      } else if (hotness > 0.66) {
+        // Hot = more tropical
+        return new THREE.Color(0.0, 0.5, 0.8) // Deep blue
+      } else {
+        // Temperate
+        return new THREE.Color(0.1, 0.6, 0.9) // Normal blue
+      }
+    }
+
+    const calculateFloraColor = () => {
+      // Flora color affected by population and temperature
+      const floraIntensity = flora * (1 - population * 0.5) // Less flora with more population
+      const hotness = temperatureClass
+      
+      if (hotness < 0.33) {
+        // Cold = more evergreen
+        return new THREE.Color(0.1 + floraIntensity * 0.2, 0.3 + floraIntensity * 0.4, 0.1)
+      } else if (hotness > 0.66) {
+        // Hot = more desert-like
+        return new THREE.Color(0.3 + floraIntensity * 0.3, 0.4 + floraIntensity * 0.3, 0.1)
+      } else {
+        // Temperate = lush green
+        return new THREE.Color(0.2 + floraIntensity * 0.3, 0.5 + floraIntensity * 0.3, 0.1 + floraIntensity * 0.1)
+      }
+    }
+
+    // Calculate colors and parameters for this frame
+    const landColor = calculateSoilColor()
+    const oceanColor = calculateOceanColor()
+    const sandColor = new THREE.Color(0.8 + soilTint * 0.2, 0.7 + soilTint * 0.2, 0.4 + soilTint * 0.1)
+    const floraColor = calculateFloraColor()
+    const atmosphereColor = new THREE.Color(0.5, 0.7, 0.9)
+    const nightLightColor = new THREE.Color(1, 1, 0.6)
+    const noiseScale = tectonics * 2.0 // More dramatic scaling
+
+    // Update refs for use in JSX
+    landColorRef.current.copy(landColor)
+    oceanColorRef.current.copy(oceanColor)
+    sandColorRef.current.copy(sandColor)
+    floraColorRef.current.copy(floraColor)
+    atmosphereColorRef.current.copy(atmosphereColor)
+    nightLightColorRef.current.copy(nightLightColor)
+    noiseScaleRef.current = noiseScale
 
     if (materialRef.current) {
       // Update time for animations
@@ -129,11 +145,26 @@ export function TerrestrialRenderer({
         if (uniforms.population) uniforms.population.value = population
         if (uniforms.flora) uniforms.flora.value = flora
         if (uniforms.soilTint) uniforms.soilTint.value = soilTint
-        if (uniforms.landColor) uniforms.landColor.value = landColor
-        if (uniforms.seaColor) uniforms.seaColor.value = oceanColor
-        if (uniforms.floraColor) uniforms.floraColor.value = floraColor
+        if (uniforms.seed) uniforms.seed.value = seed
+        if (uniforms.landColor) uniforms.landColor.value = landColorRef.current
+        if (uniforms.seaColor) uniforms.seaColor.value = oceanColorRef.current
+        if (uniforms.floraColor) uniforms.floraColor.value = floraColorRef.current
+        if (uniforms.atmosphereColor) uniforms.atmosphereColor.value = atmosphereColorRef.current
+        if (uniforms.nightLightColor) uniforms.nightLightColor.value = nightLightColorRef.current
+        if (uniforms.sandColor) uniforms.sandColor.value = sandColorRef.current
         if (uniforms.nightLightIntensity) uniforms.nightLightIntensity.value = hasNightLights
-        if (uniforms.terrainScale) uniforms.terrainScale.value = noiseScale
+        if (uniforms.terrainScale) uniforms.terrainScale.value = noiseScaleRef.current
+        if (uniforms.rotationSpeed) uniforms.rotationSpeed.value = 0.2
+        if (uniforms.cloudScale) uniforms.cloudScale.value = 1.5
+        if (uniforms.cloudOpacity) uniforms.cloudOpacity.value = hasClouds * 0.6
+        
+        // Debug: Check for NaN/Infinity values that could cause black squares
+        if (isNaN(time) || !isFinite(time)) {
+          console.warn('Invalid time value detected:', time)
+        }
+        if (isNaN(seed) || !isFinite(seed)) {
+          console.warn('Invalid seed value detected:', seed)
+        }
       } else {
         // Default terrestrial material - update properties directly (with safety checks)
         if ('time' in materialRef.current) materialRef.current.time = time
@@ -144,11 +175,11 @@ export function TerrestrialRenderer({
         if ('population' in materialRef.current) materialRef.current.population = population
         if ('flora' in materialRef.current) materialRef.current.flora = flora
         if ('soilTint' in materialRef.current) materialRef.current.soilTint = soilTint
-        if ('landColor' in materialRef.current) materialRef.current.landColor = landColor
-        if ('seaColor' in materialRef.current) materialRef.current.seaColor = oceanColor
-        if ('floraColor' in materialRef.current) materialRef.current.floraColor = floraColor
+        if ('landColor' in materialRef.current) materialRef.current.landColor = landColorRef.current
+        if ('seaColor' in materialRef.current) materialRef.current.seaColor = oceanColorRef.current
+        if ('floraColor' in materialRef.current) materialRef.current.floraColor = floraColorRef.current
         if ('nightLightIntensity' in materialRef.current) materialRef.current.nightLightIntensity = hasNightLights
-        if ('terrainScale' in materialRef.current) materialRef.current.terrainScale = noiseScale
+        if ('terrainScale' in materialRef.current) materialRef.current.terrainScale = noiseScaleRef.current
 
         // Calculate light direction from star position for default material
         if ('lightDirection' in materialRef.current) {
@@ -171,14 +202,43 @@ export function TerrestrialRenderer({
     }
   })
 
-
-
   // Register ref for external access
   React.useEffect(() => {
     if (planetRef.current) {
       registerRef(object.id, planetRef.current)
     }
   }, [object.id, registerRef])
+
+  // Debug: Check for WebGL errors that might cause rendering artifacts
+  React.useEffect(() => {
+    const checkWebGLErrors = () => {
+      const canvas = document.querySelector('canvas')
+      if (canvas) {
+        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
+        if (gl) {
+          const error = gl.getError()
+          if (error !== gl.NO_ERROR) {
+            console.warn('WebGL error detected:', error, 'for object:', object.id)
+          }
+        }
+      }
+    }
+    
+    // Check for errors periodically
+    const interval = setInterval(checkWebGLErrors, 5000)
+    return () => clearInterval(interval)
+  }, [object.id])
+
+  // Debug: Log when custom shaders are being used
+  React.useEffect(() => {
+    if ((object as any).customShaders) {
+      console.log('Using custom shaders for object:', object.id)
+      console.log('Vertex shader length:', (object as any).customShaders.vertex.length)
+      console.log('Fragment shader length:', (object as any).customShaders.fragment.length)
+    } else {
+      console.log('Using default terrestrial material for object:', object.id)
+    }
+  }, [object.id, (object as any).customShaders])
 
   return (
     <InteractiveObject
@@ -207,12 +267,12 @@ export function TerrestrialRenderer({
               fragmentShader={(object as any).customShaders.fragment}
               uniforms={{
                 time: { value: 0 },
-                landColor: { value: landColor },
-                seaColor: { value: oceanColor },
-                floraColor: { value: floraColor },
-                atmosphereColor: { value: atmosphereColor },
-                nightLightColor: { value: nightLightColor },
-                sandColor: { value: sandColor },
+                landColor: { value: landColorRef.current },
+                seaColor: { value: oceanColorRef.current },
+                floraColor: { value: floraColorRef.current },
+                atmosphereColor: { value: atmosphereColorRef.current },
+                nightLightColor: { value: nightLightColorRef.current },
+                sandColor: { value: sandColorRef.current },
                 // Parameter uniforms
                 waterCoverage: { value: waterCoverage },
                 temperatureClass: { value: temperatureClass },
@@ -221,8 +281,9 @@ export function TerrestrialRenderer({
                 population: { value: population },
                 flora: { value: flora },
                 soilTint: { value: soilTint },
+                seed: { value: seed },
                 rotationSpeed: { value: 0.2 },
-                terrainScale: { value: noiseScale },
+                terrainScale: { value: noiseScaleRef.current },
                 cloudScale: { value: 1.5 },
                 nightLightIntensity: { value: hasNightLights },
                 cloudOpacity: { value: hasClouds * 0.6 }
@@ -233,14 +294,14 @@ export function TerrestrialRenderer({
             /* @ts-ignore */
             <terrestrialPlanetMaterial
               ref={materialRef}
-              landColor={landColor}
-              seaColor={oceanColor}
-              sandColor={sandColor}
-              floraColor={floraColor}
-              atmosphereColor={atmosphereColor}
-              nightLightColor={nightLightColor}
+              landColor={landColorRef.current}
+              seaColor={oceanColorRef.current}
+              sandColor={sandColorRef.current}
+              floraColor={floraColorRef.current}
+              atmosphereColor={atmosphereColorRef.current}
+              nightLightColor={nightLightColorRef.current}
               rotationSpeed={0.2}
-              terrainScale={noiseScale}
+              terrainScale={noiseScaleRef.current}
               cloudScale={1.5}
               // Use our calculated parameters
               waterCoverage={waterCoverage}

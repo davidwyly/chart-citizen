@@ -32,7 +32,7 @@ export function GasGiantRenderer({
   const planetRef = useRef<THREE.Group>(null)
   const surfaceRef = useRef<THREE.Mesh>(null)
   const atmosphereRef = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<THREE.ShaderMaterial>(null!)
+  const materialRef = useRef<THREE.ShaderMaterial | any>(null!)
 
   const { properties } = object
   const radius = scale
@@ -132,19 +132,44 @@ export function GasGiantRenderer({
     const time = clock.getElapsedTime()
 
     if (materialRef.current) {
-      materialRef.current.uniforms.time.value = time
-      materialRef.current.uniforms.stormIntensity.value = stormIntensity
-      materialRef.current.uniforms.bandCount.value = bandCount
+      // Handle both custom shader materials and gas giant materials
+      if (materialRef.current.uniforms) {
+        // Custom shader material - update uniforms (with safety checks)
+        const uniforms = materialRef.current.uniforms
+        if (uniforms.time) uniforms.time.value = time
+        if (uniforms.stormIntensity) uniforms.stormIntensity.value = stormIntensity
+        if (uniforms.bandCount) uniforms.bandCount.value = bandCount
+        if (uniforms.intensity) uniforms.intensity.value = shaderParams?.intensity || 1.0
+        if (uniforms.speed) uniforms.speed.value = shaderParams?.speed || 1.0
+        if (uniforms.distortion) uniforms.distortion.value = shaderParams?.distortion || 1.0
 
-      // Calculate light direction from star position
-      const sunPosition = new THREE.Vector3(...starPosition)
-      const planetPosition = new THREE.Vector3()
-      if (planetRef.current) {
-        planetRef.current.getWorldPosition(planetPosition)
+        // Calculate light direction from star position for custom shaders
+        if (uniforms.lightDirection) {
+          const sunPosition = new THREE.Vector3(...starPosition)
+          const planetPosition = new THREE.Vector3()
+          if (planetRef.current) {
+            planetRef.current.getWorldPosition(planetPosition)
+          }
+          const lightDirection = new THREE.Vector3().subVectors(sunPosition, planetPosition).normalize()
+          uniforms.lightDirection.value = lightDirection
+        }
+      } else {
+        // Default gas giant material - update properties directly
+        if ('time' in materialRef.current) materialRef.current.time = time
+        if ('stormIntensity' in materialRef.current) materialRef.current.stormIntensity = stormIntensity
+        if ('bandCount' in materialRef.current) materialRef.current.bandCount = bandCount
+
+        // Calculate light direction from star position for default material
+        if ('lightDirection' in materialRef.current) {
+          const sunPosition = new THREE.Vector3(...starPosition)
+          const planetPosition = new THREE.Vector3()
+          if (planetRef.current) {
+            planetRef.current.getWorldPosition(planetPosition)
+          }
+          const lightDirection = new THREE.Vector3().subVectors(sunPosition, planetPosition).normalize()
+          materialRef.current.lightDirection = lightDirection.toArray()
+        }
       }
-
-      const lightDirection = new THREE.Vector3().subVectors(sunPosition, planetPosition).normalize()
-      materialRef.current.uniforms.lightDirection.value = lightDirection
     }
 
 
@@ -183,19 +208,44 @@ export function GasGiantRenderer({
         {/* Main gas giant surface */}
         <mesh ref={surfaceRef}>
           <sphereGeometry args={[radius, 128, 128]} />
-          {/* @ts-ignore */}
-          <gasGiantMaterial
-            ref={materialRef}
-            map={surfaceTexture}
-            normalMap={normalTexture}
-            time={0}
-            stormIntensity={stormIntensity}
-            bandCount={bandCount}
-            atmosphereThickness={0.3}
-            lightDirection={[1.0, 1.0, 0.8]}
-            atmosphereColor={[1.0, 0.7, 0.4]}
-            rotationSpeed={0.02}
-          />
+          {/* Use custom shader if available, otherwise use default gas giant material */}
+          {false ? (
+            <shaderMaterial
+              ref={materialRef}
+              vertexShader={(object as any).customShaders.vertex}
+              fragmentShader={(object as any).customShaders.fragment}
+              uniforms={{
+                time: { value: 0 },
+                intensity: { value: 1.0 },
+                speed: { value: 1.0 },
+                distortion: { value: 1.0 },
+                // Gas giant specific uniforms
+                map: { value: surfaceTexture },
+                normalMap: { value: normalTexture },
+                stormIntensity: { value: stormIntensity },
+                bandCount: { value: bandCount },
+                atmosphereThickness: { value: 0.3 },
+                lightDirection: { value: new THREE.Vector3(1.0, 1.0, 0.8) },
+                atmosphereColor: { value: new THREE.Vector3(1.0, 0.7, 0.4) },
+                rotationSpeed: { value: 0.02 }
+              }}
+              transparent
+            />
+          ) : (
+            /* @ts-ignore */
+            <gasGiantMaterial
+              ref={materialRef}
+              map={surfaceTexture}
+              normalMap={normalTexture}
+              time={0}
+              stormIntensity={stormIntensity}
+              bandCount={bandCount}
+              atmosphereThickness={0.3}
+              lightDirection={[1.0, 1.0, 0.8]}
+              atmosphereColor={[1.0, 0.7, 0.4]}
+              rotationSpeed={0.02}
+            />
+          )}
         </mesh>
 
         {/* Atmospheric layers */}

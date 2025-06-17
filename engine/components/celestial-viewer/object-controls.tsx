@@ -36,6 +36,315 @@ interface ObjectControlsProps {
   onToggleStats: () => void
 }
 
+// Utility function to get existing shaders based on object type
+const getExistingShaders = (celestialObject?: CelestialObject | null): { vertex: string, fragment: string } => {
+  if (!celestialObject) {
+    return { vertex: '', fragment: '' }
+  }
+
+  const objectType = celestialObject.geometry_type
+  
+  // Basic vertex shader used by most objects
+  const basicVertexShader = `
+varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+void main() {
+  vUv = uv;
+  vNormal = normalize(normalMatrix * normal);
+  vPosition = position;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`
+
+  // Terrestrial planet shader
+  const terrestrialFragmentShader = `
+uniform float time;
+uniform vec3 landColor;
+uniform vec3 seaColor;
+uniform vec3 floraColor;
+uniform vec3 atmosphereColor;
+uniform vec3 nightLightColor;
+uniform vec3 sandColor;
+uniform float waterCoverage;
+uniform float temperatureClass;
+uniform float tectonics;
+uniform float geomagnetism;
+uniform float population;
+uniform float flora;
+uniform float soilTint;
+uniform float seed;
+uniform float rotationSpeed;
+uniform float terrainScale;
+uniform float cloudScale;
+uniform float nightLightIntensity;
+uniform float cloudOpacity;
+
+varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+// Noise functions
+float hash(float n) {
+  return fract(sin(n) * 43758.5453123);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float n = i.x + i.y * 57.0;
+  return mix(
+    mix(hash(n), hash(n + 1.0), f.x),
+    mix(hash(n + 57.0), hash(n + 58.0), f.x),
+    f.y
+  );
+}
+
+float fbm(vec2 p) {
+  float value = 0.0;
+  float amplitude = 0.5;
+  float frequency = 1.0;
+  
+  for (int i = 0; i < 6; i++) {
+    value += amplitude * noise(p * frequency);
+    amplitude *= 0.5;
+    frequency *= 2.0;
+  }
+  
+  return value;
+}
+
+void main() {
+  // Base terrain with seed offset
+  vec2 uv = vUv + time * 0.01;
+  vec2 seedOffset = vec2(seed * 0.1, seed * 0.07);
+  float terrain = fbm((uv + seedOffset) * terrainScale * (1.0 + tectonics));
+  
+  // Clouds with different seed offset
+  vec2 cloudSeedOffset = vec2(seed * 0.13, seed * 0.11);
+  float cloudNoise = fbm((uv + cloudSeedOffset) * cloudScale + time * 0.1);
+  float clouds = smoothstep(0.4, 0.6, cloudNoise);
+  
+  // Water/land separation
+  float waterLevel = 1.0 - waterCoverage;
+  float isWater = step(waterLevel, terrain);
+  
+  // Base colors
+  vec3 waterColor = mix(seaColor, landColor * 0.3, geomagnetism * 0.2);
+  vec3 landBaseColor = mix(landColor, sandColor, soilTint);
+  vec3 vegetationColor = mix(landBaseColor, floraColor, flora);
+  
+  // Temperature effects
+  vec3 tempColor = mix(vec3(0.5, 0.7, 1.0), vec3(1.0, 0.5, 0.3), temperatureClass);
+  vec3 surfaceColor = mix(waterColor, vegetationColor, isWater);
+  surfaceColor = mix(surfaceColor, tempColor, 0.1 * temperatureClass);
+  
+  // Population lights (visible in darker areas)
+  float populationGlow = population * smoothstep(0.6, 0.8, terrain) * (1.0 - isWater);
+  surfaceColor += nightLightColor * populationGlow * nightLightIntensity * 0.3;
+  
+  // Cloud layer
+  surfaceColor = mix(surfaceColor, vec3(0.9, 0.95, 1.0), clouds * cloudOpacity);
+  
+  // Ice caps at poles based on temperature
+  float tempNorm = clamp(temperatureClass, 0.0, 1.0);
+  float iceLatitudeThreshold = tempNorm * 0.9;
+  vec2 iceSeedOffset = vec2(seed * 0.05, seed * 0.03);
+  float iceEdgeNoise = fbm(vNormal.xz * 5.0 + iceSeedOffset + time * 0.1) * 0.05;
+  float distanceFromPoles = 1.0 - abs(vNormal.y);
+  float poleMask = smoothstep(iceLatitudeThreshold + 0.05 + iceEdgeNoise, iceLatitudeThreshold - 0.05 + iceEdgeNoise, distanceFromPoles);
+  poleMask *= isWater;
+  vec3 iceColor = vec3(0.92, 0.96, 1.0);
+  surfaceColor = mix(surfaceColor, iceColor, poleMask);
+  
+  // Simple lighting
+  float lighting = dot(vNormal, normalize(vec3(1.0, 1.0, 1.0))) * 0.5 + 0.5;
+  
+  gl_FragColor = vec4(surfaceColor * lighting, 1.0);
+}
+`
+
+  // Gas giant shader
+  const gasGiantFragmentShader = `
+uniform float time;
+uniform float intensity;
+uniform float speed;
+uniform float distortion;
+uniform vec3 landColor;
+uniform vec3 seaColor;
+
+varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+float hash(float n) {
+  return fract(sin(n) * 43758.5453123);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float n = i.x + i.y * 57.0;
+  return mix(
+    mix(hash(n), hash(n + 1.0), f.x),
+    mix(hash(n + 57.0), hash(n + 58.0), f.x),
+    f.y
+  );
+}
+
+void main() {
+  vec2 uv = vUv;
+  
+  // Create horizontal bands
+  float bands = sin(uv.y * 12.0 + time * speed * 0.5) * 0.5 + 0.5;
+  
+  // Add turbulence
+  float turbulence = noise(uv * 8.0 + vec2(time * speed * 0.1, 0.0));
+  bands += turbulence * 0.3;
+  
+  // Storm spots
+  vec2 stormUv = uv * 4.0 + vec2(time * speed * 0.05, 0.0);
+  float storms = smoothstep(0.7, 0.9, noise(stormUv));
+  
+  // Color mixing
+  vec3 bandColor1 = landColor;
+  vec3 bandColor2 = seaColor;
+  vec3 stormColor = vec3(1.0, 0.8, 0.6);
+  
+  vec3 color = mix(bandColor1, bandColor2, bands);
+  color = mix(color, stormColor, storms * 0.6);
+  
+  // Atmospheric glow
+  float glow = pow(1.0 - abs(dot(vNormal, normalize(vPosition))), 2.0);
+  color += vec3(0.3, 0.4, 0.6) * glow * 0.5;
+  
+  gl_FragColor = vec4(color * intensity, 1.0);
+}
+`
+
+  // Star shader
+  const starFragmentShader = `
+uniform float time;
+uniform float intensity;
+uniform float speed;
+uniform float distortion;
+uniform vec3 landColor;
+
+varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+float hash(float n) {
+  return fract(sin(n) * 43758.5453123);
+}
+
+float noise(vec3 p) {
+  vec3 i = floor(p);
+  vec3 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float n = i.x + i.y * 57.0 + 113.0 * i.z;
+  return mix(
+    mix(
+      mix(hash(n), hash(n + 1.0), f.x),
+      mix(hash(n + 57.0), hash(n + 58.0), f.x),
+      f.y
+    ),
+    mix(
+      mix(hash(n + 113.0), hash(n + 114.0), f.x),
+      mix(hash(n + 170.0), hash(n + 171.0), f.x),
+      f.y
+    ),
+    f.z
+  );
+}
+
+float fbm(vec3 p) {
+  float value = 0.0;
+  float amplitude = 0.5;
+  
+  for (int i = 0; i < 5; i++) {
+    value += amplitude * noise(p);
+    p *= 2.0;
+    amplitude *= 0.5;
+  }
+  
+  return value;
+}
+
+void main() {
+  vec3 p = vPosition * 2.0 + vec3(0.0, 0.0, time * speed * 0.05);
+  float n = fbm(p);
+  
+  // Solar flares
+  float flares = fbm(p * 1.5 + vec3(time * speed * 0.1, 0.0, 0.0));
+  flares = pow(max(0.0, flares), 2.0);
+  
+  // Core color
+  vec3 coreColor = landColor * intensity;
+  vec3 flareColor = vec3(1.5, 1.2, 1.0) * coreColor;
+  
+  vec3 color = mix(coreColor, flareColor, flares * 0.7);
+  
+  // Add surface variation
+  color *= (0.8 + 0.4 * n);
+  
+  // Corona effect
+  float corona = pow(1.0 - abs(dot(vNormal, normalize(vPosition))), 3.0);
+  color += coreColor * corona * 0.5;
+  
+  gl_FragColor = vec4(color, 1.0);
+}
+`
+
+  // Default/simple shader for other objects
+  const defaultFragmentShader = `
+uniform float time;
+uniform float intensity;
+uniform vec3 landColor;
+uniform vec3 seaColor;
+
+varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+void main() {
+  // Simple procedural surface
+  float pattern = sin(vUv.x * 10.0 + time) * sin(vUv.y * 10.0 + time * 0.5) * 0.5 + 0.5;
+  
+  vec3 color = mix(seaColor, landColor, pattern);
+  
+  // Simple lighting
+  float lighting = dot(vNormal, normalize(vec3(1.0, 1.0, 1.0))) * 0.5 + 0.5;
+  
+  gl_FragColor = vec4(color * lighting * intensity, 1.0);
+}
+`
+
+  // Select shader based on object type
+  switch (objectType) {
+    case 'terrestrial':
+      return { vertex: basicVertexShader, fragment: terrestrialFragmentShader }
+    
+    case 'gas_giant':
+      return { vertex: basicVertexShader, fragment: gasGiantFragmentShader }
+    
+    case 'star':
+      return { vertex: basicVertexShader, fragment: starFragmentShader }
+    
+    case 'rocky':
+    case 'compact':
+    case 'exotic':
+    case 'ring':
+    case 'belt':
+    case 'none':
+    default:
+      return { vertex: basicVertexShader, fragment: defaultFragmentShader }
+  }
+}
+
 export function ObjectControls({
   selectedObjectId,
   celestialObject,
@@ -133,13 +442,17 @@ export function ObjectControls({
       {getGeometryControls()}
 
       {/* Live Shader Editor */}
-      {celestialObject && onShaderUpdate && (
-        <ShaderEditor 
-          onShaderUpdate={onShaderUpdate}
-          currentVertexShader=""
-          currentFragmentShader=""
-        />
-      )}
+      {celestialObject && onShaderUpdate && (() => {
+        const existingShaders = getExistingShaders(celestialObject)
+        return (
+          <ShaderEditor 
+            onShaderUpdate={onShaderUpdate}
+            currentVertexShader={existingShaders.vertex}
+            currentFragmentShader={existingShaders.fragment}
+            objectType={celestialObject.geometry_type}
+          />
+        )
+      })()}
 
       {/* Protostar-specific Properties */}
       {isProtostar && (
