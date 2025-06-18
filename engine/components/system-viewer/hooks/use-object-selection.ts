@@ -97,10 +97,8 @@ export function useObjectSelection(
     if (!isSameObject && !isPaused) {
       pauseSimulation()
       waitingForAnimationRef.current = true
-    } else if (isSameObject && isPaused) {
-      // If selecting the same object and we're paused, unpause immediately
-      unpauseSimulation()
     }
+    // Note: Clicking a paused object should NOT unpause it (removed unpause logic)
 
     setState(prev => {
       // Store previous state when selecting a planet in game view

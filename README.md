@@ -1,6 +1,6 @@
 # 🪐 Chart Citizen – Interactive Celestial System Explorer
 
-Chart Citizen is an interactive web application for exploring and visualizing celestial systems in 3D. Built with **Next.js 14**, **React Three Fiber**, and a custom **Celestial Rendering Engine**, it provides scientifically accurate and game-inspired universe simulations.
+Chart Citizen is an interactive web application for exploring and visualizing celestial systems in 3D. Built with **Next.js**, **React Three Fiber**, and a custom **Celestial Rendering Engine**, it provides scientifically accurate and game-inspired universe simulations.
 
 ## 🗂️ Project Structure
 
@@ -20,14 +20,7 @@ chart-citizen/
 │   │   ├── stars/                  # Star rendering system
 │   │   │   ├── star-renderer.tsx   # Main star renderer component
 │   │   │   ├── materials/          # Star-specific shader materials
-│   │   │   │   ├── sun-material.ts
-│   │   │   │   ├── prominence-material.ts
-│   │   │   │   ├── star-corona-material.ts
-│   │   │   │   └── lens-flare-shader.ts
 │   │   │   └── effects/            # Star visual effects
-│   │   │       ├── solar-prominences.tsx
-│   │   │       ├── star-corona.tsx
-│   │   │       └── procedural-lens-flare.tsx
 │   │   ├── planets/                # Planet rendering system
 │   │   │   ├── planet-renderer.tsx     # Basic terrestrial planet renderer
 │   │   │   ├── gas-giant-renderer.tsx  # Specialized gas giant renderer
@@ -181,76 +174,3 @@ const renderer = ObjectFactory.createRenderer(catalogObject)
 - **Component Tests**: Component-specific test files alongside source
 - **Integration Tests**: `__tests__/suites/` - End-to-end feature testing
 - **Quality Assurance**: Automated linting and type checking
-
-## 🚀 Getting Started
-
-### **Prerequisites**
-```bash
-Node.js 18+ and pnpm (recommended)
-```
-
-### **Installation & Development**
-```bash
-# Install dependencies
-pnpm install --no-optional
-
-# Start development server
-pnpm dev
-
-# Start development server for Star Citizen mode
-pnpm dev:star-citizen
-
-# Start development server for Realistic mode
-pnpm dev:realistic
-
-# Run all tests
-pnpm test
-
-# Run tests for specific modes
-pnpm test:modes
-
-# Run tests for specific view modes
-pnpm test:view-modes
-
-# Run tests for the engine
-pnpm test:engine
-
-# Run tests for shaders
-pnpm test:shaders
-
-# Run tests for camera
-pnpm test:camera
-
-# Run tests for data integrity
-pnpm test:data
-
-# Run tests for objects
-pnpm test:objects
-
-# Run tests for setup
-pnpm test:setup
-
-# Run tests for features
-pnpm test:features
-
-# Run tests with coverage report
-pnpm test:coverage
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run profiling tests
-pnpm test:profile
-
-# Build for production
-pnpm build
-
-# Start production server
-pnpm start
-
-# Linting
-pnpm lint
-
-# Type checking
-pnpm type-check
-```

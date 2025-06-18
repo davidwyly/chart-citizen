@@ -119,12 +119,12 @@ describe('useObjectSelection pause/unpause behavior', () => {
 
     expect(mockPauseSimulation).toHaveBeenCalledTimes(0) // Should not pause again
 
-    // Select the same object again while paused - should unpause immediately
+    // Select the same object again while paused - should NOT unpause
     act(() => {
       result.current.handleObjectSelect('earth', mockObject, 'Earth')
     })
 
-    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1) // Should unpause immediately
+    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(0) // Should NOT unpause
   })
 
   it('should maintain consistent behavior regardless of initial pause state', () => {
@@ -164,7 +164,7 @@ describe('useObjectSelection pause/unpause behavior', () => {
     expect(mockUnpauseSimulation).toHaveBeenCalledTimes(0)
   })
 
-  it('should unpause immediately when selecting the same object while paused', () => {
+  it('should NOT unpause when selecting the same object while paused', () => {
     const { result } = renderHook(() => 
       useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, true)
     )
@@ -179,13 +179,13 @@ describe('useObjectSelection pause/unpause behavior', () => {
     expect(mockPauseSimulation).toHaveBeenCalledTimes(0)
     expect(mockUnpauseSimulation).toHaveBeenCalledTimes(0)
 
-    // Select the same object again while paused - should unpause immediately
+    // Select the same object again while paused - should NOT unpause
     act(() => {
       result.current.handleObjectSelect('earth', mockObject, 'Earth')
     })
 
     expect(mockPauseSimulation).toHaveBeenCalledTimes(0)
-    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1)
+    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(0)
   })
 
   describe('Camera Framing Consistency - Race Condition Prevention', () => {
