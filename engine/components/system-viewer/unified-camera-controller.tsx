@@ -43,9 +43,22 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     const lastObjectPositionRef = useRef<THREE.Vector3>(new THREE.Vector3())
     const initialViewSetRef = useRef(false)
     const currentObjectPropertiesRef = useRef<DualObjectProperties | null>(null)
+    // Track last object that triggered a focus animation so we can debounce
+    const lastFocusedRef = useRef<THREE.Object3D | null>(null)
 
     useEffect(() => {
       controlsRef.current = controls
+      // Listen to user interaction start on controls to stop following
+      if (controls) {
+        const handleStart = () => {
+          // When user starts interacting manually, stop automatic following
+          isFollowingRef.current = false
+        }
+        controls.addEventListener('start', handleStart)
+        return () => {
+          controls.removeEventListener('start', handleStart)
+        }
+      }
     }, [controls])
 
     // Get current view mode configuration (memoized to prevent excessive re-calculations)
@@ -131,7 +144,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
       const originalPosition = camera.position.clone()
       const originalTarget = controlsRef.current.target.clone()
 
-      // Disable controls during animation
+      // Disable controls during animation, remember previous state
+      const previousEnabled = controlsRef.current.enabled
       controlsRef.current.enabled = false
 
       const startTime = Date.now()
@@ -173,9 +187,9 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
             controlsRef.current.saveState()
           }
 
-          // Re-enable controls
+          // Re-enable controls, restore previous enabled state
           if (controlsRef.current) {
-            controlsRef.current.enabled = true
+            controlsRef.current.enabled = previousEnabled
           }
 
           if (onAnimationComplete) {
@@ -254,7 +268,15 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
 
     // Handle object focus with unified logic
     useEffect(() => {
+      // Debounce: if we are already animating towards the same object, ignore
+      if (animatingRef.current && focusObject && focusObject === lastFocusedRef.current) {
+        return
+      }
+
       if (focusObject && controlsRef.current && focusName) {
+        // Update last focused reference
+        lastFocusedRef.current = focusObject
+
         const position = new THREE.Vector3()
         focusObject.getWorldPosition(position)
 
@@ -305,7 +327,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         const originalTarget = controlsRef.current.target.clone()
         const originalPosition = camera.position.clone()
 
-        // Disable controls during animation
+        // Disable controls during animation, remember previous state
+        const previousEnabled = controlsRef.current.enabled
         controlsRef.current.enabled = false
 
         // Store initial object position
@@ -364,6 +387,16 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
             return
           }
 
+          // CAMERA FIX: Check if we're still supposed to be animating to this object
+          if (!focusObject || !isFollowingRef.current) {
+            console.warn("Animation stopped: focus object changed or following stopped.")
+            animatingRef.current = false
+            if (controlsRef.current) {
+              controlsRef.current.enabled = true
+            }
+            return
+          }
+
           // Interpolate camera position and target
           camera.position.lerpVectors(originalPosition, newPosition, easeProgress)
           controlsRef.current.target.lerpVectors(originalTarget, newTarget, easeProgress)
@@ -388,9 +421,9 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
               controlsRef.current.saveState()
             }
 
-            // Re-enable controls
-            if (controlsRef.current) { // Defensive check
-              controlsRef.current.enabled = true
+            // Re-enable controls, restore previous enabled state
+            if (controlsRef.current) {
+              controlsRef.current.enabled = previousEnabled
             }
 
             // Update last position
@@ -414,25 +447,40 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, camera, viewConfig, createEasingFunction, onAnimationComplete])
 
     // Continuously follow the focused object
+    // CAMERA FIX: Added more restrictive conditions to prevent jittering
     useFrame(() => {
-      if (focusObject && controlsRef.current && isFollowingRef.current && !animatingRef.current) {
+      if (focusObject && 
+          controlsRef.current && 
+          isFollowingRef.current && 
+          !animatingRef.current &&
+          controlsRef.current.enabled) { // Only follow when controls are enabled
+        
         const currentPosition = new THREE.Vector3()
         focusObject.getWorldPosition(currentPosition)
 
         // Calculate movement delta
         const deltaPosition = new THREE.Vector3().subVectors(currentPosition, lastObjectPositionRef.current)
 
-        // Only move if there's significant movement to avoid jitter
-        if (deltaPosition.length() > 0.001) {
-          // Move both camera and target by the same delta
-          camera.position.add(deltaPosition)
-          controlsRef.current.target.add(deltaPosition)
+        // Apply smooth interpolation rather than hard threshold to avoid choppy motion
+        const followSmoothing = 0.2 // between 0 (hard snap) and 1 (no movement)
 
-          // Update controls
-          controlsRef.current.update()
+        // Desired new positions
+        const desiredCameraPos = camera.position.clone().add(deltaPosition)
+        const desiredTargetPos = controlsRef.current.target.clone().add(deltaPosition)
 
-          // Update stored position
-          lastObjectPositionRef.current.copy(currentPosition)
+        // Lerp towards desired positions for smoother motion
+        camera.position.lerp(desiredCameraPos, followSmoothing)
+        controlsRef.current.target.lerp(desiredTargetPos, followSmoothing)
+
+        // Update controls
+        controlsRef.current.update()
+
+        // Update stored position so deltas stay small
+        lastObjectPositionRef.current.copy(currentPosition)
+
+        // Safety: ensure controls are enabled after animations
+        if (!controlsRef.current.enabled) {
+          controlsRef.current.enabled = true
         }
       }
     })

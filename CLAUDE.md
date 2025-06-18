@@ -13,6 +13,16 @@ Chart Citizen is an interactive 3D celestial system explorer built with:
 
 The app provides both scientifically accurate ("Reality" mode) and game-inspired ("Star Citizen" mode) universe simulations, as well as an interactive 3D model viewer ("Celestial Viewer"). These apps are all designed to be be independent of one another, using the celestial rendering engine as a dependency, and the celestial rendering engine should have no tight coupling with the other apps.
 
+## Mandatory Rules
+
+1. Fully research the task and its context.
+2. Understand all data flows, causes, and effects.
+3. Plan thoroughly before taking action.
+4. Make small, confident, low-risk changes.
+5. Use TDD for tests (red, green, refactor).
+6. Write clean, SOLID, DRY, testable code.
+7. Check README.md or docs when unsure.
+
 ## Essential Commands
 
 ```bash

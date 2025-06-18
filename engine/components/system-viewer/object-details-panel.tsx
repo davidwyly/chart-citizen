@@ -446,4 +446,4 @@ export function ObjectDetailsPanel({
       )}
     </div>
   )
-} 
+}

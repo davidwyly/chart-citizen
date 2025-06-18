@@ -15,7 +15,6 @@ interface ObjectSelectionState {
   focusedObjectRadius: number | null
   focusedObjectMass: number | null
   focusedObjectOrbitRadius: number | null
-  objectRefsMap: Map<string, THREE.Object3D>
 }
 
 export function useObjectSelection(
@@ -36,11 +35,10 @@ export function useObjectSelection(
     focusedObjectRadius: null,
     focusedObjectMass: null,
     focusedObjectOrbitRadius: null,
-    objectRefsMap: new Map()
   })
 
   // Store previous state when selecting a planet in game view
-  const previousStateRef = useRef<ObjectSelectionState | null>(null)
+  const previousStateRef = useRef<ObjectSelectionState & { objectRefsMap?: Map<string, THREE.Object3D> } | null>(null)
 
   // Store refs to all objects in the scene for parent-child relationships
   const objectRefsMap = useRef<Map<string, THREE.Object3D>>(new Map())
@@ -88,6 +86,11 @@ export function useObjectSelection(
     // Check if we're selecting the same object
     const isSameObject = state.selectedObjectId === objectId
 
+    // If we're already animating towards this object, ignore subsequent selects
+    if (isSameObject && waitingForAnimationRef.current) {
+      return
+    }
+
     // Only pause if we're selecting a different object and not already paused
     if (!isSameObject && !isPaused) {
       pauseSimulation()
@@ -100,7 +103,7 @@ export function useObjectSelection(
     setState(prev => {
       // Store previous state when selecting a planet in game view
       if (viewType === "profile" && systemData?.objects.some(obj => isPlanet(obj) && obj.id === objectId)) {
-        previousStateRef.current = prev
+        previousStateRef.current = { ...prev, objectRefsMap: objectRefsMap.current }
       }
 
       // Get the full object data
@@ -158,15 +161,20 @@ export function useObjectSelection(
   // Handle back button click in profile view
   const handleBackButtonClick = useCallback(() => {
     if (viewType === "profile" && previousStateRef.current) {
-      setState(previousStateRef.current)
+      const { objectRefsMap: _, ...prevState } = previousStateRef.current
+      setState(prevState)
       previousStateRef.current = null
     }
   }, [viewType])
 
-  // Update object refs map when objects are added/removed
+  // Only clear the map when the system itself changes, not on every render
+  const lastSystemId = useRef<string | null>(null)
   useEffect(() => {
-    objectRefsMap.current = new Map()
-  }, [systemData])
+    if (systemData?.id && systemData.id !== lastSystemId.current) {
+      objectRefsMap.current.clear()         // keep the same Map instance
+      lastSystemId.current = systemData.id
+    }
+  }, [systemData?.id])
 
   // No cleanup needed for animation completion approach
 

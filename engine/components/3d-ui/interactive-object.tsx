@@ -28,7 +28,7 @@ export interface InteractiveObjectProps {
   onHover?: (objectId: string, isHovered: boolean) => void
   onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
   onFocus?: (object: THREE.Object3D, name: string, visualSize?: number) => void
-  registerRef?: (id: string, ref: THREE.Object3D) => void
+  registerRef?: (id: string, ref: THREE.Object3D | null) => void
   showLabel?: boolean
   labelAlwaysVisible?: boolean
   parentObjectSelected?: boolean
@@ -130,18 +130,28 @@ export function InteractiveObject({
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation()
-    if (groupRef.current && onSelect) {
-      onSelect(objectId, groupRef.current, objectName)
+    if (groupRef.current) {
+      if (onSelect) {
+        onSelect(objectId, groupRef.current, objectName)
+      }
+      if (onFocus) {
+        onFocus(groupRef.current, objectName, visualSize)
+      }
     }
-  }, [objectId, objectName, onSelect])
+  }, [objectId, objectName, onSelect, onFocus, visualSize])
 
   const handleLabelClick = useCallback((event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
-    if (groupRef.current && onSelect) {
-      onSelect(objectId, groupRef.current, objectName)
+    if (groupRef.current) {
+      if (onSelect) {
+        onSelect(objectId, groupRef.current, objectName)
+      }
+      if (onFocus) {
+        onFocus(groupRef.current, objectName, visualSize)
+      }
     }
-  }, [objectId, objectName, onSelect])
+  }, [objectId, objectName, onSelect, onFocus, visualSize])
 
   const handlePointerOver = useCallback((e: React.PointerEvent<HTMLElement>) => {
     e.stopPropagation()
@@ -175,7 +185,7 @@ export function InteractiveObject({
     }
     return () => {
       if (registerRef) {
-        registerRef(objectId, null as any)
+        registerRef(objectId, null) // Remove entry instead of setting null
       }
     }
   }, [objectId, registerRef])

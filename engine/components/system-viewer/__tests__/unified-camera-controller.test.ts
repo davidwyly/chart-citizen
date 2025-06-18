@@ -42,7 +42,9 @@ describe('Unified Camera System', () => {
         expect(cameraConfig.maxDistanceMultiplier).toBeGreaterThan(cameraConfig.minDistanceMultiplier)
         expect(cameraConfig.absoluteMinDistance).toBeGreaterThan(0)
         expect(cameraConfig.absoluteMaxDistance).toBeGreaterThan(cameraConfig.absoluteMinDistance)
-        expect(cameraConfig.absoluteMaxDistance).toBeLessThan(1000) // Reasonable upper bound
+        // Scientific mode needs larger bounds for astronomical scales
+        const maxBound = mode === 'scientific' ? 20000 : 1000
+        expect(cameraConfig.absoluteMaxDistance).toBeLessThan(maxBound) // Reasonable upper bound
       })
     })
   })

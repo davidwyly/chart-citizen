@@ -275,7 +275,8 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
   getViewModeScaling: () => {
     const viewMode = get().viewMode;
     const mode = viewModeRegistry.get(viewMode);
-    if (!mode) {
+    if (!mode || !mode.objectScaling || !mode.orbital) {
+      console.warn(`Failed to get view mode scaling for "${viewMode}", using fallback values`);
       return {
         ORBITAL_SCALE: 1.0,
         STAR_SCALE: 1.0,
@@ -286,11 +287,11 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
     }
     
     return {
-      ORBITAL_SCALE: mode.orbital.factor,
-      STAR_SCALE: mode.objectScaling.star,
-      PLANET_SCALE: mode.objectScaling.planet,
-      MOON_SCALE: mode.objectScaling.moon,
-      STAR_SHADER_SCALE: mode.objectScaling.star
+      ORBITAL_SCALE: mode.orbital.factor || 1.0,
+      STAR_SCALE: mode.objectScaling.star || 1.0,
+      PLANET_SCALE: mode.objectScaling.planet || 1.0,
+      MOON_SCALE: mode.objectScaling.moon || 1.0,
+      STAR_SHADER_SCALE: mode.objectScaling.star || 1.0
     } as Record<string, number>;
   },
 

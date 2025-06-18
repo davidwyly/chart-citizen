@@ -88,6 +88,8 @@
 import { ViewType } from '@lib/types/effects-level';
 import { CelestialObject, isOrbitData, isBeltOrbitData } from '@/engine/types/orbital-system';
 import { getOrbitalMechanicsConfig } from '@/engine/core/view-modes/compatibility';
+// Import view modes to ensure they are registered
+import '@/engine/core/view-modes';
 
 // Memoized results - calculate once, use forever
 let memoizedResults: Map<string, {
