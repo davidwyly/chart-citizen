@@ -50,14 +50,38 @@ export function SpaceCurvatureEffect({
     return () => console.log("SpaceCurvatureEffect unmounted")
   }, [visible, objectRadius, gridSize, verticalOffset, targetObject])
 
+  // Update position immediately when target changes (handles paused state)
+  useEffect(() => {
+    if (!targetObject || !visible || !groupRef.current) return
+
+    const updatePosition = () => {
+      if (!targetObject || !groupRef.current) return
+      
+      // Get target object world position
+      const targetPosition = new THREE.Vector3()
+      targetObject.getWorldPosition(targetPosition)
+
+      // Position the grid with adaptive offset based on object size
+      groupRef.current.position.copy(targetPosition)
+      groupRef.current.position.y -= verticalOffset
+    }
+
+    // Update immediately
+    updatePosition()
+
+    // Set up interval to update position even when paused
+    const interval = setInterval(updatePosition, 16) // ~60fps
+    
+    return () => clearInterval(interval)
+  }, [targetObject, visible, verticalOffset])
+
   useFrame(() => {
     if (!targetObject || !visible || !groupRef.current) return
 
-    // Get target object world position
+    // Still use useFrame for smooth updates when not paused
     const targetPosition = new THREE.Vector3()
     targetObject.getWorldPosition(targetPosition)
 
-    // Position the grid with adaptive offset based on object size
     groupRef.current.position.copy(targetPosition)
     groupRef.current.position.y -= verticalOffset
 

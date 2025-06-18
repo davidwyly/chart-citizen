@@ -25,6 +25,8 @@ export interface InteractiveObjectProps {
   visualSize?: number
   shaderScale?: number
   isSelected?: boolean
+  timeMultiplier?: number
+  isPaused?: boolean
   onHover?: (objectId: string, isHovered: boolean) => void
   onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
   onFocus?: (object: THREE.Object3D, name: string, visualSize?: number) => void
@@ -45,6 +47,8 @@ export function InteractiveObject({
   visualSize = 1,
   shaderScale,
   isSelected = false,
+  timeMultiplier = 1,
+  isPaused = false,
   onHover,
   onSelect,
   onFocus,
@@ -85,7 +89,13 @@ export function InteractiveObject({
   useFrame((state) => {
     if (!materialRef.current || !isSelected) return;
 
-    materialRef.current.uniforms.time.value = state.clock.elapsedTime;
+    // Handle pause-aware time for selection effect
+    // When paused, continue using last time value; when unpaused, use elapsed time with multiplier
+    if (!isPaused) {
+      materialRef.current.uniforms.time.value = state.clock.elapsedTime * timeMultiplier;
+    }
+    // When paused, the time.value remains at its last value, maintaining the effect
+    
     materialRef.current.uniforms.intensity.value = 1.0;
 
     if (groupRef.current) {

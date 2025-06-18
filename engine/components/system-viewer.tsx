@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, createContext, useContext, useMemo, useCallback, useRef } from "react"
+import React, { useState, createContext, useContext, useMemo, useCallback, useRef, useEffect } from "react"
 import { Canvas } from "@react-three/fiber"
 import { OrbitControls, Preload } from "@react-three/drei"
 import { Suspense } from "react"
@@ -77,7 +77,6 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const handleTimeMultiplierChange = useCallback((multiplier: number) => {
     setTimeMultiplier(multiplier)
   }, [])
-
   // Handle pause toggle
   const togglePause = useCallback(() => {
     setIsPaused(prev => !prev)
@@ -91,6 +90,13 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const unpauseSimulation = useCallback(() => {
     setIsPaused(false)
   }, [])
+
+  // Handle profile view time controls
+  useEffect(() => {
+    if (viewType === 'profile') {
+      pauseSimulation()
+    }
+  }, [viewType, pauseSimulation])
 
   // Load system data
   const { systemData, loading, error, loadingProgress, availableSystems } = useSystemData(mode, systemId)
@@ -185,11 +191,16 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   // ⚠️ CRITICAL: Handle view type change with focus preservation
   // This function is intentionally simple - the complex logic is handled by currentViewModeFocusSize
   const setViewType = useCallback((newViewType: ViewType) => {
+    console.log('🔄 VIEW TYPE CHANGE REQUESTED')
+    console.log('  📱 Previous view type:', viewType)
+    console.log('  📱 New view type:', newViewType)
+    console.log('  📍 Currently focused object:', focusedName || 'none')
+    
     setViewTypeState(newViewType)
     // The currentViewModeFocusSize memoized value will automatically update
     // and trigger the camera controller to use the correct visual size
     // DO NOT add setTimeout or manual focus logic here - it causes race conditions
-  }, [setViewTypeState])
+  }, [setViewTypeState, viewType, focusedName])
 
   // Determine if we should show the back button
   const showBackButton = useMemo(() => 
@@ -227,14 +238,16 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   // Memoize OrbitControls props
   const orbitControlsProps = useMemo(() => ({
     makeDefault: true,
-    enablePan: true,
+    enablePan: viewType !== 'profile',
+    enableRotate: viewType !== 'profile',
+    enableZoom: viewType !== 'profile',
     maxDistance: 1000,
     minDistance: 0.1,
     enableDamping: true,
     dampingFactor: 0.05,
     rotateSpeed: 0.5,
     zoomSpeed: 0.8,
-  }), [])
+  }), [viewType])
 
   // Memoize SystemObjectsRenderer props
   const systemObjectsProps = useMemo(() => {
@@ -367,6 +380,9 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
               focusMass={focusedObjectProperties?.mass}
               focusOrbitRadius={focusedObjectProperties?.orbitRadius}
               viewMode={viewType}
+              isPaused={isPaused}
+              systemData={systemData}
+              objectRefsMap={objectRefsMap}
               onAnimationComplete={handleAnimationComplete}
             />
 

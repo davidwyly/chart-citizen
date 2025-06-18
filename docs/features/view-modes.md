@@ -45,19 +45,27 @@ The view modes system provides different visualization perspectives for celestia
 ### Profile View
 - Purpose: Top-down analysis and navigation of system hierarchy
 - Features:
-  - Orthogonal camera view
-  - Two-panel layout:
-    - Left panel: Large focal object (e.g., star or binary star)
-    - Right panel: Child orbiting bodies (e.g., planets)
+  
   - Hierarchical navigation:
-    - Click into child objects to make them the new focal point
-    - View their orbiting bodies in the right panel
-    - Maintains context while navigating
+    - Selected object is focal point for framing the layout
+    - Solar system default focal point is typically the parent star
+    - Click into child orbiting bodies to make them the new focal point
+    - Zooms into new focal point for framing the layout for its orbital bodies
+    - Purpose: Maintains context while navigating
   - Standardized sizing:
     - Focal object: Large, prominent display
-    - Orbiting bodies: Medium size regardless of actual dimensions
-  - Equidistant orbital spacing
-  - Simplified navigation without complex 3D movement
+    - Orbiting bodies: Medium size regardless of actual dimensions [IMPORTANT]
+    - Focal object on left, orbiting bodies on right
+  - Standardized Alignment:
+    - Focal object's orbiting bodies are aligned in a straight line
+    - Equidistant orbital spacing between focal point's orbital bodies [IMPORTANT]
+    - Time controls are paused while in profile view
+    - Time controls are not accessible while in profile view
+  - Standardized framing:
+    - Camera framed appropriately [IMPORTANT]
+    - Orthogonal camera view
+    - Focal object framing the left, outermost orbiting body framing the right
+    - Birds-eye-view perspective looking approximately 45 degrees down
 - Use Cases:
   - System hierarchy exploration
   - Quick navigation to specific objects

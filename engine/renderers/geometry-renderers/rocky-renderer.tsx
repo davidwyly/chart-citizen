@@ -18,6 +18,9 @@ export function RockyRenderer({
   position = [0, 0, 0],
   isSelected,
   planetSystemSelected = false,
+  timeMultiplier,
+  isPaused,
+  showLabel = true,
   shaderParams,
   onHover,
   onSelect,
@@ -114,12 +117,14 @@ export function RockyRenderer({
       position={position}
       visualSize={scale}
       isSelected={isSelected}
+      timeMultiplier={timeMultiplier}
+      isPaused={isPaused}
       planetSystemSelected={planetSystemSelected}
       onHover={(id, hovered) => onHover?.(hovered ? id : null)}
       onSelect={onSelect}
       onFocus={(obj, name, visualSize) => onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)}
       registerRef={registerRef}
-      showLabel={true}
+      showLabel={showLabel}
     >
       <group ref={bodyRef}>
         {/* Main rocky surface */}

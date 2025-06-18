@@ -23,6 +23,9 @@ export function TerrestrialRenderer({
   position = [0, 0, 0],
   isSelected,
   planetSystemSelected = false,
+  timeMultiplier,
+  isPaused,
+  showLabel = true,
   shaderParams,
   onHover,
   onSelect,
@@ -245,12 +248,14 @@ export function TerrestrialRenderer({
       position={position}
       visualSize={scale}
       isSelected={isSelected}
+      timeMultiplier={timeMultiplier}
+      isPaused={isPaused}
       planetSystemSelected={planetSystemSelected}
       onHover={(id, hovered) => onHover?.(hovered ? id : null)}
       onSelect={onSelect}
       onFocus={(obj, name, visualSize) => onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)}
       registerRef={registerRef}
-      showLabel={true}
+      showLabel={showLabel}
     >
       <group ref={planetRef}>
         {/* Main planet surface */}

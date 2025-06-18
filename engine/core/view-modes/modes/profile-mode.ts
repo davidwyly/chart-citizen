@@ -40,8 +40,8 @@ export const profileMode: ViewModeDefinition = {
     nearPlane: 0.1,
     farPlane: 5000,
     viewingAngles: {
-      defaultElevation: 0,  // Top-down for profile view
-      birdsEyeElevation: 0
+      defaultElevation: 22.5,  // 22.5-degree softer angle for profile
+      birdsEyeElevation: 22.5
     },
     animation: {
       focusDuration: 400,
@@ -51,9 +51,9 @@ export const profileMode: ViewModeDefinition = {
   },
   
   orbital: {
-    factor: 1.2,
-    minDistance: 2.0,
-    maxDistance: 15.0
+    factor: 0.3,  // Much smaller factor for tighter, more linear layout
+    minDistance: 4.0,  // Equidistant spacing
+    maxDistance: 20.0  // Allow more spread for many objects
   },
   
   objectScaling: {
@@ -66,7 +66,7 @@ export const profileMode: ViewModeDefinition = {
   },
   
   features: {
-    orbitalPaths: true,
+    orbitalPaths: true,  // Keep orbital paths for perspective in 45° view
     stellarZones: false,
     scientificLabels: true,
     atmosphericEffects: false,

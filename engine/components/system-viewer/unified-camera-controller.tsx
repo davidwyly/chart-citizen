@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo } from "react"
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo, useState } from "react"
 import { useThree, useFrame } from "@react-three/fiber"
+import { Html } from "@react-three/drei"
 import * as THREE from "three"
 import { createDualProperties, type DualObjectProperties } from "@/engine/types/view-mode-config"
 import { getViewModeConfig } from "@/engine/core/view-modes/compatibility"
@@ -15,6 +16,9 @@ interface UnifiedCameraControllerProps {
   focusMass?: number
   focusOrbitRadius?: number
   viewMode: ViewType
+  isPaused?: boolean  // Whether the simulation is paused
+  systemData?: any  // System data for finding orbital relationships
+  objectRefsMap?: React.MutableRefObject<Map<string, THREE.Object3D>>  // Object refs for finding related objects
   onAnimationComplete?: () => void
 }
 
@@ -34,9 +38,12 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     focusMass,
     focusOrbitRadius,
     viewMode,
+    isPaused = false,
+    systemData,
+    objectRefsMap,
     onAnimationComplete,
   }: UnifiedCameraControllerProps, ref) {
-    const { camera, controls } = useThree()
+    const { camera, controls, scene } = useThree()
     const controlsRef = useRef<any>(controls)
     const isFollowingRef = useRef(false)
     const animatingRef = useRef(false)
@@ -45,6 +52,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     const currentObjectPropertiesRef = useRef<DualObjectProperties | null>(null)
     // Track last object that triggered a focus animation so we can debounce
     const lastFocusedRef = useRef<THREE.Object3D | null>(null)
+    // Track the fake outermost point for "No orbiting bodies" label
+    const [noOrbitingBodiesLabel, setNoOrbitingBodiesLabel] = useState<{ position: THREE.Vector3; visible: boolean } | null>(null)
 
     useEffect(() => {
       controlsRef.current = controls
@@ -117,8 +126,15 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
       // Position camera based on view mode
       let newPosition: THREE.Vector3
       if (viewMode === 'profile') {
-        // Top-down view for profile mode
-        newPosition = new THREE.Vector3(0, 0, distance)
+        // Profile view: bird's-eye view to frame linear layout
+        // Position camera to look at the center of the linear arrangement
+        const profileDistance = maxOrbitRadius * 1.5
+        const profileAngle = viewConfig.cameraConfig.viewingAngles.defaultElevation * (Math.PI / 180)
+        newPosition = new THREE.Vector3(
+          0, // Centered horizontally on the linear layout
+          profileDistance * Math.sin(profileAngle),
+          profileDistance * Math.cos(profileAngle)
+        )
       } else {
         // Angled view for other modes
         newPosition = new THREE.Vector3(
@@ -210,8 +226,14 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
 
         // Set camera position and target based on view mode
         if (viewMode === 'profile') {
-          // Top-down view for profile mode
-          camera.position.set(0, 0, distance)
+          // Profile view: bird's-eye view for linear layout
+          const profileDistance = distance * 1.5
+          const profileAngle = viewConfig.cameraConfig.viewingAngles.defaultElevation * (Math.PI / 180)
+          camera.position.set(
+            0, // Centered horizontally on the linear layout
+            profileDistance * Math.sin(profileAngle),
+            profileDistance * Math.cos(profileAngle)
+          )
         } else {
           // Angled view for other modes
           camera.position.set(
@@ -230,6 +252,162 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         }
       }
     }, [camera, controls, calculateMaxOrbitRadius, viewConfig, viewMode])
+
+    // Handle view mode changes when object is already focused
+    useEffect(() => {
+      console.log('🔄 VIEW MODE CHANGE useEffect triggered')
+      console.log('  📍 Focus object exists:', !!focusObject)
+      console.log('  📍 Focus object type:', focusObject?.type)
+      console.log('  🏷️ Focus name:', focusName)
+      console.log('  📱 View mode:', viewMode)
+      console.log('  🎮 Controls exist:', !!controlsRef.current)
+      
+      if (focusObject && controlsRef.current && viewMode === 'profile') {
+        console.log('🔄 VIEW MODE CHANGE TO PROFILE - useEffect triggered')
+        console.log('  📍 Focus object:', focusObject.userData?.name || 'unknown')
+        
+        // Wait for next frame to ensure orbital objects are positioned correctly
+        requestAnimationFrame(() => {
+          if (!focusObject || !controlsRef.current) return
+          
+          // When switching to profile view with an object selected, reframe the camera
+          const focalCenter = new THREE.Vector3()
+          focusObject.getWorldPosition(focalCenter)
+        console.log('  🎯 Focal center (clicked object):', focalCenter)
+        
+        // Find the outermost object using hierarchical navigation logic
+        let outermostCenter = focalCenter.clone() // Default to focal object if no others found
+        let maxDistance = 0
+        
+        console.log('  🔎 Checking traversal conditions:')
+        console.log('    🌐 scene exists:', !!scene)
+        console.log('    🌐 scene type:', scene?.type)
+        console.log('    🌐 scene children count:', scene?.children?.length)
+        
+        // Use system data to find orbital relationships instead of Three.js traversal
+        if (systemData && focusName && objectRefsMap) {
+          console.log('  ✅ Using system data to find orbital relationships')
+          console.log('  🔍 Looking for children of:', focusName)
+          
+          // Find objects that orbit the focused object
+          const childObjects = systemData.objects?.filter((obj: any) => 
+            obj.orbit?.parent === focusName.toLowerCase()
+          ) || []
+          
+          console.log('  📊 Found', childObjects.length, 'children in system data:', childObjects.map((obj: any) => obj.name))
+          
+          // Find the outermost child by getting their Three.js objects and measuring distance
+          for (const childObj of childObjects) {
+            const childThreeObj = objectRefsMap.current.get(childObj.id)
+            if (childThreeObj) {
+              // Use getWorldPosition instead of .position for objects in orbital groups
+              const childWorldPos = new THREE.Vector3()
+              childThreeObj.getWorldPosition(childWorldPos)
+              const distance = focalCenter.distanceTo(childWorldPos)
+              if (distance > maxDistance) {
+                maxDistance = distance
+                outermostCenter = childWorldPos.clone()
+              }
+            }
+          }
+          
+          // If no children found, we'll create a fake outermost point below
+          if (childObjects.length === 0) {
+            console.log('  ❌ No children found - will use fake outermost point for single object')
+          } else {
+            // Object has children, so hide any existing "No orbiting bodies" label
+            setNoOrbitingBodiesLabel(null)
+          }
+        } else {
+          console.log('  ❌ Missing system data, focusName, or objectRefsMap - cannot find orbital relationships')
+          console.log('    📊 systemData:', !!systemData)
+          console.log('    🏷️ focusName:', focusName)
+          console.log('    🗺️ objectRefsMap:', !!objectRefsMap)
+        }
+        
+        // Calculate the midpoint between focal object and outermost object
+        const layoutMidpoint = new THREE.Vector3()
+        
+        // If no related objects found (maxDistance is 0), create a fake outermost point for consistent framing
+        if (maxDistance === 0) {
+          console.log('  🎯 No related objects found - creating fake outermost point for consistent framing')
+          
+          // Get the object's data to find its radius and orbital distance
+          const focusObjectData = systemData?.objects?.find((obj: any) => 
+            obj.name?.toLowerCase() === focusName?.toLowerCase()
+          )
+          
+          const objectRadius = focusObjectData?.properties?.radius || 1
+          const orbitDistance = focusObjectData?.orbit?.semi_major_axis || 10
+          
+          // Create a fake outermost point close to the object for reasonable framing
+          // Use the actual rendered scale of the object in the scene
+          const objectScale = focusObject?.scale?.x || 1.0 // Get actual rendered size
+          const fakeOffset = objectScale * 3 // Offset based on actual rendered size
+          console.log('    📏 Object scale in scene:', objectScale)
+          console.log('    🎯 Current object distance from origin:', focalCenter.length())
+          console.log('    📏 Using scale-based fake offset:', fakeOffset)
+          
+          // Create fake point by moving slightly away from the object in the X direction (simple offset)
+          outermostCenter = focalCenter.clone().add(new THREE.Vector3(fakeOffset, 0, 0))
+          maxDistance = focalCenter.distanceTo(outermostCenter)
+          
+          console.log('    🎭 Fake outermost center:', outermostCenter)
+          console.log('    📏 Fake max distance:', maxDistance)
+          
+          // Show "No orbiting bodies" label at the fake outermost point
+          setNoOrbitingBodiesLabel({
+            position: outermostCenter.clone(),
+            visible: true
+          })
+        }
+        
+        // Calculate midpoint (now always between focal and outermost, real or fake)
+        layoutMidpoint.addVectors(focalCenter, outermostCenter).multiplyScalar(0.5)
+        
+        console.log('  📊 FINAL CALCULATIONS:')
+        console.log('    🎯 Focal center:', focalCenter)
+        console.log('    🎪 Outermost center:', outermostCenter)
+        console.log('    ⚖️ Layout midpoint:', layoutMidpoint)
+        
+        // Calculate distance and position camera
+        const layoutSpan = focalCenter.distanceTo(outermostCenter)
+        let profileDistance: number
+        
+        // For single objects (fake outermost), use a fixed reasonable distance
+        if (maxDistance > 0 && maxDistance < 20) { // This indicates we used a fake small offset
+          profileDistance = 15 // Fixed reasonable distance for single objects
+          console.log('    🎯 Using fixed distance for single object:', profileDistance)
+        } else {
+          profileDistance = Math.max(layoutSpan * 1.2, 20) // Normal calculation for multi-object systems
+          console.log('    🌌 Using layout span distance:', profileDistance)
+        }
+        
+        const profileAngle = viewConfig.cameraConfig.viewingAngles.defaultElevation * (Math.PI / 180)
+        
+        const newCameraPosition = new THREE.Vector3(
+          layoutMidpoint.x,
+          layoutMidpoint.y + profileDistance * Math.sin(profileAngle),
+          layoutMidpoint.z + profileDistance * Math.cos(profileAngle)
+        )
+        
+        console.log('    📏 Layout span:', layoutSpan)
+        console.log('    📐 Profile distance:', profileDistance)
+        console.log('    📐 Profile angle (degrees):', profileAngle * (180 / Math.PI))
+        console.log('    📷 New camera position:', newCameraPosition)
+        console.log('    🎯 Camera target (should be midpoint):', layoutMidpoint)
+        
+          camera.position.set(newCameraPosition.x, newCameraPosition.y, newCameraPosition.z)
+          controlsRef.current.target.copy(layoutMidpoint)
+          controlsRef.current.update()
+          
+          console.log('  ✅ VIEW MODE CHANGE COMPLETE')
+        })
+      } else {
+        // Hide label when not in profile mode or no focus object
+        setNoOrbitingBodiesLabel(null)
+      }
+    }, [viewMode, focusObject, camera, viewConfig, systemData, objectRefsMap])
 
     // Reset to bookmark view
     const resetToBookmarkView = useCallback(() => {
@@ -258,14 +436,23 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
 
     // Handle object focus with unified logic
     useEffect(() => {
-
+      console.log('🎯 OBJECT FOCUS useEffect triggered')
+      console.log('  📍 Focus object exists:', !!focusObject)
+      console.log('  📍 Focus object type:', focusObject?.type)
+      console.log('  📍 Focus object position:', focusObject?.position)
+      console.log('  📍 Focus object userData:', focusObject?.userData)
+      console.log('  🏷️ Focus name:', focusName || 'null')
+      console.log('  📱 View mode:', viewMode)
       
       // Debounce: if we are already animating towards the same object, ignore
-      if (animatingRef.current && focusObject && focusObject === lastFocusedRef.current) {
+      // BUT allow re-selection when paused to ensure objects can be focused when simulation is paused
+      if (animatingRef.current && focusObject && focusObject === lastFocusedRef.current && !isPaused) {
+        console.log('  ⏸️ Debounced - already animating to same object')
         return
       }
 
       if (focusObject && controlsRef.current && focusName) {
+        console.log('  🚀 Starting object focus animation')
         // Update last focused reference
         lastFocusedRef.current = focusObject
 
@@ -362,9 +549,132 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         let newTarget: THREE.Vector3
 
         if (viewMode === 'profile') {
-          // Top-down view for profile mode
-          newPosition = position.clone().add(new THREE.Vector3(0, 0, targetDistance))
-          newTarget = position.clone()
+          console.log('  🎪 PROFILE VIEW - Object focus effect')
+          
+          // Profile view: Frame using focal object and outermost object midpoint
+          const focalCenter = position.clone()
+          let outermostCenter = position.clone() // Default to focal object if no others found
+          let maxDistance = 0
+          console.log('  🎯 Object focus - Focal center:', focalCenter)
+          
+          // Find the outermost object using hierarchical navigation logic
+          console.log('  🔎 Object focus - Checking traversal conditions:')
+          console.log('    🌐 scene exists:', !!scene)
+          console.log('    🌐 scene children count:', scene?.children?.length)
+          
+          // Use system data to find orbital relationships instead of Three.js traversal
+          if (systemData && focusName && objectRefsMap) {
+            console.log('  ✅ Object focus - Using system data to find orbital relationships')
+            console.log('  🔍 Looking for children of:', focusName)
+            
+            // Find objects that orbit the focused object
+            const childObjects = systemData.objects?.filter((obj: any) => 
+              obj.orbit?.parent === focusName.toLowerCase()
+            ) || []
+            
+            console.log('  📊 Found', childObjects.length, 'children in system data:', childObjects.map((obj: any) => obj.name))
+            
+            // Find the outermost child by getting their Three.js objects and measuring distance
+            for (const childObj of childObjects) {
+              const childThreeObj = objectRefsMap.current.get(childObj.id)
+              if (childThreeObj) {
+                // Use getWorldPosition instead of .position for objects in orbital groups
+                const childWorldPos = new THREE.Vector3()
+                childThreeObj.getWorldPosition(childWorldPos)
+                const distance = focalCenter.distanceTo(childWorldPos)
+                if (distance > maxDistance) {
+                  maxDistance = distance
+                  outermostCenter = childWorldPos.clone()
+                }
+              }
+            }
+            
+            // If no children found, we'll create a fake outermost point below
+            if (childObjects.length === 0) {
+              console.log('  ❌ Object focus - No children found - will use fake outermost point for single object')
+            } else {
+              // Object has children, so hide any existing "No orbiting bodies" label
+              setNoOrbitingBodiesLabel(null)
+            }
+          } else {
+            console.log('  ❌ Missing system data, focusName, or objectRefsMap - cannot find orbital relationships')
+            console.log('    📊 systemData:', !!systemData)
+            console.log('    🏷️ focusName:', focusName)
+            console.log('    🗺️ objectRefsMap:', !!objectRefsMap)
+          }
+          
+          // Calculate the midpoint between focal object and outermost object
+          const layoutMidpoint = new THREE.Vector3()
+          
+          // If no related objects found (maxDistance is 0), create a fake outermost point for consistent framing
+          if (maxDistance === 0) {
+            console.log('  🎯 Object focus - No related objects found - creating fake outermost point for consistent framing')
+            
+            // Get the object's data to find its radius and orbital distance
+            const focusObjectData = systemData?.objects?.find((obj: any) => 
+              obj.name?.toLowerCase() === focusName?.toLowerCase()
+            )
+            
+            const objectRadius = focusObjectData?.properties?.radius || 1
+            const orbitDistance = focusObjectData?.orbit?.semi_major_axis || 10
+            
+            // Create a fake outermost point close to the object for reasonable framing
+            // Use the actual visual size passed to this component
+            const actualVisualSize = focusSize || focusObject?.scale?.x || 1.0
+            const fakeOffset = actualVisualSize * 3 // Offset based on actual rendered size
+            console.log('    📏 Object focus - Visual size:', actualVisualSize)
+            console.log('    🎯 Object focus - Current object distance from origin:', focalCenter.length())
+            console.log('    📏 Object focus - Using visual-based fake offset:', fakeOffset)
+            
+            // Create fake point by moving slightly away from the object in the X direction (simple offset)
+            outermostCenter = focalCenter.clone().add(new THREE.Vector3(fakeOffset, 0, 0))
+            maxDistance = focalCenter.distanceTo(outermostCenter)
+            
+            console.log('    🎭 Object focus - Fake outermost center:', outermostCenter)
+            console.log('    📏 Object focus - Fake max distance:', maxDistance)
+            
+            // Show "No orbiting bodies" label at the fake outermost point
+            setNoOrbitingBodiesLabel({
+              position: outermostCenter.clone(),
+              visible: true
+            })
+          }
+          
+          // Calculate midpoint (now always between focal and outermost, real or fake)
+          layoutMidpoint.addVectors(focalCenter, outermostCenter).multiplyScalar(0.5)
+          
+          console.log('  📊 OBJECT FOCUS - FINAL CALCULATIONS:')
+          console.log('    🎯 Focal center:', focalCenter)
+          console.log('    🎪 Outermost center:', outermostCenter)
+          console.log('    ⚖️ Layout midpoint:', layoutMidpoint)
+          
+          // Calculate distance from focal to outermost for camera positioning
+          const layoutSpan = focalCenter.distanceTo(outermostCenter)
+          let profileDistance: number
+          
+          // For single objects (fake outermost), use a fixed reasonable distance
+          if (maxDistance > 0 && maxDistance < 20) { // This indicates we used a fake small offset
+            profileDistance = targetDistance * 1.5 // Use the target distance calculated for this object
+            console.log('    🎯 Object focus - Using target distance for single object:', profileDistance)
+          } else {
+            profileDistance = Math.max(layoutSpan * 1.2, targetDistance * 1.5) // Normal calculation for multi-object systems
+            console.log('    🌌 Object focus - Using layout span distance:', profileDistance)
+          }
+          
+          const profileAngle = viewConfig.cameraConfig.viewingAngles.defaultElevation * (Math.PI / 180)
+          
+          // Position camera to look at the midpoint
+          newPosition = new THREE.Vector3(
+            layoutMidpoint.x, // Center on the layout midpoint
+            layoutMidpoint.y + profileDistance * Math.sin(profileAngle),
+            layoutMidpoint.z + profileDistance * Math.cos(profileAngle)
+          )
+          newTarget = layoutMidpoint.clone()
+          
+          console.log('    📏 Layout span:', layoutSpan)
+          console.log('    📐 Profile distance:', profileDistance)
+          console.log('    📷 New camera position:', newPosition)
+          console.log('    🎯 New camera target:', newTarget)
         } else {
           // Use configured viewing angle
           const downwardAngle = viewConfig.cameraConfig.viewingAngles.defaultElevation * (Math.PI / 180)
@@ -449,6 +759,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         // Stop following when no object is focused
         isFollowingRef.current = false
         currentObjectPropertiesRef.current = null
+        // Hide label when no object is focused
+        setNoOrbitingBodiesLabel(null)
         if (controlsRef.current) {
           controlsRef.current.enabled = true
         }
@@ -479,6 +791,38 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
       }
     })
 
-    return null
+    return (
+      <>
+        {/* No orbiting bodies label */}
+        {noOrbitingBodiesLabel?.visible && (
+          <group position={[noOrbitingBodiesLabel.position.x, noOrbitingBodiesLabel.position.y, noOrbitingBodiesLabel.position.z]}>
+            <Html center prepend zIndexRange={[100, 0]} occlude={false} sprite>
+              <div
+                className="text-gray-400 text-xs font-medium transition-all duration-300 ease-out"
+                style={{
+                  textShadow: "0 0 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)",
+                  filter: "drop-shadow(0 0 2px rgba(0,0,0,0.8))",
+                  userSelect: "none",
+                  WebkitUserSelect: "none",
+                  MozUserSelect: "none",
+                  msUserSelect: "none",
+                  pointerEvents: "none",
+                  textAlign: "center",
+                  whiteSpace: "nowrap",
+                  transform: "translateX(-50%) translateY(-50%)",
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                }}
+              >
+                <div className="font-medium text-gray-400 uppercase tracking-wider">
+                  No orbiting bodies
+                </div>
+              </div>
+            </Html>
+          </group>
+        )}
+      </>
+    )
   }
 ) 

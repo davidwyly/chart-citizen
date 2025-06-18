@@ -16,6 +16,9 @@ export function StarRenderer({
   starPosition = [0, 0, 0],
   position = [0, 0, 0],
   isSelected,
+  timeMultiplier,
+  isPaused,
+  showLabel = true,
   onHover,
   onSelect,
   onFocus,
@@ -170,11 +173,13 @@ export function StarRenderer({
       position={position}
       visualSize={scale}
       isSelected={isSelected}
+      timeMultiplier={timeMultiplier}
+      isPaused={isPaused}
       onHover={(id, hovered) => onHover?.(hovered ? id : null)}
       onSelect={onSelect}
       onFocus={(obj, name, visualSize) => onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)}
       registerRef={registerRef}
-      showLabel={true}
+      showLabel={showLabel}
     >
       <group ref={starRef}>
         {/* Star core */}

@@ -67,6 +67,7 @@ export function OrbitalPath({
   useEffect(() => {
     if (viewType === 'profile') {
       startAngleRef.current = 0;
+      timeRef.current = 0; // Reset time to ensure consistent positioning
     }
   }, [viewType]);
 

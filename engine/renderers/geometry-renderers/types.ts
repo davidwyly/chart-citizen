@@ -22,6 +22,7 @@ export interface GeometryRendererProps {
     lensingStrength?: number
     diskBrightness?: number
   }
+  showLabel?: boolean
   onHover?: (objectId: string | null) => void
   onSelect?: (id: string, object: THREE.Object3D, name: string) => void
   onFocus?: (object: THREE.Object3D, name: string, size: number, radius?: number, mass?: number, orbitRadius?: number) => void

@@ -85,18 +85,28 @@ export function useObjectSelection(
 
   // Handle object selection with explicit pause state management
   const handleObjectSelect = useCallback((objectId: string, object: THREE.Object3D, name: string) => {
+    console.log('🖱️ OBJECT CLICKED:', name)
+    console.log('  🆔 Object ID:', objectId)
+    console.log('  📍 Object position:', object.position)
+    console.log('  🏷️ Object userData:', object.userData)
+    
     // Check if we're selecting the same object
     const isSameObject = state.selectedObjectId === objectId
 
     // If we're already animating towards this object, ignore subsequent selects
-    if (isSameObject && waitingForAnimationRef.current) {
+    // BUT allow selection when paused to ensure objects can be focused even when simulation is paused
+    if (isSameObject && waitingForAnimationRef.current && !isPaused) {
       return
     }
 
-    // Only pause if we're selecting a different object and not already paused
+    // Handle pause/animation state based on current conditions
     if (!isSameObject && !isPaused) {
+      // Selecting a different object while running - pause and wait for animation
       pauseSimulation()
       waitingForAnimationRef.current = true
+    } else if (isPaused) {
+      // When paused, always allow selection and don't wait for animation
+      waitingForAnimationRef.current = false
     }
     // Note: Clicking a paused object should NOT unpause it (removed unpause logic)
 

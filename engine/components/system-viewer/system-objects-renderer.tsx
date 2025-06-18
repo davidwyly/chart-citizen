@@ -49,7 +49,10 @@ export const CelestialObjectRenderer = React.memo(({
   starPosition,
   isSelected,
   planetSystemSelected = false,
+  timeMultiplier,
+  isPaused,
   shaderParams,
+  showLabel = true,
   onHover,
   onSelect,
   onFocus,
@@ -60,6 +63,8 @@ export const CelestialObjectRenderer = React.memo(({
   starPosition: [number, number, number]
   isSelected: boolean
   planetSystemSelected?: boolean
+  timeMultiplier?: number
+  isPaused?: boolean
   shaderParams?: {
     intensity?: number
     speed?: number
@@ -68,6 +73,7 @@ export const CelestialObjectRenderer = React.memo(({
     lensingStrength?: number
     diskBrightness?: number
   }
+  showLabel?: boolean
   onHover: (objectId: string | null) => void
   onSelect?: (id: string, object: THREE.Object3D, name: string) => void
   onFocus?: (object: THREE.Object3D, name: string, size: number, radius?: number, mass?: number, orbitRadius?: number) => void
@@ -84,7 +90,10 @@ export const CelestialObjectRenderer = React.memo(({
       position={[0, 0, 0]}
       isSelected={isSelected}
       planetSystemSelected={planetSystemSelected}
+      timeMultiplier={timeMultiplier}
+      isPaused={isPaused}
       shaderParams={shaderParams}
+      showLabel={showLabel}
       onHover={onHover}
       onSelect={onSelect}
       onFocus={onFocus}
@@ -105,13 +114,7 @@ export function SystemObjectsRenderer({
   onObjectFocus,
   registerRef,
 }: SystemObjectsRendererProps) {
-  // PERFORMANCE FIX: Use a ref to store selectedObjectId to avoid dependency issues
-  const selectedObjectIdRef = useRef(selectedObjectId);
-  
-  // Update the ref when selectedObjectId changes
-  useEffect(() => {
-    selectedObjectIdRef.current = selectedObjectId;
-  }, [selectedObjectId]);
+  // Removed selectedObjectIdRef - using selectedObjectId prop directly for immediate updates
 
   // Get the primary star position for lighting calculations
   const primaryStarPosition: [number, number, number] = useMemo(() => {
@@ -144,7 +147,7 @@ export function SystemObjectsRenderer({
 
   // PERFORMANCE FIX: Create a stable selection info function using ref instead of dependency
   const getHierarchicalSelectionInfo = useCallback((object: CelestialObject) => {
-    const currentSelectedId = selectedObjectIdRef.current;
+    const currentSelectedId = selectedObjectId; // Use actual prop instead of ref to avoid timing issues
     const isSelected = currentSelectedId === object.id;
     
     // For moons, check if parent planet or sibling moon is selected
@@ -167,13 +170,42 @@ export function SystemObjectsRenderer({
     }
     
     return { isSelected, planetSystemSelected };
-  }, [systemData.objects]); // Only depends on systemData.objects, selectedObjectId accessed via ref
+  }, [systemData.objects, selectedObjectId]); // Include selectedObjectId for immediate updates
+
+  // Helper function to determine if object should be visible in profile mode
+  const shouldObjectBeVisible = useCallback((object: CelestialObject) => {
+    if (viewType !== 'profile' || !selectedObjectId) {
+      return true // Always visible in non-profile modes
+    }
+    
+    const focalObject = systemData.objects.find(obj => obj.id === selectedObjectId)
+    if (!focalObject) {
+      return true // Fallback to visible if focal object not found
+    }
+    
+    // In profile mode, only show focal object and its children
+    if (object.id === selectedObjectId) {
+      return true // Always show the focused object
+    }
+    
+    // Show children of the focused object
+    if (object.orbit?.parent === focalObject.name?.toLowerCase()) {
+      return true
+    }
+    
+    return false // Hide everything else in profile mode
+  }, [viewType, selectedObjectId, systemData.objects])
 
   // Render a celestial object with its orbit
   const renderCelestialObject = useCallback((object: CelestialObject, parentPosition: [number, number, number] = [0, 0, 0]) => {
     const { visualSize } = getObjectSizing(object.id);
     const { isSelected, planetSystemSelected } = getHierarchicalSelectionInfo(object);
     const scale = visualSize;
+    const isVisible = shouldObjectBeVisible(object);
+    
+    // In profile mode, only show labels for focal object and its children
+    // In other modes, always show labels
+    const shouldShowLabel = viewType !== 'profile' || isVisible;
 
     // Handle objects with orbits
     if (object.orbit && isOrbitData(object.orbit)) {
@@ -190,31 +222,35 @@ export function SystemObjectsRenderer({
       }
 
       return (
-        <MemoizedOrbitalPath
-          key={object.id}
-          semiMajorAxis={semiMajorAxis}
-          eccentricity={orbit.eccentricity}
-          inclination={orbit.inclination}
-          orbitalPeriod={calculateOrbitalPeriod(orbit.semi_major_axis)}
-          showOrbit={true}
-          timeMultiplier={timeMultiplier}
-          isPaused={isPaused}
-          parentObjectId={orbit.parent}
-          objectRefsMap={objectRefsMap}
-          viewType={viewType}
-        >
-          <CelestialObjectRenderer
-            object={object}
-            scale={scale}
-            starPosition={primaryStarPosition}
-            isSelected={isSelected}
-            planetSystemSelected={planetSystemSelected}
-            onHover={onObjectHover}
-            onSelect={onObjectSelect}
-            onFocus={onObjectFocus}
-            registerRef={registerRef}
-          />
-        </MemoizedOrbitalPath>
+        <group key={object.id} visible={isVisible}>
+          <MemoizedOrbitalPath
+            semiMajorAxis={semiMajorAxis}
+            eccentricity={orbit.eccentricity}
+            inclination={orbit.inclination}
+            orbitalPeriod={calculateOrbitalPeriod(orbit.semi_major_axis)}
+            showOrbit={isVisible} // Only show orbits for visible objects
+            timeMultiplier={timeMultiplier}
+            isPaused={isPaused}
+            parentObjectId={orbit.parent}
+            objectRefsMap={objectRefsMap}
+            viewType={viewType}
+          >
+            <CelestialObjectRenderer
+              object={object}
+              scale={scale}
+              starPosition={primaryStarPosition}
+              isSelected={isSelected}
+              planetSystemSelected={planetSystemSelected}
+              timeMultiplier={timeMultiplier}
+              isPaused={isPaused}
+              showLabel={shouldShowLabel}
+              onHover={onObjectHover}
+              onSelect={onObjectSelect}
+              onFocus={onObjectFocus}
+              registerRef={registerRef}
+            />
+          </MemoizedOrbitalPath>
+        </group>
       )
     } else if (object.orbit && 'inner_radius' in object.orbit) {
       // Handle belt objects with BeltOrbitData - use the volumetric BeltRenderer
@@ -229,38 +265,45 @@ export function SystemObjectsRenderer({
       const adjustedRadius = beltData.centerRadius;
 
       return (
-        <CelestialObjectRenderer
-          key={object.id}
-          object={{
-            ...object,
-            properties: {
-              ...object.properties,
-              // Pass the calculated belt dimensions to the renderer
-              belt_inner_radius: beltData.innerRadius,
-              belt_outer_radius: beltData.outerRadius,
-              belt_center_radius: beltData.centerRadius
-            }
-          }}
-          scale={adjustedRadius}
-          starPosition={primaryStarPosition}
-          isSelected={isSelected}
-          planetSystemSelected={planetSystemSelected}
-          onHover={onObjectHover}
-          onSelect={onObjectSelect}
-          onFocus={onObjectFocus}
-          registerRef={registerRef}
-        />
+        <group key={object.id} visible={isVisible}>
+          <CelestialObjectRenderer
+            object={{
+              ...object,
+              properties: {
+                ...object.properties,
+                // Pass the calculated belt dimensions to the renderer
+                belt_inner_radius: beltData.innerRadius,
+                belt_outer_radius: beltData.outerRadius,
+                belt_center_radius: beltData.centerRadius
+              }
+            }}
+            scale={adjustedRadius}
+            starPosition={primaryStarPosition}
+            isSelected={isSelected}
+            planetSystemSelected={planetSystemSelected}
+            timeMultiplier={timeMultiplier}
+            isPaused={isPaused}
+            showLabel={shouldShowLabel}
+            onHover={onObjectHover}
+            onSelect={onObjectSelect}
+            onFocus={onObjectFocus}
+            registerRef={registerRef}
+          />
+        </group>
       )
     } else {
       // Objects without orbits (stars, barycenters)
       return (
-        <group key={object.id} position={object.position || [0, 0, 0]}>
+        <group key={object.id} position={object.position || [0, 0, 0]} visible={isVisible}>
           <CelestialObjectRenderer
             object={object}
             scale={scale}
             starPosition={primaryStarPosition}
             isSelected={isSelected}
             planetSystemSelected={planetSystemSelected}
+            timeMultiplier={timeMultiplier}
+            isPaused={isPaused}
+            showLabel={shouldShowLabel}
             onHover={onObjectHover}
             onSelect={onObjectSelect}
             onFocus={onObjectFocus}
@@ -284,7 +327,8 @@ export function SystemObjectsRenderer({
     onObjectFocus,
     registerRef,
     orbitalMechanics,
-    getHierarchicalSelectionInfo // Add this dependency since we call it
+    getHierarchicalSelectionInfo, // Add this dependency since we call it
+    shouldObjectBeVisible // Add visibility function dependency
   ])
 
   // Build object hierarchy for rendering
@@ -292,7 +336,11 @@ export function SystemObjectsRenderer({
     const hierarchy = new Map<string, CelestialObject[]>()
     const rootObjects: CelestialObject[] = []
 
-    for (const object of systemData.objects) {
+    // Always render all objects to maintain object registration
+    // In profile mode, we'll make irrelevant objects invisible instead of not rendering them
+    const objectsToRender = systemData.objects
+
+    for (const object of objectsToRender) {
       if (object.orbit?.parent) {
         const parent = object.orbit.parent
         if (!hierarchy.has(parent)) {
@@ -305,7 +353,7 @@ export function SystemObjectsRenderer({
     }
 
     return { hierarchy, rootObjects }
-  }, [systemData.objects])
+  }, [systemData.objects, viewType, selectedObjectId])
 
   // Render object hierarchy recursively
   const renderObjectWithChildren = useCallback((object: CelestialObject): React.ReactNode => {

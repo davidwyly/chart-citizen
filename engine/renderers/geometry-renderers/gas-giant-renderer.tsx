@@ -18,6 +18,9 @@ export function GasGiantRenderer({
   position = [0, 0, 0],
   isSelected,
   planetSystemSelected = false,
+  timeMultiplier,
+  isPaused,
+  showLabel = true,
   shaderParams,
   onHover,
   onSelect,
@@ -159,6 +162,8 @@ export function GasGiantRenderer({
       position={position}
       visualSize={scale}
       isSelected={isSelected}
+      timeMultiplier={timeMultiplier}
+      isPaused={isPaused}
       planetSystemSelected={planetSystemSelected}
       onHover={(id, hovered) => onHover?.(hovered ? id : null)}
       onSelect={onSelect}
@@ -167,7 +172,7 @@ export function GasGiantRenderer({
         onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)
       }
       registerRef={registerRef}
-      showLabel={true}
+      showLabel={showLabel}
     >
       <group ref={planetRef}>
         <mesh ref={surfaceRef}>
