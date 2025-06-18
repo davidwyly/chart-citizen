@@ -19,6 +19,7 @@ import { ObjectDetailsPanel } from "./system-viewer/object-details-panel"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
 import { ZoomTracker } from "./system-viewer/components/zoom-tracker"
 import { isPlanet } from "../types/orbital-system"
+import { calculateSystemOrbitalMechanics } from "../utils/orbital-mechanics-calculator"
 
 // Add JSX namespace declaration
 declare global {
@@ -97,6 +98,22 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   // Create ref for object map
   const objectRefsMap = useRef<Map<string, THREE.Object3D>>(new Map())
 
+  // Calculate orbital mechanics for object sizing (same as SystemObjectsRenderer)
+  const orbitalMechanics = useMemo(() => {
+    if (!systemData) return new Map()
+    return calculateSystemOrbitalMechanics(systemData.objects, viewType);
+  }, [systemData?.objects, viewType]);
+
+  // Get object sizing function (same as SystemObjectsRenderer)
+  const getObjectSizing = useCallback((objectId: string) => {
+    const mechanicsData = orbitalMechanics.get(objectId);
+    const visualSize = mechanicsData?.visualRadius || 1.0;
+    
+    return {
+      visualSize: visualSize,
+    }
+  }, [orbitalMechanics])
+
   // Handle object selection and focus
   const {
     selectedObjectId,
@@ -130,6 +147,18 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     }
   }, [selectedObjectData, focusedName])
 
+  // ⚠️ CRITICAL: Calculate the correct focus size for the current view mode
+  // This ensures camera framing consistency when switching view modes
+  // Without this, the camera would use the old visual size from the previous view mode
+  const currentViewModeFocusSize = useMemo(() => {
+    if (!selectedObjectId || !focusedObject) return focusedObjectSize || undefined
+    
+    // Get the visual size for the current view mode
+    const currentVisualSize = getObjectSizing(selectedObjectId).visualSize
+    
+    return currentVisualSize
+  }, [selectedObjectId, focusedObject, viewType, getObjectSizing, focusedObjectSize])
+
   // Memoize camera configuration
   const cameraConfig = useMemo(() => ({
     position: [0, 5, 15] as [number, number, number],
@@ -153,25 +182,14 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     }
   }, [handleObjectFocus, onFocus])
 
-  // Handle view type change with focus preservation
+  // ⚠️ CRITICAL: Handle view type change with focus preservation
+  // This function is intentionally simple - the complex logic is handled by currentViewModeFocusSize
   const setViewType = useCallback((newViewType: ViewType) => {
     setViewTypeState(newViewType)
-    
-    // If we have a focused object, re-focus on it after a brief delay to allow the view to update
-    if (focusedObject && focusedName) {
-      setTimeout(() => {
-        // Re-trigger the focus with the current object
-        enhancedObjectFocus(
-          focusedObject, 
-          focusedName, 
-          focusedObjectSize || undefined, 
-          focusedObjectRadius || undefined,
-          focusedObjectProperties?.mass,
-          focusedObjectProperties?.orbitRadius
-        )
-      }, 100) // Small delay to ensure view mode has updated
-    }
-  }, [focusedObject, focusedName, focusedObjectSize, focusedObjectRadius, focusedObjectProperties, enhancedObjectFocus])
+    // The currentViewModeFocusSize memoized value will automatically update
+    // and trigger the camera controller to use the correct visual size
+    // DO NOT add setTimeout or manual focus logic here - it causes race conditions
+  }, [setViewTypeState])
 
   // Determine if we should show the back button
   const showBackButton = useMemo(() => 
@@ -313,6 +331,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
             }
           }}
           onSystemNameClick={handleSystemNameClick}
+          getObjectSizing={getObjectSizing}
         />
 
         {/* Object Details Panel */}
@@ -337,12 +356,14 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
             <ZoomTracker onZoomChange={setCurrentZoom} />
 
             {/* Unified Camera Controller - handles all view modes */}
+            {/* ⚠️ CRITICAL: Use currentViewModeFocusSize instead of focusedObjectSize
+                This ensures camera framing consistency across view mode switches */}
             <UnifiedCameraController 
               ref={cameraControllerRef}
               focusObject={focusedObject} 
               focusName={focusedName} 
               focusRadius={focusedObjectRadius || undefined}
-              focusSize={focusedObjectSize || undefined}
+              focusSize={currentViewModeFocusSize}
               focusMass={focusedObjectProperties?.mass}
               focusOrbitRadius={focusedObjectProperties?.orbitRadius}
               viewMode={viewType}

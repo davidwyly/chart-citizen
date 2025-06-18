@@ -25,7 +25,7 @@ export interface GeometryRendererProps {
   onHover?: (objectId: string | null) => void
   onSelect?: (id: string, object: THREE.Object3D, name: string) => void
   onFocus?: (object: THREE.Object3D, name: string, size: number, radius?: number, mass?: number, orbitRadius?: number) => void
-  registerRef: (id: string, ref: THREE.Object3D) => void
+  registerRef: (id: string, ref: THREE.Object3D | null) => void
 }
 
 // Component type for geometry renderers

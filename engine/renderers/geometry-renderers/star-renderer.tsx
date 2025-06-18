@@ -168,6 +168,7 @@ export function StarRenderer({
       objectType="star"
       radius={radius}
       position={position}
+      visualSize={scale}
       isSelected={isSelected}
       onHover={(id, hovered) => onHover?.(hovered ? id : null)}
       onSelect={onSelect}

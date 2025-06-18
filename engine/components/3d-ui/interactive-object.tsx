@@ -135,6 +135,14 @@ export function InteractiveObject({
         onSelect(objectId, groupRef.current, objectName)
       }
       if (onFocus) {
+        // DEBUG: Log what we're passing to onFocus
+        if (objectName.toLowerCase().includes('neptune')) {
+          console.log(`🎯 INTERACTIVE OBJECT FOCUS DEBUG - ${objectName}:`, {
+            visualSize,
+            objectId,
+            groupRef: groupRef.current
+          });
+        }
         onFocus(groupRef.current, objectName, visualSize)
       }
     }
@@ -171,12 +179,22 @@ export function InteractiveObject({
     <mesh
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
-      onClick={handleClick}
+      onClick={(e) => {
+        // DEBUG: Log collision mesh clicks
+        if (objectName.toLowerCase().includes('neptune')) {
+          console.log(`🎯 COLLISION MESH CLICK DEBUG - ${objectName}:`, {
+            objectId,
+            radius,
+            event: e
+          });
+        }
+        handleClick(e);
+      }}
     >
       <sphereGeometry args={[radius, 16, 16]} />
       <meshBasicMaterial transparent opacity={0} depthWrite={false} />
     </mesh>
-  ), [radius, handlePointerOver, handlePointerOut, handleClick])
+  ), [radius, handlePointerOver, handlePointerOut, handleClick, objectName, objectId])
 
   // Register this object's ref with parent map
   useEffect(() => {

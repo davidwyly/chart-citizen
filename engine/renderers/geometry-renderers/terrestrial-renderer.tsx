@@ -243,6 +243,7 @@ export function TerrestrialRenderer({
       objectType={object.classification === 'star' ? 'star' : object.classification === 'planet' ? 'planet' : object.classification === 'moon' ? 'moon' : 'planet'}
       radius={radius}
       position={position}
+      visualSize={scale}
       isSelected={isSelected}
       planetSystemSelected={planetSystemSelected}
       onHover={(id, hovered) => onHover?.(hovered ? id : null)}

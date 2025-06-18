@@ -106,7 +106,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
       const center = new THREE.Vector3()
 
       // Use configured birds-eye view angle
-      const angle = viewConfig.cameraConfig.viewingAngles.birdsEyeElevation * (Math.PI / 180)
+      const viewingAngles = (viewConfig.cameraConfig as any).viewingAngles || { birdsEyeElevation: 40 }
+      const angle = viewingAngles.birdsEyeElevation * (Math.PI / 180)
       const distance = maxOrbitRadius
 
       // Calculate position components for birds-eye view
@@ -257,15 +258,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
 
     // Handle object focus with unified logic
     useEffect(() => {
-      // Debug logging for camera focus
-      console.log('🔍 Camera focus debug:', {
-        focusObject: !!focusObject,
-        focusName,
-        focusRadius,
-        focusSize,
-        animating: animatingRef.current,
-        isFollowing: isFollowingRef.current
-      })
+
       
       // Debounce: if we are already animating towards the same object, ignore
       if (animatingRef.current && focusObject && focusObject === lastFocusedRef.current) {
@@ -291,24 +284,41 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         // Store the current object properties
         currentObjectPropertiesRef.current = objectProperties
 
-        // IMPORTANT: Use the actual visual size from the scene, not the recalculated one
-        // The focusRadius parameter is the real radius in km, but we need the visual size
-        const actualVisualSize = focusSize || focusObject.scale?.x || 1.0
+                // ⚠️ CRITICAL: Base camera distance on the VISUAL size with consistent multiplier
+        // This ensures objects with same visual size get same camera distance regardless of view mode
+        // DO NOT use real radius or view-mode-specific multipliers - this breaks framing consistency
+        const actualVisualSize = focusSize || focusObject.scale?.x || 1.0 // Visual size in 3D scene
+
+
+
         
-        // Calculate camera distance based PURELY on actual visual radius
-        // This ensures consistent behavior regardless of object type
+        
+
+        
+        // Use consistent radius multiplier across all view modes for consistent visual framing
+        const CONSISTENT_RADIUS_MULTIPLIER = 4.0  // Same visual size = same camera distance
+        const CONSISTENT_MIN_MULTIPLIER = 2.5     // Minimum distance multiplier  
+        const CONSISTENT_MAX_MULTIPLIER = 15.0    // Maximum distance multiplier
+        
+        // Calculate camera distance based on VISUAL size (consistent framing)
+        const optimalDistance = actualVisualSize * CONSISTENT_RADIUS_MULTIPLIER
+        const minDistance = actualVisualSize * CONSISTENT_MIN_MULTIPLIER
+        const maxDistance = actualVisualSize * CONSISTENT_MAX_MULTIPLIER
+        
+
+        
+        // Apply view-mode specific absolute constraints but use consistent relative distances
         const cameraConfig = viewConfig.cameraConfig
-        const optimalDistance = actualVisualSize * cameraConfig.radiusMultiplier
-        const minDistance = actualVisualSize * cameraConfig.minDistanceMultiplier
-        const maxDistance = actualVisualSize * cameraConfig.maxDistanceMultiplier
+        const absoluteMinDistance = (cameraConfig as any).absoluteMinDistance || 0.1
+        const absoluteMaxDistance = (cameraConfig as any).absoluteMaxDistance || 1000
         
-        // Apply absolute constraints and ensure we never go inside the object
+        // Apply constraints while maintaining consistent framing
         const targetDistance = Math.max(
           Math.min(
-            Math.max(optimalDistance, cameraConfig.absoluteMinDistance),
-            cameraConfig.absoluteMaxDistance
+            Math.max(optimalDistance, absoluteMinDistance),
+            absoluteMaxDistance
           ),
-          Math.max(minDistance, actualVisualSize * 2.0) // Safety margin: never closer than 1.5x radius
+          Math.max(minDistance, actualVisualSize * 2.0) // Safety margin: never closer than 2x radius
         )
 
         // Update the stored properties with the corrected distance

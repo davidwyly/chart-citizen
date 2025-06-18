@@ -52,16 +52,7 @@ export function BeltRenderer({
     return baseSize * Math.max(beltRadius / 10, 1.0) // Much larger for visibility
   }, [particleSize, beltRadius])
 
-  // Debug logging
-  console.log(`🪨 BeltRenderer: ${object.name}`, {
-    particleCount,
-    innerRadius,
-    outerRadius,
-    dotSize,
-    tint,
-    scale,
-    position
-  })
+  // Debug logging removed to reduce console noise
 
   // Create varied asteroid colors for realism
   const asteroidColors = useMemo(() => {

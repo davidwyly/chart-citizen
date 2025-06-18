@@ -16,6 +16,8 @@ interface SystemBreadcrumbProps {
   focusedName: string
   onBackToStarmap?: () => void
   onSystemNameClick?: () => void
+  // Add function to get object sizing for consistency
+  getObjectSizing?: (objectId: string) => { visualSize: number }
 }
 
 export function SystemBreadcrumb({
@@ -26,12 +28,23 @@ export function SystemBreadcrumb({
   focusedName,
   onBackToStarmap,
   onSystemNameClick,
+  getObjectSizing,
 }: SystemBreadcrumbProps) {
 
   const handleObjectClick = (objectId: string, name: string) => {
     const object = objectRefsMap.current.get(objectId)
     if (object) {
-      onObjectFocus(object, name)
+      // ⚠️ CRITICAL: Get visual size for current view mode to ensure camera framing consistency
+      // This must match the visual size calculation used by the geometry renderers
+      const visualSize = getObjectSizing ? getObjectSizing(objectId).visualSize : undefined
+      
+      // Get object properties for additional parameters
+      const objectData = systemData.objects.find(obj => obj.id === objectId)
+      const radius = objectData?.properties?.radius
+      
+      // ⚠️ CRITICAL: Call onObjectFocus BEFORE onObjectSelect to avoid race conditions
+      // The order matters: focus sets the visual size, select preserves it
+      onObjectFocus(object, name, visualSize, radius)
       if (onObjectSelect) {
         onObjectSelect(objectId, object, name)
       }

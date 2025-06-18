@@ -31,6 +31,9 @@ export function GasGiantRenderer({
 
   const { properties } = object
   const radius = scale
+
+
+
   const rotationRate = 0.0002 / (properties.rotation_period || 9.9)
 
   const stormIntensity = (properties.band_contrast || 50) / 100
@@ -135,7 +138,7 @@ export function GasGiantRenderer({
 
   React.useEffect(() => {
     if (planetRef.current) {
-      registerRef(object.id, planetRef.current)
+      registerRef?.(object.id, planetRef.current)
     }
   }, [object.id, registerRef])
 
@@ -143,13 +146,23 @@ export function GasGiantRenderer({
     <InteractiveObject
       objectId={object.id}
       objectName={object.name}
-      objectType={object.classification || 'planet'}
+      objectType={
+        object.classification === 'compact-object' || 
+        object.classification === 'dwarf-planet' || 
+        object.classification === 'belt' || 
+        object.classification === 'ring' || 
+        object.classification === 'barycenter' 
+          ? 'planet' 
+          : (object.classification || 'planet')
+      }
       radius={radius}
       position={position}
+      visualSize={scale}
       isSelected={isSelected}
       planetSystemSelected={planetSystemSelected}
       onHover={(id, hovered) => onHover?.(hovered ? id : null)}
       onSelect={onSelect}
+      // ⚠️ CRITICAL: Pass visualSize parameter to onFocus for camera framing consistency
       onFocus={(obj, name, visualSize) =>
         onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)
       }

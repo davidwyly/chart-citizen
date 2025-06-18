@@ -70,6 +70,8 @@ export function useObjectSelection(
     mass?: number, 
     orbitRadius?: number
   ) => {
+
+    
     setState(prev => ({
       ...prev,
       focusedObject: object,
@@ -109,9 +111,11 @@ export function useObjectSelection(
       // Get the full object data
       const objectData = getObjectData(objectId)
 
-      const orbitalSemiMajorAxis = objectData?.orbit && isOrbitData(objectData.orbit) 
+            const orbitalSemiMajorAxis = objectData?.orbit && isOrbitData(objectData.orbit) 
         ? objectData.orbit.semi_major_axis 
         : null
+
+
 
       return {
         ...prev,
@@ -120,9 +124,12 @@ export function useObjectSelection(
         // Focus will be updated with full properties by the renderer when onObjectFocus is called
         focusedObject: object,
         focusedName: name,
-        focusedObjectRadius: null, // Will be set by renderer
-        focusedObjectSize: null, // Will be set by renderer
-        focusedObjectMass: null, // Will be set by renderer
+        // ⚠️ CRITICAL: Preserve existing focus properties to avoid race conditions
+        // When breadcrumb navigation calls handleObjectFocus followed by handleObjectSelect,
+        // we must preserve the focusedObjectSize set by handleObjectFocus for camera framing consistency
+        focusedObjectRadius: prev.focusedObjectRadius, // Preserve existing or will be set by renderer
+        focusedObjectSize: prev.focusedObjectSize, // Preserve existing or will be set by renderer
+        focusedObjectMass: prev.focusedObjectMass, // Preserve existing or will be set by renderer
         focusedObjectOrbitRadius: orbitalSemiMajorAxis
       }
     })
