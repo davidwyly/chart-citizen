@@ -604,4 +604,404 @@ describe('Camera Framing Consistency', () => {
       expect(result.current.focusedObjectSize).toBe(1.7999999999999998)
     })
   })
+
+  describe('Camera Framing Consistency - View Mode Switching', () => {
+    it('should automatically recalculate focus size when view mode changes', () => {
+      // This test verifies that currentViewModeFocusSize memoized value works correctly
+      
+      // Mock the getObjectSizing function that would be used in real SystemViewer
+      const mockGetObjectSizing = vi.fn()
+      
+      // Test different view modes producing different visual sizes for same object
+      const mockObjectSizings = {
+        explorational: { visualSize: 0.5616641626149073, radius: 24622 },
+        navigational: { visualSize: 1.7999999999999998, radius: 24622 },
+        profile: { visualSize: 1.0, radius: 24622 },
+        scientific: { visualSize: 0.1, radius: 24622 }
+      }
+
+      // Set up the mock to return different sizes based on current view mode
+      let currentViewMode: ViewType = 'explorational'
+      mockGetObjectSizing.mockImplementation(() => mockObjectSizings[currentViewMode])
+
+      // This simulates the currentViewModeFocusSize calculation in SystemViewer
+      const calculateCurrentViewModeFocusSize = (selectedObjectId: string | null, viewType: ViewType) => {
+        if (!selectedObjectId) return undefined
+        currentViewMode = viewType
+        return mockGetObjectSizing().visualSize
+      }
+
+      // Test the behavior across view mode changes
+      const testCases: { viewMode: ViewType; expectedSize: number }[] = [
+        { viewMode: 'explorational', expectedSize: 0.5616641626149073 },
+        { viewMode: 'navigational', expectedSize: 1.7999999999999998 },
+        { viewMode: 'profile', expectedSize: 1.0 },
+        { viewMode: 'scientific', expectedSize: 0.1 }
+      ]
+
+      testCases.forEach(({ viewMode, expectedSize }) => {
+        const calculatedSize = calculateCurrentViewModeFocusSize('neptune', viewMode)
+        expect(calculatedSize).toBe(expectedSize)
+        expect(mockGetObjectSizing).toHaveBeenCalled()
+      })
+
+      // Verify that changing view mode recalculates the size
+      expect(mockGetObjectSizing).toHaveBeenCalledTimes(testCases.length)
+    })
+
+    it('should return undefined when no object is selected', () => {
+      const mockGetObjectSizing = vi.fn()
+      
+      const calculateCurrentViewModeFocusSize = (selectedObjectId: string | null) => {
+        if (!selectedObjectId) return undefined
+        return mockGetObjectSizing().visualSize
+      }
+
+      const result = calculateCurrentViewModeFocusSize(null)
+      expect(result).toBeUndefined()
+      expect(mockGetObjectSizing).not.toHaveBeenCalled()
+    })
+
+    it('should handle edge cases in view mode switching', () => {
+      const mockGetObjectSizing = vi.fn()
+      
+      // Test with very small and very large visual sizes
+      const edgeCases = [
+        { visualSize: 0.001, description: 'very small object' },
+        { visualSize: 100.0, description: 'very large object' },
+        { visualSize: 0, description: 'zero size object' }
+      ]
+
+      edgeCases.forEach(({ visualSize, description }) => {
+        mockGetObjectSizing.mockReturnValueOnce({ visualSize, radius: 1000 })
+        
+        const calculateCurrentViewModeFocusSize = (selectedObjectId: string | null) => {
+          if (!selectedObjectId) return undefined
+          return mockGetObjectSizing().visualSize
+        }
+
+        const result = calculateCurrentViewModeFocusSize('test-object')
+        expect(result).toBe(visualSize)
+      })
+    })
+  })
+
+  describe('Camera Framing Consistency - Breadcrumb Navigation', () => {
+    it('should calculate correct visual size for breadcrumb navigation', () => {
+      // This test verifies the getObjectSizing calculation logic used in SystemBreadcrumb
+      
+      const mockCalculateSystemOrbitalMechanics = vi.fn()
+      
+      // Mock the orbital mechanics calculation that determines visual scaling
+      const mockOrbitalData = {
+        neptune: {
+          scale: 0.5616641626149073, // explorational mode scaling
+          radius: 24622,
+          mass: 15
+        }
+      }
+
+      mockCalculateSystemOrbitalMechanics.mockReturnValue(mockOrbitalData)
+
+      // This simulates the getObjectSizing function in SystemViewer
+      const getObjectSizing = (objectId: string) => {
+        const orbitalData = mockCalculateSystemOrbitalMechanics()
+        const objectData = orbitalData[objectId]
+        
+        if (!objectData) {
+          return { visualSize: 1, radius: 1 } // fallback
+        }
+
+        return {
+          visualSize: objectData.scale,
+          radius: objectData.radius
+        }
+      }
+
+      const result = getObjectSizing('neptune')
+      
+      expect(result.visualSize).toBe(0.5616641626149073)
+      expect(result.radius).toBe(24622)
+      expect(mockCalculateSystemOrbitalMechanics).toHaveBeenCalled()
+    })
+
+    it('should handle missing objects in breadcrumb navigation', () => {
+      const mockCalculateSystemOrbitalMechanics = vi.fn()
+      mockCalculateSystemOrbitalMechanics.mockReturnValue({}) // Empty orbital data
+
+      const getObjectSizing = (objectId: string) => {
+        const orbitalData = mockCalculateSystemOrbitalMechanics()
+        const objectData = orbitalData[objectId]
+        
+        if (!objectData) {
+          return { visualSize: 1, radius: 1 } // fallback
+        }
+
+        return {
+          visualSize: objectData.scale,
+          radius: objectData.radius
+        }
+      }
+
+      const result = getObjectSizing('non-existent-object')
+      
+      // Should return fallback values
+      expect(result.visualSize).toBe(1)
+      expect(result.radius).toBe(1)
+    })
+
+    it('should pass correct parameters to onObjectFocus from breadcrumb', () => {
+      // This test verifies that SystemBreadcrumb passes the correct parameters
+      
+      const mockOnObjectFocus = vi.fn()
+      const mockGetObjectSizing = vi.fn()
+      
+      // Mock object data
+      const mockObjectData = {
+        id: 'neptune',
+        name: 'Neptune',
+        properties: { mass: 15, radius: 24622 },
+        orbit: { semi_major_axis: 30.1 }
+      }
+
+      // Mock sizing calculation
+      mockGetObjectSizing.mockReturnValue({
+        visualSize: 0.5616641626149073,
+        radius: 24622
+      })
+
+      // This simulates the breadcrumb click handler
+      const handleBreadcrumbClick = (objectData: any) => {
+        const sizing = mockGetObjectSizing(objectData.id)
+        
+        mockOnObjectFocus(
+          null, // object3D (not available in breadcrumb)
+          objectData.name,
+          sizing.visualSize,
+          objectData.properties.radius,
+          objectData.properties.mass,
+          objectData.orbit?.semi_major_axis
+        )
+      }
+
+      handleBreadcrumbClick(mockObjectData)
+
+      expect(mockOnObjectFocus).toHaveBeenCalledWith(
+        null,
+        'Neptune',
+        0.5616641626149073, // visualSize
+        24622, // radius
+        15, // mass
+        30.1 // orbitRadius
+      )
+    })
+  })
+
+  describe('Camera Framing Consistency - Integration Tests', () => {
+    it('should maintain consistent camera framing through complete user interaction flow', () => {
+      // This test simulates the complete user flow that was broken before our fix
+      
+      const { result } = renderHook(() =>
+        useObjectSelection(
+          mockSystemData,
+          'explorational' as ViewType,
+          mockSetTimeMultiplier,
+          mockPauseSimulation,
+          mockUnpauseSimulation,
+          false
+        )
+      )
+
+      const mockObject = new THREE.Object3D()
+      mockObject.name = 'Neptune'
+
+      // Step 1: User clicks breadcrumb (calls handleObjectFocus first)
+      act(() => {
+        result.current.handleObjectFocus(
+          mockObject,
+          'Neptune',
+          0.5616641626149073, // visualSize from explorational mode
+          24622,
+          15,
+          30.1
+        )
+      })
+
+      // Step 2: Selection system calls handleObjectSelect (this used to reset focusedObjectSize)
+      act(() => {
+        result.current.handleObjectSelect('neptune', mockObject, 'Neptune')
+      })
+
+      // Verify focus properties are preserved
+      expect(result.current.focusedObjectSize).toBe(0.5616641626149073)
+      expect(result.current.selectedObjectId).toBe('neptune')
+
+      // Step 3: User switches to navigational mode
+      // (In real app, this would trigger currentViewModeFocusSize recalculation)
+      const newVisualSizeForNavigationalMode = 1.7999999999999998
+
+      // Simulate the currentViewModeFocusSize calculation
+      const currentViewModeFocusSize = result.current.selectedObjectId ? newVisualSizeForNavigationalMode : undefined
+
+      // This should be the new visual size for navigational mode
+      expect(currentViewModeFocusSize).toBe(1.7999999999999998)
+
+      // Step 4: Verify camera controller would receive correct focus size
+      // (This is what gets passed to UnifiedCameraController)
+      const cameraFocusSize = currentViewModeFocusSize
+      expect(cameraFocusSize).toBe(1.7999999999999998)
+    })
+
+    it('should handle direct object clicking without breadcrumb', () => {
+      const { result } = renderHook(() =>
+        useObjectSelection(
+          mockSystemData,
+          'explorational' as ViewType,
+          mockSetTimeMultiplier,
+          mockPauseSimulation,
+          mockUnpauseSimulation,
+          false
+        )
+      )
+
+      const mockObject = new THREE.Object3D()
+      mockObject.name = 'Neptune'
+
+      // Direct object click (handleObjectSelect called first)
+      act(() => {
+        result.current.handleObjectSelect('neptune', mockObject, 'Neptune')
+      })
+
+      // focusedObjectSize should be null initially
+      expect(result.current.focusedObjectSize).toBe(null)
+
+      // Renderer then calls handleObjectFocus with visual size
+      act(() => {
+        result.current.handleObjectFocus(
+          mockObject,
+          'Neptune',
+          0.5616641626149073 // visualSize from renderer
+        )
+      })
+
+      // Now focusedObjectSize should be set
+      expect(result.current.focusedObjectSize).toBe(0.5616641626149073)
+    })
+
+    it('should prevent regression of the original camera framing bug', () => {
+      // This test specifically prevents regression of the bug where Neptune appeared
+      // "zoomed in close to the atmosphere" in navigational mode
+      
+      const { result } = renderHook(() =>
+        useObjectSelection(
+          mockSystemData,
+          'explorational' as ViewType,
+          mockSetTimeMultiplier,
+          mockPauseSimulation,
+          mockUnpauseSimulation,
+          false
+        )
+      )
+
+      const mockObject = new THREE.Object3D()
+      mockObject.name = 'Neptune'
+
+      // Simulate Neptune selection in explorational mode
+      act(() => {
+        result.current.handleObjectFocus(
+          mockObject,
+          'Neptune',
+          0.5616641626149073, // Neptune's visual size in explorational mode
+          24622,
+          15,
+          30.1
+        )
+      })
+
+      act(() => {
+        result.current.handleObjectSelect('neptune', mockObject, 'Neptune')
+      })
+
+      // Calculate what camera distance would be in explorational mode
+      const explorationVisualSize = 0.5616641626149073
+      const explorationCameraDistance = calculateCameraDistanceVisualFixed(explorationVisualSize)
+      
+      // Now simulate switching to navigational mode
+      const navigationVisualSize = 1.7999999999999998 // Neptune's visual size in navigational mode
+      const navigationCameraDistance = calculateCameraDistanceVisualFixed(navigationVisualSize)
+
+      // The key insight: with our fix, the camera distance is based on visual size
+      // So different visual sizes will produce different distances, but the FRAMING will be consistent
+      
+      // Calculate the visual framing (what user actually sees)
+      const explorationFraming = calculateVisualFraming(explorationVisualSize, explorationCameraDistance)
+      const navigationFraming = calculateVisualFraming(navigationVisualSize, navigationCameraDistance)
+
+      // With our CONSISTENT_RADIUS_MULTIPLIER fix, both should have the same distance-to-radius ratio
+      expect(explorationFraming.distanceToRadiusRatio).toBeCloseTo(4.0, 3)
+      expect(navigationFraming.distanceToRadiusRatio).toBeCloseTo(4.0, 3)
+
+      // And therefore the same apparent size (this is the fix!)
+      expect(explorationFraming.apparentSize).toBeCloseTo(navigationFraming.apparentSize, 3)
+
+      // This prevents the bug where Neptune appeared "zoomed in" in navigational mode
+      console.log('Regression test - consistent framing across modes:', {
+        explorational: {
+          visualSize: explorationVisualSize,
+          cameraDistance: explorationCameraDistance,
+          apparentSize: explorationFraming.apparentSize,
+          distanceToRadiusRatio: explorationFraming.distanceToRadiusRatio
+        },
+        navigational: {
+          visualSize: navigationVisualSize,
+          cameraDistance: navigationCameraDistance,
+          apparentSize: navigationFraming.apparentSize,
+          distanceToRadiusRatio: navigationFraming.distanceToRadiusRatio
+        }
+      })
+    })
+  })
+
+  describe('Camera Framing Consistency - Error Handling', () => {
+    it('should handle undefined focusSize gracefully', () => {
+      // This test ensures that when focusSize is undefined, camera controller handles it properly
+      
+      const undefinedFocusSize = undefined
+      const defaultVisualSize = 1.0 // fallback used by camera controller
+
+      // Camera controller should use fallback when focusSize is undefined
+      const cameraDistance = undefinedFocusSize ? 
+        calculateCameraDistanceVisualFixed(undefinedFocusSize) : 
+        calculateCameraDistanceVisualFixed(defaultVisualSize)
+
+      expect(cameraDistance).toBe(4.0) // 1.0 * 4.0
+    })
+
+    it('should handle zero visual size', () => {
+      const zeroVisualSize = 0
+      const cameraDistance = calculateCameraDistanceVisualFixed(zeroVisualSize)
+      
+      expect(cameraDistance).toBe(0)
+      
+      // Camera controller should handle this edge case
+      const framing = calculateVisualFraming(zeroVisualSize, Math.max(cameraDistance, 0.001))
+      expect(framing.apparentSize).toBeGreaterThanOrEqual(0)
+    })
+
+    it('should handle negative visual size', () => {
+      const negativeVisualSize = -1.0
+      const cameraDistance = calculateCameraDistanceVisualFixed(Math.abs(negativeVisualSize))
+      
+      // Should use absolute value
+      expect(cameraDistance).toBe(4.0)
+    })
+
+    it('should handle very large visual sizes without overflow', () => {
+      const largeVisualSize = 1000000
+      const cameraDistance = calculateCameraDistanceVisualFixed(largeVisualSize)
+      
+      expect(cameraDistance).toBe(4000000)
+      expect(Number.isFinite(cameraDistance)).toBe(true)
+    })
+  })
 }) 

@@ -76,10 +76,10 @@ export function useObjectSelection(
       ...prev,
       focusedObject: object,
       focusedName: name,
-      focusedObjectSize: visualSize || null,
-      focusedObjectRadius: radius || null,
-      focusedObjectMass: mass || null,
-      focusedObjectOrbitRadius: orbitRadius || null
+      focusedObjectSize: visualSize !== undefined ? visualSize : null,
+      focusedObjectRadius: radius !== undefined ? radius : null,
+      focusedObjectMass: mass !== undefined ? mass : null,
+      focusedObjectOrbitRadius: orbitRadius !== undefined ? orbitRadius : null
     }))
   }, [])
 

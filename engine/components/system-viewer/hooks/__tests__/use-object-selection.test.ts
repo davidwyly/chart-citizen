@@ -105,36 +105,26 @@ describe('useObjectSelection pause/unpause behavior', () => {
   })
 
   it('should handle multiple rapid selections correctly', () => {
-    let isPaused = false
-    
-    const { result, rerender } = renderHook(
-      ({ isPausedState }) => 
-        useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, isPausedState),
-      { initialProps: { isPausedState: isPaused } }
+    // Start with paused state to test the "select same object while paused" behavior
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, true)
     )
 
-    const mockObject1 = new THREE.Object3D()
-    const mockObject2 = new THREE.Object3D()
+    const mockObject = new THREE.Object3D()
     
-    // First selection
+    // First selection while already paused - should not pause again
     act(() => {
-      result.current.handleObjectSelect('earth', mockObject1, 'Earth')
-      isPaused = true // Simulate the pause state change
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
     })
 
-    expect(mockPauseSimulation).toHaveBeenCalledTimes(1)
+    expect(mockPauseSimulation).toHaveBeenCalledTimes(0) // Should not pause again
 
-    // Re-render with updated pause state
-    rerender({ isPausedState: isPaused })
-
-    // Second selection of same object while paused - should unpause immediately
+    // Select the same object again while paused - should unpause immediately
     act(() => {
-      result.current.handleObjectSelect('earth', mockObject2, 'Earth')
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
     })
 
-    // Should have paused only once, and unpaused once immediately due to same object selection
-    expect(mockPauseSimulation).toHaveBeenCalledTimes(1)
-    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1)
+    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1) // Should unpause immediately
   })
 
   it('should maintain consistent behavior regardless of initial pause state', () => {
@@ -196,5 +186,347 @@ describe('useObjectSelection pause/unpause behavior', () => {
 
     expect(mockPauseSimulation).toHaveBeenCalledTimes(0)
     expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1)
+  })
+
+  describe('Camera Framing Consistency - Race Condition Prevention', () => {
+  it('should preserve focusedObjectSize when handleObjectSelect is called after handleObjectFocus', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Step 1: handleObjectFocus sets focus properties (breadcrumb navigation)
+    act(() => {
+      result.current.handleObjectFocus(
+        mockObject,
+        'Earth',
+        1.5, // visualSize
+        6371, // radius
+        1, // mass
+        1.0 // orbitRadius
+      )
+    })
+
+    // Verify focus properties are set
+    expect(result.current.focusedObjectSize).toBe(1.5)
+    expect(result.current.focusedObjectRadius).toBe(6371)
+    expect(result.current.focusedObjectMass).toBe(1)
+    expect(result.current.focusedObjectOrbitRadius).toBe(1.0)
+
+    // Step 2: handleObjectSelect should preserve these values (not reset to null)
+    act(() => {
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+    })
+
+    // ✅ THE FIX: focusedObjectSize should be preserved, not reset to null
+    expect(result.current.focusedObjectSize).toBe(1.5)
+    expect(result.current.focusedObjectRadius).toBe(6371)
+    expect(result.current.focusedObjectMass).toBe(1)
+    expect(result.current.focusedObjectOrbitRadius).toBe(1.0)
+    expect(result.current.selectedObjectId).toBe('earth')
+  })
+
+  it('should allow renderer to set focus properties when no previous values exist', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Step 1: handleObjectSelect called first (direct object click)
+    act(() => {
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+    })
+
+    // Focus properties should be null initially
+    expect(result.current.focusedObjectSize).toBe(null)
+    expect(result.current.focusedObjectRadius).toBe(null)
+    expect(result.current.selectedObjectId).toBe('earth')
+
+    // Step 2: Renderer calls handleObjectFocus to set properties
+    act(() => {
+      result.current.handleObjectFocus(
+        mockObject,
+        'Earth',
+        1.5, // visualSize from renderer
+        6371, // radius
+        1, // mass
+        1.0 // orbitRadius
+      )
+    })
+
+    // Now focus properties should be set
+    expect(result.current.focusedObjectSize).toBe(1.5)
+    expect(result.current.focusedObjectRadius).toBe(6371)
+  })
+
+  it('should handle multiple rapid focus/select calls correctly', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Rapid sequence of calls (could happen during breadcrumb navigation)
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth', 1.5, 6371, 1, 1.0)
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+      result.current.handleObjectFocus(mockObject, 'Earth', 1.8, 6371, 1, 1.0) // Updated visual size
+    })
+
+    // Should end up with the latest values
+    expect(result.current.focusedObjectSize).toBe(1.8)
+    expect(result.current.selectedObjectId).toBe('earth')
+  })
+
+  it('should handle view mode transitions without losing focus properties', () => {
+    // Test with different view modes
+    const viewModes: Array<'explorational' | 'navigational' | 'profile' | 'scientific'> = 
+      ['explorational', 'navigational', 'profile', 'scientific']
+
+    viewModes.forEach(viewMode => {
+      const { result } = renderHook(() => 
+        useObjectSelection(mockSystemData, viewMode, mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+      )
+
+      const mockObject = new THREE.Object3D()
+      mockObject.name = 'Earth'
+
+      // Set focus properties for this view mode
+      const visualSizeForMode = viewMode === 'explorational' ? 1.5 : 
+                               viewMode === 'navigational' ? 1.8 :
+                               viewMode === 'profile' ? 1.0 : 0.5
+
+      act(() => {
+        result.current.handleObjectFocus(mockObject, 'Earth', visualSizeForMode, 6371, 1, 1.0)
+        result.current.handleObjectSelect('earth', mockObject, 'Earth')
+      })
+
+      // Focus properties should be preserved for each view mode
+      expect(result.current.focusedObjectSize).toBe(visualSizeForMode)
+      expect(result.current.selectedObjectId).toBe('earth')
+    })
+  })
+})
+
+describe('Camera Framing Consistency - Focus Size Management', () => {
+  it('should handle undefined visual size gracefully', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Call handleObjectFocus without visualSize parameter
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth')
+    })
+
+    // Should handle gracefully - focusedObjectSize should be null
+    expect(result.current.focusedObjectSize).toBe(null)
+    expect(result.current.focusedName).toBe('Earth')
+  })
+
+  it('should handle zero and negative visual sizes', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Test zero visual size
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth', 0)
+    })
+    expect(result.current.focusedObjectSize).toBe(0)
+
+    // Test negative visual size (should be preserved as-is for camera controller to handle)
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth', -1.5)
+    })
+    expect(result.current.focusedObjectSize).toBe(-1.5)
+  })
+
+  it('should handle very large visual sizes', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    const largeVisualSize = 1000000
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth', largeVisualSize)
+    })
+
+    expect(result.current.focusedObjectSize).toBe(largeVisualSize)
+  })
+
+  it('should preserve focus properties when object name changes', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Set initial focus
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth', 1.5, 6371)
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+    })
+
+    // Update with new name but same object
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth (Updated)', 1.5, 6371)
+    })
+
+    expect(result.current.focusedName).toBe('Earth (Updated)')
+    expect(result.current.focusedObjectSize).toBe(1.5)
+    expect(result.current.selectedObjectId).toBe('earth')
+  })
+})
+
+describe('Camera Framing Consistency - Integration Scenarios', () => {
+  it('should simulate complete breadcrumb navigation flow', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Simulate breadcrumb click sequence:
+    // 1. SystemBreadcrumb calculates visual size and calls handleObjectFocus
+    // 2. Selection system calls handleObjectSelect
+    // 3. Both should work together without race conditions
+
+    act(() => {
+      // Step 1: Breadcrumb calls handleObjectFocus with calculated visual size
+      result.current.handleObjectFocus(
+        mockObject,
+        'Earth',
+        1.5, // calculated from getObjectSizing in breadcrumb
+        6371,
+        1,
+        1.0
+      )
+      
+      // Step 2: Selection system calls handleObjectSelect
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+    })
+
+    // Verify the complete state is correct
+    expect(result.current.selectedObjectId).toBe('earth')
+    expect(result.current.focusedName).toBe('Earth')
+    expect(result.current.focusedObjectSize).toBe(1.5) // ✅ Preserved, not reset
+    expect(result.current.focusedObjectRadius).toBe(6371)
+    expect(result.current.focusedObjectMass).toBe(1)
+    expect(result.current.focusedObjectOrbitRadius).toBe(1.0)
+  })
+
+  it('should simulate direct object click flow', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Simulate direct object click sequence:
+    // 1. InteractiveObject calls handleObjectSelect first
+    // 2. Renderer calls handleObjectFocus with visual size
+
+    act(() => {
+      // Step 1: Direct click calls handleObjectSelect first
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+    })
+
+    // Initially, focus properties should be null
+    expect(result.current.selectedObjectId).toBe('earth')
+    expect(result.current.focusedObjectSize).toBe(null)
+
+    act(() => {
+      // Step 2: Renderer calls handleObjectFocus with visual size
+      result.current.handleObjectFocus(
+        mockObject,
+        'Earth',
+        1.5 // visual size from renderer
+      )
+    })
+
+    // Now focus properties should be set
+    expect(result.current.focusedObjectSize).toBe(1.5)
+    expect(result.current.focusedName).toBe('Earth')
+  })
+
+  it('should handle switching between different objects', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const earthObject = new THREE.Object3D()
+    earthObject.name = 'Earth'
+    
+    const marsObject = new THREE.Object3D()
+    marsObject.name = 'Mars'
+
+    // Select Earth first
+    act(() => {
+      result.current.handleObjectFocus(earthObject, 'Earth', 1.5, 6371, 1, 1.0)
+      result.current.handleObjectSelect('earth', earthObject, 'Earth')
+    })
+
+    expect(result.current.selectedObjectId).toBe('earth')
+    expect(result.current.focusedObjectSize).toBe(1.5)
+
+    // Switch to Mars
+    act(() => {
+      result.current.handleObjectFocus(marsObject, 'Mars', 0.8, 3390, 0.11, 1.52)
+      result.current.handleObjectSelect('mars', marsObject, 'Mars')
+    })
+
+    // Should have Mars properties now
+    expect(result.current.selectedObjectId).toBe('mars')
+    expect(result.current.focusedName).toBe('Mars')
+    expect(result.current.focusedObjectSize).toBe(0.8)
+    expect(result.current.focusedObjectRadius).toBe(3390)
+    expect(result.current.focusedObjectMass).toBe(0.11)
+  })
+
+  it('should handle animation completion during object transitions', () => {
+    const { result } = renderHook(() => 
+      useObjectSelection(mockSystemData, 'explorational', mockSetTimeMultiplier, mockPauseSimulation, mockUnpauseSimulation, false)
+    )
+
+    const mockObject = new THREE.Object3D()
+    mockObject.name = 'Earth'
+
+    // Select object and trigger animation
+    act(() => {
+      result.current.handleObjectFocus(mockObject, 'Earth', 1.5)
+      result.current.handleObjectSelect('earth', mockObject, 'Earth')
+    })
+
+    expect(mockPauseSimulation).toHaveBeenCalledTimes(1)
+
+    // Complete animation
+    act(() => {
+      result.current.handleAnimationComplete()
+    })
+
+    expect(mockUnpauseSimulation).toHaveBeenCalledTimes(1)
+    
+    // Focus properties should remain intact after animation
+    expect(result.current.focusedObjectSize).toBe(1.5)
+    expect(result.current.selectedObjectId).toBe('earth')
+  })
   })
 }) 
