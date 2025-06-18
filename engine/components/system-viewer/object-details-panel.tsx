@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Star, Circle, Globe, Camera, ChevronDown, ChevronRight, Info, Settings } from "lucide-react"
 import { OrbitalSystemData } from "@/engine/types/orbital-system"
 import { engineSystemLoader } from "@/engine/system-loader"
@@ -12,6 +11,8 @@ interface ObjectDetailsPanelProps {
   focusedObjectSize: number | null
   isSystemSelected?: boolean
   cameraOrbitRadius?: number
+  selectedObjectId?: string | null
+  selectedObjectData?: any | null
 }
 
 export function ObjectDetailsPanel({
@@ -20,6 +21,8 @@ export function ObjectDetailsPanel({
   focusedObjectSize,
   isSystemSelected = false,
   cameraOrbitRadius,
+  selectedObjectId,
+  selectedObjectData,
 }: ObjectDetailsPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [openSection, setOpenSection] = useState<string>("details")
@@ -31,7 +34,7 @@ export function ObjectDetailsPanel({
   if (!systemData) {
     return (
       <div
-        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden ${
+        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden z-50 ${
           isCollapsed ? "w-12" : "w-80"
         }`}
       >
@@ -65,7 +68,7 @@ export function ObjectDetailsPanel({
   if (isSystemSelected) {
     return (
       <div
-        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden ${
+        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden z-50 ${
           isCollapsed ? "w-12" : "w-80"
         }`}
       >
@@ -180,11 +183,11 @@ export function ObjectDetailsPanel({
     )
   }
 
-  // Original object-focused logic
-  if (!focusedName) {
+  // Original object-focused logic - only show "select object" if we don't have any fallback data
+  if (!focusedName && !selectedObjectData) {
     return (
       <div
-        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden ${
+        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden z-50 ${
           isCollapsed ? "w-12" : "w-80"
         }`}
       >
@@ -209,14 +212,22 @@ export function ObjectDetailsPanel({
     )
   }
 
-  // Find the focused object using the system loader helper method
-  const focusedObject = engineSystemLoader.findObject(systemData, focusedName) || 
-                       systemData.objects.find(obj => obj.name === focusedName)
+  // Find the focused object using multiple lookup strategies
+  const byId = engineSystemLoader.findObject(systemData, focusedName)
+  const byNameExact = systemData.objects.find(obj => obj.name === focusedName)
+  const byNameInsensitive = systemData.objects.find(obj => obj.name.toLowerCase() === focusedName.toLowerCase())
+  
+  // Use fallback if we have selectedObjectData but none of the name-based lookups worked
+  const nameBasedLookupFailed = !byId && !byNameExact && !byNameInsensitive
+  const shouldUseFallback = selectedObjectData && nameBasedLookupFailed
+  
+  const focusedObject = byId || byNameExact || byNameInsensitive || (shouldUseFallback ? selectedObjectData : null)
+
 
   if (!focusedObject) {
     return (
       <div
-        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden ${
+        className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden z-50 ${
           isCollapsed ? "w-12" : "w-80"
         }`}
       >
@@ -253,7 +264,7 @@ export function ObjectDetailsPanel({
 
   return (
     <div
-      className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden ${
+      className={`fixed top-0 left-0 bottom-0 bg-black/70 backdrop-blur-sm text-white flex flex-col transition-all duration-300 overflow-x-hidden z-50 ${
         isCollapsed ? "w-12" : "w-80"
       }`}
     >

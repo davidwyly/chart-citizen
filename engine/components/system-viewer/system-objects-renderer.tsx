@@ -217,7 +217,7 @@ export function SystemObjectsRenderer({
         </MemoizedOrbitalPath>
       )
     } else if (object.orbit && 'inner_radius' in object.orbit) {
-      // Handle belt objects with BeltOrbitData
+      // Handle belt objects with BeltOrbitData - use the volumetric BeltRenderer
       const mechanicsData = orbitalMechanics.get(object.id);
       const beltData = mechanicsData?.beltData;
       
@@ -227,33 +227,29 @@ export function SystemObjectsRenderer({
       }
       
       const adjustedRadius = beltData.centerRadius;
-      const adjustedWidth = (beltData.outerRadius - beltData.innerRadius) / 2;
 
       return (
-        <group key={object.id} position={[0, 0, 0]}>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[adjustedRadius, adjustedWidth, 16, 64]} />
-            <meshBasicMaterial 
-              color={object.properties.tint || "#666666"}
-              opacity={0.2}
-              transparent={true}
-            />
-          </mesh>
-          {/* Invisible interaction object for selection */}
-          <group position={[adjustedRadius, 0, 0]}>
-            <CelestialObjectRenderer
-              object={object}
-              scale={0.01} // Very small invisible object for interaction
-              starPosition={primaryStarPosition}
-              isSelected={isSelected}
-              planetSystemSelected={planetSystemSelected}
-              onHover={onObjectHover}
-              onSelect={onObjectSelect}
-              onFocus={onObjectFocus}
-              registerRef={registerRef}
-            />
-          </group>
-        </group>
+        <CelestialObjectRenderer
+          key={object.id}
+          object={{
+            ...object,
+            properties: {
+              ...object.properties,
+              // Pass the calculated belt dimensions to the renderer
+              belt_inner_radius: beltData.innerRadius,
+              belt_outer_radius: beltData.outerRadius,
+              belt_center_radius: beltData.centerRadius
+            }
+          }}
+          scale={adjustedRadius}
+          starPosition={primaryStarPosition}
+          isSelected={isSelected}
+          planetSystemSelected={planetSystemSelected}
+          onHover={onObjectHover}
+          onSelect={onObjectSelect}
+          onFocus={onObjectFocus}
+          registerRef={registerRef}
+        />
       )
     } else {
       // Objects without orbits (stars, barycenters)

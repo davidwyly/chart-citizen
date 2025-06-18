@@ -1,0 +1,118 @@
+{
+  "id": "volumetric-belt-system",
+  "name": "Volumetric Belt System",
+  "description": "Test system showcasing volumetric asteroid belt rendering with different densities",
+  "objects": [
+    {
+      "id": "star-1",
+      "name": "G2V Star",
+      "classification": "star",
+      "geometry_type": "star",
+      "properties": {
+        "mass": 1.0,
+        "radius": 1.0,
+        "temperature": 5778,
+        "luminosity": 1.0,
+        "base_color": "#FFF8DC",
+        "corona_color": "#FFD700"
+      },
+      "position": [0, 0, 0]
+    },
+    {
+      "id": "sparse-belt",
+      "name": "Sparse Asteroid Belt",
+      "classification": "belt",
+      "geometry_type": "belt",
+      "properties": {
+        "mass": 0.5,
+        "radius": 500,
+        "temperature": 200,
+        "belt_density": "sparse",
+        "particle_size": "small",
+        "tint": "#8B7355"
+      },
+      "orbit": {
+        "parent": "star-1",
+        "inner_radius": 1.5,
+        "outer_radius": 2.0,
+        "inclination": 0,
+        "eccentricity": 0
+      }
+    },
+    {
+      "id": "moderate-belt",
+      "name": "Moderate Asteroid Belt",
+      "classification": "belt",
+      "geometry_type": "belt",
+      "properties": {
+        "mass": 1.0,
+        "radius": 750,
+        "temperature": 180,
+        "belt_density": "moderate",
+        "particle_size": "medium",
+        "tint": "#A0522D"
+      },
+      "orbit": {
+        "parent": "star-1",
+        "inner_radius": 2.5,
+        "outer_radius": 3.5,
+        "inclination": 2,
+        "eccentricity": 0
+      }
+    },
+    {
+      "id": "dense-belt",
+      "name": "Dense Asteroid Belt",
+      "classification": "belt",
+      "geometry_type": "belt",
+      "properties": {
+        "mass": 2.0,
+        "radius": 1000,
+        "temperature": 160,
+        "belt_density": "dense",
+        "particle_size": "large",
+        "tint": "#696969"
+      },
+      "orbit": {
+        "parent": "star-1",
+        "inner_radius": 4.0,
+        "outer_radius": 6.0,
+        "inclination": 5,
+        "eccentricity": 0
+      }
+    },
+    {
+      "id": "kuiper-style-belt",
+      "name": "Outer Kuiper-Style Belt",
+      "classification": "belt",
+      "geometry_type": "belt",
+      "properties": {
+        "mass": 1.5,
+        "radius": 1200,
+        "temperature": 40,
+        "belt_density": "moderate",
+        "particle_size": "medium",
+        "tint": "#4682B4"
+      },
+      "orbit": {
+        "parent": "star-1",
+        "inner_radius": 8.0,
+        "outer_radius": 12.0,
+        "inclination": 1.5,
+        "eccentricity": 0
+      }
+    }
+  ],
+  "lighting": {
+    "primary_star": "star-1",
+    "ambient_level": 0.1,
+    "stellar_influence_radius": 50
+  },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-01-11",
+    "coordinate_system": "heliocentric",
+    "distance_unit": "au",
+    "description": "Test system for volumetric asteroid belt rendering with various density and size configurations"
+  }
+} 

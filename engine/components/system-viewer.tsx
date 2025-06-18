@@ -115,17 +115,6 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     handleAnimationComplete,
   } = useObjectSelection(systemData, viewType, setTimeMultiplier, pauseSimulation, unpauseSimulation, isPaused)
 
-  // Debug logging for camera tracking
-  if (focusedObject) {
-    console.log('🔍 Camera tracking debug:', {
-      focusedObject: !!focusedObject,
-      focusedName,
-      focusedObjectSize,
-      focusedObjectRadius,
-      selectedObjectId,
-      selectedObjectData: !!selectedObjectData
-    })
-  }
 
   // Get focused object properties for unified camera controller
   const focusedObjectProperties = useMemo(() => {
@@ -333,6 +322,8 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
           focusedObjectSize={focusedObjectSize}
           isSystemSelected={isSystemSelected}
           cameraOrbitRadius={cameraOrbitRadius}
+          selectedObjectId={selectedObjectId}
+          selectedObjectData={selectedObjectData}
         />
 
         {/* Canvas */}
