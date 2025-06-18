@@ -17,7 +17,7 @@ export function SystemSelector({ availableSystems, currentSystem, onSystemChange
   return (
     <div className="text-gray-200">
       <h4 className="font-medium mb-3 text-sm">Available Systems</h4>
-      <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
+      <div className="space-y-1 max-h-64 overflow-y-auto no-scrollbar pr-1">
         {systemEntries.map(([systemId, systemInfo]) => (
           <button
             key={systemId}
