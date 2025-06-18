@@ -48,18 +48,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
 
     useEffect(() => {
       controlsRef.current = controls
-      // Listen to user interaction start on controls to stop following
-      if (controls) {
-        const handleStart = () => {
-          // When user starts interacting manually, stop automatic following
-          isFollowingRef.current = false
-        }
-        controls.addEventListener('start', handleStart)
-        return () => {
-          controls.removeEventListener('start', handleStart)
-        }
-      }
-    }, [controls])
+    }, [controls, focusObject])
 
     // Get current view mode configuration (memoized to prevent excessive re-calculations)
     const viewConfig = useMemo(() => getViewModeConfig(viewMode), [viewMode])
@@ -268,6 +257,16 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
 
     // Handle object focus with unified logic
     useEffect(() => {
+      // Debug logging for camera focus
+      console.log('🔍 Camera focus debug:', {
+        focusObject: !!focusObject,
+        focusName,
+        focusRadius,
+        focusSize,
+        animating: animatingRef.current,
+        isFollowing: isFollowingRef.current
+      })
+      
       // Debounce: if we are already animating towards the same object, ignore
       if (animatingRef.current && focusObject && focusObject === lastFocusedRef.current) {
         return
@@ -447,40 +446,25 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, camera, viewConfig, createEasingFunction, onAnimationComplete])
 
     // Continuously follow the focused object
-    // CAMERA FIX: Added more restrictive conditions to prevent jittering
     useFrame(() => {
-      if (focusObject && 
-          controlsRef.current && 
-          isFollowingRef.current && 
-          !animatingRef.current &&
-          controlsRef.current.enabled) { // Only follow when controls are enabled
-        
+      if (focusObject && controlsRef.current && isFollowingRef.current && !animatingRef.current) {
         const currentPosition = new THREE.Vector3()
         focusObject.getWorldPosition(currentPosition)
 
         // Calculate movement delta
         const deltaPosition = new THREE.Vector3().subVectors(currentPosition, lastObjectPositionRef.current)
 
-        // Apply smooth interpolation rather than hard threshold to avoid choppy motion
-        const followSmoothing = 0.2 // between 0 (hard snap) and 1 (no movement)
+        // Only move if there's significant movement to avoid jitter
+        if (deltaPosition.length() > 0.001) {
+          // Move both camera and target by the same delta
+          camera.position.add(deltaPosition)
+          controlsRef.current.target.add(deltaPosition)
 
-        // Desired new positions
-        const desiredCameraPos = camera.position.clone().add(deltaPosition)
-        const desiredTargetPos = controlsRef.current.target.clone().add(deltaPosition)
+          // Update controls
+          controlsRef.current.update()
 
-        // Lerp towards desired positions for smoother motion
-        camera.position.lerp(desiredCameraPos, followSmoothing)
-        controlsRef.current.target.lerp(desiredTargetPos, followSmoothing)
-
-        // Update controls
-        controlsRef.current.update()
-
-        // Update stored position so deltas stay small
-        lastObjectPositionRef.current.copy(currentPosition)
-
-        // Safety: ensure controls are enabled after animations
-        if (!controlsRef.current.enabled) {
-          controlsRef.current.enabled = true
+          // Update stored position
+          lastObjectPositionRef.current.copy(currentPosition)
         }
       }
     })
