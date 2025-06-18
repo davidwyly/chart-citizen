@@ -152,6 +152,26 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     }
   }, [handleObjectFocus, onFocus])
 
+  // Handle view type change with focus preservation
+  const setViewType = useCallback((newViewType: ViewType) => {
+    setViewTypeState(newViewType)
+    
+    // If we have a focused object, re-focus on it after a brief delay to allow the view to update
+    if (focusedObject && focusedName) {
+      setTimeout(() => {
+        // Re-trigger the focus with the current object
+        enhancedObjectFocus(
+          focusedObject, 
+          focusedName, 
+          focusedObjectSize || undefined, 
+          focusedObjectRadius || undefined,
+          focusedObjectProperties?.mass,
+          focusedObjectProperties?.orbitRadius
+        )
+      }, 100) // Small delay to ensure view mode has updated
+    }
+  }, [focusedObject, focusedName, focusedObjectSize, focusedObjectRadius, focusedObjectProperties, enhancedObjectFocus])
+
   // Determine if we should show the back button
   const showBackButton = useMemo(() => 
     viewType === "profile" && systemData?.objects?.some((obj) => isPlanet(obj) && obj.id === selectedObjectId),
@@ -168,7 +188,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     togglePause,
     setViewType,
     setCurrentZoom
-  }), [timeMultiplier, isPaused, viewType, currentZoom])
+  }), [timeMultiplier, isPaused, viewType, currentZoom, setTimeMultiplier, togglePause, setViewType, setCurrentZoom])
 
   // Memoize callbacks
   const handleObjectHoverCallback = useCallback((objectId: string | null) => 
@@ -245,26 +265,6 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
 
     handleObjectSelect(objectId, object, name) // Call the original handler
   }, [handleObjectSelect, setCameraOrbitRadius])
-
-  // Handle view type change with focus preservation
-  const setViewType = useCallback((newViewType: ViewType) => {
-    setViewTypeState(newViewType)
-    
-    // If we have a focused object, re-focus on it after a brief delay to allow the view to update
-    if (focusedObject && focusedName) {
-      setTimeout(() => {
-        // Re-trigger the focus with the current object
-        enhancedObjectFocus(
-          focusedObject, 
-          focusedName, 
-          focusedObjectSize || undefined, 
-          focusedObjectRadius || undefined,
-          focusedObjectProperties?.mass,
-          focusedObjectProperties?.orbitRadius
-        )
-      }, 100) // Small delay to ensure view mode has updated
-    }
-  }, [focusedObject, focusedName, focusedObjectSize, focusedObjectRadius, focusedObjectProperties, enhancedObjectFocus])
 
   // Handle system change
   const handleSystemChange = useCallback((newSystemId: string) => {
