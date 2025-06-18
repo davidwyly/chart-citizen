@@ -19,16 +19,36 @@ import type { ViewModeDefinition } from './types'
  * This helps the orbital mechanics calculator work with the new system
  */
 export function getOrbitalMechanicsConfig(modeId: string) {
-  const mode = requireViewMode(modeId)
+  // Use safe fallback instead of throwing error
+  const mode = viewModeRegistry.get(modeId)
   
-  return {
+  // If mode not found, return explorational fallback config
+  if (!mode) {
+    console.warn(`View mode "${modeId}" not found in registry, using explorational fallback`)
+    return {
+      maxVisualSize: 0.8,
+      minVisualSize: 0.02,
+      orbitScaling: 8.0,
+      safetyMultiplier: 2.5,
+      minDistance: 0.1,
+      fixedSizes: undefined
+    }
+  }
+  
+  const result: any = {
     maxVisualSize: mode.scaling.maxVisualSize,
     minVisualSize: mode.scaling.minVisualSize,
     orbitScaling: mode.scaling.orbitScaling,
     safetyMultiplier: mode.scaling.safetyMultiplier,
     minDistance: mode.scaling.minDistance,
-    fixedSizes: mode.scaling.fixedSizes,
   }
+  
+  // Only include fixedSizes if it actually exists in the mode definition
+  if ('fixedSizes' in mode.scaling && mode.scaling.fixedSizes !== undefined) {
+    result.fixedSizes = mode.scaling.fixedSizes
+  }
+  
+  return result
 }
 
 /**
@@ -36,20 +56,49 @@ export function getOrbitalMechanicsConfig(modeId: string) {
  * This helps components that use the old configuration format
  */
 export function getViewModeConfig(modeId: string) {
-  const mode = requireViewMode(modeId)
+  // Use safe fallback instead of throwing error
+  const mode = viewModeRegistry.get(modeId)
   
-  return {
+  // If mode not found, return explorational fallback config
+  if (!mode) {
+    console.warn(`View mode "${modeId}" not found in registry, using explorational fallback`)
+    return {
+      objectScaling: { star: 1.0, planet: 1.0, moon: 1.0 },
+      orbitScaling: { factor: 8.0, minDistance: 0.1 },
+      cameraConfig: { 
+        radiusMultiplier: 3.0,
+        maxZoom: 100.0,
+        bookmarkDistance: 50.0
+      }
+    }
+  }
+  
+  const result = {
     objectScaling: mode.objectScaling,
     orbitScaling: mode.orbital,
     cameraConfig: mode.camera
   }
+  
+  return result
 }
 
 /**
  * Get camera configuration in the format expected by existing components
  */
 export function getCameraConfig(modeId: string) {
-  const mode = requireViewMode(modeId)
+  // Use safe fallback instead of throwing error
+  const mode = viewModeRegistry.get(modeId)
+  
+  // If mode not found, return safe camera fallback
+  if (!mode) {
+    console.warn(`View mode "${modeId}" not found in registry, using camera fallback`)
+    return {
+      radiusMultiplier: 3.0,
+      maxZoom: 100.0,
+      bookmarkDistance: 50.0
+    }
+  }
+  
   return mode.camera
 }
 
@@ -57,7 +106,21 @@ export function getCameraConfig(modeId: string) {
  * Get scaling configuration in the format expected by existing components
  */
 export function getScalingConfig(modeId: string) {
-  const mode = requireViewMode(modeId)
+  // Use safe fallback instead of throwing error
+  const mode = viewModeRegistry.get(modeId)
+  
+  // If mode not found, return safe scaling fallback
+  if (!mode) {
+    console.warn(`View mode "${modeId}" not found in registry, using scaling fallback`)
+    return {
+      maxVisualSize: 0.8,
+      minVisualSize: 0.02,
+      orbitScaling: 8.0,
+      safetyMultiplier: 2.5,
+      minDistance: 0.1
+    }
+  }
+  
   return mode.scaling
 }
 
@@ -65,7 +128,19 @@ export function getScalingConfig(modeId: string) {
  * Get object scaling configuration in the format expected by existing components
  */
 export function getObjectScalingConfig(modeId: string) {
-  const mode = requireViewMode(modeId)
+  // Use safe fallback instead of throwing error
+  const mode = viewModeRegistry.get(modeId)
+  
+  // If mode not found, return safe object scaling fallback
+  if (!mode) {
+    console.warn(`View mode "${modeId}" not found in registry, using object scaling fallback`)
+    return {
+      star: 1.0,
+      planet: 1.0,
+      moon: 1.0
+    }
+  }
+  
   return mode.objectScaling
 }
 

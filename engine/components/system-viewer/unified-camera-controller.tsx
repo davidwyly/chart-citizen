@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react"
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo } from "react"
 import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { createDualProperties, type DualObjectProperties } from "@/engine/types/view-mode-config"
@@ -48,8 +48,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
       controlsRef.current = controls
     }, [controls])
 
-    // Get current view mode configuration
-    const viewConfig = getViewModeConfig(viewMode)
+    // Get current view mode configuration (memoized to prevent excessive re-calculations)
+    const viewConfig = useMemo(() => getViewModeConfig(viewMode), [viewMode])
 
     // Calculate the furthest orbital radius in the system
     const calculateMaxOrbitRadius = useCallback(() => {

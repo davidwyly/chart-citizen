@@ -62,7 +62,16 @@ export function useSystemViewer() {
 export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: SystemViewerProps) {
   const [timeMultiplier, setTimeMultiplier] = useState(1)
   const [isPaused, setIsPaused] = useState(false)
-  const [viewType, setViewType] = useState<ViewType>("explorational")
+  // Initialize viewType based on mode prop, with fallback to explorational
+  const [viewType, setViewType] = useState<ViewType>(() => {
+    // Map mode to viewType - realistic should use realistic viewType
+    if (mode === "realistic") return "realistic" as ViewType  // Type assertion needed since ViewType doesn't include realistic
+    if (mode === "explorational") return "explorational"
+    if (mode === "navigational") return "navigational" 
+    if (mode === "profile") return "profile"
+    if (mode === "scientific") return "scientific"
+    return "explorational" // Safe fallback
+  })
   const [currentZoom, setCurrentZoom] = useState<number>(1)
   const cameraControllerRef = useRef<UnifiedCameraControllerRef>(null)
   const [isSystemSelected, setIsSystemSelected] = useState(false)
