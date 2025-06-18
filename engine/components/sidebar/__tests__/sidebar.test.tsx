@@ -51,7 +51,7 @@ describe('Sidebar', () => {
     onViewTypeChange: vi.fn(),
     onTimeMultiplierChange: vi.fn(),
     onPauseToggle: vi.fn(),
-    currentViewType: 'realistic' as ViewType,
+    currentViewType: 'explorational' as ViewType,
     currentTimeMultiplier: 1,
     isPaused: false,
     currentZoom: 1,

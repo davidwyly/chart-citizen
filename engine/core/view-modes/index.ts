@@ -16,7 +16,6 @@ import { explorationalMode } from './modes/explorational-mode'
 import { navigationalMode } from './modes/navigational-mode'
 import { profileMode } from './modes/profile-mode'
 import { scientificMode } from './modes/scientific-mode'
-import { realisticMode } from './modes/realistic-mode'
 
 // Import the registry instance
 import { viewModeRegistry } from './registry'
@@ -37,8 +36,7 @@ function initializeViewModes(): void {
     explorationalMode,
     navigationalMode,
     profileMode,
-    scientificMode,
-    realisticMode  // Backward compatibility alias
+    scientificMode
   ]
   
   let registeredCount = 0
