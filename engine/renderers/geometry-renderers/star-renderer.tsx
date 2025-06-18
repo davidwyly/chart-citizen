@@ -3,6 +3,7 @@
 import React, { useRef, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
+import { InteractiveObject } from "../../components/3d-ui/interactive-object"
 import type { GeometryRendererProps } from "./types"
 
 /**
@@ -152,26 +153,6 @@ export function StarRenderer({
     }
   })
 
-  const handleClick = (event: any) => {
-    event.stopPropagation()
-    if (starRef.current && onSelect) {
-      onSelect(object.id, starRef.current, object.name)
-    }
-  }
-
-  const handlePointerEnter = () => {
-    onHover?.(object.id)
-  }
-
-  const handlePointerLeave = () => {
-    onHover?.(null)
-  }
-
-  const handleFocus = () => {
-    if (starRef.current && onFocus) {
-      onFocus(starRef.current, object.name, scale, properties.radius, properties.mass, 0)
-    }
-  }
 
   // Register ref for external access
   React.useEffect(() => {
@@ -181,15 +162,22 @@ export function StarRenderer({
   }, [object.id, registerRef])
 
   return (
-    <group ref={starRef} position={position}>
-      {/* Star core */}
-      <mesh 
-        ref={coreRef}
-        onClick={handleClick}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-        onDoubleClick={handleFocus}
-      >
+    <InteractiveObject
+      objectId={object.id}
+      objectName={object.name}
+      objectType="star"
+      radius={radius}
+      position={position}
+      isSelected={isSelected}
+      onHover={(id, hovered) => onHover?.(hovered ? id : null)}
+      onSelect={onSelect}
+      onFocus={(obj, name, visualSize) => onFocus?.(obj, name, visualSize || scale, properties.radius, properties.mass, 0)}
+      registerRef={registerRef}
+      showLabel={true}
+    >
+      <group ref={starRef}>
+        {/* Star core */}
+        <mesh ref={coreRef}>
         <sphereGeometry args={[radius, 64, 64]} />
         {/* Use custom shader if available, otherwise use default star material */}
         {(object as any).customShaders ? (
@@ -255,7 +243,8 @@ export function StarRenderer({
         distance={1000}
         decay={2}
       />
-    </group>
+      </group>
+    </InteractiveObject>
   )
 }
 

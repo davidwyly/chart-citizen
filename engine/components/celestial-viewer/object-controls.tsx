@@ -388,17 +388,61 @@ export function ObjectControls({
 
   // Geometry-specific controls based on celestial object type
   const getGeometryControls = () => {
-    if (!celestialObject || !onPropertyChange) return null
-    
+    if (!celestialObject) return null
+
     switch (celestialObject.geometry_type) {
       case 'terrestrial':
-        return (
+        return onPropertyChange ? (
           <TerrestrialControls 
             properties={celestialObject.properties}
             onChange={onPropertyChange}
           />
+        ) : null
+      case 'rocky':
+        // Rocky planets use similar controls to terrestrial planets
+        return onPropertyChange ? (
+          <TerrestrialControls 
+            properties={celestialObject.properties}
+            onChange={onPropertyChange}
+          />
+        ) : null
+      case 'gas_giant':
+        // Gas giants could have specific controls for atmospheric properties
+        // For now, use basic property controls
+        return (
+          <div className="mb-6">
+            <h3 className="text-md font-medium text-gray-200 mb-3 border-b border-gray-700 pb-1">
+              Gas Giant Properties
+            </h3>
+            <p className="text-sm text-gray-400 mb-3">
+              Gas giant-specific controls will be implemented in future updates.
+            </p>
+          </div>
         )
-      // TODO: Add other geometry types (rocky, gas_giant, star, exotic)
+      case 'star':
+        // Stars could have controls for stellar properties
+        return (
+          <div className="mb-6">
+            <h3 className="text-md font-medium text-gray-200 mb-3 border-b border-gray-700 pb-1">
+              Stellar Properties
+            </h3>
+            <p className="text-sm text-gray-400 mb-3">
+              Stellar property controls will be implemented in future updates.
+            </p>
+          </div>
+        )
+      case 'exotic':
+        // Exotic objects (black holes, neutron stars, etc.) could have special controls
+        return (
+          <div className="mb-6">
+            <h3 className="text-md font-medium text-gray-200 mb-3 border-b border-gray-700 pb-1">
+              Exotic Object Properties
+            </h3>
+            <p className="text-sm text-gray-400 mb-3">
+              Exotic object controls will be implemented in future updates.
+            </p>
+          </div>
+        )
       default:
         return null
     }

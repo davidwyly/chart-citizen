@@ -14,6 +14,8 @@ interface StarRendererProps {
   scale?: number
   shaderScale?: number
   onFocus?: (object: THREE.Object3D, name: string) => void
+  onHover?: (objectId: string | null) => void
+  onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
 }
 
 export function StarRenderer({
@@ -22,6 +24,8 @@ export function StarRenderer({
   scale = 1,
   shaderScale = 1,
   onFocus,
+  onHover,
+  onSelect,
 }: StarRendererProps) {
   const groupRef = useRef<THREE.Group>(null)
   const sunMatRef = useRef<THREE.ShaderMaterial>(null!)
@@ -66,8 +70,13 @@ export function StarRenderer({
 
   const handleClick = (event: any) => {
     event.stopPropagation()
-    if (groupRef.current && onFocus) {
-      onFocus(groupRef.current, catalogData.name)
+    if (groupRef.current) {
+      if (onSelect) {
+        onSelect(catalogData.id, groupRef.current, catalogData.name)
+      }
+      if (onFocus) {
+        onFocus(groupRef.current, catalogData.name)
+      }
     }
   }
 
@@ -78,10 +87,16 @@ export function StarRenderer({
       onPointerOver={(e) => {
         e.stopPropagation()
         document.body.style.cursor = "pointer"
+        if (onHover) {
+          onHover(catalogData.id)
+        }
       }}
       onPointerOut={(e) => {
         e.stopPropagation()
         document.body.style.cursor = "auto"
+        if (onHover) {
+          onHover(null)
+        }
       }}
 
     >

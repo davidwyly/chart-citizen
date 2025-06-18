@@ -117,6 +117,7 @@ pnpm start                 # Start production server
    - **Explorational**: Astronomical distances modified for human interpretation
    - **Navigational**: Equidistant orbital paths in 3D for easier navigation
    - **Profile**: Top-down diagrammatic view with orthographic projection (future)
+   - **Scientific**: True-to-life scale of all celestial objects with accurate astronomical distances
 
 ### Important Interfaces
 

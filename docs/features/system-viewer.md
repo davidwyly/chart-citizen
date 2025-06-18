@@ -4,7 +4,7 @@
 Robust, unified viewer for celestial systems, seamlessly exploring different star systems/bodies across various viewing modes.
 
 ## Acceptance Criteria
-- Integrates into different view modes (realistic, navigational, profile, Star Citizen).
+- Integrates into different view modes (explorational, navigational, profile, scientific, Star Citizen).
 - Correctly renders celestial bodies and orbital paths based on active mode.
 - Supports dynamic data loading and updates for different star systems.
 - Provides context for focused objects and allows navigation within the system.

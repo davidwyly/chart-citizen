@@ -121,7 +121,11 @@ export function TerrestrialRenderer({
     const floraColor = calculateFloraColor()
     const atmosphereColor = new THREE.Color(0.5, 0.7, 0.9)
     const nightLightColor = new THREE.Color(1, 1, 0.6)
-    const noiseScale = tectonics * 2.0 // More dramatic scaling
+    // Scale terrain noise inversely with mesh scale to maintain consistent visual density
+    // Base scale from tectonics, then adjust for visual scale to prevent "zoomed in" appearance
+    const baseNoiseScale = tectonics * 2.0
+    const scaleAdjustedNoiseScale = baseNoiseScale / Math.max(scale, 0.1) // Prevent division by zero
+    const noiseScale = scaleAdjustedNoiseScale
 
     // Update refs for use in JSX
     landColorRef.current.copy(landColor)
@@ -155,8 +159,9 @@ export function TerrestrialRenderer({
         if (uniforms.nightLightIntensity) uniforms.nightLightIntensity.value = hasNightLights
         if (uniforms.terrainScale) uniforms.terrainScale.value = noiseScaleRef.current
         if (uniforms.rotationSpeed) uniforms.rotationSpeed.value = 0.2
-        if (uniforms.cloudScale) uniforms.cloudScale.value = 1.5
+        if (uniforms.cloudScale) uniforms.cloudScale.value = 1.5 / Math.max(scale, 0.1)
         if (uniforms.cloudOpacity) uniforms.cloudOpacity.value = hasClouds * 0.6
+        if (uniforms.nightLightScale) uniforms.nightLightScale.value = 32.0 / Math.max(scale, 0.1)
         
         // Debug: Check for NaN/Infinity values that could cause black squares
         if (isNaN(time) || !isFinite(time)) {
@@ -209,7 +214,7 @@ export function TerrestrialRenderer({
     }
   }, [object.id, registerRef])
 
-  // Debug: Check for WebGL errors that might cause rendering artifacts
+  // Check for WebGL errors that might cause rendering artifacts
   React.useEffect(() => {
     const checkWebGLErrors = () => {
       const canvas = document.querySelector('canvas')
@@ -224,21 +229,12 @@ export function TerrestrialRenderer({
       }
     }
     
-    // Check for errors periodically
-    const interval = setInterval(checkWebGLErrors, 5000)
-    return () => clearInterval(interval)
-  }, [object.id])
-
-  // Debug: Log when custom shaders are being used
-  React.useEffect(() => {
-    if ((object as any).customShaders) {
-      console.log('Using custom shaders for object:', object.id)
-      console.log('Vertex shader length:', (object as any).customShaders.vertex.length)
-      console.log('Fragment shader length:', (object as any).customShaders.fragment.length)
-    } else {
-      console.log('Using default terrestrial material for object:', object.id)
+    // Check for errors only when in development mode
+    if (process.env.NODE_ENV === 'development') {
+      const interval = setInterval(checkWebGLErrors, 10000) // Check less frequently
+      return () => clearInterval(interval)
     }
-  }, [object.id, (object as any).customShaders])
+  }, [object.id])
 
   return (
     <InteractiveObject
@@ -284,9 +280,10 @@ export function TerrestrialRenderer({
                 seed: { value: seed },
                 rotationSpeed: { value: 0.2 },
                 terrainScale: { value: noiseScaleRef.current },
-                cloudScale: { value: 1.5 },
+                cloudScale: { value: 1.5 / Math.max(scale, 0.1) },
                 nightLightIntensity: { value: hasNightLights },
-                cloudOpacity: { value: hasClouds * 0.6 }
+                cloudOpacity: { value: hasClouds * 0.6 },
+                nightLightScale: { value: 32.0 / Math.max(scale, 0.1) }
               }}
               transparent
             />
@@ -302,7 +299,7 @@ export function TerrestrialRenderer({
               nightLightColor={nightLightColorRef.current}
               rotationSpeed={0.2}
               terrainScale={noiseScaleRef.current}
-              cloudScale={1.5}
+              cloudScale={1.5 / Math.max(scale, 0.1)}
               // Use our calculated parameters
               waterCoverage={waterCoverage}
               temperatureClass={temperatureClass}
@@ -313,6 +310,7 @@ export function TerrestrialRenderer({
               soilTint={soilTint}
               nightLightIntensity={hasNightLights}
               cloudOpacity={hasClouds * 0.6}
+              nightLightScale={32.0 / Math.max(scale, 0.1)}
             />
           )}
         </mesh>

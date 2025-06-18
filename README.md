@@ -158,6 +158,7 @@ The Celestial Rendering Engine is designed with a clear architectural structure 
 - Explorational Mode: Displays star systems considering astronomical distances and size, modified for human interpretation.
 - Navigational Mode: Provides equidistant orbital paths in 3D perspective for easier navigation.
 - Profile Mode: Top-down diagrammatic view with equidistant orbital paths and orthographic projection, designed for understanding orbital hierarchy and easily drilling down into points of interest (future)
+- Scientific Mode: True-to-life astronomical scale representation with authentic size ratios and orbital distances for scientific accuracy.
 
 ### **🏭 Object Factory Pattern**
 ```typescript

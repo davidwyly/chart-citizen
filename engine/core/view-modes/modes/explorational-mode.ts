@@ -1,10 +1,19 @@
+/**
+ * Explorational View Mode
+ * ======================
+ * 
+ * Educational content with real astronomical data, optimized for exploration and learning.
+ * Uses logarithmic scaling with proportional parent-child relationships.
+ */
+
 import type { ViewModeDefinition } from '../types'
 
 export const explorationalMode: ViewModeDefinition = {
   id: 'explorational',
   name: 'Explorational',
+  description: 'Educational content with real astronomical data, optimized for exploration and learning',
+  icon: '🔭',
   category: 'educational',
-  description: 'Astronomical distances modified for human interpretation',
   
   scaling: {
     maxVisualSize: 0.8,
@@ -14,35 +23,56 @@ export const explorationalMode: ViewModeDefinition = {
     minDistance: 0.1,
   },
   
-  objectScaling: {
-    star: 1.0,
-    planet: 1.0,
-    moon: 1.0,
-    gasGiant: 1.0,
-    asteroid: 1.0,
-    default: 1.0
+  camera: {
+    radiusMultiplier: 4.0,
+    minDistanceMultiplier: 2.5,
+    maxDistanceMultiplier: 15.0,
+    absoluteMinDistance: 0.3,
+    absoluteMaxDistance: 100,
+    nearPlane: 0.1,
+    farPlane: 5000,
+    viewingAngles: {
+      defaultElevation: 30,
+      birdsEyeElevation: 40
+    },
+    animation: {
+      focusDuration: 800,
+      birdsEyeDuration: 1200,
+      easingFunction: 'leap'
+    }
   },
   
   orbital: {
-    factor: 8.0,
-    minDistance: 0.1,
-    maxDistance: 100.0
+    factor: 0.8,
+    minDistance: 0.5,
+    maxDistance: 50.0
   },
   
-  camera: {
-    radiusMultiplier: 3.0,
-    minDistanceMultiplier: 1.0,
-    maxDistanceMultiplier: 10.0,
-    absoluteMinDistance: 0.1,
-    absoluteMaxDistance: 1000,
-    viewingAngles: {
-      defaultElevation: 15,
-      birdsEyeElevation: 45
-    },
-    animation: {
-      focusDuration: 1000,
-      birdsEyeDuration: 1500,
-      easingFunction: 'easeOut'
-    }
+  objectScaling: {
+    star: 2.5,
+    planet: 1.8,
+    moon: 1.2,
+    gasGiant: 2.2,
+    asteroid: 0.8,
+    default: 1.0
+  },
+  
+  features: {
+    orbitalPaths: true,
+    stellarZones: true,
+    scientificLabels: true,
+    atmosphericEffects: true,
+    particleEffects: true,
+    coronaEffects: true,
+    educationalContent: true,
+    debugInfo: false
+  },
+  
+  ui: {
+    showDistances: true,
+    showMasses: true,
+    showOrbitalPeriods: true,
+    labelStyle: 'detailed',
+    colorScheme: 'educational'
   }
 }

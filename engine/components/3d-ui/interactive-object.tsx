@@ -128,7 +128,7 @@ export function InteractiveObject({
     labelGroupRef.current.position.copy(currentOffset.current)
   })
 
-  const handleClick = useCallback((e: any) => {
+  const handleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation()
     if (groupRef.current) {
       if (onSelect) {
@@ -153,14 +153,14 @@ export function InteractiveObject({
     }
   }, [objectId, objectName, onSelect, onFocus, visualSize])
 
-  const handlePointerOver = useCallback((e: any) => {
+  const handlePointerOver = useCallback((e: React.PointerEvent<HTMLElement>) => {
     e.stopPropagation()
     setIsHovered(true)
     document.body.style.cursor = "pointer"
     if (onHover) onHover(objectId, true)
   }, [objectId, onHover])
 
-  const handlePointerOut = useCallback((e: any) => {
+  const handlePointerOut = useCallback((e: React.PointerEvent<HTMLElement>) => {
     e.stopPropagation()
     setIsHovered(false)
     document.body.style.cursor = "auto"

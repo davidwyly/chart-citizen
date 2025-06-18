@@ -156,6 +156,38 @@ export const VIEW_MODE_CONFIGS: Record<string, ViewModeConfig> = {
         easingFunction: 'easeInOut'
       }
     }
+  },
+  
+  scientific: {
+    objectScaling: {
+      star: 1.0,     // True-to-life scaling
+      planet: 1.0,   // True-to-life scaling
+      moon: 1.0,     // True-to-life scaling
+      gasGiant: 1.0, // True-to-life scaling
+      asteroid: 1.0, // True-to-life scaling
+      default: 1.0
+    },
+    orbitScaling: {
+      factor: 1.0,   // True-to-life orbital distances
+      minDistance: 0.001,  // Allow very close objects
+      maxDistance: 1000.0  // Allow very distant objects
+    },
+    cameraConfig: {
+      radiusMultiplier: 10.0,       // Much farther for scientific accuracy
+      minDistanceMultiplier: 5.0,   // Minimum 5x visible radius
+      maxDistanceMultiplier: 1000.0, // Maximum 1000x visible radius for vast scales
+      absoluteMinDistance: 0.001,   // Very small minimum for tiny objects
+      absoluteMaxDistance: 10000,   // Very large maximum for astronomical scales
+      viewingAngles: {
+        defaultElevation: 15,  // Slight elevation for scientific observation
+        birdsEyeElevation: 25
+      },
+      animation: {
+        focusDuration: 1500,    // Slower transitions for scientific precision
+        birdsEyeDuration: 2000,
+        easingFunction: 'easeInOut'
+      }
+    }
   }
 }
 

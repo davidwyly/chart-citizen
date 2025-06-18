@@ -7,7 +7,8 @@ import { InteractiveObject } from "../3d-ui/interactive-object"
 import { OrbitalPath } from "./components/orbital-path"
 import { StellarZones } from "./components/stellar-zones"
 import { 
-  calculateSystemOrbitalMechanics
+  calculateSystemOrbitalMechanics,
+  clearOrbitalMechanicsCache
 } from "@/engine/utils/orbital-mechanics-calculator"
 import { getOrbitalMechanicsConfig } from "@/engine/core/view-modes/compatibility"
 // Import view modes to ensure they are registered

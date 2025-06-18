@@ -28,11 +28,7 @@ export function getOrbitalMechanicsConfig(modeId: string) {
       orbitScaling: mode.scaling.orbitScaling,
       safetyMultiplier: mode.scaling.safetyMultiplier,
       minDistance: mode.scaling.minDistance,
-    }
-    
-    // Only include fixedSizes if it's defined
-    if (mode.scaling.fixedSizes) {
-      config.fixedSizes = mode.scaling.fixedSizes
+      fixedSizes: mode.scaling.fixedSizes,
     }
     
     return config
@@ -55,48 +51,12 @@ export function getOrbitalMechanicsConfig(modeId: string) {
  * This helps components that use the old configuration format
  */
 export function getViewModeConfig(modeId: string) {
-  try {
-    const mode = requireViewMode(modeId)
-    
-    return {
-      objectScaling: mode.objectScaling,
-      orbitScaling: mode.orbital,
-      cameraConfig: mode.camera
-    }
-  } catch (error) {
-    console.warn(`Failed to get view mode config for "${modeId}", using fallback:`, error)
-    // Return fallback configuration
-    return {
-      objectScaling: {
-        star: 1.0,
-        planet: 1.0,
-        moon: 1.0,
-        gasGiant: 1.0,
-        asteroid: 1.0,
-        default: 1.0
-      },
-      orbitScaling: {
-        factor: 1.0,
-        minDistance: 0.1,
-        maxDistance: 100.0
-      },
-      cameraConfig: {
-        radiusMultiplier: 3.0,
-        minDistanceMultiplier: 1.0,
-        maxDistanceMultiplier: 10.0,
-        absoluteMinDistance: 0.1,
-        absoluteMaxDistance: 1000,
-        viewingAngles: {
-          defaultElevation: 15,
-          birdsEyeElevation: 45
-        },
-        animation: {
-          focusDuration: 1000,
-          birdsEyeDuration: 1500,
-          easingFunction: 'easeOut' as const
-        }
-      }
-    }
+  const mode = requireViewMode(modeId)
+  
+  return {
+    objectScaling: mode.objectScaling,
+    orbitScaling: mode.orbital,
+    cameraConfig: mode.camera
   }
 }
 

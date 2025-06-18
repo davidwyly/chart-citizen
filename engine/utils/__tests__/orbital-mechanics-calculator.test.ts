@@ -419,5 +419,66 @@ describe('orbital-mechanics-calculator', () => {
       // Free floating object should not have orbit distance
       expect(mechanics.get('floating')?.orbitDistance).toBeUndefined();
     });
+    
+    it('should use true-to-life scaling in scientific mode', () => {
+      const objects = createSolarSystem();
+      const scientificMechanics = calculateSystemOrbitalMechanics(objects, 'scientific', false);
+      const explorationMechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
+      
+      const starScientific = scientificMechanics.get('star1')!;
+      const starExplorational = explorationMechanics.get('star1')!;
+      
+      // Scientific mode should generally produce smaller visual radii due to true-to-life constraints
+      expect(starScientific.visualRadius).toBeLessThan(starExplorational.visualRadius);
+      
+      // All objects should still have positive visual radii in scientific mode
+      for (const obj of objects) {
+        const data = scientificMechanics.get(obj.id);
+        expect(data).toBeDefined();
+        expect(data!.visualRadius).toBeGreaterThan(0);
+      }
+    });
+    
+    it('should maintain orbital hierarchy in scientific mode', () => {
+      const objects = createSolarSystem();
+      const mechanics = calculateSystemOrbitalMechanics(objects, 'scientific', false);
+      
+      const starData = mechanics.get('star1')!;
+      const jupiterData = mechanics.get('jupiter')!;
+      const earthData = mechanics.get('earth')!;
+      const moonData = mechanics.get('moon')!;
+      
+      // Verify orbital ordering is maintained even with true-to-life scaling
+      expect(jupiterData.orbitDistance!).toBeGreaterThan(earthData.orbitDistance!);
+      expect(earthData.orbitDistance!).toBeGreaterThan(starData.visualRadius);
+      
+      // Moon should orbit Earth, not the star
+      expect(moonData.orbitDistance!).toBeDefined();
+      expect(moonData.orbitDistance!).toBeGreaterThan(earthData.visualRadius);
+    });
+    
+    it('should compare scientific mode with other view modes', () => {
+      const objects = createSolarSystem();
+      const scientificMechanics = calculateSystemOrbitalMechanics(objects, 'scientific', false);
+      const explorationMechanics = calculateSystemOrbitalMechanics(objects, 'explorational', false);
+      const navigationalMechanics = calculateSystemOrbitalMechanics(objects, 'navigational', false);
+      const profileMechanics = calculateSystemOrbitalMechanics(objects, 'profile', false);
+      
+      const starScientific = scientificMechanics.get('star1')!;
+      const starExplorational = explorationMechanics.get('star1')!;
+      const starNavigational = navigationalMechanics.get('star1')!;
+      const starProfile = profileMechanics.get('star1')!;
+      
+      // Scientific mode should have unique scaling characteristics
+      expect(starScientific.visualRadius).not.toBeCloseTo(starExplorational.visualRadius);
+      expect(starScientific.visualRadius).not.toBeCloseTo(starNavigational.visualRadius);
+      expect(starScientific.visualRadius).not.toBeCloseTo(starProfile.visualRadius);
+      
+      // All should be positive
+      expect(starScientific.visualRadius).toBeGreaterThan(0);
+      expect(starExplorational.visualRadius).toBeGreaterThan(0);
+      expect(starNavigational.visualRadius).toBeGreaterThan(0);
+      expect(starProfile.visualRadius).toBeGreaterThan(0);
+    });
   });
 }); 

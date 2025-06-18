@@ -17,9 +17,11 @@ interface ObjectFactoryProps {
   starPosition?: [number, number, number]
   customizations?: any
   onFocus?: (object: THREE.Object3D, name: string) => void
+  onHover?: (objectId: string | null) => void
+  onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
 }
 
-export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, starPosition, customizations, onFocus }: ObjectFactoryProps) {
+export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, starPosition, customizations, onFocus, onHover, onSelect }: ObjectFactoryProps) {
   // Determine which renderer to use based on the engine_object type
   const engineObject = catalogData.engine_object || ""
   const category = catalogData.category || ""
@@ -51,6 +53,8 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, s
         scale={scale}
         shaderScale={shaderScale}
         onFocus={onFocus}
+        onHover={onHover}
+        onSelect={onSelect}
       />
     )
   }

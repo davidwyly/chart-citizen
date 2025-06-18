@@ -17,6 +17,7 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     cloudScale: 1.5,
     nightLightIntensity: 0.8,
     cloudOpacity: 0.6,
+    nightLightScale: 32.0,
   },
 
   // Vertex Shader
@@ -45,6 +46,7 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     uniform float cloudScale;
     uniform float nightLightIntensity;
     uniform float cloudOpacity;
+    uniform float nightLightScale;
     uniform vec3 lightDirection;
 
     varying vec3 vPosition;
@@ -115,13 +117,13 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     }
 
     float nightLights(vec3 p, float h, vec2 tf) {
-      float l = fbm(p * 32.0) * 2.0;
+      float l = fbm(p * nightLightScale) * 2.0;
       return l * (tf.x > 0.2 ? tf.y : 0.0) * (h > 0.0 ? 1.0 : 0.0);
     }
 
     float cloudLayer(vec3 p) {
-      float c = fbm(p * 8.0);
-      c += fbm(p * 2.0) * 0.5;
+      float c = fbm(p * cloudScale * 8.0);
+      c += fbm(p * cloudScale * 2.0) * 0.5;
       return clamp(c, 0.0, 1.0);
     }
 

@@ -50,7 +50,7 @@ export function useObjectSelection(
   const getObjectData = useCallback((objectId: string) => {
     if (!systemData || !systemData.objects) return null
 
-    return systemData.objects.find(obj => obj.id === objectId)
+    return systemData.objects.find(obj => obj.id === objectId) || null
   }, [systemData])
 
   // Handle animation completion
@@ -130,12 +130,14 @@ export function useObjectSelection(
 
   // Handle object hover
   const handleObjectHover = useCallback((objectId: string | null) => {
-    if (objectId === state.hoveredObjectId) return; // Prevent unnecessary updates
-    setState(prev => ({
-      ...prev,
-      hoveredObjectId: objectId
-    }))
-  }, [state.hoveredObjectId])
+    setState(prev => {
+      if (objectId === prev.hoveredObjectId) return prev; // Prevent unnecessary updates
+      return {
+        ...prev,
+        hoveredObjectId: objectId
+      }
+    })
+  }, [])
 
   // Handle canvas click (clear selection)
   const handleCanvasClick = useCallback(() => {

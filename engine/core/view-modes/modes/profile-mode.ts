@@ -1,10 +1,19 @@
+/**
+ * Profile View Mode
+ * ================
+ * 
+ * Top-down diagrammatic view with orthographic projection.
+ * Compact layout optimized for orbital relationship visualization.
+ */
+
 import type { ViewModeDefinition } from '../types'
 
 export const profileMode: ViewModeDefinition = {
   id: 'profile',
   name: 'Profile',
+  description: 'Top-down diagrammatic view with orthographic projection for orbital relationships',
+  icon: '📊',
   category: 'educational',
-  description: 'Top-down diagrammatic view with orthographic projection',
   
   scaling: {
     maxVisualSize: 1.5,
@@ -22,35 +31,56 @@ export const profileMode: ViewModeDefinition = {
     }
   },
   
-  objectScaling: {
-    star: 1.0,
-    planet: 1.0,
-    moon: 1.0,
-    gasGiant: 1.0,
-    asteroid: 1.0,
-    default: 1.0
+  camera: {
+    radiusMultiplier: 2.5,
+    minDistanceMultiplier: 1.8,
+    maxDistanceMultiplier: 8.0,
+    absoluteMinDistance: 0.15,
+    absoluteMaxDistance: 60,
+    nearPlane: 0.1,
+    farPlane: 5000,
+    viewingAngles: {
+      defaultElevation: 0,  // Top-down for profile view
+      birdsEyeElevation: 0
+    },
+    animation: {
+      focusDuration: 400,
+      birdsEyeDuration: 600,
+      easingFunction: 'easeInOut'
+    }
   },
   
   orbital: {
-    factor: 0.3,
-    minDistance: 0.3,
-    maxDistance: 30.0
+    factor: 1.2,
+    minDistance: 2.0,
+    maxDistance: 15.0
   },
   
-  camera: {
-    radiusMultiplier: 4.0,
-    minDistanceMultiplier: 2.0,
-    maxDistanceMultiplier: 20.0,
-    absoluteMinDistance: 1.0,
-    absoluteMaxDistance: 300,
-    viewingAngles: {
-      defaultElevation: 90,
-      birdsEyeElevation: 90
-    },
-    animation: {
-      focusDuration: 800,
-      birdsEyeDuration: 1200,
-      easingFunction: 'easeOut'
-    }
+  objectScaling: {
+    star: 1.5,
+    planet: 1.0,
+    moon: 0.8,
+    gasGiant: 1.2,
+    asteroid: 0.5,
+    default: 1.0
+  },
+  
+  features: {
+    orbitalPaths: true,
+    stellarZones: false,
+    scientificLabels: true,
+    atmosphericEffects: false,
+    particleEffects: false,
+    coronaEffects: false,
+    educationalContent: true,
+    debugInfo: false
+  },
+  
+  ui: {
+    showDistances: true,
+    showMasses: true,
+    showOrbitalPeriods: true,
+    labelStyle: 'detailed',
+    colorScheme: 'educational'
   }
 }

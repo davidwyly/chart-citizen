@@ -37,6 +37,17 @@ describe('View Mode Constants', () => {
       })
     })
 
+    it('should return correct scaling for scientific mode', () => {
+      const scaling = getViewModeScaling('scientific')
+      expect(scaling).toEqual({
+        ORBITAL_SCALE: 1.0,
+        STAR_SCALE: 1.0,
+        PLANET_SCALE: 1.0,
+        MOON_SCALE: 1.0,
+        STAR_SHADER_SCALE: 1.0
+      })
+    })
+
     it('should handle invalid view mode by defaulting to explorational', () => {
       const scaling = getViewModeScaling('invalid' as ViewMode)
       expect(scaling).toEqual({
@@ -49,7 +60,7 @@ describe('View Mode Constants', () => {
     })
 
     it('should ensure all scaling values are positive', () => {
-      const viewModes: ViewMode[] = ['explorational', 'navigational', 'profile']
+      const viewModes: ViewMode[] = ['explorational', 'navigational', 'profile', 'scientific']
       
       for (const mode of viewModes) {
         const scaling = getViewModeScaling(mode)
@@ -72,14 +83,19 @@ describe('View Mode Constants', () => {
       expect(profileScaling.STAR_SCALE).toBeGreaterThan(profileScaling.PLANET_SCALE)
       expect(profileScaling.PLANET_SCALE).toBeGreaterThan(profileScaling.MOON_SCALE)
       
-      // Note: explorational mode has equal scaling (1.0) for STAR, PLANET, and MOON
+      // Note: explorational and scientific modes have equal scaling (1.0) for STAR, PLANET, and MOON
       const explorationScaling = getViewModeScaling('explorational')
       expect(explorationScaling.STAR_SCALE).toBe(explorationScaling.PLANET_SCALE)
       expect(explorationScaling.PLANET_SCALE).toBe(explorationScaling.MOON_SCALE)
+      
+      const scientificScaling = getViewModeScaling('scientific')
+      expect(scientificScaling.STAR_SCALE).toBe(scientificScaling.PLANET_SCALE)
+      expect(scientificScaling.PLANET_SCALE).toBe(scientificScaling.MOON_SCALE)
+      expect(scientificScaling.ORBITAL_SCALE).toBe(1.0) // True-to-life orbital scaling
     })
 
     it('should return correct scaling for each view mode', () => {
-      const modes: ViewMode[] = ['explorational', 'navigational', 'profile']
+      const modes: ViewMode[] = ['explorational', 'navigational', 'profile', 'scientific']
       for (const mode of modes) {
         const scaling = getViewModeScaling(mode)
         expect(scaling).toHaveProperty('STAR_SCALE')

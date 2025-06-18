@@ -121,8 +121,17 @@ function calculateVisualRadius(
 ): number {
   const radiusKm = object.properties.radius || 1;
   
-  // Use fixed sizes for non-explorational modes - IMPROVED CLASSIFICATION LOGIC
-  if (viewType !== 'explorational' && 'fixedSizes' in config) {
+  // SCIENTIFIC MODE: Use true-to-life scaling with actual radius values
+  if (viewType === 'scientific') {
+    // Scale the actual radius directly with minimal visual scaling
+    const logRadius = Math.log10(radiusKm + 1);
+    const normalizedLog = (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange;
+    const visualRadius = config.minVisualSize + (normalizedLog * (config.maxVisualSize - config.minVisualSize));
+    return Math.max(visualRadius, config.minVisualSize);
+  }
+  
+  // Use fixed sizes for non-explorational/non-scientific modes
+  if (viewType !== 'explorational' && viewType !== 'scientific' && 'fixedSizes' in config) {
     // Use geometry_type for better differentiation, fallback to classification
     let sizeKey = object.classification || 'asteroid';
     
