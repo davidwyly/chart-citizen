@@ -1,16 +1,17 @@
 "use client"
 
-import React, { useMemo, useCallback } from "react"
+import React, { useMemo, useCallback, useRef, useEffect } from "react"
 import * as THREE from "three"
 
 import { InteractiveObject } from "../3d-ui/interactive-object"
 import { OrbitalPath } from "./components/orbital-path"
 import { StellarZones } from "./components/stellar-zones"
 import { 
-  calculateSystemOrbitalMechanics,
-  clearOrbitalMechanicsCache,
-  VIEW_CONFIGS
+  calculateSystemOrbitalMechanics
 } from "@/engine/utils/orbital-mechanics-calculator"
+import { getOrbitalMechanicsConfig } from "@/engine/core/view-modes/compatibility"
+// Import view modes to ensure they are registered
+import "@/engine/core/view-modes"
 import { GeometryRendererFactory } from "@/engine/renderers/geometry-renderers"
 import type { ViewType } from "@lib/types/effects-level"
 import { 
@@ -37,7 +38,7 @@ interface SystemObjectsRendererProps {
   onObjectHover: (objectId: string | null) => void
   onObjectSelect?: (id: string, object: THREE.Object3D, name: string) => void
   onObjectFocus?: (object: THREE.Object3D, name: string, size: number, radius?: number, mass?: number, orbitRadius?: number) => void
-  registerRef: (id: string, ref: THREE.Object3D) => void
+  registerRef: (id: string, ref: THREE.Object3D | null) => void
 }
 
 // Celestial Object Component - renders any celestial object based on its geometry type
@@ -69,7 +70,7 @@ export const CelestialObjectRenderer = React.memo(({
   onHover: (objectId: string | null) => void
   onSelect?: (id: string, object: THREE.Object3D, name: string) => void
   onFocus?: (object: THREE.Object3D, name: string, size: number, radius?: number, mass?: number, orbitRadius?: number) => void
-  registerRef: (id: string, ref: THREE.Object3D) => void
+  registerRef: (id: string, ref: THREE.Object3D | null) => void
 }) => {
   const { geometry_type, classification, properties } = object
 
@@ -103,6 +104,13 @@ export function SystemObjectsRenderer({
   onObjectFocus,
   registerRef,
 }: SystemObjectsRendererProps) {
+  // PERFORMANCE FIX: Use a ref to store selectedObjectId to avoid dependency issues
+  const selectedObjectIdRef = useRef(selectedObjectId);
+  
+  // Update the ref when selectedObjectId changes
+  useEffect(() => {
+    selectedObjectIdRef.current = selectedObjectId;
+  }, [selectedObjectId]);
 
   // Get the primary star position for lighting calculations
   const primaryStarPosition: [number, number, number] = useMemo(() => {
@@ -114,8 +122,7 @@ export function SystemObjectsRenderer({
 
   // Calculate safe orbital mechanics for all objects
   const orbitalMechanics = useMemo(() => {
-    // Clear cache to ensure fresh calculation
-    clearOrbitalMechanicsCache();
+    // Cache is managed automatically - only clear when system data or view type changes
     return calculateSystemOrbitalMechanics(systemData.objects, viewType);
   }, [systemData.objects, viewType]);
 
@@ -134,9 +141,10 @@ export function SystemObjectsRenderer({
     return Math.sqrt(Math.pow(semiMajorAxis, 3)) * 2.0
   }, [])
 
-  // Calculate hierarchical selection information
+  // PERFORMANCE FIX: Create a stable selection info function using ref instead of dependency
   const getHierarchicalSelectionInfo = useCallback((object: CelestialObject) => {
-    const isSelected = selectedObjectId === object.id;
+    const currentSelectedId = selectedObjectIdRef.current;
+    const isSelected = currentSelectedId === object.id;
     
     // For moons, check if parent planet or sibling moon is selected
     let planetSystemSelected = false;
@@ -144,13 +152,13 @@ export function SystemObjectsRenderer({
       const parentId = object.orbit.parent;
       
       // Check if parent planet is selected
-      if (selectedObjectId === parentId) {
+      if (currentSelectedId === parentId) {
         planetSystemSelected = true;
       }
       
       // Check if any sibling moon is selected
-      if (!planetSystemSelected && selectedObjectId) {
-        const selectedObject = systemData.objects.find(obj => obj.id === selectedObjectId);
+      if (!planetSystemSelected && currentSelectedId) {
+        const selectedObject = systemData.objects.find(obj => obj.id === currentSelectedId);
         if (selectedObject?.classification === 'moon' && selectedObject.orbit?.parent === parentId) {
           planetSystemSelected = true;
         }
@@ -158,7 +166,7 @@ export function SystemObjectsRenderer({
     }
     
     return { isSelected, planetSystemSelected };
-  }, [selectedObjectId, systemData.objects]);
+  }, [systemData.objects]); // Only depends on systemData.objects, selectedObjectId accessed via ref
 
   // Render a celestial object with its orbit
   const renderCelestialObject = useCallback((object: CelestialObject, parentPosition: [number, number, number] = [0, 0, 0]) => {
@@ -266,7 +274,7 @@ export function SystemObjectsRenderer({
     }
   }, [
     systemData.objects,
-    selectedObjectId,
+    // selectedObjectId removed - handled by getHierarchicalSelectionInfo
     primaryStarPosition,
     getObjectSizing,
     calculateOrbitalPeriod,
@@ -278,7 +286,8 @@ export function SystemObjectsRenderer({
     onObjectSelect,
     onObjectFocus,
     registerRef,
-    orbitalMechanics
+    orbitalMechanics,
+    getHierarchicalSelectionInfo // Add this dependency since we call it
   ])
 
   // Build object hierarchy for rendering
@@ -320,10 +329,15 @@ export function SystemObjectsRenderer({
     )
   }, [objectHierarchy.rootObjects, renderObjectWithChildren])
 
-  // Get the orbital scaling from VIEW_CONFIGS based on the current viewType
+  // Get the orbital scaling from the new registry system
   const orbitalScaling = useMemo(() => {
-    const viewConfig = VIEW_CONFIGS[viewType];
-    return viewConfig?.orbitScaling || 1.0; // Default to 1.0 if not found
+    try {
+      const viewConfig = getOrbitalMechanicsConfig(viewType);
+      return viewConfig?.orbitScaling || 1.0;
+    } catch (error) {
+      console.warn(`Failed to get orbital scaling for ${viewType}, using fallback:`, error);
+      return 1.0;
+    }
   }, [viewType]);
 
   return (

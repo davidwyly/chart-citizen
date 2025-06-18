@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Mode, ModeState, ModeFeatures } from '../../types/mode';
 import { ViewMode } from '../../types/view-mode.types';
-import { getViewModeScaling } from './view-mode.constants';
+import { viewModeRegistry } from '../view-modes/registry';
 
 const DEFAULT_FEATURES: ModeFeatures = {
   scientificInfo: false,
@@ -239,13 +239,25 @@ export const useSystemStore = create<SystemStore>((set, get) => ({
   getHoveredObject: () => get().hoveredObject,
 
   getViewModeScaling: () => {
-    const scaling = getViewModeScaling(get().viewMode);
+    const viewMode = get().viewMode;
+    const mode = viewModeRegistry.get(viewMode);
+    if (!mode || !mode.objectScaling || !mode.orbital) {
+      console.warn(`Failed to get view mode scaling for "${viewMode}", using fallback values`);
+      return {
+        ORBITAL_SCALE: 1.0,
+        STAR_SCALE: 1.0,
+        PLANET_SCALE: 1.0,
+        MOON_SCALE: 1.0,
+        STAR_SHADER_SCALE: 1.0
+      };
+    }
+    
     return {
-      ORBITAL_SCALE: scaling.ORBITAL_SCALE,
-      STAR_SCALE: scaling.STAR_SCALE,
-      PLANET_SCALE: scaling.PLANET_SCALE,
-      MOON_SCALE: scaling.MOON_SCALE,
-      STAR_SHADER_SCALE: scaling.STAR_SHADER_SCALE
+      ORBITAL_SCALE: mode.orbital.factor || 1.0,
+      STAR_SCALE: mode.objectScaling.star || 1.0,
+      PLANET_SCALE: mode.objectScaling.planet || 1.0,
+      MOON_SCALE: mode.objectScaling.moon || 1.0,
+      STAR_SHADER_SCALE: mode.objectScaling.star || 1.0
     } as Record<string, number>;
   },
 

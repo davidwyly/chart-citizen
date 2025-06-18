@@ -10,6 +10,8 @@ import {
 import { CelestialObject, OrbitalSystemData } from '@/engine/types/orbital-system';
 import { ViewType } from '@lib/types/effects-level';
 import * as THREE from 'three';
+// Import view modes to ensure they are registered
+import '@/engine/core/view-modes';
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {

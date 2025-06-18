@@ -1,0 +1,119 @@
+From: Assistant
+Date: Thu, 19 Dec 2024
+Subject: [PATCH] Critical camera fixes - memory leak, animation, and cleanup
+
+This patch contains the minimal changes needed to fix the camera issues:
+1. Memory leak fix in use-object-selection
+2. Proper ref cleanup in system-viewer and interactive-object
+3. Animation smoothing in orbital-path
+
+---
+ engine/components/system-viewer/hooks/use-object-selection.ts | 14 +++++++++-----
+ engine/components/system-viewer.tsx                          | 10 +++++++---
+ engine/components/3d-ui/interactive-object.tsx               |  4 ++--
+ engine/components/system-viewer/components/orbital-path/orbital-path.tsx | 7 +++----
+ 4 files changed, 21 insertions(+), 14 deletions(-)
+
+diff --git a/engine/components/system-viewer/hooks/use-object-selection.ts b/engine/components/system-viewer/hooks/use-object-selection.ts
+index f3ea98a..a358ff7 100644
+--- a/engine/components/system-viewer/hooks/use-object-selection.ts
++++ b/engine/components/system-viewer/hooks/use-object-selection.ts
+@@ -15,7 +15,6 @@ interface ObjectSelectionState {
+   focusedObjectRadius: number | null
+   focusedObjectMass: number | null
+   focusedObjectOrbitRadius: number | null
+-  objectRefsMap: Map<string, THREE.Object3D>
+ }
+ 
+ export function useObjectSelection(
+@@ -36,7 +35,6 @@ export function useObjectSelection(
+     focusedObjectRadius: null,
+     focusedObjectMass: null,
+     focusedObjectOrbitRadius: null,
+-    objectRefsMap: new Map()
+   })
+ 
+   // Store previous state when selecting a planet in game view
+@@ -161,10 +159,16 @@ export function useObjectSelection(
+     }
+   }, [viewType])
+ 
+-  // Update object refs map when objects are added/removed
++  // Only clear the map when the system itself changes, not on every render
++  const lastSystemId = useRef<string | null>(null)
+   useEffect(() => {
+-    objectRefsMap.current = new Map()
+-  }, [systemData])
++    if (systemData?.id && systemData.id !== lastSystemId.current) {
++      objectRefsMap.current.clear()         // keep the same Map instance
++      lastSystemId.current = systemData.id
++    }
++  }, [systemData?.id])
+ 
+   // No cleanup needed for animation completion approach
+diff --git a/engine/components/system-viewer.tsx b/engine/components/system-viewer.tsx
+index 2c2d0ca..855fd7b 100644
+--- a/engine/components/system-viewer.tsx
++++ b/engine/components/system-viewer.tsx
+@@ -166,10 +166,14 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
+     [handleObjectHover]
+   )
+ 
+-  const registerRefCallback = useCallback((id: string, ref: THREE.Object3D) => 
+-    objectRefsMap.current.set(id, ref),
+-    []
+-  )
++  // Register or deregister object refs in the shared map
++  const registerRefCallback = useCallback((id: string, ref: THREE.Object3D | null) => {
++    if (ref) {
++      objectRefsMap.current.set(id, ref)
++    } else {
++      objectRefsMap.current.delete(id)
++    }
++  }, [])
+ 
+   // Memoize OrbitControls props
+   const orbitControlsProps = useMemo(() => ({
+diff --git a/engine/components/3d-ui/interactive-object.tsx b/engine/components/3d-ui/interactive-object.tsx
+index fbeb675..ed726a6 100644
+--- a/engine/components/3d-ui/interactive-object.tsx
++++ b/engine/components/3d-ui/interactive-object.tsx
+@@ -28,7 +28,7 @@ export interface InteractiveObjectProps {
+   onHover?: (objectId: string, isHovered: boolean) => void
+   onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
+   onFocus?: (object: THREE.Object3D, name: string, visualSize?: number) => void
+-  registerRef?: (id: string, ref: THREE.Object3D) => void
++  registerRef?: (id: string, ref: THREE.Object3D | null) => void
+   showLabel?: boolean
+   labelAlwaysVisible?: boolean
+   parentObjectSelected?: boolean
+@@ -175,7 +175,7 @@ export function InteractiveObject({
+     }
+     return () => {
+       if (registerRef) {
+-        registerRef(objectId, null as any)
++        registerRef(objectId, null) // Remove entry instead of setting null
+       }
+     }
+   }, [objectId, registerRef])
+diff --git a/engine/components/system-viewer/components/orbital-path/orbital-path.tsx b/engine/components/system-viewer/components/orbital-path/orbital-path.tsx
+index 9cb9591..a5e3ccc 100644
+--- a/engine/components/system-viewer/components/orbital-path/orbital-path.tsx
++++ b/engine/components/system-viewer/components/orbital-path/orbital-path.tsx
+@@ -126,11 +126,10 @@ export function OrbitalPath({
+         const parentWorldPos = new THREE.Vector3()
+         parent.getWorldPosition(parentWorldPos)
+         
+-        // Only update if position has changed significantly to avoid jitter
+-        if (groupRef.current.position.distanceTo(parentWorldPos) > 0.001) {
+-          groupRef.current.position.copy(parentWorldPos)
+-        }
++        // Use smooth interpolation instead of threshold-based updates to prevent jitter
++        groupRef.current.position.lerp(parentWorldPos, 0.1)
+       }
++      // If parent not found, don't update position to prevent jumps
+     }
+ 
+     // Skip dynamic orbital motion if paused or when in static profile view mode
+-- 
+2.34.1

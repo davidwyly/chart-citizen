@@ -126,11 +126,10 @@ export function OrbitalPath({
         const parentWorldPos = new THREE.Vector3()
         parent.getWorldPosition(parentWorldPos)
         
-        // Only update if position has changed significantly to avoid jitter
-        if (groupRef.current.position.distanceTo(parentWorldPos) > 0.001) {
-          groupRef.current.position.copy(parentWorldPos)
-        }
+        // Use smooth interpolation instead of threshold-based updates to prevent jitter
+        groupRef.current.position.lerp(parentWorldPos, 0.1)
       }
+      // If parent not found, don't update position to prevent jumps
     }
 
     // Skip dynamic orbital motion if paused or when in static profile view mode

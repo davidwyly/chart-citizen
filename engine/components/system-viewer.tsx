@@ -166,10 +166,14 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     [handleObjectHover]
   )
 
-  const registerRefCallback = useCallback((id: string, ref: THREE.Object3D) => 
-    objectRefsMap.current.set(id, ref),
-    []
-  )
+  // Register or deregister object refs in the shared map
+  const registerRefCallback = useCallback((id: string, ref: THREE.Object3D | null) => {
+    if (ref) {
+      objectRefsMap.current.set(id, ref)
+    } else {
+      objectRefsMap.current.delete(id)
+    }
+  }, [])
 
   // Memoize OrbitControls props
   const orbitControlsProps = useMemo(() => ({

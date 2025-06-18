@@ -270,4 +270,4 @@ export function ObjectDetailsPanel({
       </div>
     </div>
   )
-} 
+}
