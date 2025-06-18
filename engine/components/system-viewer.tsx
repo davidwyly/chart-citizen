@@ -62,7 +62,7 @@ export function useSystemViewer() {
 export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: SystemViewerProps) {
   const [timeMultiplier, setTimeMultiplier] = useState(1)
   const [isPaused, setIsPaused] = useState(false)
-  const [viewType, setViewType] = useState<ViewType>("explorational")
+  const [viewType, setViewTypeState] = useState<ViewType>("explorational")
   const [currentZoom, setCurrentZoom] = useState<number>(1)
   const cameraControllerRef = useRef<UnifiedCameraControllerRef>(null)
   const [isSystemSelected, setIsSystemSelected] = useState(false)
@@ -135,8 +135,15 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   }), [])
 
   // Enhanced object focus handler that calls parent onFocus
-  const enhancedObjectFocus = useCallback((object: THREE.Object3D, name: string, visualSize?: number, radius?: number) => {
-    handleObjectFocus(object, name, visualSize, radius)
+  const enhancedObjectFocus = useCallback((
+    object: THREE.Object3D, 
+    name: string, 
+    visualSize?: number, 
+    radius?: number,
+    mass?: number,
+    orbitRadius?: number
+  ) => {
+    handleObjectFocus(object, name, visualSize, radius, mass, orbitRadius)
     if (onFocus) {
       onFocus(object, name)
     }
@@ -235,6 +242,26 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
 
     handleObjectSelect(objectId, object, name) // Call the original handler
   }, [handleObjectSelect, setCameraOrbitRadius])
+
+  // Handle view type change with focus preservation
+  const setViewType = useCallback((newViewType: ViewType) => {
+    setViewTypeState(newViewType)
+    
+    // If we have a focused object, re-focus on it after a brief delay to allow the view to update
+    if (focusedObject && focusedName) {
+      setTimeout(() => {
+        // Re-trigger the focus with the current object
+        enhancedObjectFocus(
+          focusedObject, 
+          focusedName, 
+          focusedObjectSize || undefined, 
+          focusedObjectRadius || undefined,
+          focusedObjectProperties?.mass,
+          focusedObjectProperties?.orbitRadius
+        )
+      }, 100) // Small delay to ensure view mode has updated
+    }
+  }, [focusedObject, focusedName, focusedObjectSize, focusedObjectRadius, focusedObjectProperties, enhancedObjectFocus])
 
   // Handle system change
   const handleSystemChange = useCallback((newSystemId: string) => {
