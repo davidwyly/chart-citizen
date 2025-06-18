@@ -281,6 +281,13 @@ function calculateEffectiveOrbitalRadius(
     }
   }
   
+  // In navigational mode, use more compact spacing
+  if (viewType === 'navigational') {
+    // Use a reduced effective radius to keep objects closer together
+    const compactRadius = Math.max(objectVisualRadius, outermostMoonDistance * 0.5);
+    return compactRadius;
+  }
+
   // Return the larger of the object's visual radius or its outermost moon system
   return Math.max(objectVisualRadius, outermostMoonDistance);
 }
@@ -300,6 +307,13 @@ function calculateEffectiveOrbitalClearance(
   if (results.get(object.id)?.beltData) {
     const beltData = results.get(object.id)?.beltData;
     return (beltData.outerRadius - beltData.innerRadius) / 2; // Half the belt width
+  }
+
+  // In navigational mode, use more compact clearances to maintain tight spacing
+  if (viewType === 'navigational') {
+    const objectVisualRadius = results.get(object.id)?.visualRadius || 0;
+    // Use just the visual radius plus a small buffer for navigational mode
+    return objectVisualRadius * 1.2;
   }
 
   // For any non-belt object, the clearance required on its inner side is the same as its
@@ -378,11 +392,41 @@ function adjustForGlobalCollisions(
     const previousOuterEdge = previous.absolutePosition + previous.outermostEffectiveRadius;
     
     // The required center of the current object's orbit
-    const requiredCenterPosition = previousOuterEdge + config.minDistance + current.innermostEffectiveRadius;
+    // In navigational mode, use tighter spacing to maintain compact layout
+    const spacingMultiplier = viewType === 'navigational' ? 0.5 : 1.0;
+    const requiredCenterPosition = previousOuterEdge + (config.minDistance * spacingMultiplier) + current.innermostEffectiveRadius;
 
     if (current.absolutePosition < requiredCenterPosition) {
-      // Collision detected! Adjust this object's orbit
-      const adjustment = requiredCenterPosition - current.absolutePosition;
+      // Collision detected! But be smart about belt adjustments
+      let adjustment = requiredCenterPosition - current.absolutePosition;
+      
+      // SMART BELT HANDLING: If the previous object is a belt, use much more conservative spacing
+      if (previous.object.classification === 'belt') {
+        
+        console.log(`🔍 BELT COLLISION DEBUG for ${current.object.name}:`);
+        console.log(`  📊 Previous belt: ${previous.object.name}`);
+        console.log(`  📍 Belt center: ${previous.absolutePosition}`);
+        console.log(`  📏 Belt outer radius: ${previous.outermostEffectiveRadius}`);
+        console.log(`  📍 Belt outer edge: ${previous.absolutePosition + previous.outermostEffectiveRadius}`);
+        console.log(`  📍 Current object position: ${current.absolutePosition}`);
+        console.log(`  📏 Current object clearance: ${current.innermostEffectiveRadius}`);
+        console.log(`  📐 Normal required position: ${requiredCenterPosition}`);
+        console.log(`  📐 Normal adjustment: ${requiredCenterPosition - current.absolutePosition}`);
+        
+        // For belts, use minimal spacing regardless of view mode
+        const minimalSpacing = config.minDistance * 0.2; // Very tight spacing after belts
+        const conservativePosition = previous.absolutePosition + previous.outermostEffectiveRadius + minimalSpacing + current.innermostEffectiveRadius;
+        
+        console.log(`  🎯 Conservative position: ${conservativePosition}`);
+        console.log(`  🎯 Conservative adjustment: ${conservativePosition - current.absolutePosition}`);
+        
+        if (conservativePosition < requiredCenterPosition) {
+          adjustment = conservativePosition - current.absolutePosition;
+          console.log(`✅ SMART BELT SPACING: Using reduced adjustment ${adjustment} instead of ${requiredCenterPosition - current.absolutePosition}`);
+        } else {
+          console.log(`❌ Conservative position is still larger than required, using normal adjustment`);
+        }
+      }
       
       if (current.object.name === 'Neptune') {
         console.log(`🚨 NEPTUNE COLLISION DETECTED:`);
@@ -414,17 +458,19 @@ function adjustForGlobalCollisions(
       } else {
         // Adjust regular orbit
         const currentOrbitDistance = results.get(current.object.id)?.orbitDistance || 0;
+        const newOrbitDistance = currentOrbitDistance + adjustment;
+        
         if (current.object.name === 'Neptune') {
           console.log(`🚨 NEPTUNE ORBIT ADJUSTMENT:`);
           console.log(`  📍 Current orbit distance: ${currentOrbitDistance}`);
           console.log(`  ⬆️ Adding adjustment: ${adjustment}`);
-          console.log(`  🎯 New orbit distance: ${currentOrbitDistance + adjustment}`);
+          console.log(`  🎯 New orbit distance: ${newOrbitDistance}`);
         }
-        results.get(current.object.id)!.orbitDistance = currentOrbitDistance + adjustment;
+        results.get(current.object.id)!.orbitDistance = newOrbitDistance;
       }
       
       // Update the sorted array for subsequent checks
-      current.absolutePosition = requiredCenterPosition;
+      current.absolutePosition = current.absolutePosition + adjustment;
       // Recalculate effective radius if orbit distance changed, as it depends on it.
       // This recursive call ensures that if an adjustment causes further ripple effects,
       // they are also accounted for.
@@ -655,12 +701,28 @@ function calculateClearedOrbits(
           console.log(`  📏 Effective radius: ${(actualOuterRadius - actualInnerRadius) / 2}`);
           
         } else {
-          // Other modes: Use scaled astronomical distances
+          // Other modes: Use scaled astronomical distances with reasonable belt width limits
           const desiredInnerRadius = child.orbit.inner_radius * config.orbitScaling;
           const desiredOuterRadius = child.orbit.outer_radius * config.orbitScaling;
-          const beltWidth = desiredOuterRadius - desiredInnerRadius;
+          let beltWidth = desiredOuterRadius - desiredInnerRadius;
           
-          actualInnerRadius = Math.max(desiredInnerRadius, nextAvailableDistance, clearanceFromPrevious);
+          // CRITICAL: Limit belt width to prevent massive gaps in the system
+          // Belt width should be visually reasonable, not astronomically accurate
+          // In explorational mode, belts should be thin visual elements, not massive obstacles
+          const maxBeltWidth = viewType === 'explorational' ? config.minDistance * 2 : config.orbitScaling * 0.5;
+          if (beltWidth > maxBeltWidth) {
+            console.log(`🎯 BELT WIDTH LIMITATION: ${child.name} belt width reduced from ${beltWidth} to ${maxBeltWidth}`);
+            beltWidth = maxBeltWidth;
+          }
+          
+          // For explorational mode, belts should be placed close to the previous object
+          // to avoid creating massive gaps in the system
+          if (viewType === 'explorational') {
+            // Place belt just beyond the previous object with minimal spacing
+            actualInnerRadius = Math.max(nextAvailableDistance, clearanceFromPrevious);
+          } else {
+            actualInnerRadius = Math.max(desiredInnerRadius, nextAvailableDistance, clearanceFromPrevious);
+          }
           actualOuterRadius = actualInnerRadius + Math.max(beltWidth, config.minDistance);
         }
 
@@ -853,12 +915,12 @@ export function calculateSystemOrbitalMechanics(
   
   // STEP 3: GLOBAL COLLISION DETECTION AND ADJUSTMENT
   // ==================================================
-  // Now that all objects have initial positions, check for and resolve any remaining collisions
-  // This uses the ACTUAL calculated positions (not raw AU values) to ensure accuracy
-  // Skip collision detection in profile mode since we use pre-calculated equidistant spacing
-  if (viewType !== 'profile') {
-    adjustForGlobalCollisions(objects, viewType, results, orbitConfig);
-  }
+  // TODO: Implement proper collision detection that handles belts correctly
+  // Temporarily disabled per user decision to revisit later with better implementation
+  // The current collision detection system causes spacing issues with asteroid belts
+  // if (viewType !== 'profile') {
+  //   adjustForGlobalCollisions(objects, viewType, results, orbitConfig);
+  // }
   
   // STEP 4: PARENT-CHILD SIZE HIERARCHY ENFORCEMENT
   // ================================================

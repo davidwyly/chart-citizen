@@ -35,8 +35,14 @@ const calculateOrbitalPosition = (
     x = semiMajorAxis * Math.cos(angle)
     y = 0 // Keep all objects in the same plane for profile view
     z = semiMajorAxis * Math.sin(angle)
+  } else if (viewType === 'navigational') {
+    // Navigational mode: Use clean circular orbits for better navigation UX
+    // Ignore eccentricity and inclination for a clean, readable layout
+    x = semiMajorAxis * Math.cos(angle)
+    y = 0 // Keep all objects in the same plane for easy navigation
+    z = semiMajorAxis * Math.sin(angle)
   } else {
-    // Elliptical orbit for other modes
+    // Elliptical orbit for explorational and scientific modes
     // Calculate semi-minor axis from semi-major axis and eccentricity
     const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity)
 
@@ -69,32 +75,32 @@ export function OrbitalPath({
   const groupRef = useRef<THREE.Group>(null)
   const lineRef = useRef<THREE.Line>(null)
   const timeRef = useRef<number>(0)
-  const startAngleRef = useRef<number>(viewType === 'profile' ? 0 : Math.random() * Math.PI * 2)
+  const startAngleRef = useRef<number>(viewType === 'profile' || viewType === 'navigational' ? 0 : Math.random() * Math.PI * 2)
 
-  // Ensure we realign to 0° whenever the component is switched into profile view at runtime
+  // Ensure we realign to 0° whenever the component is switched into clean layout modes
   useEffect(() => {
-    if (viewType === 'profile') {
+    if (viewType === 'profile' || viewType === 'navigational') {
       startAngleRef.current = 0;
       timeRef.current = 0; // Reset time to ensure consistent positioning
       
-      // Force immediate position update when switching to profile mode
+      // Force immediate position update when switching to clean layout modes
       if (groupRef.current) {
         const position = calculateOrbitalPosition(
-          0, // Use 0 angle for profile mode
+          0, // Use 0 angle for clean layout modes
           semiMajorAxis,
           eccentricity,
           inclination,
           viewType
         )
         
-        console.log(`🔄 PROFILE MODE UPDATE: Object with semiMajorAxis ${semiMajorAxis} positioned at:`, position)
+        console.log(`🔄 CLEAN LAYOUT UPDATE (${viewType.toUpperCase()}): Object with semiMajorAxis ${semiMajorAxis} positioned at:`, position)
         
         // Apply position to the orbiting object immediately
         if (groupRef.current.children && typeof groupRef.current.children.find === 'function') {
           const orbitingObject = groupRef.current.children.find((child) => child.type === "Group")
           if (orbitingObject) {
             orbitingObject.position.copy(position)
-            console.log(`✅ PROFILE MODE: Updated object position to`, orbitingObject.position)
+            console.log(`✅ ${viewType.toUpperCase()} MODE: Updated object position to`, orbitingObject.position)
           }
         }
       }

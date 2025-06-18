@@ -97,42 +97,57 @@ float stableHash(vec3 p) {
 }
 
 // Generate nebula clouds with multiple colors and patterns
-vec3 generateNebula(vec3 dir, float parallaxShift) {
+vec3 generateNebula(vec3 dir) {
   if(nebulaIntensity <= 0.0) return vec3(0.0);
   
-  // Apply parallax shift to direction
-  vec3 shiftedDir = normalize(mix(dir, cameraRotation * dir, parallaxShift));
+  // Compute parallax shift vector once
+  vec3 shiftVec = cameraRotation * dir - dir;
 
-  float nebula1 = fbmDetailed(shiftedDir * 3.0 + vec3(1.7, 2.3, 4.1), 6);
-  float nebula2 = fbmDetailed(shiftedDir * 5.0 + vec3(7.2, 1.8, 6.9), 5);
-  float nebula3 = fbmDetailed(shiftedDir * 8.0 + vec3(3.4, 9.1, 2.7), 4);
-  float nebula4 = turbulence(shiftedDir * 12.0 + vec3(5.8, 4.6, 8.3), 4);
+  // Define parallax multipliers for each color layer
+  float blueShift   = nebulaParallax * 0.1;  // closest
+  float purpleShift = nebulaParallax * 0.08;
+  float yellowShift = nebulaParallax * 0.06;
+  float greenShift  = nebulaParallax * 0.04;
+  float redShift    = nebulaParallax * 0.02;  // farthest
+
+  // Shifted directions per color
+  vec3 dirBlue   = normalize(dir + shiftVec * blueShift);
+  vec3 dirPurple = normalize(dir + shiftVec * purpleShift);
+  vec3 dirYellow = normalize(dir + shiftVec * yellowShift);
+  vec3 dirGreen  = normalize(dir + shiftVec * greenShift);
+  vec3 dirRed    = normalize(dir + shiftVec * redShift);
+
+  // Sample noise fields with respective shifted dirs
+  float nebula1 = fbmDetailed(dirBlue   * 3.0 + vec3(1.7, 2.3, 4.1), 6);
+  float nebula2 = fbmDetailed(dirPurple * 5.0 + vec3(7.2, 1.8, 6.9), 5);
+  float nebula3 = fbmDetailed(dirYellow * 8.0 + vec3(3.4, 9.1, 2.7), 4);
+  float nebula4 = turbulence( dirGreen  * 12.0 + vec3(5.8, 4.6, 8.3), 4);
   
-  float blueNebula = smoothstep(0.3, 0.8, nebula1) * smoothstep(0.2, 0.7, nebula2);
-  float purpleNebula = smoothstep(0.4, 0.9, nebula2) * smoothstep(0.1, 0.6, turbulence(shiftedDir * 6.0 + vec3(11.2, 3.7, 9.8), 3));
-  float yellowNebula = smoothstep(0.5, 0.85, nebula3) * smoothstep(0.3, 0.8, noise(shiftedDir * 4.0 + vec3(2.9, 8.4, 5.1)));
-  float greenNebula = smoothstep(0.35, 0.75, nebula4) * smoothstep(0.2, 0.9, fbm(shiftedDir * 7.0 + vec3(6.6, 1.3, 7.7)));
+  float blueNebula   = smoothstep(0.3, 0.8, nebula1) * smoothstep(0.2, 0.7, nebula2);
+  float purpleNebula = smoothstep(0.4, 0.9, nebula2) * smoothstep(0.1, 0.6, turbulence(dirPurple * 6.0 + vec3(11.2, 3.7, 9.8), 3));
+  float yellowNebula = smoothstep(0.5, 0.85, nebula3) * smoothstep(0.3, 0.8, noise(dirYellow * 4.0 + vec3(2.9, 8.4, 5.1)));
+  float greenNebula  = smoothstep(0.35, 0.75, nebula4) * smoothstep(0.2, 0.9, fbm(dirGreen * 7.0 + vec3(6.6, 1.3, 7.7)));
   float timeOffset = iTime * 0.02;
-  float animNoise = noise(shiftedDir * 2.0 + vec3(timeOffset, timeOffset * 0.7, timeOffset * 1.3));
+  float animNoise = noise(dirBlue * 2.0 + vec3(timeOffset, timeOffset * 0.7, timeOffset * 1.3));
   float animation = sin(timeOffset + animNoise * 6.28) * 0.1 + 0.9;
-  vec3 blueColor = vec3(0.2, 0.5, 1.0) * 0.8;
+  vec3 blueColor   = vec3(0.2, 0.5, 1.0) * 0.8;
   vec3 purpleColor = vec3(0.6, 0.3, 0.9) * 0.7;
   vec3 yellowColor = vec3(1.0, 0.8, 0.3) * 0.6;
-  vec3 greenColor = vec3(0.3, 0.8, 0.4) * 0.5;
-  vec3 redColor = vec3(0.9, 0.3, 0.2) * 0.4;
-  float redNebula = smoothstep(0.25, 0.7, fbm(shiftedDir * 9.0 + vec3(4.7, 7.8, 3.2)));
+  vec3 greenColor  = vec3(0.3, 0.8, 0.4) * 0.5;
+  vec3 redColor    = vec3(0.9, 0.3, 0.2) * 0.4;
+  float redNebula = smoothstep(0.25, 0.7, fbm(dirRed * 9.0 + vec3(4.7, 7.8, 3.2)));
   vec3 finalNebula = vec3(0.0);
-  finalNebula += blueColor * blueNebula * (0.8 + 0.4 * noise(shiftedDir * 15.0 + vec3(12.1, 5.4, 8.9)));
-  finalNebula += purpleColor * purpleNebula * (0.9 + 0.3 * noise(shiftedDir * 11.0 + vec3(3.8, 14.2, 6.5)));
-  finalNebula += yellowColor * yellowNebula * (0.7 + 0.5 * noise(shiftedDir * 13.0 + vec3(9.3, 2.7, 11.8)));
-  finalNebula += greenColor * greenNebula * (0.6 + 0.4 * noise(shiftedDir * 17.0 + vec3(7.1, 8.8, 4.3)));
-  finalNebula += redColor * redNebula * (0.8 + 0.6 * noise(shiftedDir * 19.0 + vec3(5.9, 12.4, 9.7)));
-  float wispyPattern = fbm(shiftedDir * 20.0 + vec3(8.2, 3.9, 14.6));
+  finalNebula += blueColor * blueNebula   * (0.8 + 0.4 * noise(dirBlue   * 15.0 + vec3(12.1, 5.4, 8.9)));
+  finalNebula += purpleColor * purpleNebula * (0.9 + 0.3 * noise(dirPurple * 11.0 + vec3(3.8, 14.2, 6.5)));
+  finalNebula += yellowColor * yellowNebula * (0.7 + 0.5 * noise(dirYellow * 13.0 + vec3(9.3, 2.7, 11.8)));
+  finalNebula += greenColor * greenNebula  * (0.6 + 0.4 * noise(dirGreen  * 17.0 + vec3(7.1, 8.8, 4.3)));
+  finalNebula += redColor * redNebula     * (0.8 + 0.6 * noise(dirRed    * 19.0 + vec3(5.9, 12.4, 9.7)));
+  float wispyPattern = fbm(dirBlue * 20.0 + vec3(8.2, 3.9, 14.6));
   vec3 wispyColor = mix(vec3(0.4, 0.6, 0.9), vec3(0.8, 0.4, 0.7), wispyPattern);
   float wispyMask = smoothstep(0.2, 0.6, wispyPattern) * 0.3;
   finalNebula += wispyColor * wispyMask;
-  finalNebula *= animation * nebulaIntensity;
-  float depthVariation = noise(shiftedDir * 1.5 + vec3(13.7, 6.8, 10.2)) * 0.3 + 0.7;
+  finalNebula *= animation * nebulaIntensity * 0.4;
+  float depthVariation = noise(dirBlue * 1.5 + vec3(13.7, 6.8, 10.2)) * 0.3 + 0.7;
   finalNebula *= depthVariation;
   return finalNebula;
 }
@@ -144,7 +159,7 @@ void main() {
   vec3 starDir = normalize(mix(dir, cameraRotation * dir, starParallax));
 
   // --- Nebula: only far shell, no parallax ---
-  vec3 nebula = generateNebula(dir, 0.0);
+  vec3 nebula = generateNebula(dir);
 
   // --- Tilted galactic band ---
   vec3 galacticAxis = normalize(vec3(0.5, 0.5, 0.707));
@@ -165,10 +180,10 @@ void main() {
   vec3 gasColor = mix(vec3(0.2, 0.1, 0.25), vec3(0.6, 0.4, 0.5), gasNoise);
   vec3 gasClouds = gasColor * gasAlpha;
 
-  // --- Milky Way structure (FIXED - continuous and wispy) ---
-  float wispyNoise1 = fbm(dir * 15.0 + vec3(2.1, 1.7, 3.3));
-  float wispyNoise2 = fbm(dir * 25.0 + vec3(7.2, 4.8, 1.9));
-  float wispyNoise3 = fbm(dir * 40.0 + vec3(5.5, 9.1, 6.7));
+  // --- Milky Way structure (attached to stars) ---
+  float wispyNoise1 = fbm(starDir * 15.0 + vec3(2.1, 1.7, 3.3));
+  float wispyNoise2 = fbm(starDir * 25.0 + vec3(7.2, 4.8, 1.9));
+  float wispyNoise3 = fbm(starDir * 40.0 + vec3(5.5, 9.1, 6.7));
   
   // Combine multiple scales for complex structure
   float milkyStructure = wispyNoise1 * 0.6 + wispyNoise2 * 0.3 + wispyNoise3 * 0.1;
@@ -182,9 +197,9 @@ void main() {
   vec3 purple = vec3(0.7, 0.5, 0.9);       // Purple nebular regions
   
   // Color mixing based on different noise patterns
-  float colorNoise1 = noise(dir * 12.0 + vec3(11.3, 7.7, 4.1));
-  float colorNoise2 = noise(dir * 8.0 + vec3(3.8, 15.2, 9.6));
-  float colorNoise3 = noise(dir * 20.0 + vec3(6.4, 2.9, 12.8));
+  float colorNoise1 = noise(starDir * 12.0 + vec3(11.3, 7.7, 4.1));
+  float colorNoise2 = noise(starDir * 8.0 + vec3(3.8, 15.2, 9.6));
+  float colorNoise3 = noise(starDir * 20.0 + vec3(6.4, 2.9, 12.8));
   
   // Create complex color regions
   vec3 baseColor = mix(cool, warm, coreBias);
@@ -193,7 +208,7 @@ void main() {
   vec3 milkyColor = mix(pinkMix, purple, smoothstep(0.5, 0.8, colorNoise3) * 0.4);
   
   // Vary brightness across the structure
-  float brightVariation = noise(dir * 6.0 + vec3(8.2, 3.5, 11.7)) * 0.4 + 0.6;
+  float brightVariation = noise(starDir * 6.0 + vec3(8.2, 3.5, 11.7)) * 0.4 + 0.6;
   float milkyAlpha = milkyMask * occlusion * brightVariation * (0.3 + 0.7 * coreBias);
   
   vec3 milkyWay = milkyColor * milkyAlpha;
@@ -256,9 +271,9 @@ void main() {
 `;
 
 export function createStarfieldMaterial(
-  nebulaIntensity: number = 0.5,
+  nebulaIntensity: number = 0.1,
   nebulaParallax: number = 0.0,
-  starParallax: number = 0.025
+  starParallax: number = 0.015
 ): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     uniforms: {

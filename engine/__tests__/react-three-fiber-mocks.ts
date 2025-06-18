@@ -21,13 +21,13 @@ vi.mock('three', async (importOriginal) => {
   return {
     ...actual,
     // Use React.forwardRef for components that might receive refs
-    Mesh: React.forwardRef(({ children, ...props }: any, ref) => <div data-three-type="Mesh" {...props} ref={ref}>{children}</div>),
-    Group: React.forwardRef(({ children, ...props }: any, ref) => <div data-three-type="Group" {...props} ref={ref}>{children}</div>),
+    Mesh: React.forwardRef(({ children, ...props }: any, ref: any) => React.createElement('div', { 'data-three-type': 'Mesh', ...props, ref }, children)),
+    Group: React.forwardRef(({ children, ...props }: any, ref: any) => React.createElement('div', { 'data-three-type': 'Group', ...props, ref }, children)),
     
     // Mock geometries and materials to render as simple divs
-    SphereGeometry: ({ args, ...props }: any) => <div data-three-type="SphereGeometry" data-args={JSON.stringify(args)} {...props} />,
-    TorusGeometry: ({ args, ...props }: any) => <div data-three-type="TorusGeometry" data-args={JSON.stringify(args)} {...props} />,
-    MeshBasicMaterial: (props: any) => <div data-three-type="MeshBasicMaterial" {...props} />,
+    SphereGeometry: ({ args, ...props }: any) => React.createElement('div', { 'data-three-type': 'SphereGeometry', 'data-args': JSON.stringify(args), ...props }),
+    TorusGeometry: ({ args, ...props }: any) => React.createElement('div', { 'data-three-type': 'TorusGeometry', 'data-args': JSON.stringify(args), ...props }),
+    MeshBasicMaterial: (props: any) => React.createElement('div', { 'data-three-type': 'MeshBasicMaterial', ...props }),
 
     // Keep original functions/classes for non-JSX usage where actual logic might be needed
     Vector3: actual.Vector3,
@@ -95,14 +95,14 @@ vi.mock('three', async (importOriginal) => {
 
 // Mock custom materials that are imported and used as components
 vi.mock('../../planets/materials/terrestrial-planet-material', () => ({
-  TerrestrialPlanetMaterial: (props: any) => <div data-testid="terrestrial-material" {...props} />
+  TerrestrialPlanetMaterial: (props: any) => React.createElement('div', { 'data-testid': 'terrestrial-material', ...props })
 }))
 
 vi.mock('../../stars/materials/star-material', () => ({
-  StarMaterial: (props: any) => <div data-testid="star-material" {...props} />
+  StarMaterial: (props: any) => React.createElement('div', { 'data-testid': 'star-material', ...props })
 }))
 
 // Mock PlanetRingsRenderer
 vi.mock('../../planets/planet-rings-renderer', () => ({
-  PlanetRingsRenderer: (props: any) => <div data-testid="planet-rings" {...props} />
+  PlanetRingsRenderer: (props: any) => React.createElement('div', { 'data-testid': 'planet-rings', ...props })
 })) 
