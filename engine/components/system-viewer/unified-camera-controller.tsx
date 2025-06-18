@@ -290,8 +290,15 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           console.log('  🔍 Looking for children of:', focusName)
           
           // Find objects that orbit the focused object
+          // Check both by focusName and by the actual focused object's ID for cases like Sol/sol-star
+          const focusedObjectData = systemData.objects?.find((obj: any) => 
+            obj.name?.toLowerCase() === focusName.toLowerCase()
+          )
+          const focusedObjectId = focusedObjectData?.id
+          
           const childObjects = systemData.objects?.filter((obj: any) => 
-            obj.orbit?.parent === focusName.toLowerCase()
+            obj.orbit?.parent === focusName.toLowerCase() || 
+            obj.orbit?.parent === focusedObjectId
           ) || []
           
           console.log('  📊 Found', childObjects.length, 'children in system data:', childObjects.map((obj: any) => obj.name))
@@ -568,8 +575,15 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
             console.log('  🔍 Looking for children of:', focusName)
             
             // Find objects that orbit the focused object
+            // Check both by focusName and by the actual focused object's ID for cases like Sol/sol-star
+            const focusedObjectData = systemData.objects?.find((obj: any) => 
+              obj.name?.toLowerCase() === focusName.toLowerCase()
+            )
+            const focusedObjectId = focusedObjectData?.id
+            
             const childObjects = systemData.objects?.filter((obj: any) => 
-              obj.orbit?.parent === focusName.toLowerCase()
+              obj.orbit?.parent === focusName.toLowerCase() || 
+              obj.orbit?.parent === focusedObjectId
             ) || []
             
             console.log('  📊 Found', childObjects.length, 'children in system data:', childObjects.map((obj: any) => obj.name))

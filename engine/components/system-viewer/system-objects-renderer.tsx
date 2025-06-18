@@ -183,13 +183,24 @@ export function SystemObjectsRenderer({
       return true // Fallback to visible if focal object not found
     }
     
-    // In profile mode, only show focal object and its children
+    // In profile mode, show focal object and its entire orbital family
     if (object.id === selectedObjectId) {
       return true // Always show the focused object
     }
     
-    // Show children of the focused object
-    if (object.orbit?.parent === focalObject.name?.toLowerCase()) {
+    // Show direct children of the focused object (like planets orbiting the sun)
+    if (object.orbit?.parent === focalObject.name?.toLowerCase() || 
+        object.orbit?.parent === focalObject.id) {
+      return true
+    }
+    
+    // Show grandchildren (like moons orbiting planets that orbit the sun)
+    const isGrandchild = systemData.objects.some((parentObj: CelestialObject) => 
+      (parentObj.orbit?.parent === focalObject.name?.toLowerCase() || 
+       parentObj.orbit?.parent === focalObject.id) &&
+      object.orbit?.parent === parentObj.name?.toLowerCase()
+    )
+    if (isGrandchild) {
       return true
     }
     
