@@ -1,7 +1,7 @@
 {
   "id": "pyro",
   "name": "Pyro System",
-  "description": "A dangerous system controlled by criminal organizations, featuring a volatile star",
+  "description": "A dangerous unclaimed system featuring an unstable variable K-type main sequence star with unpredictable solar flares. Originally claimed by Pyrotechnic Amalgamated in 2493 for mining, it was abandoned in 2563 due to intense flare activity. Now controlled by criminal organizations, pirate gangs, and independent settlers.",
   "objects": [
     {
       "id": "pyro-star",
@@ -9,94 +9,401 @@
       "classification": "star",
       "geometry_type": "star",
       "properties": {
-        "mass": 1.2,
-        "radius": 695700,
-        "temperature": 6200,
-        "luminosity": 1.5,
-        "age": 3.2,
-        "spectral_type": "G1V",
-        "habitable_zone_inner": 1.1,
-        "habitable_zone_outer": 1.7,
-        "rotation_period": 22,
-        "magnetic_cycle": 9,
-        "flare_activity": 0.5,
-        "stellar_wind": 0.4,
-        "variability_period": 4.2,
-        "variability_amplitude": 0.3,
-        "core_color": "#ffbb55",
-        "corona_color": "#ffdd88",
-        "prominence_color": "#ff6600",
-        "flare_color": "#ffaa77"
+        "mass": 0.8,
+        "radius": 0.75,
+        "color_temperature": 4800,
+        "luminosity": 0.4,
+        "solar_activity": 95,
+        "corona_thickness": 85,
+        "spectral_type": "K5V",
+        "rotation_period": 28,
+        "flare_frequency": 90,
+        "stellar_wind": 80,
+        "variability_period": 2.5,
+        "variability_amplitude": 45
       },
-      "position": [
-        0,
-        0,
-        0
-      ]
+      "position": [0, 0, 0]
     },
     {
       "id": "pyro-i",
       "name": "Pyro I",
       "classification": "planet",
-      "geometry_type": "terrestrial",
+      "geometry_type": "rocky",
       "properties": {
-        "mass": 0.8,
-        "radius": 6371,
+        "mass": 0.15,
+        "radius": 0.4,
         "temperature": 1200,
-        "density": 5.8,
-        "gravity": 0.98,
-        "atmospheric_pressure": 0.1,
-        "habitability": "uninhabitable",
-        "orbit_zone": "hot",
         "rotation_period": 18,
         "axial_tilt": 15,
-        "magnetic_field": 0.3,
-        "plate_tectonics": true,
-        "volcanic_activity": 0.9,
-        "lava_coverage": 0.6,
-        "base_color": "#8b0000",
-        "atmosphere_color": "#ff4500",
-        "lava_color": "#ff6600",
-        "ash_color": "#696969"
+        "tectonics": 95,
+        "atmosphere": 5,
+        "water": 0,
+        "flora": 0,
+        "population": 2,
+        "geomagnetism": 10,
+        "surface_description": "Charred black rock slowly torn apart by solar flares",
+        "hazard_level": "extreme",
+        "breathable": false,
+        "mining_activity": 15
       },
       "orbit": {
         "parent": "pyro-star",
-        "semi_major_axis": 0.45,
-        "eccentricity": 0.08,
+        "semi_major_axis": 0.25,
+        "eccentricity": 0.12,
         "inclination": 2.1,
-        "orbital_period": 156
+        "orbital_period": 89
       }
     },
     {
       "id": "pyro-ii",
-      "name": "Pyro II",
+      "name": "Pyro II (Monox)",
       "classification": "planet",
       "geometry_type": "terrestrial",
       "properties": {
-        "mass": 1,
-        "radius": 6371,
-        "temperature": 288,
-        "crater_density": 0.9,
-        "mineral_deposits": 0.7
+        "mass": 0.95,
+        "radius": 0.85,
+        "temperature": 315,
+        "rotation_period": 24,
+        "axial_tilt": 8,
+        "tectonics": 30,
+        "atmosphere": 45,
+        "water": 5,
+        "flora": 0,
+        "population": 8,
+        "geomagnetism": 5,
+        "surface_description": "Coreless planet stripped of metal deposits by mining operations",
+        "hazard_level": "moderate",
+        "breathable": true,
+        "mining_activity": 85,
+        "abandoned_facilities": true
+      },
+      "orbit": {
+        "parent": "pyro-star",
+        "semi_major_axis": 0.58,
+        "eccentricity": 0.08,
+        "inclination": 1.2,
+        "orbital_period": 198
+      }
+    },
+    {
+      "id": "pyro-iii",
+      "name": "Pyro III (Bloom)",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 1.1,
+        "radius": 0.92,
+        "temperature": 445,
+        "rotation_period": 32,
+        "axial_tilt": 22,
+        "tectonics": 45,
+        "atmosphere": 25,
+        "water": 15,
+        "flora": 5,
+        "population": 3,
+        "geomagnetism": 35,
+        "surface_description": "Evidence of past ecosystem destroyed when orbit shifted closer to star",
+        "hazard_level": "high",
+        "breathable": true,
+        "ecological_remnants": true,
+        "orbital_shift_event": true
       },
       "orbit": {
         "parent": "pyro-star",
         "semi_major_axis": 0.89,
-        "eccentricity": 0.12,
+        "eccentricity": 0.15,
+        "inclination": 3.8,
+        "orbital_period": 312
+      }
+    },
+    {
+      "id": "pyro-iv",
+      "name": "Pyro IV",
+      "classification": "planet",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.4,
+        "radius": 0.6,
+        "temperature": 180,
+        "rotation_period": 16,
+        "axial_tilt": 85,
+        "tectonics": 80,
+        "atmosphere": 0,
+        "water": 0,
+        "flora": 0,
+        "population": 0,
+        "geomagnetism": 20,
+        "surface_description": "Rocky proto-planet knocked from stable orbit, slowly being consumed by Pyro V",
+        "hazard_level": "extreme",
+        "breathable": false,
+        "orbital_decay": true,
+        "impact_event": true
+      },
+      "orbit": {
+        "parent": "pyro-v",
+        "semi_major_axis": 0.8,
+        "eccentricity": 0.45,
+        "inclination": 12.5,
+        "orbital_period": 28
+      }
+    },
+    {
+      "id": "pyro-v",
+      "name": "Pyro V",
+      "classification": "planet",
+      "geometry_type": "gas_giant",
+      "properties": {
+        "mass": 95,
+        "radius": 4.2,
+        "temperature": 165,
+        "rotation_period": 12,
+        "axial_tilt": 3,
+        "band_contrast": 75,
+        "cloud_opacity": 85,
+        "hue_shift": 35,
+        "atmosphere_description": "Yellow and green swirling gases",
+        "magnetic_field": 85,
+        "ring_system": false,
+        "storm_activity": 60
+      },
+      "orbit": {
+        "parent": "pyro-star",
+        "semi_major_axis": 4.2,
+        "eccentricity": 0.05,
         "inclination": 1.8,
-        "orbital_period": 298
+        "orbital_period": 2890
+      }
+    },
+    {
+      "id": "adir",
+      "name": "Adir",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.012,
+        "radius": 0.27,
+        "temperature": 155,
+        "rotation_period": 48,
+        "tectonics": 40,
+        "atmosphere": 0,
+        "water": 0,
+        "breathable": false
+      },
+      "orbit": {
+        "parent": "pyro-v",
+        "semi_major_axis": 8.5,
+        "eccentricity": 0.02,
+        "inclination": 0.5,
+        "orbital_period": 72
+      }
+    },
+    {
+      "id": "ignis",
+      "name": "Ignis",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.008,
+        "radius": 0.22,
+        "temperature": 148,
+        "rotation_period": 56,
+        "tectonics": 30,
+        "atmosphere": 0,
+        "water": 0,
+        "breathable": false
+      },
+      "orbit": {
+        "parent": "pyro-v",
+        "semi_major_axis": 12.2,
+        "eccentricity": 0.03,
+        "inclination": 1.2,
+        "orbital_period": 128
+      }
+    },
+    {
+      "id": "fairo",
+      "name": "Fairo",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.015,
+        "radius": 0.31,
+        "temperature": 142,
+        "rotation_period": 62,
+        "tectonics": 25,
+        "atmosphere": 0,
+        "water": 0,
+        "breathable": false
+      },
+      "orbit": {
+        "parent": "pyro-v",
+        "semi_major_axis": 16.8,
+        "eccentricity": 0.04,
+        "inclination": 2.1,
+        "orbital_period": 198
+      }
+    },
+    {
+      "id": "fuego",
+      "name": "Fuego",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.011,
+        "radius": 0.25,
+        "temperature": 138,
+        "rotation_period": 71,
+        "tectonics": 35,
+        "atmosphere": 0,
+        "water": 0,
+        "breathable": false
+      },
+      "orbit": {
+        "parent": "pyro-v",
+        "semi_major_axis": 22.4,
+        "eccentricity": 0.06,
+        "inclination": 3.5,
+        "orbital_period": 289
+      }
+    },
+    {
+      "id": "vatra",
+      "name": "Vatra",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.009,
+        "radius": 0.23,
+        "temperature": 134,
+        "rotation_period": 84,
+        "tectonics": 20,
+        "atmosphere": 0,
+        "water": 0,
+        "breathable": false
+      },
+      "orbit": {
+        "parent": "pyro-v",
+        "semi_major_axis": 28.9,
+        "eccentricity": 0.08,
+        "inclination": 4.2,
+        "orbital_period": 412
+      }
+    },
+    {
+      "id": "vuur",
+      "name": "Vuur",
+      "classification": "moon",
+      "geometry_type": "rocky",
+      "properties": {
+        "mass": 0.007,
+        "radius": 0.19,
+        "temperature": 129,
+        "rotation_period": 96,
+        "tectonics": 15,
+        "atmosphere": 0,
+        "water": 0,
+        "breathable": false
+      },
+      "orbit": {
+        "parent": "pyro-v",
+        "semi_major_axis": 35.2,
+        "eccentricity": 0.10,
+        "inclination": 5.8,
+        "orbital_period": 578
+      }
+    },
+    {
+      "id": "pyro-vi",
+      "name": "Pyro VI (Terminus)",
+      "classification": "planet",
+      "geometry_type": "terrestrial",
+      "properties": {
+        "mass": 0.3,
+        "radius": 0.7,
+        "temperature": 98,
+        "rotation_period": 48,
+        "axial_tilt": 28,
+        "tectonics": 10,
+        "atmosphere": 35,
+        "water": 85,
+        "flora": 0,
+        "population": 15,
+        "geomagnetism": 25,
+        "surface_description": "Frigid protoplanet with methane-laced atmosphere",
+        "hazard_level": "moderate",
+        "breathable": true,
+        "atmospheric_composition": "methane-rich",
+        "frozen_surface": true
+      },
+      "orbit": {
+        "parent": "pyro-star",
+        "semi_major_axis": 12.8,
+        "eccentricity": 0.18,
+        "inclination": 6.2,
+        "orbital_period": 8920
+      }
+    },
+    {
+      "id": "ruin-station",
+      "name": "Ruin Station",
+      "classification": "station",
+      "geometry_type": "none",
+      "properties": {
+        "mass": 0.001,
+        "population": 45,
+        "faction_control": "XenoThreat",
+        "station_type": "outlaw_haven",
+        "services": ["refuel", "repair", "black_market", "bounty_board"],
+        "hazard_level": "extreme",
+        "lawless": true,
+        "gang_warfare": true
+      },
+      "orbit": {
+        "parent": "pyro-vi",
+        "semi_major_axis": 2.5,
+        "eccentricity": 0.02,
+        "inclination": 0.8,
+        "orbital_period": 12
       }
     }
   ],
   "lighting": {
     "primary_star": "pyro-star",
-    "ambient_level": 0.08,
-    "stellar_influence_radius": 100
+    "ambient_level": 0.05,
+    "stellar_influence_radius": 150,
+    "flare_activity": true,
+    "radiation_hazard": true
   },
+  "timeline": [
+    {
+      "date": "2493-03-15",
+      "title": "System Claimed",
+      "description": "Pyrotechnic Amalgamated claims the Pyro system for mining operations"
+    },
+    {
+      "date": "2563-08-22",
+      "title": "Corporate Abandonment", 
+      "description": "Pyrotechnic Amalgamated abandons the system due to intense solar flare activity after extracting most precious metals"
+    },
+    {
+      "date": "2564-01-01",
+      "title": "Lawless Period Begins",
+      "description": "Independent organizations, settlers, and pirate gangs begin moving into the abandoned system"
+    },
+    {
+      "date": "2951-Present",
+      "title": "Criminal Haven",
+      "description": "System now controlled by various criminal factions including Headhunters, 73R Vipers, Fire Rats, Rough & Ready, and XenoThreat"
+    }
+  ],
   "metadata": {
-    "version": "2.0",
-    "last_updated": "2025-06-14",
+    "version": "3.0",
+    "last_updated": "2025-06-18",
     "coordinate_system": "heliocentric",
-    "distance_unit": "au"
+    "distance_unit": "au",
+    "source": "Star Citizen Official Lore",
+    "system_status": "unclaimed",
+    "danger_level": "extreme",
+    "primary_factions": ["XenoThreat", "Headhunters", "73R Vipers", "Fire Rats", "Rough & Ready"]
   }
 }
