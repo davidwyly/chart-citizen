@@ -266,9 +266,9 @@ export function SystemObjectsRenderer({
               timeMultiplier={timeMultiplier}
               isPaused={isPaused}
               showLabel={shouldShowLabel}
-              onHover={onObjectHover}
-              onSelect={onObjectSelect}
-              onFocus={onObjectFocus}
+              onHover={isVisible ? onObjectHover : undefined}
+              onSelect={isVisible ? onObjectSelect : undefined}
+              onFocus={isVisible ? onObjectFocus : undefined}
               registerRef={registerRef}
             />
           </MemoizedOrbitalPath>
@@ -306,9 +306,9 @@ export function SystemObjectsRenderer({
             timeMultiplier={timeMultiplier}
             isPaused={isPaused}
             showLabel={shouldShowLabel}
-            onHover={onObjectHover}
-            onSelect={onObjectSelect}
-            onFocus={onObjectFocus}
+            onHover={isVisible ? onObjectHover : undefined}
+            onSelect={isVisible ? onObjectSelect : undefined}
+            onFocus={isVisible ? onObjectFocus : undefined}
             registerRef={registerRef}
           />
         </group>
@@ -326,9 +326,9 @@ export function SystemObjectsRenderer({
             timeMultiplier={timeMultiplier}
             isPaused={isPaused}
             showLabel={shouldShowLabel}
-            onHover={onObjectHover}
-            onSelect={onObjectSelect}
-            onFocus={onObjectFocus}
+            onHover={isVisible ? onObjectHover : undefined}
+            onSelect={isVisible ? onObjectSelect : undefined}
+            onFocus={isVisible ? onObjectFocus : undefined}
             registerRef={registerRef}
           />
         </group>
