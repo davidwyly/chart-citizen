@@ -229,7 +229,8 @@ function calculateEffectiveOrbitalRadius(
   object: CelestialObject,
   allObjects: CelestialObject[],
   results: Map<string, any>,
-  config: any
+  config: any,
+  viewType?: ViewType
 ): number {
   const objectVisualRadius = results.get(object.id)?.visualRadius || 0;
 
@@ -241,6 +242,18 @@ function calculateEffectiveOrbitalRadius(
       // This is crucial for other objects to clear the entire belt.
       return beltData.outerRadius;
     }
+  }
+  
+  // In profile mode, use much smaller effective radius to maintain tight spacing
+  if (viewType === 'profile') {
+    // For profile mode, just use the object's visual radius plus a small buffer
+    // This ignores moon systems to keep planets close together
+    const profileEffectiveRadius = objectVisualRadius * 2; // Small multiplier for minimal clearance
+    
+    // DEBUG: Log effective radius calculation
+    console.log(`🌙 EFFECTIVE RADIUS (${object.name}): profile mode = ${profileEffectiveRadius} (visual: ${objectVisualRadius})`);
+    
+    return profileEffectiveRadius;
   }
   
   // Find all moons orbiting this object
@@ -280,7 +293,8 @@ function calculateEffectiveOrbitalClearance(
   object: CelestialObject,
   allObjects: CelestialObject[],
   results: Map<string, any>,
-  config: any
+  config: any,
+  viewType?: ViewType
 ): number {
   // Handle belts specially - they have their own clearance logic
   if (results.get(object.id)?.beltData) {
@@ -290,7 +304,7 @@ function calculateEffectiveOrbitalClearance(
 
   // For any non-belt object, the clearance required on its inner side is the same as its
   // effective orbital radius on the outer side. This includes the full extent of its moon system.
-  return calculateEffectiveOrbitalRadius(object, allObjects, results, config);
+  return calculateEffectiveOrbitalRadius(object, allObjects, results, config, viewType);
 }
 
 /**
@@ -350,8 +364,8 @@ function adjustForGlobalCollisions(
     return {
       object: obj,
       absolutePosition: actualPosition,
-      outermostEffectiveRadius: calculateEffectiveOrbitalRadius(obj, objects, results, config),
-      innermostEffectiveRadius: calculateEffectiveOrbitalClearance(obj, objects, results, config)
+      outermostEffectiveRadius: calculateEffectiveOrbitalRadius(obj, objects, results, config, viewType),
+      innermostEffectiveRadius: calculateEffectiveOrbitalClearance(obj, objects, results, config, viewType)
     };
   }).sort((a, b) => a.absolutePosition - b.absolutePosition);
   
@@ -369,6 +383,15 @@ function adjustForGlobalCollisions(
     if (current.absolutePosition < requiredCenterPosition) {
       // Collision detected! Adjust this object's orbit
       const adjustment = requiredCenterPosition - current.absolutePosition;
+      
+      if (current.object.name === 'Neptune') {
+        console.log(`🚨 NEPTUNE COLLISION DETECTED:`);
+        console.log(`  📍 Current position: ${current.absolutePosition}`);
+        console.log(`  📍 Required position: ${requiredCenterPosition}`);
+        console.log(`  ⬆️ Adjustment needed: ${adjustment}`);
+        console.log(`  📊 Previous object:`, previous.object.name);
+        console.log(`  📏 Previous outer edge: ${previousOuterEdge}`);
+      }
       
       if (current.object.orbit && isBeltOrbitData(current.object.orbit)) {
         // Adjust belt position
@@ -391,6 +414,12 @@ function adjustForGlobalCollisions(
       } else {
         // Adjust regular orbit
         const currentOrbitDistance = results.get(current.object.id)?.orbitDistance || 0;
+        if (current.object.name === 'Neptune') {
+          console.log(`🚨 NEPTUNE ORBIT ADJUSTMENT:`);
+          console.log(`  📍 Current orbit distance: ${currentOrbitDistance}`);
+          console.log(`  ⬆️ Adding adjustment: ${adjustment}`);
+          console.log(`  🎯 New orbit distance: ${currentOrbitDistance + adjustment}`);
+        }
         results.get(current.object.id)!.orbitDistance = currentOrbitDistance + adjustment;
       }
       
@@ -399,8 +428,8 @@ function adjustForGlobalCollisions(
       // Recalculate effective radius if orbit distance changed, as it depends on it.
       // This recursive call ensures that if an adjustment causes further ripple effects,
       // they are also accounted for.
-      current.outermostEffectiveRadius = calculateEffectiveOrbitalRadius(current.object, objects, results, config);
-      current.innermostEffectiveRadius = calculateEffectiveOrbitalClearance(current.object, objects, results, config);
+      current.outermostEffectiveRadius = calculateEffectiveOrbitalRadius(current.object, objects, results, config, viewType);
+      current.innermostEffectiveRadius = calculateEffectiveOrbitalClearance(current.object, objects, results, config, viewType);
     }
   }
 }
@@ -431,7 +460,8 @@ function adjustForGlobalCollisions(
 function calculateClearedOrbits(
   objects: CelestialObject[],
   results: Map<string, any>,
-  config: any
+  config: any,
+  viewType: ViewType
 ): void {
   // Group objects by their parent for efficient processing
   const parentGroups = new Map<string, CelestialObject[]>();
@@ -480,11 +510,17 @@ function calculateClearedOrbits(
     for (const moon of moons) {
       if (moon.orbit && isOrbitData(moon.orbit)) {
         const moonVisualRadius = results.get(moon.id)?.visualRadius || 0;
-        const desiredDistance = moon.orbit.semi_major_axis * config.orbitScaling;
         
-        // Moon's actual orbit distance should be at least the desired distance
-        // and also clear the previous moon with proper spacing
-        const actualDistance = Math.max(desiredDistance, nextAvailableDistance);
+        let actualDistance: number;
+        
+        if (viewType === 'profile') {
+          // Profile mode: Use equidistant spacing, ignoring astronomical distances
+          actualDistance = nextAvailableDistance;
+        } else {
+          // Other modes: Use scaled astronomical distances
+          const desiredDistance = moon.orbit.semi_major_axis * config.orbitScaling;
+          actualDistance = Math.max(desiredDistance, nextAvailableDistance);
+        }
         
         // CRITICAL: Record the final orbit distance for use in Pass 2
         results.get(moon.id)!.orbitDistance = actualDistance;
@@ -539,12 +575,9 @@ function calculateClearedOrbits(
         // REGULAR PLANET ORBIT CALCULATION
         // =================================
         
-        // Desired position based on raw AU scaling
-        const desiredDistance = child.orbit.semi_major_axis * config.orbitScaling;
-
         // CRITICAL: Calculate effective orbital radius including moon systems
         // This now works correctly because all moon positions were calculated in Pass 1
-        const effectiveOrbitalRadius = calculateEffectiveOrbitalRadius(child, objects, results, config);
+        const effectiveOrbitalRadius = calculateEffectiveOrbitalRadius(child, objects, results, config, viewType);
 
         // Calculate minimum clearance needed from previous object
         const requiredInnerEdge = previousChild
@@ -554,11 +587,35 @@ function calculateClearedOrbits(
         // The center of the child's orbit should account for its own moon system clearance
         const requiredCenter = requiredInnerEdge + effectiveOrbitalRadius;
 
-        // Final position is the maximum of desired position and collision-free position
-        const actualDistance = Math.max(desiredDistance, requiredCenter);
+        let actualDistance: number;
+        
+        if (viewType === 'profile') {
+          // Profile mode: Use equidistant spacing, ignoring astronomical distances
+          actualDistance = requiredCenter;
+          
+          // DEBUG: Log profile mode planet placement
+          console.log(`🪐 PROFILE PLANET: ${child.name}`);
+          console.log(`  📏 Child visual radius: ${childVisualRadius}`);
+          console.log(`  🌙 Effective orbital radius: ${effectiveOrbitalRadius}`);
+          console.log(`  📍 Previous child: ${previousChild ? `${previousChild.actualDistance} + ${previousChild.effectiveRadius}` : 'none'}`);
+          console.log(`  📐 Required inner edge: ${requiredInnerEdge}`);
+          console.log(`  🎯 Required center: ${requiredCenter}`);
+          console.log(`  ✅ Final distance: ${actualDistance}`);
+          console.log(`  📏 Gap from previous: ${previousChild ? actualDistance - (previousChild.actualDistance + previousChild.effectiveRadius) : 'N/A'}`);
+        } else {
+          // Other modes: Use scaled astronomical distances
+          const desiredDistance = child.orbit.semi_major_axis * config.orbitScaling;
+          actualDistance = Math.max(desiredDistance, requiredCenter);
+        }
 
         // Record the final orbit distance
+        if (child.name === 'Neptune') {
+          console.log(`🔥 NEPTUNE RESULT ASSIGNMENT: Setting orbitDistance to ${actualDistance}`);
+        }
         results.get(child.id)!.orbitDistance = actualDistance;
+        if (child.name === 'Neptune') {
+          console.log(`🔥 NEPTUNE RESULT AFTER ASSIGNMENT:`, results.get(child.id));
+        }
 
         // Update tracking for next object
         previousChild = {
@@ -572,17 +629,40 @@ function calculateClearedOrbits(
         // BELT OBJECT CALCULATION
         // =======================
         
-        const desiredInnerRadius = child.orbit.inner_radius * config.orbitScaling;
-        const desiredOuterRadius = child.orbit.outer_radius * config.orbitScaling;
-        const beltWidth = desiredOuterRadius - desiredInnerRadius;
-
         // Account for previous object clearance
         const clearanceFromPrevious = previousChild
           ? previousChild.actualDistance + previousChild.effectiveRadius + config.minDistance
           : 0;
 
-        const actualInnerRadius = Math.max(desiredInnerRadius, nextAvailableDistance, clearanceFromPrevious);
-        const actualOuterRadius = actualInnerRadius + Math.max(beltWidth, config.minDistance);
+        let actualInnerRadius: number;
+        let actualOuterRadius: number;
+
+        if (viewType === 'profile') {
+          // Profile mode: Use equidistant spacing for belts too
+          actualInnerRadius = Math.max(nextAvailableDistance, clearanceFromPrevious);
+          // Use a very minimal belt width for profile mode to maintain tight spacing
+          const profileBeltWidth = config.minDistance * 0.25; // Just 0.25x minDistance for very compact appearance
+          actualOuterRadius = actualInnerRadius + profileBeltWidth;
+          
+          // DEBUG: Log profile mode belt placement
+          console.log(`⚫ PROFILE BELT: ${child.name}`);
+          console.log(`  📐 Next available distance: ${nextAvailableDistance}`);
+          console.log(`  📐 Clearance from previous: ${clearanceFromPrevious}`);
+          console.log(`  📍 Inner radius: ${actualInnerRadius}`);
+          console.log(`  📏 Belt width: ${profileBeltWidth}`);
+          console.log(`  📍 Outer radius: ${actualOuterRadius}`);
+          console.log(`  🎯 Center: ${(actualInnerRadius + actualOuterRadius) / 2}`);
+          console.log(`  📏 Effective radius: ${(actualOuterRadius - actualInnerRadius) / 2}`);
+          
+        } else {
+          // Other modes: Use scaled astronomical distances
+          const desiredInnerRadius = child.orbit.inner_radius * config.orbitScaling;
+          const desiredOuterRadius = child.orbit.outer_radius * config.orbitScaling;
+          const beltWidth = desiredOuterRadius - desiredInnerRadius;
+          
+          actualInnerRadius = Math.max(desiredInnerRadius, nextAvailableDistance, clearanceFromPrevious);
+          actualOuterRadius = actualInnerRadius + Math.max(beltWidth, config.minDistance);
+        }
 
         // Store belt data
         results.set(child.id, {
@@ -769,13 +849,16 @@ export function calculateSystemOrbitalMechanics(
   // - Pass 1: Calculate all moon orbits first (independent of planet positions)
   // - Pass 2: Calculate planet orbits using the now-available moon positions
   // This prevents the circular dependency where planets need moon positions but moons need planet positions
-  calculateClearedOrbits(objects, results, orbitConfig);
+  calculateClearedOrbits(objects, results, orbitConfig, viewType);
   
   // STEP 3: GLOBAL COLLISION DETECTION AND ADJUSTMENT
   // ==================================================
   // Now that all objects have initial positions, check for and resolve any remaining collisions
   // This uses the ACTUAL calculated positions (not raw AU values) to ensure accuracy
-  adjustForGlobalCollisions(objects, viewType, results, orbitConfig);
+  // Skip collision detection in profile mode since we use pre-calculated equidistant spacing
+  if (viewType !== 'profile') {
+    adjustForGlobalCollisions(objects, viewType, results, orbitConfig);
+  }
   
   // STEP 4: PARENT-CHILD SIZE HIERARCHY ENFORCEMENT
   // ================================================

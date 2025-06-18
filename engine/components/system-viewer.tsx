@@ -404,8 +404,8 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
             {/* Scene lighting */}
             <SceneLighting systemData={systemData} viewType={viewType} />
 
-            {/* Starfield skybox */}
-            <StarfieldSkybox />
+            {/* Starfield skybox with nebula effects */}
+            <StarfieldSkybox nebulaIntensity={0.6} nebulaParallax={0.8} />
 
             <Preload all />
           </Suspense>

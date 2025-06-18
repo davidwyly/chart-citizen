@@ -126,8 +126,13 @@ export function SystemObjectsRenderer({
 
   // Calculate safe orbital mechanics for all objects
   const orbitalMechanics = useMemo(() => {
-    // Cache is managed automatically - only clear when system data or view type changes
-    return calculateSystemOrbitalMechanics(systemData.objects, viewType);
+    // Clear cache when view type changes to ensure fresh calculations
+    console.log(`🧹 CLEARING CACHE for viewType: ${viewType}`);
+    clearOrbitalMechanicsCache();
+    console.log(`🔄 RECALCULATING orbital mechanics for viewType: ${viewType}`);
+    const result = calculateSystemOrbitalMechanics(systemData.objects, viewType);
+    console.log(`📊 ORBITAL MECHANICS RESULT for Neptune:`, result.get('neptune'));
+    return result;
   }, [systemData.objects, viewType]);
 
   // Get object sizing from orbital mechanics calculator
@@ -225,6 +230,12 @@ export function SystemObjectsRenderer({
       // Get safe orbital distance from our orbital mechanics calculator
       const mechanicsData = orbitalMechanics.get(object.id);
       const semiMajorAxis = mechanicsData?.orbitDistance || 0;
+      
+      // Debug: Log the orbital distance for Neptune specifically
+      if (object.name === 'Neptune') {
+        console.log(`🔍 NEPTUNE DISTANCE DEBUG: ${object.name} (${object.id}) -> semiMajorAxis: ${semiMajorAxis}`);
+        console.log(`   📊 Mechanics data:`, mechanicsData);
+      }
       
       // If no orbital distance calculated, skip rendering this object
       if (semiMajorAxis === 0) {

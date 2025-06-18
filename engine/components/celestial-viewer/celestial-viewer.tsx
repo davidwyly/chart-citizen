@@ -585,7 +585,7 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
         >
           <Suspense fallback={null}>
             {/* Starfield background */}
-            <StarfieldSkybox />
+            <StarfieldSkybox nebulaIntensity={0.4} nebulaParallax={0.8} />
             
             {/* Scene lighting - minimal ambient only for non-shader objects */}
             <ambientLight intensity={0.1} />

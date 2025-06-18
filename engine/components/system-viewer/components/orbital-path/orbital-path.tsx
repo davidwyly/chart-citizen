@@ -29,18 +29,26 @@ const calculateOrbitalPosition = (
 ): THREE.Vector3 => {
   let x, y, z
 
-  // Elliptical orbit for explorational mode
-  // Calculate semi-minor axis from semi-major axis and eccentricity
-  const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity)
+  if (viewType === 'profile') {
+    // Profile mode: Use fixed circular orbits at the exact calculated distance
+    // Ignore eccentricity and inclination for clean diagrammatic layout
+    x = semiMajorAxis * Math.cos(angle)
+    y = 0 // Keep all objects in the same plane for profile view
+    z = semiMajorAxis * Math.sin(angle)
+  } else {
+    // Elliptical orbit for other modes
+    // Calculate semi-minor axis from semi-major axis and eccentricity
+    const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity)
 
-  // Calculate position in orbital plane
-  const r = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.cos(angle))
-  x = r * Math.cos(angle)
-  const yFlat = r * Math.sin(angle)
+    // Calculate position in orbital plane
+    const r = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.cos(angle))
+    x = r * Math.cos(angle)
+    const yFlat = r * Math.sin(angle)
 
-  // Apply inclination rotation
-  z = yFlat * Math.cos((inclination * Math.PI) / 180)
-  y = yFlat * Math.sin((inclination * Math.PI) / 180)
+    // Apply inclination rotation
+    z = yFlat * Math.cos((inclination * Math.PI) / 180)
+    y = yFlat * Math.sin((inclination * Math.PI) / 180)
+  }
 
   return new THREE.Vector3(x, y, z)
 }
@@ -68,8 +76,30 @@ export function OrbitalPath({
     if (viewType === 'profile') {
       startAngleRef.current = 0;
       timeRef.current = 0; // Reset time to ensure consistent positioning
+      
+      // Force immediate position update when switching to profile mode
+      if (groupRef.current) {
+        const position = calculateOrbitalPosition(
+          0, // Use 0 angle for profile mode
+          semiMajorAxis,
+          eccentricity,
+          inclination,
+          viewType
+        )
+        
+        console.log(`🔄 PROFILE MODE UPDATE: Object with semiMajorAxis ${semiMajorAxis} positioned at:`, position)
+        
+        // Apply position to the orbiting object immediately
+        if (groupRef.current.children && typeof groupRef.current.children.find === 'function') {
+          const orbitingObject = groupRef.current.children.find((child) => child.type === "Group")
+          if (orbitingObject) {
+            orbitingObject.position.copy(position)
+            console.log(`✅ PROFILE MODE: Updated object position to`, orbitingObject.position)
+          }
+        }
+      }
     }
-  }, [viewType]);
+  }, [viewType, semiMajorAxis, eccentricity, inclination]);
 
   // Calculate orbit points for visualization
   const orbitPoints = useMemo(() => {
