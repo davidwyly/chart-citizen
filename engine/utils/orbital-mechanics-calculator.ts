@@ -88,6 +88,8 @@
 import { ViewType } from '@lib/types/effects-level';
 import { CelestialObject, isOrbitData, isBeltOrbitData } from '@/engine/types/orbital-system';
 import { getOrbitalMechanicsConfig } from '@/engine/core/view-modes/compatibility';
+import { calculateVisualSize, getVisualSizeConfigForViewMode } from './visual-size-calculator';
+import { getSafeScalingForViewMode, validateSafeScaling } from './safe-scaling-calculator';
 // Import view modes to ensure they are registered
 import '@/engine/core/view-modes';
 
@@ -109,7 +111,13 @@ function generateCalculationKey(objects: CelestialObject[], viewType: ViewType, 
 }
 
 /**
- * Calculate visual radius for an object with proportional parent-child scaling
+ * Calculate visual radius using the new modular visual size calculator
+ * 
+ * REFACTORED: Moved complex size logic to visual-size-calculator.ts for better
+ * modularity and elimination of magic numbers
+ * 
+ * GOTCHA: Must use the same allObjects array for all calculations to ensure
+ * consistent Earth reference across all objects in the system
  */
 function calculateVisualRadius(
   object: CelestialObject, 
@@ -119,37 +127,68 @@ function calculateVisualRadius(
   results: Map<string, any>,
   config: any
 ): number {
-  const radiusKm = object.properties.radius || 1;
-  
-  // SCIENTIFIC MODE: Use true-to-life scaling with actual radius values
+  // SCIENTIFIC MODE: Use safe scaling to prevent Mercury-Sol collision
+  // This ensures true-to-life proportions while maintaining collision safety
   if (viewType === 'scientific') {
-    // Scale the actual radius directly with minimal visual scaling
-    const logRadius = Math.log10(radiusKm + 1);
-    const normalizedLog = (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange;
-    const visualRadius = config.minVisualSize + (normalizedLog * (config.maxVisualSize - config.minVisualSize));
-    return Math.max(visualRadius, config.minVisualSize);
-  }
-  
-  // Use fixed sizes for non-explorational/non-scientific modes
-  if (viewType !== 'explorational' && viewType !== 'scientific' && 'fixedSizes' in config) {
-    // Use geometry_type for better differentiation, fallback to classification
-    let sizeKey = object.classification || 'asteroid';
+    const safeScaling = getSafeScalingForViewMode('scientific');
     
-    // Special handling for gas giants vs terrestrial planets
+    // Validate that the safe scaling prevents collisions
+    const validation = validateSafeScaling(allObjects, safeScaling.orbitScaling, safeScaling.maxStarSize);
+    if (!validation.isSafe) {
+      console.warn('🚨 Safe scaling validation failed for scientific mode:', validation.issues);
+      console.warn('📋 Recommendations:', validation.recommendations);
+    }
+    
+    // Use Earth as reference for proportional scaling
+    const earthObject = allObjects.find(obj => 
+      obj.name?.toLowerCase() === 'earth' || obj.id?.toLowerCase() === 'earth'
+    );
+    const earthRadiusKm = earthObject?.properties.radius || 6371;
+    const objectRadiusKm = object.properties.radius || 1;
+    const earthRatio = objectRadiusKm / earthRadiusKm;
+    
+    // Apply safe scaling with true astronomical proportions
+    let visualSize: number;
+    if (object.classification === 'star') {
+      // Stars are constrained by safe scaling to prevent Mercury collision
+      visualSize = Math.min(safeScaling.earthTargetSize * earthRatio, safeScaling.maxStarSize);
+    } else {
+      // Planets and other objects use proportional scaling from Earth
+      visualSize = safeScaling.earthTargetSize * earthRatio;
+    }
+    
+    // Ensure minimum visibility while maintaining scientific accuracy
+    return Math.max(visualSize, 0.001); // Very small minimum for scientific precision
+  }
+  // SPECIAL HANDLING for view mode specific logic
+  // Some view modes (like navigational) need special fixed-size logic
+  // that overrides proportional scaling
+  
+  // NAVIGATIONAL MODE: Use fixed sizes for consistent UI
+  if (viewType === 'navigational' && 'fixedSizes' in config) {
+    const earthRadiusKm = 6371; // Standard Earth radius for ratio calculations
+    const radiusKm = object.properties.radius || 1;
+    const earthRatio = radiusKm / earthRadiusKm;
+    
+    // Get base size for this object type
+    let baseSize = config.fixedSizes.planet || 1.2;
+    
     if (object.classification === 'planet') {
       if (object.geometry_type === 'gas_giant') {
-        // Gas giants get larger size - use planet size * 1.5
-        const planetSize = config.fixedSizes.planet || 1.2;
-        return planetSize * 1.5; // Gas giants are 1.5x terrestrial planets
+        // Gas giants: Use real ratio but cap at reasonable maximum for navigation UI
+        const realGasGiantSize = baseSize * earthRatio;
+        const maxGasGiantSize = baseSize * 3.0; // Navigation UI constraint
+        return Math.min(realGasGiantSize, maxGasGiantSize);
       } else {
-        sizeKey = 'planet'; // terrestrial planets
+        // Terrestrial planets: Use real ratio for navigation
+        return baseSize * earthRatio;
       }
     }
     
-    // Get fixed size by classification
+    // For non-planets, use fixed size from config
+    let sizeKey = object.classification || 'asteroid';
     let fixedSize = config.fixedSizes[sizeKey as keyof typeof config.fixedSizes];
     
-    // Final fallback to asteroid size if classification not found
     if (fixedSize === undefined) {
       fixedSize = config.fixedSizes.asteroid;
     }
@@ -157,42 +196,36 @@ function calculateVisualRadius(
     return fixedSize;
   }
   
-  // EXPLORATIONAL MODE: Implement proportional parent-child scaling
-  if (viewType === 'explorational') {
-    // For child objects (moons), scale proportionally to their parent
-    if (object.orbit?.parent && object.classification === 'moon') {
-      const parent = allObjects.find(obj => obj.id === object.orbit!.parent);
-      if (parent && results.has(parent.id)) {
-        const parentVisualRadius = results.get(parent.id).visualRadius;
-        const parentRealRadius = parent.properties.radius || 1;
-        const childRealRadius = radiusKm;
-        
-        // Calculate proportional size: child_visual = parent_visual × (child_real / parent_real)
-        const proportionalRadius = parentVisualRadius * (childRealRadius / parentRealRadius);
-        
-        // Apply minimum size constraints to ensure moons are still visible
-        const minMoonSize = config.minVisualSize * 2; // Moons should be at least 2x min size
-        
-        return Math.max(proportionalRadius, minMoonSize);
-      }
+  // MOON SPECIAL HANDLING for explorational mode
+  if (viewType === 'explorational' && object.orbit?.parent && object.classification === 'moon') {
+    // Moons should scale proportionally to their parent planet
+    const parent = allObjects.find(obj => obj.id === object.orbit!.parent);
+    if (parent && results.has(parent.id)) {
+      const parentVisualRadius = results.get(parent.id).visualRadius;
+      const parentRealRadius = parent.properties.radius || 1;
+      const childRealRadius = object.properties.radius || 1;
+      
+      // Calculate proportional size: child_visual = parent_visual × (child_real / parent_real)
+      const proportionalRadius = parentVisualRadius * (childRealRadius / parentRealRadius);
+      
+      // Apply minimum size constraint to ensure moons are visible
+      const minMoonSize = config.minVisualSize * 2; // Moons need to be twice the minimum
+      
+      return Math.max(proportionalRadius, minMoonSize);
     }
-    
-    // For non-child objects (planets and stars), use logarithmic scaling
-    if (radiusKm <= 0) return config.minVisualSize;
-    
-    const logRadius = Math.log10(radiusKm);
-    const normalizedSize = Math.max(0, Math.min(1, (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange));
-    
-    return config.minVisualSize + (normalizedSize * (config.maxVisualSize - config.minVisualSize));
   }
   
-  // Fallback to original logarithmic scaling
-  if (radiusKm <= 0) return config.minVisualSize;
+  // DEFAULT: Use the new modular calculator for most cases
+  const sizeConfig = getVisualSizeConfigForViewMode(viewType);
+  const calculation = calculateVisualSize(object, sizeConfig, allObjects, viewType);
   
-  const logRadius = Math.log10(radiusKm);
-  const normalizedSize = Math.max(0, Math.min(1, (logRadius - sizeAnalysis.logMinRadius) / sizeAnalysis.logRange));
+  // Log warnings if compression was applied or clamping occurred
+  // GOTCHA: Clamping indicates the size range may be too small for realistic proportions
+  if (calculation.metadata.clampedToMinimum) {
+    console.warn(`Object ${object.name} clamped to minimum size in ${viewType} mode - consider increasing size range`);
+  }
   
-  return config.minVisualSize + (normalizedSize * (config.maxVisualSize - config.minVisualSize));
+  return calculation.visualSize;
 }
 
 /**
@@ -246,9 +279,9 @@ function calculateEffectiveOrbitalRadius(
   
   // In profile mode, use much smaller effective radius to maintain tight spacing
   if (viewType === 'profile') {
-    // For profile mode, just use the object's visual radius plus a small buffer
-    // This ignores moon systems to keep planets close together
-    const profileEffectiveRadius = objectVisualRadius * 2; // Small multiplier for minimal clearance
+    // For profile mode, use a more generous effective radius to prevent collisions
+    // while still maintaining tighter spacing than other modes
+    const profileEffectiveRadius = objectVisualRadius * 3; // Increased from 2x to 3x for collision safety
     
     // DEBUG: Log effective radius calculation
     console.log(`🌙 EFFECTIVE RADIUS (${object.name}): profile mode = ${profileEffectiveRadius} (visual: ${objectVisualRadius})`);
@@ -392,8 +425,15 @@ function adjustForGlobalCollisions(
     const previousOuterEdge = previous.absolutePosition + previous.outermostEffectiveRadius;
     
     // The required center of the current object's orbit
-    // In navigational mode, use tighter spacing to maintain compact layout
-    const spacingMultiplier = viewType === 'navigational' ? 0.5 : 1.0;
+    // Different spacing multipliers for different view modes
+    let spacingMultiplier: number;
+    if (viewType === 'profile') {
+      spacingMultiplier = 0.25; // Very tight spacing for profile mode
+    } else if (viewType === 'navigational') {
+      spacingMultiplier = 0.5; // Tighter spacing for navigation
+    } else {
+      spacingMultiplier = 1.0; // Standard spacing
+    }
     const requiredCenterPosition = previousOuterEdge + (config.minDistance * spacingMultiplier) + current.innermostEffectiveRadius;
 
     if (current.absolutePosition < requiredCenterPosition) {
@@ -622,6 +662,10 @@ function calculateClearedOrbits(
     });
     
     // Start placing moon orbits after the parent's safe zone
+    // CRITICAL: Ensure moon center is far enough that moon inner edge clears parent surface
+    // Moon inner edge = orbitDistance - moonVisualRadius
+    // For clearance: orbitDistance - moonVisualRadius > parentVisualRadius
+    // So: orbitDistance > parentVisualRadius + moonVisualRadius
     let nextAvailableDistance = Math.max(
       parentVisualRadius * config.safetyMultiplier,
       config.minDistance
@@ -634,13 +678,28 @@ function calculateClearedOrbits(
         
         let actualDistance: number;
         
+        // Ensure moon doesn't collide with parent regardless of desired astronomical distance
+        // Moon inner edge must clear parent surface: orbitDistance > parentVisualRadius + moonVisualRadius
+        const minSafeDistance = parentVisualRadius + moonVisualRadius + config.minDistance;
+        
         if (viewType === 'profile') {
           // Profile mode: Use equidistant spacing, ignoring astronomical distances
-          actualDistance = nextAvailableDistance;
+          actualDistance = Math.max(nextAvailableDistance, minSafeDistance);
         } else {
-          // Other modes: Use scaled astronomical distances
+          // Other modes: Use scaled astronomical distances but enforce safety
           const desiredDistance = moon.orbit.semi_major_axis * config.orbitScaling;
-          actualDistance = Math.max(desiredDistance, nextAvailableDistance);
+          actualDistance = Math.max(desiredDistance, nextAvailableDistance, minSafeDistance);
+          
+          // DEBUG: Log moon placement calculation (disabled for performance)
+          // if (moon.name && moon.name.toLowerCase().includes('moon')) {
+          //   console.log(`🌙 MOON PLACEMENT DEBUG (${moon.name}):`);
+          //   console.log(`  Parent visual radius: ${parentVisualRadius}`);
+          //   console.log(`  Moon visual radius: ${moonVisualRadius}`);
+          //   console.log(`  Desired distance (${moon.orbit.semi_major_axis} AU × ${config.orbitScaling}): ${desiredDistance}`);
+          //   console.log(`  Next available distance: ${nextAvailableDistance}`);
+          //   console.log(`  Min safe distance: ${minSafeDistance}`);
+          //   console.log(`  Final actual distance: ${actualDistance}`);
+          // }
         }
         
         // CRITICAL: Record the final orbit distance for use in Pass 2
@@ -762,8 +821,8 @@ function calculateClearedOrbits(
         if (viewType === 'profile') {
           // Profile mode: Use equidistant spacing for belts too
           actualInnerRadius = Math.max(nextAvailableDistance, clearanceFromPrevious);
-          // Use a very minimal belt width for profile mode to maintain tight spacing
-          const profileBeltWidth = config.minDistance * 0.25; // Just 0.25x minDistance for very compact appearance
+          // Use a minimal belt width for profile mode to maintain tight spacing
+          const profileBeltWidth = config.minDistance * 0.5; // Increased from 0.25x to 0.5x for collision safety
           actualOuterRadius = actualInnerRadius + profileBeltWidth;
           
           // DEBUG: Log profile mode belt placement
@@ -956,7 +1015,27 @@ export function calculateSystemOrbitalMechanics(
   const sizeAnalysis = analyzeSystemSizes(objects);
   
   // Get the configuration for this view type
-  const config = getOrbitalMechanicsConfig(viewType);
+  let config = getOrbitalMechanicsConfig(viewType);
+  
+  // SCIENTIFIC MODE: Override config with safe scaling to prevent collisions
+  if (viewType === 'scientific') {
+    const safeScaling = getSafeScalingForViewMode('scientific');
+    
+    // Update orbit scaling to use safe values
+    config = {
+      ...config,
+      orbitScaling: safeScaling.orbitScaling,
+      maxVisualSize: safeScaling.maxVisualSize,
+      // Scientific mode should have minimal safety factors for accuracy
+      safetyMultiplier: 1.1,
+      minDistance: 0.01
+    };
+    
+    console.log(`🔍 Scientific mode using safe scaling:`);
+    console.log(`  Orbit scaling: ${safeScaling.orbitScaling}`);
+    console.log(`  Max star size: ${safeScaling.maxStarSize}`);
+    console.log(`  Earth target size: ${safeScaling.earthTargetSize}`);
+  }
   
   // PASS 1A: Calculate visual radii for all non-moon objects (stars, planets, belts)
   // This must be done first because moons in explorational mode scale proportionally to their parents
@@ -980,8 +1059,16 @@ export function calculateSystemOrbitalMechanics(
   // ==========================================================
   // This is the core of the dependency resolution system
   
-  // Use the config already declared above
+  // Use the safe config for scientific mode or standard config for others
   const orbitConfig = { ...config };
+  
+  // SCIENTIFIC MODE: Log orbit scaling being used
+  if (viewType === 'scientific') {
+    console.log(`🔍 Scientific mode orbit config:`);
+    console.log(`  orbitScaling: ${orbitConfig.orbitScaling}`);
+    console.log(`  safetyMultiplier: ${orbitConfig.safetyMultiplier}`);
+    console.log(`  minDistance: ${orbitConfig.minDistance}`);
+  }
   
   // CRITICAL: calculateClearedOrbits uses a two-pass algorithm to resolve circular dependencies:
   // - Pass 1: Calculate all moon orbits first (independent of planet positions)
@@ -991,18 +1078,22 @@ export function calculateSystemOrbitalMechanics(
   
   // STEP 3: GLOBAL COLLISION DETECTION AND ADJUSTMENT
   // ==================================================
-  // TODO: Implement proper collision detection that handles belts correctly
-  // Temporarily disabled per user decision to revisit later with better implementation
-  // The current collision detection system causes spacing issues with asteroid belts
-  // if (viewType !== 'profile') {
-  //   adjustForGlobalCollisions(objects, viewType, results, orbitConfig);
-  // }
+  // Re-enabled with improved profile mode handling
+  // Profile mode needs collision detection to prevent overlapping objects
+  adjustForGlobalCollisions(objects, viewType, results, orbitConfig);
   
   // STEP 4: PARENT-CHILD SIZE HIERARCHY ENFORCEMENT
   // ================================================
   // Ensure visual hierarchy is maintained (parents larger than children)
   // This is done last to avoid interfering with collision calculations
   enforceParentChildSizeHierarchy(objects, results, viewType);
+  
+  // STEP 4.5: RE-CHECK MOON COLLISIONS AFTER SIZE HIERARCHY CHANGES
+  // ================================================================
+  // The parent-child hierarchy enforcement may have enlarged parent objects,
+  // which could cause previously safe moon orbits to become collisions.
+  // Re-adjust moon orbits if needed.
+  recheckMoonCollisionsAfterSizeChanges(objects, results, orbitConfig, viewType);
   
   // STEP 5: ANIMATION SPEED CALCULATION
   // ====================================
@@ -1025,6 +1116,51 @@ export function calculateSystemOrbitalMechanics(
   lastCalculationKey = calculationKey;
   
   return results;
+}
+
+/**
+ * Re-check and fix moon collisions after parent-child size hierarchy enforcement
+ * This is necessary because enlarging parent objects can invalidate previously safe moon orbits
+ */
+function recheckMoonCollisionsAfterSizeChanges(
+  objects: CelestialObject[],
+  results: Map<string, any>,
+  config: any,
+  viewType: ViewType
+): void {
+  // Find all moon objects
+  const moons = objects.filter(obj => 
+    obj.classification === 'moon' && obj.orbit?.parent
+  );
+  
+  for (const moon of moons) {
+    const parentId = moon.orbit!.parent;
+    const moonData = results.get(moon.id);
+    const parentData = results.get(parentId);
+    
+    if (!moonData || !parentData || !moonData.orbitDistance) continue;
+    
+    // Check if moon now collides with its enlarged parent
+    const moonInnerEdge = moonData.orbitDistance - moonData.visualRadius;
+    const parentRadius = parentData.visualRadius;
+    
+    if (moonInnerEdge <= parentRadius) {
+      // Collision detected! Adjust moon orbit
+      const requiredOrbitDistance = parentRadius + moonData.visualRadius + config.minDistance;
+      const adjustment = requiredOrbitDistance - moonData.orbitDistance;
+      
+      // DEBUG: Log collision fix (disabled for performance)
+      // console.log(`🚨 POST-HIERARCHY MOON COLLISION: ${moon.name || moon.id}`);
+      // console.log(`  Current orbit: ${moonData.orbitDistance}`);
+      // console.log(`  Moon inner edge: ${moonInnerEdge}`);
+      // console.log(`  Parent radius: ${parentRadius}`);
+      // console.log(`  Required orbit: ${requiredOrbitDistance}`);
+      // console.log(`  Adjustment: +${adjustment}`);
+      
+      // Apply the fix
+      moonData.orbitDistance = requiredOrbitDistance;
+    }
+  }
 }
 
 /**

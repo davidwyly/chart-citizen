@@ -223,7 +223,10 @@ export function OrbitalPath({
     if (isPaused || viewType === 'profile') return;
 
     // Update time – use a consistent time step to avoid jitter
-    const timeStep = delta * (timeMultiplier || 1) * (1 / Math.max(0.1, orbitalPeriod)) * 0.1
+    // Scale time based on orbital period (in days) to radians per frame
+    // 1 day = 1 unit of time at 1x speed
+    // Additional 0.1x multiplier to make everything 10x slower
+    const timeStep = delta * (timeMultiplier || 1) * (2 * Math.PI / Math.max(1, orbitalPeriod)) * 0.1
     timeRef.current += timeStep
 
     // Calculate position on orbit

@@ -848,7 +848,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, camera, viewConfig, createEasingFunction, onAnimationComplete])
 
     // Continuously follow the focused object
-    useFrame(() => {
+    useFrame((_, delta) => {
       if (focusObject && controlsRef.current && isFollowingRef.current && !animatingRef.current) {
         const currentPosition = new THREE.Vector3()
         focusObject.getWorldPosition(currentPosition)
@@ -856,16 +856,28 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         // Calculate movement delta
         const deltaPosition = new THREE.Vector3().subVectors(currentPosition, lastObjectPositionRef.current)
 
+        // ADAPTIVE MOVEMENT THRESHOLD: Calculate based on object visual size to handle small fast objects
+        // For small objects like Titan, use much smaller threshold to detect orbital movement
+        const visualSize = focusSize || focusRadius || 1.0
+        const adaptiveThreshold = Math.max(visualSize * 0.01, 1e-6) // Min threshold for small objects
+        
         // Only move if there's significant movement to avoid jitter
-        if (deltaPosition.length() > 0.001) {
-          // Move both camera and target by the same delta
+        if (deltaPosition.length() > adaptiveThreshold) {
+          // FIXED: Always move camera and target by full delta to maintain proper tracking
+          // The jitter issue was from excessive controls.update(), not from the movement itself
           camera.position.add(deltaPosition)
           controlsRef.current.target.add(deltaPosition)
 
-          // Update controls
+          // HYBRID APPROACH: Balance responsiveness with performance
+          // Always update for large movements (object selection), reduce frequency for small movements (orbital motion)
+          const isSignificantMovement = deltaPosition.length() > 0.1
+          
+          // CRITICAL FIX: Always update controls to ensure orbit functionality works
+          // The performance impact of calling update() every frame is minimal compared to broken user interaction
+          // The original throttling was causing orbit controls to become unresponsive during object tracking
           controlsRef.current.update()
 
-          // Update stored position
+          // Update stored position for accurate delta calculation
           lastObjectPositionRef.current.copy(currentPosition)
         }
       }

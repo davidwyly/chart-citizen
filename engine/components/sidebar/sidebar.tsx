@@ -8,6 +8,7 @@ import { SystemSelector } from "./system-selector"
 import { SystemInfo } from "./system-info"
 import type { ViewType } from '@lib/types/effects-level'
 import type { SystemData } from "@/engine/system-loader"
+import type { CelestialObject } from "@/engine/types/orbital-system"
 
 // Memoized components to prevent unnecessary re-renders
 const MemoizedViewModeSelector = React.memo(ViewModeSelector)
@@ -29,10 +30,13 @@ interface SidebarProps {
   onSystemChange: (systemId: string) => void
   focusedName: string
   focusedObjectSize: number | null
+  selectedObjectData: CelestialObject | null
   onStopFollowing: () => void
   error: string | null
   loadingProgress: string
   mode?: "realistic" | "star-citizen"
+  autoAdjustTime?: boolean
+  onAutoAdjustToggle?: (enabled: boolean) => void
 }
 
 export function Sidebar({
@@ -49,10 +53,13 @@ export function Sidebar({
   onSystemChange,
   focusedName,
   focusedObjectSize,
+  selectedObjectData,
   onStopFollowing,
   error,
   loadingProgress,
-  mode = "realistic"
+  mode = "realistic",
+  autoAdjustTime = false,
+  onAutoAdjustToggle
 }: SidebarProps) {
   const [openSection, setOpenSection] = useState<string>("navigation")
   const [isCollapsed, setIsCollapsed] = useState(true)
@@ -130,6 +137,9 @@ export function Sidebar({
                   onTimeMultiplierChange={onTimeMultiplierChange}
                   isPaused={isPaused}
                   onPauseToggle={onPauseToggle}
+                  selectedObjectData={selectedObjectData}
+                  autoAdjustTime={autoAdjustTime}
+                  onAutoAdjustToggle={onAutoAdjustToggle}
                 />
 
                 {/* Version Info */}

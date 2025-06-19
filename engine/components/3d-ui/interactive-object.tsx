@@ -96,6 +96,11 @@ export function InteractiveObject({
     }
     // When paused, the time.value remains at its last value, maintaining the effect
     
+    // Pulse timing - respects pause state to prevent artifacts when simulation is paused
+    if (!isPaused) {
+      materialRef.current.uniforms.pulseTime.value = state.clock.elapsedTime;
+    }
+    
     materialRef.current.uniforms.intensity.value = 1.0;
 
     if (groupRef.current) {

@@ -16,7 +16,7 @@ describe('Mode System', () => {
         gameInfo: false,
         jumpPointInfo: false
       },
-      viewMode: 'realistic',
+      viewMode: 'explorational',
       objects: new Map(),
       hoveredObject: null,
       detailLevel: 'medium'

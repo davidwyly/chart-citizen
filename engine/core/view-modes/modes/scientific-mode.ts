@@ -16,20 +16,22 @@ export const scientificMode: ViewModeDefinition = {
   category: 'scientific',
   
   scaling: {
-    maxVisualSize: 0.001,
-    minVisualSize: 0.00001,
-    orbitScaling: 1.0,
-    safetyMultiplier: 1.1,
-    minDistance: 0.001,
+    maxVisualSize: 40.0,    // Allow realistic gas giant sizes (Jupiter ~33 units)
+    minVisualSize: 0.1,     // Minimum for good Three.js precision
+    orbitScaling: 80.0,     // COORDINATED: Scaled up with visual sizes to prevent cramping
+    safetyMultiplier: 1.1,  // Small buffer for collision detection
+    minDistance: 0.1,       // Allow close inspection of small objects
+    // DESIGN NOTE: orbitScaling 80x gives Earth orbit = 80 units, Jupiter orbit = 416 units
+    // With Jupiter visual size = 33 units, this provides 5x clearance ratio
   },
   
   camera: {
     radiusMultiplier: 10.0,
-    minDistanceMultiplier: 5.0,
+    minDistanceMultiplier: 2.0,   // Reduced to allow closer zoom
     maxDistanceMultiplier: 1000.0,
-    absoluteMinDistance: 0.001,
+    absoluteMinDistance: 0.01,    // Reduced to allow closer inspection of small objects
     absoluteMaxDistance: 10000,
-    nearPlane: 0.0001,  // Much smaller near plane for tiny objects
+    nearPlane: 0.001,   // Increased from 0.0001 to prevent clipping with new min sizes
     farPlane: 100000,   // Larger far plane for vast distances
     viewingAngles: {
       defaultElevation: 15,

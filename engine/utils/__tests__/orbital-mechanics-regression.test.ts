@@ -124,8 +124,8 @@ describe('Orbital Mechanics Regression Tests', () => {
   });
 
   describe('Parent-child clearance across view modes', () => {
-    const viewModes: ('realistic' | 'navigational' | 'profile')[] = [
-      'realistic',
+    const viewModes: ('explorational' | 'navigational' | 'profile')[] = [
+      'explorational',
       'navigational',
       'profile',
     ];
@@ -171,7 +171,7 @@ describe('Orbital Mechanics Regression Tests', () => {
     });
 
     it('should maintain parent-child size hierarchy across all modes', () => {
-      const modes: ViewType[] = ['realistic', 'navigational', 'profile'];
+      const modes: ViewType[] = ['explorational', 'navigational', 'profile'];
       modes.forEach(mode => {
         const star = createStar('star1');
         const planet = createPlanet('planet', 'star1', 1000, 1);
@@ -202,7 +202,7 @@ describe('Orbital Mechanics Regression Tests', () => {
   // Test case for systems with multiple belts
   it('should handle multiple belts without regression', () => {
     const objects = createMultiBeltSystem();
-    const modes: ViewType[] = ['realistic', 'navigational', 'profile'];
+    const modes: ViewType[] = ['explorational', 'navigational', 'profile'];
 
     modes.forEach(mode => {
       const mechanics = calculateSystemOrbitalMechanics(objects, mode, false);

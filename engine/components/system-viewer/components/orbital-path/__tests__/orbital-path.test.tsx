@@ -40,8 +40,8 @@ describe('OrbitalPath', () => {
   });
 
   it('renders with different view types', () => {
-    const { container: realistic } = renderInCanvas({ viewType: "realistic" });
-    expect(realistic).toBeTruthy();
+    const { container: explorational } = renderInCanvas({ viewType: "explorational" });
+    expect(explorational).toBeTruthy();
 
     const { container: navigational } = renderInCanvas({ viewType: "navigational" });
     expect(navigational).toBeTruthy();

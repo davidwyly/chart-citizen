@@ -42,7 +42,7 @@ export function SystemInfoOverlay({
       {/* View mode indicator */}
       <div className="mt-3 pt-2 border-t border-white/20 text-xs">
         <div className="text-gray-400">
-          View: {viewType === "realistic" ? "Realistic" : viewType === "navigational" ? "Navigational" : "Game"}
+          View: {viewType === "explorational" ? "Explorational" : viewType === "navigational" ? "Navigational" : viewType === "profile" ? "Profile" : viewType === "scientific" ? "Scientific" : "Unknown"}
         </div>
       </div>
 

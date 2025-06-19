@@ -4,6 +4,7 @@ import * as THREE from "three"
 export const SpaceCurvatureMaterial = shaderMaterial(
   {
     time: 0.0,
+    pulseTime: 0.0,
     spherePosition: new THREE.Vector3(0, 0, 0),
     sphereRadius: 1.0,
     intensity: 1.0,
@@ -65,6 +66,7 @@ export const SpaceCurvatureMaterial = shaderMaterial(
   // Fragment shader - glowing grid with natural fade
   `
     uniform float time;
+    uniform float pulseTime;
     uniform vec3 spherePosition;
     uniform float sphereRadius;
     uniform float intensity;
@@ -78,7 +80,8 @@ export const SpaceCurvatureMaterial = shaderMaterial(
     
     void main() {
       // Create grid based on original position (before displacement)
-      float gridSpacing = sphereRadius * 2.0;
+      // Ensure minimum grid spacing to prevent precision artifacts with tiny objects
+      float gridSpacing = max(sphereRadius * 2.0, 0.001);
       vec2 gridPos = vOriginalPosition.xz / gridSpacing;
       
       // Create glowing wireframe using sine waves and exponential falloff
@@ -110,14 +113,15 @@ export const SpaceCurvatureMaterial = shaderMaterial(
       wir *= fade;
       
       // Color intensity based on depth (deeper = more intense)
-      float maxDepth = sphereRadius * 0.65;
+      // Ensure minimum depth threshold to prevent precision artifacts
+      float maxDepth = max(sphereRadius * 0.65, 0.0001);
       float depthIntensity = vDepth / maxDepth;
       
       // Mix colors based on depth
       vec3 finalGridColor = mix(gridColor, glowColor, depthIntensity * 0.6);
       
-      // Subtle pulse animation
-      float pulse = sin(time * 1.5) * 0.1 + 0.9;
+      // Subtle pulse animation - independent of time controls
+      float pulse = sin(pulseTime * 1.5) * 0.1 + 0.9;
       
       // Apply the glowing wireframe effect
       vec3 finalColor = finalGridColor * wir * pulse;

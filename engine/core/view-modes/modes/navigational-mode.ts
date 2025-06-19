@@ -16,11 +16,11 @@ export const navigationalMode: ViewModeDefinition = {
   category: 'navigation',
   
   scaling: {
-    maxVisualSize: 2.5,
-    minVisualSize: 0.05,
-    orbitScaling: 0.6,
-    safetyMultiplier: 3.0,
-    minDistance: 0.2,
+    maxVisualSize: 6.0,     // Increased to maintain proportions with larger orbits
+    minVisualSize: 0.2,     // Use optimal Three.js range minimum
+    orbitScaling: 40.0,     // COORDINATED: Increased to prevent crowding (Earth=40, Jupiter=208)
+    safetyMultiplier: 3.0,  // Large buffer for navigation clarity
+    minDistance: 1.0,       // Stay in optimal range
     fixedSizes: {
       star: 2.0,
       planet: 1.2,

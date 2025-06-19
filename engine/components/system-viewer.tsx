@@ -63,6 +63,7 @@ export function useSystemViewer() {
 export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: SystemViewerProps) {
   const [timeMultiplier, setTimeMultiplier] = useState(0.1)
   const [isPaused, setIsPaused] = useState(false)
+  const [autoAdjustTime, setAutoAdjustTime] = useState(true)
   // Initialize viewType - app mode is separate from view mode
   // The "realistic" and "star-citizen" are app modes, not view modes
   // View modes are only: explorational, navigational, profile, scientific
@@ -77,6 +78,12 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const handleTimeMultiplierChange = useCallback((multiplier: number) => {
     setTimeMultiplier(multiplier)
   }, [])
+  
+  // Handle auto-adjust toggle
+  const handleAutoAdjustToggle = useCallback((enabled: boolean) => {
+    setAutoAdjustTime(enabled)
+  }, [])
+  
   // Handle pause toggle
   const togglePause = useCallback(() => {
     setIsPaused(prev => !prev)
@@ -235,19 +242,74 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
     }
   }, [])
 
-  // Memoize OrbitControls props
-  const orbitControlsProps = useMemo(() => ({
-    makeDefault: true,
-    enablePan: viewType !== 'profile',
-    enableRotate: viewType !== 'profile',
-    enableZoom: viewType !== 'profile',
-    maxDistance: 1000,
-    minDistance: 0.1,
-    enableDamping: true,
-    dampingFactor: 0.05,
-    rotateSpeed: 0.5,
-    zoomSpeed: 0.8,
-  }), [viewType])
+  // Dynamic camera settings based on actual system data
+  const { cameraSettings, orbitControlsProps } = useMemo(() => {
+    // Only calculate camera settings when system data is available
+    if (!systemData?.objects?.length) {
+      // Return default settings during loading
+      return {
+        cameraSettings: {
+          position: [0, 50, 100] as [number, number, number],
+          fov: 45,
+          near: 0.1,
+          far: 10000
+        },
+        orbitControlsProps: {
+          makeDefault: true,
+          enablePan: true,
+          enableRotate: true,
+          enableZoom: true,
+          maxDistance: 1000,
+          minDistance: 1,
+          enableDamping: true,
+          dampingFactor: 0.05,
+          rotateSpeed: 0.5,
+          zoomSpeed: 0.8,
+        }
+      }
+    }
+    
+    // Import dynamic camera calculator
+    const { calculateDynamicCameraSettings } = require('@/engine/utils/dynamic-camera-calculator');
+    
+    const dynamicSettings = calculateDynamicCameraSettings(systemData.objects, viewType)
+    
+    // Debug output for scientific mode
+    if (viewType === 'scientific' && dynamicSettings._metadata) {
+      console.log('🔬 Scientific Mode Dynamic Camera Settings:', {
+        visualRange: `${dynamicSettings._metadata.minVisualSize.toExponential(2)} → ${dynamicSettings._metadata.maxVisualSize.toExponential(2)}`,
+        cameraRange: `${dynamicSettings._metadata.minCameraDistance.toExponential(2)} → ${dynamicSettings._metadata.maxCameraDistance.toExponential(2)}`,
+        settings: {
+          near: dynamicSettings.nearPlane.toExponential(3),
+          far: dynamicSettings.farPlane.toFixed(1),
+          minDist: dynamicSettings.absoluteMinDistance.toExponential(3),
+          maxDist: dynamicSettings.absoluteMaxDistance.toFixed(1)
+        }
+      })
+    }
+    
+    const cameraSettings = {
+      position: [0, 50, 100] as [number, number, number],
+      fov: 45,
+      near: dynamicSettings.nearPlane,
+      far: dynamicSettings.farPlane
+    }
+    
+    const orbitControlsProps = {
+      makeDefault: true,
+      enablePan: viewType !== 'profile',
+      enableRotate: viewType !== 'profile',
+      enableZoom: viewType !== 'profile',
+      maxDistance: dynamicSettings.absoluteMaxDistance,
+      minDistance: dynamicSettings.absoluteMinDistance,
+      enableDamping: true,
+      dampingFactor: 0.05,
+      rotateSpeed: 0.5,
+      zoomSpeed: 0.8,
+    }
+    
+    return { cameraSettings, orbitControlsProps }
+  }, [viewType, systemData])
 
   // Memoize SystemObjectsRenderer props
   const systemObjectsProps = useMemo(() => {
@@ -361,7 +423,7 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
         {/* Canvas */}
         <Canvas
           shadows
-          camera={{ position: [0, 50, 100], fov: 45, near: 0.1, far: 5000 }}
+          camera={cameraSettings}
           onPointerMissed={handleCanvasClick}
         >
           <Suspense fallback={null}>
@@ -434,10 +496,13 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
               onSystemChange={onSystemChange || (() => {})}
               focusedName={focusedName || ""}
               focusedObjectSize={focusedObjectSize}
+              selectedObjectData={selectedObjectData}
               onStopFollowing={handleStopFollowing}
               error={error}
               loadingProgress={loadingProgress}
               mode={mode as "realistic" | "star-citizen"}
+              autoAdjustTime={autoAdjustTime}
+              onAutoAdjustToggle={handleAutoAdjustToggle}
             />
           </div>
         </div>

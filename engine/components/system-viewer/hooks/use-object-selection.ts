@@ -124,7 +124,6 @@ export function useObjectSelection(
         : null
 
 
-
       return {
         ...prev,
         selectedObjectId: objectId,
@@ -141,7 +140,7 @@ export function useObjectSelection(
         focusedObjectOrbitRadius: orbitalSemiMajorAxis
       }
     })
-  }, [viewType, systemData, getObjectData, pauseSimulation, unpauseSimulation, isPaused, state.selectedObjectId])
+  }, [viewType, systemData, getObjectData, pauseSimulation, unpauseSimulation, isPaused, state.selectedObjectId, setTimeMultiplier])
 
   // Handle object hover
   const handleObjectHover = useCallback((objectId: string | null) => {

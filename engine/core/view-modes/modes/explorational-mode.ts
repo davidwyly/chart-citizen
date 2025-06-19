@@ -16,11 +16,13 @@ export const explorationalMode: ViewModeDefinition = {
   category: 'educational',
   
   scaling: {
-    maxVisualSize: 0.8,
-    minVisualSize: 0.02,
-    orbitScaling: 8.0,
-    safetyMultiplier: 2.5,
-    minDistance: 0.1,
+    maxVisualSize: 8.0,     // Allow gas giants while keeping UI manageable
+    minVisualSize: 0.1,     // Use optimal Three.js range minimum
+    orbitScaling: 50.0,     // COORDINATED: Scaled with visual sizes (Earth=50, Jupiter=260)
+    safetyMultiplier: 2.5,  // Buffer for educational content spacing
+    minDistance: 0.1,       // Allow closer inspection
+    // DESIGN NOTE: With smaller max visual sizes, we can use tighter orbit scaling
+    // Jupiter ~8 units visual, 260 units orbit = 32x clearance (very comfortable)
   },
   
   camera: {

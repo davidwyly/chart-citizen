@@ -293,11 +293,9 @@ export function SystemObjectsRenderer({
             eccentricity={orbit.eccentricity}
             inclination={orbit.inclination}
             orbitalPeriod={
-              // For binary stars, use the actual period from data to ensure synchronization
-              // For other objects, calculate period using Kepler's 3rd law
-              (object.orbit?.parent === 'barycenter' && object.classification === 'star') 
-                ? orbit.orbital_period 
-                : calculateOrbitalPeriod(orbit.semi_major_axis)
+              // Always use the actual period from data when available
+              // This ensures accurate orbital motion for all objects
+              orbit.orbital_period || calculateOrbitalPeriod(orbit.semi_major_axis)
             }
             showOrbit={isVisible} // Only show orbits for visible objects
             timeMultiplier={timeMultiplier}
