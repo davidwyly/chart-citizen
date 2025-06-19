@@ -5,10 +5,22 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: [
-      './engine/renderers/geometry-renderers/__tests__/setup.ts',
-      './vitest.setup.ts',
+    setupFiles: ['./vitest.setup.ts'],
+    // Improved test patterns
+    include: ['**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/context.md',
+      '**/*.d.ts'
     ],
+    // Better reporting
+    reporters: ['verbose', 'json'],
+    // Timeout configuration
+    testTimeout: 10000,
+    hookTimeout: 10000,
   },
   resolve: {
     alias: {
@@ -18,6 +30,7 @@ export default defineConfig({
       '@/engine': path.resolve(__dirname, './engine'),
       '@/hooks': path.resolve(__dirname, './hooks'),
       '@/types': path.resolve(__dirname, './types'),
+      '@/app': path.resolve(__dirname, './app'),
     },
   },
 }); 

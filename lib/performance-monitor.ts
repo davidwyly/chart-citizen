@@ -40,7 +40,7 @@ export class PerformanceMonitor {
       jsHeapSizeLimit: number
     }
     
-    const memory = (performance as any).memory as PerformanceMemory || {
+    const memory = (performance as Performance & { memory?: PerformanceMemory }).memory || {
       usedJSHeapSize: 0,
       totalJSHeapSize: 0,
       jsHeapSizeLimit: 0,
@@ -73,7 +73,8 @@ export class PerformanceMonitor {
   }
 }
 
-export function usePerformanceMonitor(interval = 1000): PerformanceMetrics {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function usePerformanceMonitor(_interval = 1000): PerformanceMetrics {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     fps: 0,
     frameTime: 0,

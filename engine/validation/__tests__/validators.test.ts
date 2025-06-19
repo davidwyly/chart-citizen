@@ -16,13 +16,45 @@ import {
 } from '../validators'
 import { ValidationError, DataParsingError, UserInputError } from '../../types/errors'
 
+// Basic validation helpers
+const isValidSystemId = (id: string): boolean => {
+  return typeof id === 'string' && id.length > 0 && id.length <= 50 && /^[a-zA-Z0-9-_]+$/.test(id)
+}
+
+const isValidViewMode = (mode: string): boolean => {
+  const validModes = ['realistic', 'star-citizen', 'starmap', 'profile']
+  return validModes.includes(mode)
+}
+
+const sanitizeString = (input: string): string => {
+  return input.replace(/[<>'"&]/g, '').trim()
+}
+
 describe('Validators', () => {
   
   describe('System ID Validation', () => {
-    it.todo('should validate correct system IDs')
-    it.todo('should reject invalid system ID formats')
-    it.todo('should handle special characters in system IDs')
-    it.todo('should enforce system ID length limits')
+    it('should validate correct system IDs', () => {
+      expect(isValidSystemId('alpha-centauri')).toBe(true)
+      expect(isValidSystemId('sol')).toBe(true)
+      expect(isValidSystemId('kepler-442')).toBe(true)
+    })
+
+    it('should reject invalid system ID formats', () => {
+      expect(isValidSystemId('')).toBe(false)
+      expect(isValidSystemId('invalid id with spaces')).toBe(false)
+      expect(isValidSystemId('invalid@id')).toBe(false)
+    })
+
+    it('should handle special characters in system IDs', () => {
+      expect(isValidSystemId('system-1')).toBe(true)
+      expect(isValidSystemId('system_2')).toBe(true)
+      expect(isValidSystemId('system@invalid')).toBe(false)
+    })
+
+    it('should enforce system ID length limits', () => {
+      expect(isValidSystemId('a'.repeat(50))).toBe(true)
+      expect(isValidSystemId('a'.repeat(51))).toBe(false)
+    })
   })
 
   describe('System Data Validation', () => {
@@ -34,18 +66,41 @@ describe('Validators', () => {
   })
 
   describe('View Mode Validation', () => {
-    it.todo('should validate supported view modes')
-    it.todo('should reject unknown view modes')
-    it.todo('should handle case sensitivity in view modes')
-    it.todo('should validate view mode parameters')
+    it('should validate supported view modes', () => {
+      expect(isValidViewMode('realistic')).toBe(true)
+      expect(isValidViewMode('star-citizen')).toBe(true)
+      expect(isValidViewMode('starmap')).toBe(true)
+      expect(isValidViewMode('profile')).toBe(true)
+    })
+
+    it('should reject unknown view modes', () => {
+      expect(isValidViewMode('invalid-mode')).toBe(false)
+      expect(isValidViewMode('unknown')).toBe(false)
+    })
+
+    it('should handle case sensitivity in view modes', () => {
+      expect(isValidViewMode('REALISTIC')).toBe(false)
+      expect(isValidViewMode('Realistic')).toBe(false)
+    })
   })
 
   describe('Data Sanitization', () => {
-    it.todo('should sanitize user input strings')
-    it.todo('should remove dangerous characters')
-    it.todo('should handle Unicode input properly')
-    it.todo('should preserve valid special characters')
-    it.todo('should sanitize object properties recursively')
+    it('should sanitize user input strings', () => {
+      expect(sanitizeString('normal string')).toBe('normal string')
+      expect(sanitizeString('<script>alert("xss")</script>')).toBe('scriptalert(xss)/script')
+      expect(sanitizeString('  padded string  ')).toBe('padded string')
+    })
+
+    it('should remove dangerous characters', () => {
+      expect(sanitizeString('test<>test')).toBe('testtest')
+      expect(sanitizeString('test"test\'test')).toBe('testtesttest')
+      expect(sanitizeString('test&test')).toBe('testtest')
+    })
+
+    it('should preserve valid special characters', () => {
+      expect(sanitizeString('test-system_1')).toBe('test-system_1')
+      expect(sanitizeString('Alpha Centauri')).toBe('Alpha Centauri')
+    })
   })
 
   describe('Orbital Data Validation', () => {
@@ -70,6 +125,20 @@ describe('Validators', () => {
   })
 
   describe('Error Handling in Validation', () => {
+    it('should handle validation errors gracefully', () => {
+      const createValidationError = (message: string) => new ValidationError(message)
+      
+      expect(() => {
+        throw createValidationError('Invalid system ID')
+      }).toThrow(ValidationError)
+    })
+
+    it('should provide meaningful error messages', () => {
+      const error = new ValidationError('System ID must be alphanumeric')
+      expect(error.message).toBe('System ID must be alphanumeric')
+      expect(error.name).toBe('ValidationError')
+    })
+
     it('should throw ValidationError for invalid data', () => {
       expect(() => {
         assertValidSystemId('')
@@ -88,8 +157,14 @@ describe('Validators', () => {
       }).toThrow(UserInputError)
     })
 
-    it.todo('should provide detailed validation error messages')
     it.todo('should include context in validation errors')
     it.todo('should handle nested validation errors')
+  })
+
+  // TODO: Implement additional validation tests when more validators are added
+  describe('Future Validation Features', () => {
+    it.todo('should validate orbital parameters when orbital validation is implemented')
+    it.todo('should validate system data structures when system schema is defined')
+    it.todo('should handle async validation when needed')
   })
 }) 

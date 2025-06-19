@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent, act } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { InteractiveObject } from '../../engine/components/3d-ui/interactive-object'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
@@ -38,6 +38,7 @@ vi.mock('@react-three/drei', async () => {
     ...actual,
     Html: ({ children }: { children: React.ReactNode }) => <div data-testid="html-label">{children}</div>,
     shaderMaterial: vi.fn(() => class MockShaderMaterial {
+      uniforms: Record<string, { value: unknown }>
       constructor() {
         this.uniforms = {
           time: { value: 0 },
@@ -53,6 +54,7 @@ vi.mock('@react-three/drei', async () => {
 // Mock the space curvature material
 vi.mock('@/engine/components/3d-ui/materials/space-curvature-material', () => ({
   SpaceCurvatureMaterial: class MockSpaceCurvatureMaterial {
+    uniforms: Record<string, { value: unknown }>
     constructor() {
       this.uniforms = {
         time: { value: 0 },

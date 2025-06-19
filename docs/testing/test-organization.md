@@ -6,34 +6,31 @@ This document outlines the testing structure and organization principles for Cha
 
 ```text
 chart-citizen/
-├── __tests__/                     # Root-level integration tests
-│   └── integration/               # Cross-system integration tests
-│       ├── module-resolution-validation.test.ts
-│       └── binary-star-system.test.ts
-├── engine/                        # Engine-specific tests
-│   ├── __tests__/                 # Engine unit tests
-│   │   ├── object-factory.test.tsx    # Tests object factory individually
-│   │   ├── system-loader.test.ts      # Tests system loader individually
-│   │   ├── setup.ts                   # Test setup and utilities
-│   │   └── context.md                 # Engine test documentation
-│   └── components/                # Component-specific tests
-│       └── __tests__/             # Component unit tests (alongside source)
-├── lib/                          # Library unit tests
-│   └── types/
-│       └── __tests__/            # Type validation tests
-└── app/                         # app specific tests
-    └── [mode]                    # mode specific tests
-        ├── star-citizen/         # star citizen specific tests
-        │   └── __tests__/              
-        ├── realistic/
-        │   └── __tests__/
-        └── starmap/
-            └── __tests__/
+├── vitest.setup.ts                   # Global test setup and configuration
+├── vitest.config.ts                  # Vitest configuration with path aliases
+├── app/                              # App-specific tests
+│   └── __tests__/                    # App component tests
+├── components/                       # Shared component tests
+│   └── __tests__/                    # Component unit tests
+├── engine/                           # Engine-specific tests
+│   ├── __tests__/                    # Engine unit and integration tests
+│   │   ├── integration/              # Cross-engine integration tests
+│   │   ├── suites/                   # Organized test suites
+│   │   ├── object-factory.test.tsx   # Core factory tests
+│   │   ├── system-loader.test.ts     # System loading tests
+│   │   └── orbital-system.test.ts    # Orbital mechanics tests
+│   └── components/                   # Engine component tests
+│       └── [component]/              # Component-specific test directories
+│           └── __tests__/            # Component unit tests
+├── lib/                              # Library utility tests
+│   └── __tests__/                    # Utility function tests
+└── hooks/                            # Custom hook tests
+    └── __tests__/                    # Hook behavior tests
 ```
 
 ## 📋 Test Classification
 
-### **Integration Tests** (`__tests__/integration/`)
+### **Integration Tests** (`engine/__tests__/integration/`)
 Tests that verify multiple components/systems working together:
 
 - **Cross-module interactions** - Testing module resolution, import paths
@@ -41,7 +38,11 @@ Tests that verify multiple components/systems working together:
 - **End-to-end workflows** - Testing complete user journeys
 - **Performance integration** - Testing performance across multiple systems
 
-**Naming Convention:** `*.test.ts` for integration test files
+**Current Integration Tests:**
+- `adaptive-time-scaling-integration.test.tsx` - Time scaling across systems
+- `binary-star-system.test.ts` - Complex multi-star system behavior
+- `data-loading-pipeline.test.tsx` - Data loading and processing pipeline
+- `module-resolution-validation.test.ts` - Module and import validation
 
 ### **Unit Tests** (alongside source files)
 Tests that verify individual components/functions in isolation:
@@ -54,6 +55,15 @@ Tests that verify individual components/functions in isolation:
 **Location:** In `__tests__/` folders within the same directory as source files
 
 **Naming Convention:** `*.test.ts` or `*.test.tsx` for unit test files
+
+### **Test Suites** (`engine/__tests__/suites/`)
+Organized collections of related tests:
+
+- **Camera System** - All camera-related functionality
+- **Engine Core** - Core engine functionality
+- **Mode System** - View mode system tests
+- **Performance** - Performance and optimization tests
+- **Rendering** - Rendering system tests
 
 ## 🎯 Test Guidelines
 
@@ -74,6 +84,7 @@ Tests that verify individual components/functions in isolation:
 2. **Integration Separation** - Integration tests should be in dedicated folders
 3. **Clear Naming** - Test files should clearly indicate what they test
 4. **Minimal Dependencies** - Tests should have minimal external dependencies
+5. **Suite Organization** - Related tests should be grouped in logical suites
 
 ## 🚀 Running Tests
 
@@ -84,41 +95,98 @@ pnpm test
 
 ### **Integration Tests Only**
 ```bash
-pnpm test __tests__/integration
+pnpm test integration
 ```
 
 ### **Unit Tests Only**
 ```bash
-pnpm test --testPathIgnorePatterns=__tests__/integration
+pnpm test --exclude="**/integration/**"
 ```
 
 ### **Specific Test Suite**
 ```bash
-pnpm test object-factory
+pnpm test suites/camera
 ```
 
-## 📦 Test Utilities
+### **Watch Mode**
+```bash
+pnpm test --watch
+```
 
-### **Setup Files**
-- `engine/__tests__/setup.ts` - Engine-specific test setup and mocks
-- `jest.setup.ts` - Global test setup and configuration
+### **Coverage Report**
+```bash
+pnpm test --coverage
+```
 
-### **Mock Files**
-- `__mocks__/` - Global mocks for external dependencies
-- Individual `__mocks__/` folders alongside components for specific mocks
+## 📦 Test Utilities and Setup
 
-## 🔧 Configuration
+### **Global Setup** (`vitest.setup.ts`)
+- **Jest-DOM matchers** - Extended expect assertions for DOM testing
+- **Three.js mocks** - WebGL context mocking for 3D tests
+- **ResizeObserver mock** - For responsive component testing
+- **Global cleanup** - Automatic cleanup between tests
+- **Mock management** - Centralized mock clearing and restoration
 
-### **Vitest Configuration** (`vitest.config.ts`)
-- Path mappings aligned with `tsconfig.json`
-- Test environment setup (jsdom for React components)
-- Mock configurations and globals
+### **Test Configuration** (`vitest.config.ts`)
+- **Path aliases** - Matches tsconfig.json for consistent imports
+- **Test environment** - jsdom for React component testing
+- **Include/exclude patterns** - Optimized test discovery
+- **Timeout settings** - Appropriate timeouts for different test types
+- **Reporting** - Verbose output with JSON reporting
 
-### **TypeScript Configuration**
-- Test files included in `tsconfig.json` compilation
-- Proper type resolution for test utilities and mocks
+## 🔧 Best Practices
 
-## 📋 Test Checklist
+### **Test Structure**
+```typescript
+describe('ComponentName', () => {
+  describe('Feature Group', () => {
+    it('should do specific thing when condition is met', () => {
+      // Arrange
+      const testData = setupTestData();
+      
+      // Act
+      const result = performAction(testData);
+      
+      // Assert
+      expect(result).toBe(expectedValue);
+    });
+  });
+});
+```
+
+### **Test Naming**
+- Use descriptive test names that explain what is being tested
+- Follow the pattern: "should [expected behavior] when [condition]"
+- Group related tests using `describe` blocks
+- Use nested `describe` blocks for logical organization
+
+### **Mock Management**
+- Use `vi.fn()` for function mocks
+- Use `vi.mock()` for module mocks
+- Clear mocks between tests (handled automatically)
+- Mock external dependencies consistently
+
+### **Async Testing**
+```typescript
+it('should handle async operations', async () => {
+  const promise = asyncFunction();
+  await expect(promise).resolves.toBe(expectedValue);
+});
+```
+
+## 🧹 Test Maintenance
+
+### **TODO Test Policy**
+- **Remove unused TODOs** - Delete placeholder tests that won't be implemented
+- **Implement critical TODOs** - Priority tests should be implemented
+- **Document remaining TODOs** - Keep only well-documented placeholder tests
+
+### **Test Cleanup Checklist**
+- [ ] Remove obsolete test files
+- [ ] Update tests when refactoring code
+- [ ] Consolidate duplicate test logic
+- [ ] Remove unused imports and dependencies
+- [ ] Update test documentation
 
 ### **When Adding New Features**
 - [ ] Write unit tests for new components/functions
@@ -132,52 +200,36 @@ pnpm test object-factory
 - [ ] Remove obsolete test files
 - [ ] Update test documentation
 
-### **When Fixing Bugs**
-- [ ] Write a test that reproduces the bug
-- [ ] Verify the test fails before the fix
-- [ ] Verify the test passes after the fix
-- [ ] Consider if integration tests are needed
-
-## 🎨 Best Practices
-
-### **Test Naming**
-- Use descriptive test names that explain what is being tested
-- Follow the pattern: "should [expected behavior] when [condition]"
-- Group related tests using `describe` blocks
-
-### **Test Structure**
-- Arrange: Set up test data and conditions
-- Act: Execute the code being tested
-- Assert: Verify the expected results
-
-### **Test Maintenance**
-- Keep tests simple and focused
-- Remove redundant or duplicate tests
-- Update tests when functionality changes
-- Use test utilities to reduce duplication
-
 ## 🔍 Troubleshooting
 
 ### **Common Issues**
-1. **Import Path Errors** - Check `tsconfig.json` and `vitest.config.ts` path mappings
-2. **Module Resolution** - Verify webpack aliases match TypeScript paths
-3. **Mock Issues** - Check mock file locations and configurations
+1. **Import Path Errors** - Check `vitest.config.ts` path aliases match `tsconfig.json`
+2. **Module Resolution** - Verify aliases are correctly configured
+3. **Mock Issues** - Check mock setup in `vitest.setup.ts`
 4. **Type Errors** - Ensure test files are included in TypeScript compilation
+5. **WebGL/Three.js Errors** - Check WebGL mocking in global setup
 
 ### **Debug Commands**
 ```bash
 # Run tests with verbose output
-pnpm test --verbose
+pnpm test --reporter=verbose
 
 # Run tests with coverage
 pnpm test --coverage
 
 # Run tests in watch mode
 pnpm test --watch
+
+# Run specific test file
+pnpm test path/to/test.test.ts
+
+# Run tests matching pattern
+pnpm test --grep "pattern"
 ```
 
 ## 📚 Additional Resources
 
 - [Vitest Documentation](https://vitest.dev/)
 - [Testing Library Documentation](https://testing-library.com/)
-- [React Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library) 
+- [React Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
+- [Three.js Testing Patterns](https://threejs.org/docs/#manual/en/introduction/Testing) 

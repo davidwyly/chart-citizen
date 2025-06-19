@@ -15,85 +15,30 @@ The app provides both scientifically accurate ("Reality" mode) and game-inspired
 
 ## Mandatory Rules
 
-1. Fully research the task and its context.
+1. Fully research the task before making any changes.
 2. Understand all data flows, causes, and effects.
 3. Plan thoroughly before taking action.
 4. Make small, confident, low-risk changes.
 5. Use TDD for tests (red, green, refactor).
 6. Write clean, SOLID, DRY, testable code.
-7. Check README.md or docs when unsure.
+7. Check README.md or search through the /docs folder when unsure.
+
+## Guidelines
+
+1. Comment frequently, especially if there are downstream considerations or serious side-effects
+2. The __tests__ folder for vitest tests in each root directory for files being tested in that folder
+3. If we ever update a file, update or create the appropriate test file to capture the change in functionality
 
 ## Essential Commands
 
 ```bash
-# Development
-pnpm dev                    # Start development server
-pnpm dev:realistic          # Dev server in realistic mode
-pnpm dev:star-citizen       # Dev server in Star Citizen mode
-
-# Testing
-pnpm test                   # Run all tests
-pnpm test:watch            # Run tests in watch mode
-pnpm test:engine           # Test engine only
-pnpm test:modes            # Test mode system
-pnpm test:ui               # Test UI components
-pnpm test:view-modes       # Test view mode functionality
-pnpm test:shaders          # Test shader compilation
-pnpm test:camera           # Test camera systems
-pnpm test:data             # Test data integrity
-pnpm test:objects          # Test object creation
-pnpm test:setup            # Test setup configurations
-pnpm test:features         # Test feature integrations
-pnpm test:coverage         # Run tests with coverage
-pnpm test:profile          # Run profiling tests
-pnpm vitest run [file]     # Run specific test file
-
-# Code Quality
-pnpm lint                  # Run ESLint
-pnpm type-check           # Check TypeScript types
-pnpm build                # Production build
-pnpm start                 # Start production server
+# Testing is with vitest, NOT jest
+npm test -- --run --reporter=summary
+npm test -- engine/components/system-viewer/ (example)
+npm test -- engine/components/system-viewer/hooks/__tests__/use-object-selection.test.ts (example)
 ```
 
 ## Architecture Overview
-
-### Directory Structure
-- `/app` - Next.js 13+ App Router pages and routing
-  - `[mode]/` - Dynamic mode routing (realistic, star-citizen)
-  - `viewer/` - Celestial viewer pages
-  - `test-*/` - Development test pages
-- `/engine` - Celestial Rendering Engine (all 3D logic)
-  - `object-factory.tsx` - Factory for creating celestial objects
-  - `system-loader.ts` - System data loading and management
-  - `renderers/` - Type-specific renderers organized by object type
-    - `stars/` - Star rendering system with materials and effects
-    - `planets/` - Planet rendering including gas giants
-    - `moons/` - Moon rendering (future)
-    - `belts/` - Asteroid belt rendering (future)
-    - `stations/` - Space station rendering (future)
-  - `components/` - 3D React components
-    - `celestial-viewer/` - Individual object viewer
-    - `system-viewer/` - System view components
-    - `debug-panel.tsx` - Debug information display
-    - `performance-warning.tsx` - Performance alerts
-  - `core/` - Core systems (mode, camera, state)
-  - `factories/` - Object factory patterns
-  - `utils/` - Engine utilities and calculations
-  - `types/` - Engine type definitions
-- `/components` - Shared React UI components
-  - `ui/` - UI elements (buttons, modals, toasts)
-  - `starmap/` - Interactive starmap feature
-  - `system-viewer.tsx` - Main celestial system view
-- `/lib` - Framework-agnostic utilities
-  - `types/` - Shared TypeScript types
-- `/public/data` - Universe data organized by mode
-  - `realistic/` - Real astronomical data
-  - `star-citizen/` - Game-inspired data
-  - `shared/` - Common data across modes
-- `/hooks` - Shared React hooks
-- `/docs` - Architecture & feature documentation
-- `/__tests__` - Integration tests
-- `/styles` - Global styles and design system
 
 ### Key Architectural Patterns
 
@@ -164,28 +109,9 @@ Standard uniforms for all materials:
 - `intensity: number` - Effect intensity
 - Color uniforms as `THREE.Color` objects
 
-## Prerequisites & Dependencies
-
-### System Requirements
-- Node.js 18+ and pnpm (recommended)
-
 ### External Libraries
 - `@react-three/fiber` - React renderer for Three.js
 - `@react-three/drei` - Helper components for R3F
 - `three` - 3D graphics library
 - Next.js 15 + React 19 with TypeScript
 - Radix UI + Tailwind CSS for UI
-
-## Future Expansions
-
-### Planned Object Types
-- Moons (full rendering system)
-- Asteroid Belts
-- Space Stations
-- Anomalies
-
-### Planned Features
-- Level of Detail (LOD) system
-- Instancing for performance
-- Physics Integration
-- Advanced Lighting Systems

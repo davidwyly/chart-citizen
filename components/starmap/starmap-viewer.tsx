@@ -11,6 +11,7 @@ interface StarmapViewerProps {
  * StarmapViewer component - displays an interactive star map
  * Memoized to prevent unnecessary re-renders when props haven't changed
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const StarmapViewer = React.memo<StarmapViewerProps>(function StarmapViewer({ mode, onSystemSelect }) {
   return (
     <div className="w-full h-full">
@@ -22,7 +23,8 @@ export const StarmapViewer = React.memo<StarmapViewerProps>(function StarmapView
         {/* Star systems will be rendered here based on the selected mode */}
         {/* This is a placeholder implementation - full starmap rendering would be implemented */}
         {/* as a separate feature when the starmap system data structure is finalized */}
+        {/* TODO: Implement mode-specific rendering and system selection handling */}
       </Canvas>
     </div>
   );
-}); 
+});
