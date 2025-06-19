@@ -1,3 +1,4 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { SystemBreadcrumb } from '../system-breadcrumb'
 import type * as THREE from 'three'

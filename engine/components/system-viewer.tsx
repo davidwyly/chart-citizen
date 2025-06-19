@@ -61,7 +61,7 @@ export function useSystemViewer() {
 }
 
 export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: SystemViewerProps) {
-  const [timeMultiplier, setTimeMultiplier] = useState(1)
+  const [timeMultiplier, setTimeMultiplier] = useState(0.1)
   const [isPaused, setIsPaused] = useState(false)
   // Initialize viewType - app mode is separate from view mode
   // The "realistic" and "star-citizen" are app modes, not view modes

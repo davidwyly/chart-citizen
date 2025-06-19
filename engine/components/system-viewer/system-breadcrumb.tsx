@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 
 import { Star, Circle } from "lucide-react"
 import { toRomanNumeral } from "@/lib/roman-numerals"
@@ -89,18 +88,43 @@ export function SystemBreadcrumb({
     return `${planetNumeral}${moonLetter}`
   }
 
-  // Clear selected planet when focused object changes
+  // Update selected planet when focused object changes
   useEffect(() => {
     const planets = engineSystemLoader.getPlanets(systemData)
+    
+    // Check if focused object is a planet
     const focusedPlanet = planets.find(planet => planet.name === focusedName)
     
-    if (!focusedPlanet) {
-      setSelectedPlanetId(null)
-    } else if (focusedPlanet.id !== selectedPlanetId) {
+    if (focusedPlanet) {
+      // Planet is focused - show its moons if it has any
       const planetMoons = getMoonsForPlanet(focusedPlanet.id)
       if (planetMoons.length > 0) {
         setSelectedPlanetId(focusedPlanet.id)
       } else {
+        setSelectedPlanetId(null)
+      }
+    } else {
+      // Check if focused object is a moon
+      const focusedMoon = systemData.objects.find(obj => 
+        obj.name === focusedName && obj.classification === 'moon'
+      )
+      
+      if (focusedMoon && focusedMoon.orbit?.parent) {
+        // Moon is focused - find its parent planet and show that planet's moons
+        const parentPlanet = planets.find(planet => planet.id === focusedMoon.orbit?.parent)
+        
+        if (parentPlanet) {
+          const planetMoons = getMoonsForPlanet(parentPlanet.id)
+          if (planetMoons.length > 0) {
+            setSelectedPlanetId(parentPlanet.id)
+          } else {
+            setSelectedPlanetId(null)
+          }
+        } else {
+          setSelectedPlanetId(null)
+        }
+      } else {
+        // Neither planet nor moon is focused - hide moon navigation
         setSelectedPlanetId(null)
       }
     }

@@ -66,18 +66,42 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     const calculateMaxOrbitRadius = useCallback(() => {
       let maxOrbitRadius = 0
       
-      // Find the largest orbit radius in the scene
-      controlsRef.current?.object?.parent?.traverse((object: THREE.Object3D) => {
-        if (object.userData.orbitRadius) {
-          maxOrbitRadius = Math.max(maxOrbitRadius, object.userData.orbitRadius)
+      // First, try to calculate max orbital distance from system data
+      if (systemData?.objects) {
+        // Get view mode configuration for orbital scaling
+        const { getOrbitalMechanicsConfig } = require('@/engine/core/view-modes/compatibility');
+        const config = getOrbitalMechanicsConfig(viewMode);
+        
+        // Find the maximum orbital distance by checking all objects
+        for (const obj of systemData.objects) {
+          if (obj.orbit?.semi_major_axis) {
+            // Calculate scaled orbital distance like the orbital mechanics calculator does
+            const scaledDistance = obj.orbit.semi_major_axis * config.orbitScaling;
+            maxOrbitRadius = Math.max(maxOrbitRadius, scaledDistance);
+          }
         }
-      })
+        
+        console.log(`📏 Camera: Max orbital radius from system data: ${maxOrbitRadius} (viewMode: ${viewMode}, scaling: ${config.orbitScaling}x)`);
+      }
+      
+      // Fallback: Find the largest orbit radius in the scene
+      if (maxOrbitRadius === 0) {
+        controlsRef.current?.object?.parent?.traverse((object: THREE.Object3D) => {
+          if (object.userData.orbitRadius) {
+            maxOrbitRadius = Math.max(maxOrbitRadius, object.userData.orbitRadius)
+          }
+        })
+        console.log(`📏 Camera: Max orbital radius from scene traverse: ${maxOrbitRadius}`);
+      }
 
-      // If no orbits found, use a default distance
-      if (maxOrbitRadius === 0) maxOrbitRadius = 50
+      // Final fallback with more reasonable default for extreme systems
+      if (maxOrbitRadius === 0) {
+        maxOrbitRadius = 200; // Increased from 50 to handle larger systems
+        console.log(`📏 Camera: Using fallback radius: ${maxOrbitRadius}`);
+      }
       
       return maxOrbitRadius
-    }, [])
+    }, [systemData, viewMode])
 
     // Animation helper with configurable easing
     const createEasingFunction = useCallback((easingType: string) => {
@@ -117,7 +141,49 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
       // Use configured birds-eye view angle
       const viewingAngles = (viewConfig.cameraConfig as any).viewingAngles || { birdsEyeElevation: 40 }
       const angle = viewingAngles.birdsEyeElevation * (Math.PI / 180)
-      const distance = maxOrbitRadius
+      
+      // Smart distance calculation for extreme orbital ranges
+      // If we have objects at vastly different distances (like Alpha Centauri + Proxima),
+      // use a camera distance that's a compromise between seeing everything and detail
+      let distance = maxOrbitRadius;
+      
+      if (systemData?.objects) {
+        // Get view mode configuration for orbital scaling
+        const { getOrbitalMechanicsConfig } = require('@/engine/core/view-modes/compatibility');
+        const config = getOrbitalMechanicsConfig(viewMode);
+        
+        // Check if we have extreme distance differences (>100:1 ratio)
+        const orbitalDistances = systemData.objects
+          .filter(obj => obj.orbit?.semi_major_axis)
+          .map(obj => obj.orbit.semi_major_axis * config.orbitScaling)
+          .sort((a, b) => a - b);
+          
+        if (orbitalDistances.length > 1) {
+          const minDist = orbitalDistances[0];
+          const maxDist = orbitalDistances[orbitalDistances.length - 1];
+          const ratio = maxDist / minDist;
+          
+          if (ratio > 100) {
+            // For extreme systems like Alpha Centauri, use a compromise distance
+            // that shows the inner objects (binary stars) clearly while keeping
+            // the outer object (Proxima) accessible via manual zoom
+            
+            if (orbitalDistances.length <= 4) {
+              // Small systems: exclude the farthest object and use 2nd farthest + margin
+              const secondFarthest = orbitalDistances[orbitalDistances.length - 2];
+              const compromise = secondFarthest * 2.0; // 2x margin for good framing
+              distance = compromise;
+              console.log(`📷 Camera: Small extreme system detected, using 2nd farthest (${secondFarthest.toFixed(0)}) * 2 = ${distance.toFixed(0)} instead of max: ${maxOrbitRadius.toFixed(0)}`);
+            } else {
+              // Larger systems: use 80th percentile approach
+              const percentile80Index = Math.floor(orbitalDistances.length * 0.8);
+              const compromise = orbitalDistances[percentile80Index] * 1.5;
+              distance = Math.min(maxOrbitRadius, compromise);
+              console.log(`📷 Camera: Large extreme system detected, using 80th percentile compromise: ${distance.toFixed(0)} instead of max: ${maxOrbitRadius.toFixed(0)}`);
+            }
+          }
+        }
+      }
 
       // Calculate position components for birds-eye view
       const horizontalDistance = distance * Math.cos(angle)

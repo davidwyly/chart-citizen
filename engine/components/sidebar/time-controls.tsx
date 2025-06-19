@@ -31,7 +31,7 @@ export function TimeControls({
             <input
               type="range"
               min="0.1"
-              max="10"
+              max="100"
               step="0.1"
               value={timeMultiplier}
               onChange={(e) => onTimeMultiplierChange(parseFloat(e.target.value))}

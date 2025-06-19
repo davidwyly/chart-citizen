@@ -531,7 +531,82 @@ function calculateClearedOrbits(
   
   parentGroups.forEach((children, parentId) => {
     const parent = objects.find(obj => obj.id === parentId);
-    if (!parent) return;
+    
+    // Special handling for objects with non-existent parents (like "barycenter")
+    if (!parent) {
+      console.log(`🔍 Processing objects with non-existent parent "${parentId}"`);
+      
+      // Check if this is a binary star system (multiple stars orbiting barycenter)
+      const starChildren = children.filter(child => child.classification === 'star');
+      const isBinarySystem = parentId === 'barycenter' && starChildren.length >= 2;
+      
+      if (isBinarySystem) {
+        console.log(`🌟 Binary star system detected with ${starChildren.length} stars`);
+        
+        // Sort stars by semi_major_axis to maintain order
+        const sortedStars = [...starChildren].sort((a, b) => {
+          const aAU = a.orbit && isOrbitData(a.orbit) ? a.orbit.semi_major_axis : 0;
+          const bAU = b.orbit && isOrbitData(b.orbit) ? b.orbit.semi_major_axis : 0;
+          return aAU - bAU;
+        });
+        
+        // For binary stars, position them opposite each other around the barycenter
+        // Use the average of their semi_major_axes as the orbital distance
+        if (sortedStars.length >= 2) {
+          const primaryStar = sortedStars[0];
+          const secondaryStar = sortedStars[1];
+          
+          const avgDistance = ((primaryStar.orbit && isOrbitData(primaryStar.orbit) ? primaryStar.orbit.semi_major_axis : 0) +
+                              (secondaryStar.orbit && isOrbitData(secondaryStar.orbit) ? secondaryStar.orbit.semi_major_axis : 0)) / 2;
+          
+          const binaryOrbitDistance = avgDistance * config.orbitScaling;
+          
+          console.log(`   🌟 Placing binary stars at distance ${binaryOrbitDistance} (opposite each other)`);
+          
+          // Both stars get the same orbital distance but will be positioned opposite via orbital mechanics
+          results.get(primaryStar.id)!.orbitDistance = binaryOrbitDistance;
+          results.get(secondaryStar.id)!.orbitDistance = binaryOrbitDistance;
+          
+          // Handle additional stars (like Proxima) normally
+          for (let i = 2; i < sortedStars.length; i++) {
+            const additionalStar = sortedStars[i];
+            if (additionalStar.orbit && isOrbitData(additionalStar.orbit)) {
+              const orbitDistance = additionalStar.orbit.semi_major_axis * config.orbitScaling;
+              console.log(`   📍 Placing additional star ${additionalStar.name} at distance ${orbitDistance}`);
+              results.get(additionalStar.id)!.orbitDistance = orbitDistance;
+            }
+          }
+        }
+        
+        // Process any non-star children normally
+        const nonStarChildren = children.filter(child => child.classification !== 'star');
+        for (const child of nonStarChildren) {
+          if (child.orbit && isOrbitData(child.orbit)) {
+            const orbitDistance = child.orbit.semi_major_axis * config.orbitScaling;
+            console.log(`   📍 Placing non-star ${child.name} at distance ${orbitDistance}`);
+            results.get(child.id)!.orbitDistance = orbitDistance;
+          }
+        }
+      } else {
+        // For non-binary systems, process all children normally
+        // Sort by semi_major_axis to maintain order
+        const sortedChildren = [...children].sort((a, b) => {
+          const aAU = a.orbit && isOrbitData(a.orbit) ? a.orbit.semi_major_axis : 0;
+          const bAU = b.orbit && isOrbitData(b.orbit) ? b.orbit.semi_major_axis : 0;
+          return aAU - bAU;
+        });
+        
+        // Calculate positions for all children
+        for (const child of sortedChildren) {
+          if (child.orbit && isOrbitData(child.orbit)) {
+            const orbitDistance = child.orbit.semi_major_axis * config.orbitScaling;
+            console.log(`   📍 Placing ${child.name} at distance ${orbitDistance}`);
+            results.get(child.id)!.orbitDistance = orbitDistance;
+          }
+        }
+      }
+      return;
+    }
     
     // Only process moons in this pass - planets and belts are handled in Pass 2
     const moons = children.filter(child => child.classification === 'moon');
@@ -587,6 +662,7 @@ function calculateClearedOrbits(
   
   parentGroups.forEach((children, parentId) => {
     const parent = objects.find(obj => obj.id === parentId);
+    // Skip non-existent parents (they were already processed in Pass 1)
     if (!parent) return;
     
     const parentVisualRadius = results.get(parentId)?.visualRadius || 0;

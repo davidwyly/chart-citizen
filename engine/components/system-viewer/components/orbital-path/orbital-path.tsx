@@ -17,6 +17,36 @@ export interface OrbitalPathProps {
   objectRefsMap?: React.MutableRefObject<Map<string, THREE.Object3D>>
   viewType?: ViewType
   children?: React.ReactNode
+  binaryStarIndex?: number // Index for binary star positioning (0 = primary, 1 = secondary)
+}
+
+// Calculate the true anomaly from mean anomaly using Kepler's equation
+// This provides realistic orbital mechanics with variable angular velocity
+const solveKeplersEquation = (meanAnomaly: number, eccentricity: number): number => {
+  // Solve Kepler's equation: M = E - e*sin(E) for eccentric anomaly E
+  let eccentricAnomaly = meanAnomaly // Initial guess
+  const tolerance = 1e-6
+  let iterations = 0
+  const maxIterations = 10
+  
+  // Newton-Raphson method
+  while (iterations < maxIterations) {
+    const f = eccentricAnomaly - eccentricity * Math.sin(eccentricAnomaly) - meanAnomaly
+    const df = 1 - eccentricity * Math.cos(eccentricAnomaly)
+    const correction = f / df
+    eccentricAnomaly -= correction
+    
+    if (Math.abs(correction) < tolerance) break
+    iterations++
+  }
+  
+  // Convert eccentric anomaly to true anomaly
+  const trueAnomaly = 2 * Math.atan2(
+    Math.sqrt(1 + eccentricity) * Math.sin(eccentricAnomaly / 2),
+    Math.sqrt(1 - eccentricity) * Math.cos(eccentricAnomaly / 2)
+  )
+  
+  return trueAnomaly
 }
 
 // Calculate orbital position based on angle and parameters
@@ -42,14 +72,17 @@ const calculateOrbitalPosition = (
     y = 0 // Keep all objects in the same plane for easy navigation
     z = semiMajorAxis * Math.sin(angle)
   } else {
-    // Elliptical orbit for explorational and scientific modes
-    // Calculate semi-minor axis from semi-major axis and eccentricity
-    const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity)
-
-    // Calculate position in orbital plane
-    const r = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.cos(angle))
-    x = r * Math.cos(angle)
-    const yFlat = r * Math.sin(angle)
+    // Elliptical orbit for explorational and scientific modes with proper Kepler mechanics
+    
+    // For realistic orbital mechanics, treat the input angle as mean anomaly
+    // and solve Kepler's equation to get the true anomaly
+    const trueAnomaly = eccentricity > 0.001 ? solveKeplersEquation(angle, eccentricity) : angle
+    
+    // Calculate position in orbital plane using true anomaly
+    // This gives correct variable orbital velocity (faster at periapsis, slower at apoapsis)
+    const r = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.cos(trueAnomaly))
+    x = r * Math.cos(trueAnomaly)
+    const yFlat = r * Math.sin(trueAnomaly)
 
     // Apply inclination rotation
     z = yFlat * Math.cos((inclination * Math.PI) / 180)
@@ -71,41 +104,58 @@ export function OrbitalPath({
   objectRefsMap,
   viewType = "explorational",
   children,
+  binaryStarIndex,
 }: OrbitalPathProps) {
   const groupRef = useRef<THREE.Group>(null)
   const lineRef = useRef<THREE.Line>(null)
   const timeRef = useRef<number>(0)
-  const startAngleRef = useRef<number>(viewType === 'profile' || viewType === 'navigational' ? 0 : Math.random() * Math.PI * 2)
+  
+  // Calculate starting angle based on binary star positioning or view mode
+  const calculateStartAngle = useCallback(() => {
+    if (binaryStarIndex !== undefined) {
+      // Binary star system: position stars opposite each other
+      return binaryStarIndex * Math.PI // 0° for primary (index 0), 180° for secondary (index 1)
+    } else if (viewType === 'profile' || viewType === 'navigational') {
+      return 0 // Clean layout modes start at 0°
+    } else {
+      return Math.random() * Math.PI * 2 // Random start for other modes
+    }
+  }, [binaryStarIndex, viewType])
+  
+  const startAngleRef = useRef<number>(calculateStartAngle())
 
-  // Ensure we realign to 0° whenever the component is switched into clean layout modes
+  // Update starting angle when view mode changes or binary star configuration changes
   useEffect(() => {
-    if (viewType === 'profile' || viewType === 'navigational') {
-      startAngleRef.current = 0;
-      timeRef.current = 0; // Reset time to ensure consistent positioning
+    const newStartAngle = calculateStartAngle();
+    startAngleRef.current = newStartAngle;
+    timeRef.current = 0; // Reset time to ensure consistent positioning
+    
+    // Force immediate position update
+    if (groupRef.current) {
+      const position = calculateOrbitalPosition(
+        newStartAngle,
+        semiMajorAxis,
+        eccentricity,
+        inclination,
+        viewType
+      )
       
-      // Force immediate position update when switching to clean layout modes
-      if (groupRef.current) {
-        const position = calculateOrbitalPosition(
-          0, // Use 0 angle for clean layout modes
-          semiMajorAxis,
-          eccentricity,
-          inclination,
-          viewType
-        )
-        
-        console.log(`🔄 CLEAN LAYOUT UPDATE (${viewType.toUpperCase()}): Object with semiMajorAxis ${semiMajorAxis} positioned at:`, position)
-        
-        // Apply position to the orbiting object immediately
-        if (groupRef.current.children && typeof groupRef.current.children.find === 'function') {
-          const orbitingObject = groupRef.current.children.find((child) => child.type === "Group")
-          if (orbitingObject) {
-            orbitingObject.position.copy(position)
-            console.log(`✅ ${viewType.toUpperCase()} MODE: Updated object position to`, orbitingObject.position)
-          }
+      if (binaryStarIndex !== undefined) {
+        console.log(`🌟 BINARY STAR UPDATE: Star ${binaryStarIndex} positioned at angle ${newStartAngle} (${newStartAngle * 180 / Math.PI}°):`, position)
+      } else {
+        console.log(`🔄 LAYOUT UPDATE (${viewType.toUpperCase()}): Object with semiMajorAxis ${semiMajorAxis} positioned at:`, position)
+      }
+      
+      // Apply position to the orbiting object immediately
+      if (groupRef.current.children && typeof groupRef.current.children.find === 'function') {
+        const orbitingObject = groupRef.current.children.find((child) => child.type === "Group")
+        if (orbitingObject) {
+          orbitingObject.position.copy(position)
+          console.log(`✅ Updated object position to`, orbitingObject.position)
         }
       }
     }
-  }, [viewType, semiMajorAxis, eccentricity, inclination]);
+  }, [viewType, semiMajorAxis, eccentricity, inclination, binaryStarIndex, calculateStartAngle]);
 
   // Calculate orbit points for visualization
   const orbitPoints = useMemo(() => {

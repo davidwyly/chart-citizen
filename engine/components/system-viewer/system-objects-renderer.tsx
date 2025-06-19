@@ -209,6 +209,27 @@ export function SystemObjectsRenderer({
       return true
     }
     
+    // Special case: If the focal object has a parent that's not in the system (like barycenter),
+    // show all objects that share the same parent
+    if (focalObject.orbit?.parent) {
+      const focalParentExists = systemData.objects.some(obj => 
+        obj.id === focalObject.orbit?.parent || 
+        obj.name?.toLowerCase() === focalObject.orbit?.parent
+      )
+      
+      // If parent doesn't exist as an object (like "barycenter"), show siblings
+      if (!focalParentExists && object.orbit?.parent === focalObject.orbit.parent) {
+        return true
+      }
+    }
+    
+    // Show the parent of the focused object
+    if (focalObject.orbit?.parent && 
+        (object.id === focalObject.orbit.parent || 
+         object.name?.toLowerCase() === focalObject.orbit.parent)) {
+      return true
+    }
+    
     return false // Hide everything else in profile mode
   }, [viewType, selectedObjectId, systemData.objects])
 
@@ -231,9 +252,11 @@ export function SystemObjectsRenderer({
       const mechanicsData = orbitalMechanics.get(object.id);
       const semiMajorAxis = mechanicsData?.orbitDistance || 0;
       
-      // Debug: Log the orbital distance for Neptune specifically
-      if (object.name === 'Neptune') {
-        console.log(`🔍 NEPTUNE DISTANCE DEBUG: ${object.name} (${object.id}) -> semiMajorAxis: ${semiMajorAxis}`);
+      // Debug: Log orbital distance for objects with non-existent parents
+      if (object.orbit?.parent === 'barycenter' || object.classification === 'star') {
+        console.log(`🌟 STAR/BARYCENTER DEBUG: ${object.name} (${object.id})`);
+        console.log(`   📊 Parent: ${object.orbit?.parent}`);
+        console.log(`   📏 Calculated distance: ${semiMajorAxis}`);
         console.log(`   📊 Mechanics data:`, mechanicsData);
       }
       
@@ -243,19 +266,46 @@ export function SystemObjectsRenderer({
         return null;
       }
 
+      // Detect binary stars for opposite positioning
+      let binaryStarIndex: number | undefined = undefined;
+      if (object.orbit?.parent === 'barycenter' && object.classification === 'star') {
+        // Find all stars with the same parent (barycenter) to determine binary star order
+        const binaryStars = systemData.objects.filter(obj => 
+          obj.orbit?.parent === 'barycenter' && 
+          obj.classification === 'star'
+        ).sort((a, b) => {
+          // Sort by semi_major_axis to maintain consistent ordering
+          const aAU = a.orbit && isOrbitData(a.orbit) ? a.orbit.semi_major_axis : 0;
+          const bAU = b.orbit && isOrbitData(b.orbit) ? b.orbit.semi_major_axis : 0;
+          return aAU - bAU;
+        });
+        
+        if (binaryStars.length >= 2) {
+          binaryStarIndex = binaryStars.findIndex(star => star.id === object.id);
+          console.log(`🌟 Binary star detected: ${object.name} is star ${binaryStarIndex} of ${binaryStars.length}`);
+        }
+      }
+
       return (
         <group key={object.id} visible={isVisible}>
           <MemoizedOrbitalPath
             semiMajorAxis={semiMajorAxis}
             eccentricity={orbit.eccentricity}
             inclination={orbit.inclination}
-            orbitalPeriod={calculateOrbitalPeriod(orbit.semi_major_axis)}
+            orbitalPeriod={
+              // For binary stars, use the actual period from data to ensure synchronization
+              // For other objects, calculate period using Kepler's 3rd law
+              (object.orbit?.parent === 'barycenter' && object.classification === 'star') 
+                ? orbit.orbital_period 
+                : calculateOrbitalPeriod(orbit.semi_major_axis)
+            }
             showOrbit={isVisible} // Only show orbits for visible objects
             timeMultiplier={timeMultiplier}
             isPaused={isPaused}
             parentObjectId={orbit.parent}
             objectRefsMap={objectRefsMap}
             viewType={viewType}
+            binaryStarIndex={binaryStarIndex}
           >
             <CelestialObjectRenderer
               object={object}
@@ -365,10 +415,22 @@ export function SystemObjectsRenderer({
     for (const object of objectsToRender) {
       if (object.orbit?.parent) {
         const parent = object.orbit.parent
-        if (!hierarchy.has(parent)) {
-          hierarchy.set(parent, [])
+        // Check if the parent actually exists in the system
+        const parentExists = objectsToRender.some(obj => 
+          obj.id === parent || obj.name?.toLowerCase() === parent.toLowerCase()
+        )
+        
+        if (parentExists) {
+          // Normal case: parent exists, add to hierarchy
+          if (!hierarchy.has(parent)) {
+            hierarchy.set(parent, [])
+          }
+          hierarchy.get(parent)!.push(object)
+        } else {
+          // Special case: parent doesn't exist (like "barycenter"), treat as root object
+          console.log(`Object ${object.name} has non-existent parent "${parent}", treating as root object`)
+          rootObjects.push(object)
         }
-        hierarchy.get(parent)!.push(object)
       } else {
         rootObjects.push(object)
       }
