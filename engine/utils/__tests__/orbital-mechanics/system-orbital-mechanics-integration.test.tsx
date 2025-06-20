@@ -6,7 +6,7 @@ import { SystemObjectsRenderer } from '../system-objects-renderer';
 import {
   calculateSystemOrbitalMechanics,
   clearOrbitalMechanicsCache,
-} from '@/engine/utils/orbital-mechanics-calculator';
+} from '@/engine/core/pipeline';
 import { CelestialObject, OrbitalSystemData } from '@/engine/types/orbital-system';
 import { ViewType } from '@lib/types/effects-level';
 import * as THREE from 'three';

@@ -3,7 +3,7 @@ import { render, fireEvent } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 import React, { act } from 'react'
-import { SystemViewer } from '../../system-viewer'
+import { SystemViewer } from '../../../system-viewer'
 
 // Mock Three.js components
 vi.mock('@react-three/drei', () => ({

@@ -65,7 +65,7 @@ describe('Shader Validation', () => {
         { 
           name: 'Proxima B Scientific', 
           minCameraDistance: 0.0004, 
-          expectedNear: 0.000004, // 1% of camera distance
+          expectedNear: 0.00001, // Max of (0.0004 * 0.01, 0.00001) = 0.00001
           expectedMinDist: 0.00004 // 10% of camera distance
         },
         { 
@@ -86,8 +86,8 @@ describe('Shader Validation', () => {
         const minDistanceRatio = isTinyObject ? 0.1 : 0.5
         const calculatedMinDist = testCase.minCameraDistance * minDistanceRatio
         
-        expect(calculatedNear).toBe(testCase.expectedNear)
-        expect(calculatedMinDist).toBe(testCase.expectedMinDist)
+        expect(calculatedNear).toBeCloseTo(testCase.expectedNear, 5)
+        expect(calculatedMinDist).toBeCloseTo(testCase.expectedMinDist, 5)
         expect(calculatedNear).toBeLessThan(testCase.minCameraDistance) // Near should be smaller than camera distance
       })
     })

@@ -13,6 +13,6 @@ Rules:
 3. Modify test cases when functionality is changed.
 4. Remove or revise outdated tests when functionality is removed or significantly changed.
 5. Do not leave broken or irrelevant tests in place—test coverage should accurately reflect current functionality.
-
+6. DO NOT RUN `npm run dev` as it just starts a server that waits for browser connections, you can't test the browser hot reload behavior from this CLI environment.
 
 Maintaining reliable tests is essential for preventing regressions and preserving feature integrity as the codebase evolves. Always treat tests as first-class citizens during development and refactoring.

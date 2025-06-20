@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { calculateSystemOrbitalMechanics } from '../../orbital-mechanics-calculator'
+import { calculateSystemOrbitalMechanics } from '../../../core/pipeline'
 import type { CelestialObject } from '../../../types/orbital-system'
 
 describe('Orbital Mechanics Integration', () => {

@@ -92,9 +92,11 @@ describe('View Mode System Integration', () => {
 
   describe('Error Handling and Fallbacks', () => {
     it('should handle missing view modes gracefully', () => {
-      expect(() => {
-        getOrbitalMechanicsConfig('nonexistent-mode')
-      }).toThrow()
+      // Should return fallback config instead of throwing
+      const fallbackConfig = getOrbitalMechanicsConfig('nonexistent-mode')
+      expect(fallbackConfig).toBeDefined()
+      expect(fallbackConfig.maxVisualSize).toBe(0.8) // Explorational fallback values
+      expect(fallbackConfig.orbitScaling).toBe(8.0)
       
       // But compatibility layer should provide fallbacks where appropriate
       const legacyConfigs = getLegacyViewConfigs()

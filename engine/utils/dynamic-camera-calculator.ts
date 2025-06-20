@@ -2,12 +2,11 @@
  * DYNAMIC CAMERA CALCULATOR
  * =========================
  * 
- * Calculates optimal camera settings based on actual object scales and distances
- * in each view mode to prevent clipping and ensure proper zoom functionality.
+ * Provides optimal camera settings for each view mode.
+ * No legacy dependencies - uses clean, predefined configurations.
  */
 
 import type { CelestialObject } from '../types/orbital-system'
-import { calculateSystemOrbitalMechanics } from './orbital-mechanics-calculator'
 import type { ViewType } from '@lib/types/effects-level'
 
 export interface DynamicCameraSettings {
@@ -15,7 +14,6 @@ export interface DynamicCameraSettings {
   farPlane: number
   absoluteMinDistance: number
   absoluteMaxDistance: number
-  // Additional metadata for debugging
   _metadata?: {
     minVisualSize: number
     maxVisualSize: number
@@ -28,156 +26,85 @@ export interface DynamicCameraSettings {
 }
 
 /**
- * Calculate dynamic camera settings based on actual object scales in the system
+ * Calculate dynamic camera settings based on view type
+ * Uses optimal predefined settings for each view mode
  */
 export function calculateDynamicCameraSettings(
   systemData: CelestialObject[],
   viewType: ViewType
 ): DynamicCameraSettings {
-  // Calculate orbital mechanics for this view mode
-  const mechanics = calculateSystemOrbitalMechanics(systemData, viewType)
-  
-  // Analyze the actual scales in the system
-  let minVisualSize = Number.MAX_VALUE
-  let maxVisualSize = 0
-  let minOrbitDistance = Number.MAX_VALUE
-  let maxOrbitDistance = 0
-  
-  systemData.forEach(obj => {
-    const objMechanics = mechanics.get(obj.id)
-    if (objMechanics) {
-      const visual = objMechanics.visualRadius
-      const orbit = objMechanics.orbitDistance || 0
-      
-      minVisualSize = Math.min(minVisualSize, visual)
-      maxVisualSize = Math.max(maxVisualSize, visual)
-      
-      if (orbit > 0) {
-        minOrbitDistance = Math.min(minOrbitDistance, orbit)
-        maxOrbitDistance = Math.max(maxOrbitDistance, orbit)
-      }
-    }
-  })
-  
-  // Handle edge cases
-  if (minOrbitDistance === Number.MAX_VALUE) {
-    minOrbitDistance = maxVisualSize * 10 // Fallback
-    maxOrbitDistance = maxVisualSize * 100
-  }
-  
-  // Calculate camera distance range (based on standard 4x multiplier)
-  const minCameraDistance = minVisualSize * 4.0
-  const maxCameraDistance = maxVisualSize * 4.0
-  
-  // Calculate frustum settings with safety margins
-  const baseFrustum = calculateBaseFrustum(
-    minCameraDistance,
-    maxCameraDistance,
-    minOrbitDistance,
-    maxOrbitDistance
-  )
-  
-  // Apply view-mode-specific adjustments
-  const settings = applyViewModeAdjustments(baseFrustum, viewType)
-  
-  // Add metadata for debugging
-  settings._metadata = {
-    minVisualSize,
-    maxVisualSize,
-    minOrbitDistance,
-    maxOrbitDistance,
-    minCameraDistance,
-    maxCameraDistance,
-    scaleRange: maxVisualSize / minVisualSize
-  }
-  
-  return settings
+  return getOptimalCameraSettingsForViewType(viewType);
 }
 
 /**
- * Calculate base frustum settings from scene bounds
- * Positions cameras in the middle range of Three.js precision for optimal rendering
+ * Get optimal camera settings for each view type
  */
-function calculateBaseFrustum(
-  minCameraDistance: number,
-  maxCameraDistance: number,
-  minOrbitDistance: number,
-  maxOrbitDistance: number
-): DynamicCameraSettings {
-  // Target the sweet spot of Three.js precision: 0.1 to 1000 units
-  // Scale everything to fit comfortably in this range
-  
-  const sceneSize = Math.max(maxOrbitDistance, maxCameraDistance, 1.0)
-  
-  // Scale factor to bring scene into optimal range (target max ~500 units)
-  const targetMaxSize = 500
-  const scaleFactor = Math.min(targetMaxSize / sceneSize, 1.0)
-  
-  // Apply scaling to all distances
-  const scaledMinCamera = minCameraDistance * scaleFactor
-  const scaledMaxCamera = maxCameraDistance * scaleFactor
-  const scaledMaxOrbit = maxOrbitDistance * scaleFactor
-  
-  // Near plane: 1% of scaled camera distance, staying in good precision range
-  const near = Math.max(scaledMinCamera * 0.01, 0.1)
-  
-  // Far plane: Generous margin for skybox, but not extreme
-  const far = Math.max(scaledMaxOrbit * 10.0, 2000)
-  
-  // Zoom constraints: Allow reasonable inspection without extremes
-  const minDistance = Math.max(scaledMinCamera * 0.3, 0.1)  // Allow closer for small objects
-  const maxDistance = Math.max(scaledMaxOrbit * 3.0, far * 0.3)
-  
-  return {
-    nearPlane: near,
-    farPlane: far,
-    absoluteMinDistance: minDistance,
-    absoluteMaxDistance: maxDistance
-  }
-}
-
-/**
- * Apply view-mode-specific adjustments to base settings
- */
-function applyViewModeAdjustments(
-  base: DynamicCameraSettings,
-  viewType: ViewType
-): DynamicCameraSettings {
-  // All view modes stay in optimal Three.js range - no extreme adjustments
+function getOptimalCameraSettingsForViewType(viewType: ViewType): DynamicCameraSettings {
   switch (viewType) {
     case 'scientific':
-      // Scientific: Closer inspection but stay in optimal range
       return {
-        nearPlane: Math.max(base.nearPlane * 0.5, 0.1), // Closer near but not extreme
-        farPlane: base.farPlane, // Keep skybox-safe
-        absoluteMinDistance: Math.max(base.absoluteMinDistance * 0.2, 0.05), // Much closer zoom for tiny objects
-        absoluteMaxDistance: base.absoluteMaxDistance * 1.5 // Wider zoom range
-      }
-      
-    case 'explorational':
-      // Explorational: Balanced settings in optimal range
-      return base
-      
-    case 'navigational':
-      // Navigational: Conservative but not extreme
-      return {
-        nearPlane: Math.max(base.nearPlane * 1.5, 0.2),
-        farPlane: base.farPlane,
-        absoluteMinDistance: Math.max(base.absoluteMinDistance * 1.5, 1.0),
-        absoluteMaxDistance: base.absoluteMaxDistance * 0.8
-      }
-      
+        nearPlane: 0.001,
+        farPlane: 50000,
+        absoluteMinDistance: 0.01,
+        absoluteMaxDistance: 1000,
+        _metadata: {
+          minVisualSize: 0.001,
+          maxVisualSize: 10,
+          minOrbitDistance: 1,
+          maxOrbitDistance: 500,
+          minCameraDistance: 0.01,
+          maxCameraDistance: 1000,
+          scaleRange: 1000
+        }
+      };
     case 'profile':
-      // Profile: Top-down view with reasonable constraints
       return {
-        nearPlane: Math.max(base.nearPlane * 2.0, 0.5),
-        farPlane: base.farPlane,
-        absoluteMinDistance: Math.max(base.absoluteMinDistance * 2.0, 2.0),
-        absoluteMaxDistance: base.absoluteMaxDistance * 0.7
-      }
-      
+        nearPlane: 0.01,
+        farPlane: 2000,
+        absoluteMinDistance: 0.1,
+        absoluteMaxDistance: 500,
+        _metadata: {
+          minVisualSize: 0.1,
+          maxVisualSize: 20,
+          minOrbitDistance: 5,
+          maxOrbitDistance: 200,
+          minCameraDistance: 0.1,
+          maxCameraDistance: 500,
+          scaleRange: 100
+        }
+      };
+    case 'navigational':
+      return {
+        nearPlane: 0.1,
+        farPlane: 5000,
+        absoluteMinDistance: 1,
+        absoluteMaxDistance: 2000,
+        _metadata: {
+          minVisualSize: 0.5,
+          maxVisualSize: 50,
+          minOrbitDistance: 10,
+          maxOrbitDistance: 1000,
+          minCameraDistance: 1,
+          maxCameraDistance: 2000,
+          scaleRange: 200
+        }
+      };
+    case 'explorational':
     default:
-      return base
+      return {
+        nearPlane: 0.1,
+        farPlane: 10000,
+        absoluteMinDistance: 1,
+        absoluteMaxDistance: 5000,
+        _metadata: {
+          minVisualSize: 0.1,
+          maxVisualSize: 100,
+          minOrbitDistance: 5,
+          maxOrbitDistance: 2000,
+          minCameraDistance: 1,
+          maxCameraDistance: 5000,
+          scaleRange: 500
+        }
+      };
   }
 }
-

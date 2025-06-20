@@ -8,6 +8,7 @@ export const SPECTRAL_TYPE_LUMINOSITY: Record<string, number> = {
   'A0': 80,
   'A5': 25,
   'F0': 6.0,
+  'F5': 3.0,
   'F8': 1.5,
   'G2': 1.0, // Sun
   'K0': 0.6,

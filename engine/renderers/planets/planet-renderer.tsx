@@ -3,16 +3,9 @@
 import { useRef, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
-import type { CatalogObject } from "@/engine/system-loader"
+import type { RendererProps } from "../renderer-props"
 
-interface PlanetRendererProps {
-  catalogData: CatalogObject
-  position?: [number, number, number]
-  scale?: number
-  onFocus?: (object: THREE.Object3D, name: string) => void
-}
-
-export function PlanetRenderer({ catalogData, position = [0, 0, 0], scale = 1, onFocus }: PlanetRendererProps) {
+export function PlanetRenderer({ catalogData, position = [0, 0, 0], scale = 1, onFocus }: RendererProps) {
   const planetRef = useRef<THREE.Group>(null)
   const surfaceRef = useRef<THREE.Mesh>(null)
   const atmosphereRef = useRef<THREE.Mesh>(null)

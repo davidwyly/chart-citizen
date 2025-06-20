@@ -23,42 +23,79 @@ The app provides both scientifically accurate ("Reality" mode) and game-inspired
 6. Write clean, SOLID, DRY, testable code.
 7. Check README.md or search through the /docs folder when unsure.
 
+## Dev Lifecyle
+
+You MUST explicitly follow the dev lifecycle found within `/DEV-LIFECYCLE.md`
+If you're uncertain about what to do, ASK.
+
 ## Guidelines
 
 1. Comment frequently, especially if there are downstream considerations or serious side-effects
 2. The __tests__ folder for vitest tests in each root directory for files being tested in that folder
 3. If we ever update a file, update or create the appropriate test file to capture the change in functionality
+4. Remove all legacy code, duplicated code, or legacy code fallbacks and run tests to confirm afterwards
+5. DO NOT RUN `npm run dev` as it just starts a server that waits for browser connections, you can't
+  test the browser hot reload behavior from this CLI environment.
 
 ## Essential Commands
 
 ```bash
-# Testing is with vitest, NOT jest
-npm test -- --run --reporter=summary
-npm test -- engine/components/system-viewer/ (example)
-npm test -- engine/components/system-viewer/hooks/__tests__/use-object-selection.test.ts (example)
+# Testing (vitest) - Due to large test suite (190+ files), run specific tests instead of all
+npm run lint
+# Run specific test files or folders instead of global test suite
+npm test -- --run --watch=false engine/path/to/specific/folder
+npm test -- --run --watch=false engine/path/to/specific/test.ts
+# Examples of focused testing:
+npm test -- --run --watch=false engine/renderers
+npm test -- --run --watch=false engine/components/system-viewer
+npm test -- --run --watch=false engine/utils/__tests__/orbital-mechanics
+# Only run full suite if absolutely necessary (may timeout):
+# npm test -- --run --watch=false
 ```
 
 ## Architecture Overview
 
 ### Key Architectural Patterns
 
-1. **Object Factory Pattern**: All celestial objects created via `engine/object-factory.tsx`
+1. **Rendering Pipeline**: `ViewModeStrategy → VisualSizeCalculator → ObjectFactory → Renderer`
+   - ViewModeStrategy calculates object scaling based on scientific/visual requirements
+   - VisualSizeCalculator applies view-specific scaling and constraints
+   - ObjectFactory selects appropriate renderer based on catalog data
+   - Renderer implements standardized RendererProps interface
+   
+2. **Standard Renderer Interface**: All renderers implement `RendererProps` from `engine/renderers/renderer-props.ts`
+   - Base: `RendererProps` (catalogData, position, scale, onFocus)
+   - Extended: `InteractiveRendererProps` (adds onHover, onSelect)
+   - Extended: `ShaderRendererProps` (adds shaderScale, effectIntensity)
+   - Extended: `SystemRendererProps` (full system context with interactions)
+
+3. **Object Factory Pattern**: All celestial objects created via `engine/object-factory.tsx`
    - Single entry point for object creation
    - Automatic renderer selection based on catalog data
    - Handles fallback rendering
-   - Maintains consistent interface
-2. **Renderer Organization**: `/engine/renderers/[type]/[object]-renderer.tsx`
+   - Uses standardized interfaces throughout
+
+4. **Renderer Organization**: `/engine/renderers/[type]/[object]-renderer.tsx`
    - Separation by object type (stars, planets, moons, etc.)
    - Consistent structure: Renderer → Materials → Effects
    - Standard naming conventions
-3. **No Global Post-Processing**: All effects at material/object level for performance
+
+5. **Scientific Scaling**: Real astronomical data via `AstronomicalScalingService`
+   - Earth-based reference scaling (1.0 unit radius, 100 units orbit)
+   - True proportional relationships (Mars = 0.532x Earth, Jupiter = 10.97x Earth)
+   - Intelligent logarithmic scaling for extreme sizes (Sun = 109x Earth)
+   - Replaces legacy hardcoded scaling factors with real astronomical constants
+
+6. **No Global Post-Processing**: All effects at material/object level for performance
    - No screen-space effects (bloom, chromatic aberration, DOF, vignette)
    - Object-level effects only (coronas, atmospheres, particles)
    - Material-based visual enhancements
-4. **Mode System**: Seamless switching between Reality and Star Citizen modes
+
+7. **Mode System**: Seamless switching between Reality and Star Citizen modes
    - Educational content with real astronomical data
    - Game-inspired simulation with lore-accurate systems
-5. **View Modes**: 
+
+8. **View Modes**: 
    - **Explorational**: Astronomical distances modified for human interpretation
    - **Navigational**: Equidistant orbital paths in 3D for easier navigation
    - **Profile**: Top-down diagrammatic view with orthographic projection (future)
@@ -67,12 +104,23 @@ npm test -- engine/components/system-viewer/hooks/__tests__/use-object-selection
 ### Important Interfaces
 
 ```typescript
-// All renderers must implement
+// Standard renderer interface from engine/renderers/renderer-props.ts
 interface RendererProps {
-  catalogData: CatalogObject
-  position?: [number, number, number]
-  scale?: number
-  onFocus?: (object: THREE.Object3D, name: string) => void
+  readonly catalogData: CatalogObject;
+  readonly position?: [number, number, number];
+  readonly scale?: number;
+  readonly onFocus?: (object: THREE.Object3D, name: string) => void;
+}
+
+// Extended interfaces for specific needs
+interface InteractiveRendererProps extends RendererProps {
+  readonly onHover?: (objectId: string | null) => void;
+  readonly onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void;
+}
+
+interface ShaderRendererProps extends RendererProps {
+  readonly shaderScale?: number;
+  readonly effectIntensity?: number;
 }
 ```
 

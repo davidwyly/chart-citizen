@@ -179,8 +179,14 @@ export class ViewModeRegistry {
     
     // Check for existing mode
     if (this.modes.has(mode.id) && !replace) {
-      console.error(`View mode "${mode.id}" already exists. Use replace: true to overwrite.`)
-      return false
+      // In development mode (Next.js hot reload), silently replace instead of erroring
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔄 Hot reload: Replacing view mode "${mode.id}"`)
+        // Allow replacement in development
+      } else {
+        console.error(`View mode "${mode.id}" already exists. Use replace: true to overwrite.`)
+        return false
+      }
     }
     
     // Fill in default behavior functions if not provided
@@ -331,6 +337,50 @@ export class ViewModeRegistry {
 // ============================================================================
 
 export const viewModeRegistry = new ViewModeRegistry()
+
+// Auto-initialize built-in view modes when registry is imported
+let initialized = false
+
+function initializeBuiltinModes(): void {
+  if (initialized) return
+  initialized = true
+  
+  // Lazy import to avoid circular dependencies
+  Promise.resolve().then(async () => {
+    try {
+      const [
+        { explorationalMode },
+        { navigationalMode }, 
+        { profileMode },
+        { scientificMode }
+      ] = await Promise.all([
+        import('./modes/explorational-mode'),
+        import('./modes/navigational-mode'),
+        import('./modes/profile-mode'),
+        import('./modes/scientific-mode')
+      ])
+      
+      const builtInModes = [explorationalMode, navigationalMode, profileMode, scientificMode]
+      let registeredCount = 0
+      
+      for (const mode of builtInModes) {
+        try {
+          const success = viewModeRegistry.register(mode, { validate: true, replace: false })
+          if (success) registeredCount++
+        } catch (error) {
+          console.error(`Failed to register view mode "${mode.id}":`, error)
+        }
+      }
+      
+      console.log(`✅ Auto-initialized ${registeredCount}/${builtInModes.length} view modes`)
+    } catch (error) {
+      console.error('Failed to auto-initialize view modes:', error)
+    }
+  })
+}
+
+// Initialize immediately when registry is imported
+initializeBuiltinModes()
 
 // ============================================================================
 // UTILITY FUNCTIONS

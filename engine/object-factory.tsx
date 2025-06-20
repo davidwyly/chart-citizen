@@ -6,19 +6,13 @@ import { PlanetRenderer } from "@/engine/renderers/planets/planet-renderer"
 import { GasGiantRenderer } from "@/engine/renderers/planets/gas-giant-renderer"
 import { TerrestrialPlanetRenderer } from "@/engine/renderers/planets/terrestrial-planet-renderer"
 import { Protostar } from "@/engine/components/3d-ui/protostar"
-import type { CatalogObject } from "@/engine/system-loader"
-import type * as THREE from "three"
+import { DEFAULT_RENDERING_CONFIGURATION } from "@/engine/core/configuration/rendering-configuration"
+import type { SystemRendererProps } from "@/engine/renderers/renderer-props"
 
-interface ObjectFactoryProps {
-  catalogData: CatalogObject
-  position?: [number, number, number]
-  scale?: number
-  shaderScale?: number
-  starPosition?: [number, number, number]
-  customizations?: any
-  onFocus?: (object: THREE.Object3D, name: string) => void
-  onHover?: (objectId: string | null) => void
-  onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
+// Object factory handles system-level rendering with full interaction support
+interface ObjectFactoryProps extends SystemRendererProps {
+  readonly shaderScale?: number;
+  readonly customizations?: any;
 }
 
 export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, starPosition, customizations, onFocus, onHover, onSelect }: ObjectFactoryProps) {
@@ -35,10 +29,10 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, s
           scale={scale || 1}
           effectScale={shaderScale}
           density={1.0}
-          starBrightness={30.0}
-          starHue={0.08}
-          nebulaHue={0.66}
-          rotationSpeed={1.0}
+          starBrightness={DEFAULT_RENDERING_CONFIGURATION.visual.starEffects.brightness}
+          starHue={DEFAULT_RENDERING_CONFIGURATION.visual.starEffects.hue}
+          nebulaHue={DEFAULT_RENDERING_CONFIGURATION.visual.starEffects.nebulaHue}
+          rotationSpeed={DEFAULT_RENDERING_CONFIGURATION.visual.starEffects.rotationSpeed}
         />
       </group>
     )

@@ -4,7 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import React from 'react'
 import { TerrestrialRenderer } from '../terrestrial-renderer'
 import type { CelestialObject } from '@/engine/types/orbital-system'
-import { clearOrbitalMechanicsCache } from '@/engine/utils/orbital-mechanics-calculator'
+import { clearOrbitalMechanicsCache } from '@/engine/core/pipeline'
 
 // Mock the planet rings renderer
 vi.mock('../../planets/planet-rings-renderer', () => ({

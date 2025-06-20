@@ -11,7 +11,7 @@ import type { ViewType } from '@lib/types/effects-level'
 import React from 'react'
 import { renderHook, act } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useObjectSelection } from '../hooks/use-object-selection'
+import { useObjectSelection } from '../../hooks/use-object-selection'
 import type { OrbitalSystemData } from '@/engine/types/orbital-system'
 import * as THREE from 'three'
 

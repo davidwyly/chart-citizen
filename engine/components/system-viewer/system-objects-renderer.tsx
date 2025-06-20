@@ -6,10 +6,7 @@ import * as THREE from "three"
 import { InteractiveObject } from "../3d-ui/interactive-object"
 import { OrbitalPath } from "./components/orbital-path"
 import { StellarZones } from "./components/stellar-zones"
-import { 
-  calculateSystemOrbitalMechanics,
-  clearOrbitalMechanicsCache
-} from "@/engine/utils/orbital-mechanics-calculator"
+import { useOrbitalMechanicsWithDefault } from "./hooks/use-orbital-mechanics"
 import { getOrbitalMechanicsConfig } from "@/engine/core/view-modes/compatibility"
 // Import view modes to ensure they are registered
 import "@/engine/core/view-modes"
@@ -124,16 +121,8 @@ export function SystemObjectsRenderer({
     return primaryStar?.position || [0, 0, 0]
   }, [systemData.objects, systemData.lighting.primary_star])
 
-  // Calculate safe orbital mechanics for all objects
-  const orbitalMechanics = useMemo(() => {
-    // Clear cache when view type changes to ensure fresh calculations
-    console.log(`🧹 CLEARING CACHE for viewType: ${viewType}`);
-    clearOrbitalMechanicsCache();
-    console.log(`🔄 RECALCULATING orbital mechanics for viewType: ${viewType}`);
-    const result = calculateSystemOrbitalMechanics(systemData.objects, viewType);
-    console.log(`📊 ORBITAL MECHANICS RESULT for Neptune:`, result.get('neptune'));
-    return result;
-  }, [systemData.objects, viewType]);
+  // Calculate safe orbital mechanics for all objects using the async-aware hook
+  const orbitalMechanics = useOrbitalMechanicsWithDefault(systemData.objects, viewType);
 
   // Get object sizing from orbital mechanics calculator
   const getObjectSizing = useCallback((objectId: string) => {
@@ -260,11 +249,14 @@ export function SystemObjectsRenderer({
         console.log(`   📊 Mechanics data:`, mechanicsData);
       }
       
-      // If no orbital distance calculated, skip rendering this object
-      if (semiMajorAxis === 0) {
+      // Skip rendering only if no orbital distance calculated AND it's not a star at origin
+      if (semiMajorAxis === 0 && object.classification !== 'star') {
         console.warn(`No orbital distance calculated for ${object.name} (${object.id}), skipping`);
         return null;
       }
+      
+      // For stars at origin (single star systems), set distance to a small value for proper positioning
+      const actualOrbitDistance = semiMajorAxis === 0 && object.classification === 'star' ? 0.1 : semiMajorAxis;
 
       // Detect binary stars for opposite positioning
       let binaryStarIndex: number | undefined = undefined;
@@ -289,7 +281,7 @@ export function SystemObjectsRenderer({
       return (
         <group key={object.id} visible={isVisible}>
           <MemoizedOrbitalPath
-            semiMajorAxis={semiMajorAxis}
+            semiMajorAxis={actualOrbitDistance}
             eccentricity={orbit.eccentricity}
             inclination={orbit.inclination}
             orbitalPeriod={

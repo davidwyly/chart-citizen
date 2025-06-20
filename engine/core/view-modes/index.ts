@@ -24,11 +24,26 @@ import { viewModeRegistry } from './registry'
 // AUTO-REGISTRATION OF BUILT-IN MODES
 // ============================================================================
 
+// Track initialization state to prevent duplicate registration
+// Use globalThis to persist across hot reloads in development
+declare global {
+  var __VIEW_MODES_INITIALIZED__: boolean | undefined
+}
+
+const isInitialized = () => globalThis.__VIEW_MODES_INITIALIZED__ === true
+const setInitialized = () => { globalThis.__VIEW_MODES_INITIALIZED__ = true }
+
 /**
  * Initialize the view mode system by registering all built-in modes.
  * This function is called automatically when the module is imported.
  */
 function initializeViewModes(): void {
+  // Prevent duplicate initialization
+  if (isInitialized()) {
+    console.log('✅ View Mode System already initialized, skipping')
+    return
+  }
+  
   console.log('🚀 Initializing View Mode System...')
   
   // Register all built-in view modes
@@ -45,16 +60,20 @@ function initializeViewModes(): void {
     try {
       const success = viewModeRegistry.register(mode, { 
         validate: true,
-        replace: false 
+        replace: process.env.NODE_ENV === 'development' // Allow replacement in development
       })
       
       if (success) {
         registeredCount++
+        console.log(`✅ Registered view mode: ${mode.name} (${mode.id})`)
       }
     } catch (error) {
       console.error(`Failed to register view mode "${mode.id}":`, error)
     }
   }
+  
+  // Mark as initialized
+  setInitialized()
   
   console.log(`✅ View Mode System initialized with ${registeredCount}/${builtInModes.length} modes`)
   
@@ -109,6 +128,7 @@ export function reloadViewModes(): void {
   if (process.env.NODE_ENV === 'development') {
     console.log('🔄 Reloading view modes...')
     viewModeRegistry.clear()
+    globalThis.__VIEW_MODES_INITIALIZED__ = false // Reset initialization flag
     initializeViewModes()
   }
 }

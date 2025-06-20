@@ -6,7 +6,7 @@ import {
   getLuminosityForSpectralType,
   calculateHabitableZoneAndSnowLine,
   calculateBinarySystemZones
-} from '../stellar-zones';
+} from '../../stellar-zones';
 
 describe('Stellar Zones Calculations', () => {
   describe('Luminosity Lookup', () => {

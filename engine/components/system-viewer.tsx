@@ -19,7 +19,7 @@ import { ObjectDetailsPanel } from "./system-viewer/object-details-panel"
 import { SceneLighting } from "./system-viewer/components/scene-lighting"
 import { ZoomTracker } from "./system-viewer/components/zoom-tracker"
 import { isPlanet } from "../types/orbital-system"
-import { calculateSystemOrbitalMechanics } from "../utils/orbital-mechanics-calculator"
+import { useOrbitalMechanicsWithDefault } from "./system-viewer/hooks/use-orbital-mechanics"
 
 // Add JSX namespace declaration
 declare global {
@@ -112,10 +112,11 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
   const objectRefsMap = useRef<Map<string, THREE.Object3D>>(new Map())
 
   // Calculate orbital mechanics for object sizing (same as SystemObjectsRenderer)
-  const orbitalMechanics = useMemo(() => {
-    if (!systemData) return new Map()
-    return calculateSystemOrbitalMechanics(systemData.objects, viewType);
-  }, [systemData?.objects, viewType]);
+  // Calculate orbital mechanics using async-aware hook
+  const orbitalMechanics = useOrbitalMechanicsWithDefault(
+    systemData?.objects || [], 
+    viewType
+  );
 
   // Get object sizing function (same as SystemObjectsRenderer)
   const getObjectSizing = useCallback((objectId: string) => {

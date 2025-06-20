@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   calculateSystemOrbitalMechanics,
   clearOrbitalMechanicsCache,
-} from '../orbital-mechanics-calculator';
+} from '../../../core/pipeline';
 import { CelestialObject } from '@/engine/types/orbital-system';
 import { ViewType } from '@lib/types/effects-level';
 

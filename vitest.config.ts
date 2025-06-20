@@ -18,7 +18,7 @@ export default defineConfig({
     ],
     // Better reporting
     reporters: ['verbose', 'json'],
-    // Timeout configuration
+    // Timeout configuration - 10 second per-test timeout
     testTimeout: 10000,
     hookTimeout: 10000,
   },

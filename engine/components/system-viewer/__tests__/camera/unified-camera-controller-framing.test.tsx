@@ -3,7 +3,7 @@ import { render, act } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
 import React from 'react'
 import * as THREE from 'three'
-import { UnifiedCameraController } from '../unified-camera-controller'
+import { UnifiedCameraController } from '../../unified-camera-controller'
 
 // Mock drei
 vi.mock('@react-three/drei', () => ({

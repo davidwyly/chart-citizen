@@ -1,0 +1,74 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Side Effect Detection > Orbital Mechanics Baseline > should calculate consistent visual radii for all view modes 1`] = `
+{
+  "explorational": Map {
+    "sol" => {
+      "visualRadius": 1,
+    },
+    "earth" => {
+      "orbitDistance": 50,
+      "visualRadius": 0.8179249725317846,
+    },
+    "jupiter" => {
+      "orbitDistance": 260,
+      "visualRadius": 0.8,
+    },
+    "luna" => {
+      "orbitDistance": 6.25,
+      "visualRadius": 0.6816041437764873,
+    },
+  },
+  "navigational": Map {
+    "sol" => {
+      "visualRadius": 15801.57589075498,
+    },
+    "earth" => {
+      "orbitDistance": 1806.3,
+      "visualRadius": 1200,
+    },
+    "jupiter" => {
+      "orbitDistance": 19408.67589075498,
+      "visualRadius": 13167.979908962485,
+    },
+    "luna" => {
+      "orbitDistance": 3600,
+      "visualRadius": 0.6,
+    },
+  },
+  "profile": Map {
+    "sol" => {
+      "visualRadius": 1.7999999999999998,
+    },
+    "earth" => {
+      "orbitDistance": 9.75,
+      "visualRadius": 1.7999999999999998,
+    },
+    "jupiter" => {
+      "orbitDistance": 19.05,
+      "visualRadius": 1.5,
+    },
+    "luna" => {
+      "orbitDistance": 5.25,
+      "visualRadius": 1.5,
+    },
+  },
+  "scientific": Map {
+    "sol" => {
+      "visualRadius": 7.800000000000001,
+    },
+    "earth" => {
+      "orbitDistance": 80,
+      "visualRadius": 0.07142992669253989,
+    },
+    "jupiter" => {
+      "orbitDistance": 416,
+      "visualRadius": 0.7838231996550238,
+    },
+    "luna" => {
+      "orbitDistance": 0.20559999999999998,
+      "visualRadius": 0.01947477360931436,
+    },
+  },
+}
+`;

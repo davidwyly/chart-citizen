@@ -4,19 +4,12 @@ import { useRef, useEffect } from "react"
 import { extend, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 import { SunMaterial } from "./materials/sun-material"
-import type { CatalogObject } from "@/engine/system-loader"
+import type { ShaderRendererProps, InteractiveRendererProps } from "../renderer-props"
 
 extend({ SunMaterial })
 
-interface StarRendererProps {
-  catalogData: CatalogObject
-  position?: [number, number, number]
-  scale?: number
-  shaderScale?: number
-  onFocus?: (object: THREE.Object3D, name: string) => void
-  onHover?: (objectId: string | null) => void
-  onSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
-}
+// Star renderer needs both shader and interactive capabilities
+interface StarRendererProps extends ShaderRendererProps, InteractiveRendererProps {}
 
 export function StarRenderer({
   catalogData,

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   calculateSystemOrbitalMechanics,
   clearOrbitalMechanicsCache,
-} from '@/engine/utils/orbital-mechanics-calculator';
+} from '@/engine/core/pipeline';
 import { CelestialObject } from '@/engine/types/orbital-system';
 
 // Test Solar System Data - Realistic solar system configuration

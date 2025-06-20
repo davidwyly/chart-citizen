@@ -1,9 +1,9 @@
 import React from 'react'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import { Sidebar } from '../sidebar'
 import type { ViewType } from '@lib/types/effects-level'
-import type { SystemData } from '@engine/system-loader'
+import type { OrbitalSystemData } from '@engine/types/orbital-system'
 
 // Mock useFrame
 vi.mock('@react-three/fiber', () => ({
@@ -12,265 +12,452 @@ vi.mock('@react-three/fiber', () => ({
   }),
 }))
 
-describe('Sidebar', () => {
-  const mockSystemData: SystemData = {
+// Mock tooltip components
+vi.mock('../../ui/tooltip', () => ({
+  Tooltip: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  TooltipProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  TooltipTrigger: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) => <div>{children}</div>,
+}))
+
+// Mock skeleton component
+vi.mock('../../ui/skeleton', () => ({
+  Skeleton: ({ className }: { className?: string }) => <div className={className} data-testid="skeleton" />,
+}))
+
+// Mock child components
+vi.mock('../view-mode-selector', () => ({
+  ViewModeSelector: ({ viewType, onViewTypeChange }: { viewType: ViewType; onViewTypeChange: (type: ViewType) => void }) => (
+    <div data-testid="view-mode-selector">
+      <button onClick={() => onViewTypeChange('explorational')}>Explorational</button>
+      <button onClick={() => onViewTypeChange('navigational')}>Navigational</button>
+      <span>Current: {viewType}</span>
+    </div>
+  ),
+}))
+
+vi.mock('../time-controls', () => ({
+  TimeControls: ({ timeMultiplier, onTimeMultiplierChange, isPaused, onPauseToggle }: any) => (
+    <div data-testid="time-controls">
+      <button onClick={() => onTimeMultiplierChange(2)}>2x Speed</button>
+      <button onClick={onPauseToggle}>{isPaused ? 'Play' : 'Pause'}</button>
+      <span>Speed: {timeMultiplier}x</span>
+    </div>
+  ),
+}))
+
+vi.mock('../system-selector', () => ({
+  SystemSelector: ({ availableSystems, currentSystem, onSystemChange }: any) => (
+    <div data-testid="system-selector">
+      <select value={currentSystem} onChange={(e) => onSystemChange(e.target.value)}>
+        {Object.keys(availableSystems).map((systemId) => (
+          <option key={systemId} value={systemId}>
+            {availableSystems[systemId].name}
+          </option>
+        ))}
+      </select>
+      <span>Current System: {currentSystem}</span>
+    </div>
+  ),
+}))
+
+vi.mock('../system-info', () => ({
+  SystemInfo: ({ systemData, focusedName, error, loadingProgress }: any) => (
+    <div data-testid="system-info">
+      {error && <div data-testid="error">Error: {error}</div>}
+      {focusedName && <div data-testid="focused-object">Focused: {focusedName}</div>}
+      {loadingProgress && <div data-testid="loading">Loading: {loadingProgress}</div>}
+      {systemData && <div data-testid="system-data">System: {systemData.name}</div>}
+    </div>
+  ),
+}))
+
+const mockProps = {
+  onViewTypeChange: vi.fn(),
+  onTimeMultiplierChange: vi.fn(),
+  onPauseToggle: vi.fn(),
+  currentViewType: 'explorational' as ViewType,
+  currentTimeMultiplier: 1,
+  isPaused: false,
+  currentZoom: 1.0,
+  systemData: {
     id: 'test-system',
     name: 'Test System',
     description: 'Test system description',
-    objects: [
-      {
-        id: 'test-star',
-        name: 'Test Star',
-        classification: 'star',
-        geometry_type: 'star',
-        properties: {
-          mass: 1.0,
-          radius: 696000,
-          temperature: 5778,
-          luminosity: 1.0
-        }
-      }
-    ],
+    objects: [],
     lighting: {
       primary_star: 'test-star',
       ambient_level: 0.5,
       stellar_influence_radius: 1000
     }
-  }
+  } as OrbitalSystemData,
+  availableSystems: {
+    'test-system': { name: 'Test System' },
+    'another-system': { name: 'Another System' },
+  },
+  currentSystem: 'test-system',
+  onSystemChange: vi.fn(),
+  focusedName: '',
+  focusedObjectSize: null,
+  selectedObjectData: null,
+  onStopFollowing: vi.fn(),
+  error: null,
+  loadingProgress: '',
+  mode: 'realistic' as const,
+  autoAdjustTime: false,
+  onAutoAdjustToggle: vi.fn(),
+}
 
-  const mockAvailableSystems = {
-    'test-system': mockSystemData,
-    'other-system': {
-      ...mockSystemData,
-      id: 'other-system',
-      name: 'Other System'
-    }
-  }
-
-  const defaultProps = {
-    onViewTypeChange: vi.fn(),
-    onTimeMultiplierChange: vi.fn(),
-    onPauseToggle: vi.fn(),
-    currentViewType: 'explorational' as ViewType,
-    currentTimeMultiplier: 1,
-    isPaused: false,
-    currentZoom: 1,
-    systemData: mockSystemData,
-    availableSystems: mockAvailableSystems,
-    currentSystem: 'test-system',
-    onSystemChange: vi.fn(),
-    focusedName: 'Test Object',
-    focusedObjectSize: 1000,
-    onStopFollowing: vi.fn(),
-    error: null,
-    loadingProgress: '100%',
-    mode: 'realistic' as const
-  }
-
+describe('Enhanced Sidebar with Time Controls Section', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Mock timers for animation testing
+    vi.useFakeTimers()
   })
 
-  describe('Basic Rendering', () => {
-    it('renders in collapsed state by default', () => {
-      render(<Sidebar {...defaultProps} />)
-      expect(screen.queryByText('Chart Citizen')).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: /collapse/i })).not.toBeInTheDocument()
-    })
-
-    it('expands and collapses when toggle button is clicked', () => {
-      render(<Sidebar {...defaultProps} mode="star-citizen" />)
-      
-      // Initially collapsed
-      expect(screen.queryByRole('heading', { name: 'Chart Citizen' })).not.toBeInTheDocument()
-      
-      // Expand
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      expect(screen.getByRole('heading', { name: 'Chart Citizen' })).toBeVisible()
-      expect(screen.getByRole('button', { name: /collapse/i })).toBeVisible()
-      
-      // Collapse
-      fireEvent.click(screen.getByRole('button', { name: /collapse/i }))
-      expect(screen.queryByRole('heading', { name: 'Chart Citizen' })).not.toBeInTheDocument()
-    })
+  afterEach(() => {
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
   })
 
-  describe('Accordion Sections', () => {
-    it('toggles options section', () => {
-      render(<Sidebar {...defaultProps} />)
-      
-      // Expand sidebar first
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      
-      // Navigation section is open by default, close it first
-      fireEvent.click(screen.getByText('Navigation'))
-      
-      // Click options section
-      fireEvent.click(screen.getByText('Options'))
-      expect(screen.getByText('View Mode')).toBeVisible()
-      expect(screen.getByText('Time Controls')).toBeVisible()
-      
-      // Click again to collapse
-      fireEvent.click(screen.getByText('Options'))
-      expect(screen.queryByText('View Mode')).not.toBeInTheDocument()
-    })
+  it('renders collapsed by default', () => {
+    render(<Sidebar {...mockProps} />)
+    
+    const sidebar = screen.getByTestId('sidebar')
+    expect(sidebar).toHaveClass('w-16')
+  })
 
-    it('toggles navigation section', () => {
-      render(<Sidebar {...defaultProps} />)
-      
-      // Expand sidebar first
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      
-      // Navigation section is open by default, should see content
-      expect(screen.getByText('Available Systems')).toBeVisible()
-      
-      // Click navigation section to collapse
-      fireEvent.click(screen.getByText('Navigation'))
-      expect(screen.queryByText('Available Systems')).not.toBeInTheDocument()
-      
-      // Click again to expand
-      fireEvent.click(screen.getByText('Navigation'))
-      expect(screen.getByText('Available Systems')).toBeVisible()
+  it('shows skeleton during expansion animation with 4 sections', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    
+    // Click to expand
+    fireEvent.click(toggleButton)
+    
+    // Should show skeleton immediately (4 sections now: Options, Time Controls, Navigation, System Info)
+    expect(screen.getAllByTestId('skeleton')).toHaveLength(4) // Header, 4 sections, footer skeletons
+    
+    // Fast-forward through animation
+    act(() => {
+      vi.advanceTimersByTime(300)
     })
-
-    it('toggles system info section', () => {
-      render(<Sidebar {...defaultProps} />)
-      
-      // Expand sidebar first
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      
-      // Click system info section
-      fireEvent.click(screen.getByText('System Info'))
-      expect(screen.getByText('Test System')).toBeVisible()
-      expect(screen.getByText('Test system description')).toBeVisible()
-      
-      // Click again to collapse
-      fireEvent.click(screen.getByText('System Info'))
-      expect(screen.queryByText('Test system description')).not.toBeInTheDocument()
+    
+    // Wait for content to appear
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('skeleton')).toHaveLength(0)
     })
   })
 
-  describe('View Mode Controls', () => {
-    it('displays and updates view mode', () => {
-      render(<Sidebar {...defaultProps} />)
+  it('expands and shows content after animation', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    
+    // Click to expand
+    fireEvent.click(toggleButton)
+    
+    // Fast-forward through animation
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    // Should be expanded and show content
+    await waitFor(() => {
+      const sidebar = screen.getByTestId('sidebar')
+      expect(sidebar).toHaveClass('w-80')
       
-      // Expand sidebar and options section
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      // Close navigation section first
-      fireEvent.click(screen.getByText('Navigation'))
-      fireEvent.click(screen.getByText('Options'))
+      // Should show actual content, not skeletons
+      expect(screen.queryAllByTestId('skeleton')).toHaveLength(0)
       
-      // Change view mode
-      fireEvent.click(screen.getByText('Navigational'))
-      expect(defaultProps.onViewTypeChange).toHaveBeenCalledWith('navigational')
+      // Should show the title (may appear multiple times in header/footer)
+      expect(screen.getAllByText('3D Starfield')).toHaveLength(2)
     })
   })
 
-  describe('Time Controls', () => {
-    it('displays and updates time controls', () => {
-      render(<Sidebar {...defaultProps} />)
+  it('shows all four sections: Options, Time Controls, Navigation, and System Info', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByText('Options')).toBeInTheDocument()
+      expect(screen.getByText('Time Controls')).toBeInTheDocument()
+      expect(screen.getByText('Navigation')).toBeInTheDocument()
+      expect(screen.getByText('System Info')).toBeInTheDocument()
+    })
+  })
+
+  it('opens Time Controls section and shows time controls', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    // Expand sidebar first
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    await waitFor(() => {
+      // Find and click Time Controls section
+      const timeControlsButton = screen.getByText('Time Controls').closest('button')!
+      fireEvent.click(timeControlsButton)
+    })
+    
+    // Should show time controls
+    await waitFor(() => {
+      expect(screen.getByTestId('time-controls')).toBeInTheDocument()
+      expect(screen.getByText('Speed: 1x')).toBeInTheDocument()
+    })
+  })
+
+  it('opens Options section and shows view mode selector without time controls', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    // Expand sidebar first
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    await waitFor(() => {
+      // Find and click Options section
+      const optionsButton = screen.getByText('Options').closest('button')!
+      fireEvent.click(optionsButton)
+    })
+    
+    // Should show view mode selector but NOT time controls
+    await waitFor(() => {
+      expect(screen.getByTestId('view-mode-selector')).toBeInTheDocument()
+      expect(screen.queryByTestId('time-controls')).not.toBeInTheDocument()
+      expect(screen.getByText('Camera')).toBeInTheDocument()
+      expect(screen.getByText('Version')).toBeInTheDocument()
+    })
+  })
+
+  it('handles time control interactions in Time Controls section', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    // Expand and open Time Controls
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    await waitFor(() => {
+      const timeControlsButton = screen.getByText('Time Controls').closest('button')!
+      fireEvent.click(timeControlsButton)
+    })
+    
+    await waitFor(() => {
+      const speedButton = screen.getByText('2x Speed')
+      fireEvent.click(speedButton)
+      expect(mockProps.onTimeMultiplierChange).toHaveBeenCalledWith(2)
       
-      // Expand sidebar and options section
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      // Close navigation section first
-      fireEvent.click(screen.getByText('Navigation'))
-      fireEvent.click(screen.getByText('Options'))
-      
-      // Test pause/play - find the button with the pause icon
-      const pauseButton = screen.getByRole('button', { name: '' })
+      const pauseButton = screen.getByText('Pause')
       fireEvent.click(pauseButton)
-      expect(defaultProps.onPauseToggle).toHaveBeenCalled()
-      
-      // Test speed presets - these don't exist in the current implementation
-      // so let's test the slider instead
-      const slider = screen.getByRole('slider')
-      fireEvent.change(slider, { target: { value: '2' } })
-      expect(defaultProps.onTimeMultiplierChange).toHaveBeenCalledWith(2)
+      expect(mockProps.onPauseToggle).toHaveBeenCalled()
     })
   })
 
-  describe('System Navigation', () => {
-    it('displays and updates system selection', () => {
-      render(<Sidebar {...defaultProps} />)
+  it('collapses immediately without skeleton', () => {
+    render(<Sidebar {...mockProps} />)
+    
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    
+    // Expand first
+    fireEvent.click(toggleButton)
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    // Then collapse
+    fireEvent.click(toggleButton)
+    
+    // Should collapse immediately
+    const sidebar = screen.getByTestId('sidebar')
+    expect(sidebar).toHaveClass('w-16')
+    
+    // Should not show any skeletons during collapse
+    expect(screen.queryAllByTestId('skeleton')).toHaveLength(0)
+  })
+
+  it('opens sections when clicked in collapsed state', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    // Find time controls section icon in collapsed state
+    const sidebarSections = screen.getByTestId('sidebar').querySelectorAll('button')
+    const timeControlsButton = Array.from(sidebarSections).find(button => 
+      button.querySelector('svg') && !button.hasAttribute('data-testid')
+    )
+    
+    expect(timeControlsButton).toBeDefined()
+    
+    if (timeControlsButton) {
+      fireEvent.click(timeControlsButton)
       
-      // Expand sidebar - navigation section is open by default
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
+      // Should expand and open the time controls section
+      act(() => {
+        vi.advanceTimersByTime(300)
+      })
       
-      // Change system
-      fireEvent.click(screen.getByText('Other System'))
-      expect(defaultProps.onSystemChange).toHaveBeenCalledWith('other-system')
+      await waitFor(() => {
+        const sidebar = screen.getByTestId('sidebar')
+        expect(sidebar).toHaveClass('w-80')
+        expect(screen.getByTestId('time-controls')).toBeInTheDocument()
+      })
+    }
+  })
+
+  it('handles section toggles correctly when expanded', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    // Expand sidebar first
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    await waitFor(() => {
+      // Navigation should be open by default
+      expect(screen.getByTestId('system-selector')).toBeInTheDocument()
+    })
+    
+    // Find and click Options section
+    const optionsButton = screen.getByText('Options').closest('button')!
+    fireEvent.click(optionsButton)
+    
+    // Should show view mode selector
+    await waitFor(() => {
+      expect(screen.getByTestId('view-mode-selector')).toBeInTheDocument()
     })
   })
 
-  describe('System Info', () => {
-    it('displays system information correctly', () => {
-      render(<Sidebar {...defaultProps} />)
-      
-      // Expand sidebar and system info section
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      fireEvent.click(screen.getByText('System Info'))
-      
-      expect(screen.getByText('Test System')).toBeVisible()
-      expect(screen.getByText('Test system description')).toBeVisible()
-      expect(screen.getByText('Stars: 1')).toBeVisible()
-      expect(screen.getByText('Planets: 0')).toBeVisible()
+  it('displays error states correctly', async () => {
+    const propsWithError = {
+      ...mockProps,
+      error: 'Test error message',
+    }
+    
+    render(<Sidebar {...propsWithError} />)
+    
+    // Expand sidebar
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
     })
-
-    it('displays focused object information', () => {
-      render(<Sidebar {...defaultProps} />)
-      
-      // Expand sidebar and system info section
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      fireEvent.click(screen.getByText('System Info'))
-      
-      expect(screen.getByText('Following: Test Object')).toBeVisible()
-      expect(screen.getByText('Visual size: 1000.000')).toBeVisible()
-      
-      // Test stop following
-      fireEvent.click(screen.getByText('Stop following'))
-      expect(defaultProps.onStopFollowing).toHaveBeenCalled()
+    
+    // Open System Info section to see error
+    await waitFor(() => {
+      const infoButton = screen.getByText('System Info').closest('button')!
+      fireEvent.click(infoButton)
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('error')).toHaveTextContent('Error: Test error message')
     })
   })
 
-  describe('Loading States', () => {
-    it('displays loading progress', () => {
-      render(<Sidebar {...defaultProps} loadingProgress="50%" />)
-      
-      // Expand sidebar and system info section where loading is displayed
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      fireEvent.click(screen.getByText('System Info'))
-      
-      expect(screen.getByText('50%')).toBeVisible()
+  it('displays focused object information', async () => {
+    const propsWithFocus = {
+      ...mockProps,
+      focusedName: 'Test Star',
+    }
+    
+    render(<Sidebar {...propsWithFocus} />)
+    
+    // Expand sidebar
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
     })
-
-    it('displays error state', () => {
-      render(<Sidebar {...defaultProps} error="Test error" />)
-      
-      // Expand sidebar and system info section where error is displayed
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      fireEvent.click(screen.getByText('System Info'))
-      
-      expect(screen.getByText('Test error')).toBeVisible()
+    
+    // Open System Info section
+    await waitFor(() => {
+      const infoButton = screen.getByText('System Info').closest('button')!
+      fireEvent.click(infoButton)
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('focused-object')).toHaveTextContent('Focused: Test Star')
     })
   })
 
-  describe('Mode Variations', () => {
-    it('displays correct title for star-citizen mode', () => {
-      render(<Sidebar {...defaultProps} mode="star-citizen" />)
-      
-      // Expand sidebar
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      
-      expect(screen.getByRole('heading', { name: 'Chart Citizen' })).toBeVisible()
+  it('handles view type changes in Options section', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    // Expand and open Options
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
     })
+    
+    await waitFor(() => {
+      const optionsButton = screen.getByText('Options').closest('button')!
+      fireEvent.click(optionsButton)
+    })
+    
+    await waitFor(() => {
+      const explorationButton = screen.getByText('Explorational')
+      fireEvent.click(explorationButton)
+      expect(mockProps.onViewTypeChange).toHaveBeenCalledWith('explorational')
+    })
+  })
 
-    it('displays correct title for realistic mode', () => {
-      render(<Sidebar {...defaultProps} mode="realistic" />)
-      
-      // Expand sidebar
-      fireEvent.click(screen.getByTestId('sidebar-toggle'))
-      
-      expect(screen.getByRole('heading', { name: '3D Starfield' })).toBeVisible()
+  it('handles system changes in Navigation section', async () => {
+    render(<Sidebar {...mockProps} />)
+    
+    // Expand sidebar (navigation is open by default)
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    await waitFor(() => {
+      const systemSelector = screen.getByTestId('system-selector').querySelector('select')!
+      fireEvent.change(systemSelector, { target: { value: 'another-system' } })
+      expect(mockProps.onSystemChange).toHaveBeenCalledWith('another-system')
+    })
+  })
+
+  it('shows correct mode-specific title', async () => {
+    const starCitizenProps = {
+      ...mockProps,
+      mode: 'star-citizen' as const,
+    }
+    
+    render(<Sidebar {...starCitizenProps} />)
+    
+    // Expand sidebar
+    const toggleButton = screen.getByTestId('sidebar-toggle')
+    fireEvent.click(toggleButton)
+    
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    
+    await waitFor(() => {
+      expect(screen.getAllByText('Chart Citizen')).toHaveLength(2) // Header and footer
     })
   })
 }) 

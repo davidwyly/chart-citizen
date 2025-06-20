@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
 import React from 'react'
-import { SystemViewer } from '../../system-viewer'
+import { SystemViewer } from '../../../system-viewer'
 
 // Mock drei and system data
 vi.mock('@react-three/drei', () => ({

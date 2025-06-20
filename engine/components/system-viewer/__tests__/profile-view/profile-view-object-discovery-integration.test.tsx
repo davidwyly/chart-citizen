@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import { Canvas } from '@react-three/fiber'
 import React from 'react'
 import * as THREE from 'three'
-import { UnifiedCameraController } from '../unified-camera-controller'
+import { UnifiedCameraController } from '../../unified-camera-controller'
 
 // Mock drei
 vi.mock('@react-three/drei', () => ({
@@ -30,7 +30,7 @@ vi.mock('../../../core/view-modes/compatibility', () => ({
 
 describe('Profile View Object Discovery Integration Tests', () => {
   describe('Bug Detection Tests - Would Have Caught Original Issue', () => {
-    it('should detect when camera controller cannot find any celestial objects', () => {
+    it('should detect when camera controller cannot find any celestial objects', async () => {
       // This test would have caught the traversal bug by checking if ANY objects are found
       
       let foundObjectsCount = 0
@@ -82,18 +82,18 @@ describe('Profile View Object Discovery Integration Tests', () => {
       
       render(<TestComponent />)
       
-      // Wait for effects to run
-      setTimeout(() => {
-        // This test would FAIL on the original buggy code because:
-        // 1. traversalAttempted would be false (camera.parent doesn't exist)
-        // 2. foundObjectsCount would be 0 (no objects found)
-        
-        // These assertions would catch the bug
-        expect(traversalAttempted).toBe(true) // Should attempt traversal
-        expect(foundObjectsCount).toBeGreaterThan(0) // Should find Moon as Earth's child
-        
-        console.log = originalConsoleLog
-      }, 100)
+      // Wait for effects to run using proper async/await
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // This test would FAIL on the original buggy code because:
+      // 1. traversalAttempted would be false (camera.parent doesn't exist)
+      // 2. foundObjectsCount would be 0 (no objects found)
+      
+      // These assertions would catch the bug
+      expect(traversalAttempted).toBe(true) // Should attempt traversal
+      expect(foundObjectsCount).toBeGreaterThan(0) // Should find Moon as Earth's child
+      
+      console.log = originalConsoleLog
     })
 
     it('should verify that hierarchical relationships can be discovered', () => {
