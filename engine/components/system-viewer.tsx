@@ -399,9 +399,8 @@ export function SystemViewer({ mode, systemId, onFocus, onSystemChange }: System
           onObjectFocus={enhancedObjectFocus}
           onObjectSelect={wrappedHandleObjectSelect}
           focusedName={focusedName || ""}
-          onBackToStarmap={() => {
-            // For modes that need to navigate back to starmap, we'll signal the parent
-            // Let the parent handle how to navigate back (could be null system selection)
+          onNavigateBack={() => {
+            // Generic navigation back - let the browser handle it
             if (window.history.length > 1) {
               window.history.back()
             }

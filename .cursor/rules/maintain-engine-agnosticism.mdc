@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When working on an app (star-citizen, realistic, celestial-viewer, etc.) ALWAYS maintain engine agnosticism. If you have to make changes to the /engine directory, it should have to work for all apps.

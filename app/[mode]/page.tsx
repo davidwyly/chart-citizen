@@ -1,6 +1,4 @@
-import { notFound } from "next/navigation"
-import { RealisticModeView } from "./realistic/realistic-mode-view"
-import { StarCitizenModeView } from "./star-citizen/star-citizen-mode-view"
+import { notFound, redirect } from "next/navigation"
 
 const validModes = ["realistic", "star-citizen"] as const
 type ValidMode = (typeof validModes)[number]
@@ -22,14 +20,8 @@ export default async function ModePage({ params }: PageProps) {
     notFound()
   }
 
-  switch (mode) {
-    case "realistic":
-      return <RealisticModeView />
-    case "star-citizen":
-      return <StarCitizenModeView />
-    default:
-      notFound()
-  }
+  // Redirect to starmap as the default entry point for each mode
+  redirect(`/${mode}/starmap`)
 }
 
 export function generateStaticParams() {

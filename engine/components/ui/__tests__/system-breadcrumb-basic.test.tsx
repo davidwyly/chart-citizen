@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { SystemBreadcrumb } from '../system-breadcrumb'
+import { SystemBreadcrumb } from '../../system-viewer/system-breadcrumb'
 import type * as THREE from 'three'
 
 // Create a minimal test to verify the component structure
@@ -41,9 +41,9 @@ describe('SystemBreadcrumb Component', () => {
     expect(screen.getByText('Test System')).toBeInTheDocument()
   })
 
-  it('should render the starmap navigation button', () => {
+  it('should render the back navigation button', () => {
     render(<SystemBreadcrumb {...mockProps} />)
-    expect(screen.getByText('← Starmap')).toBeInTheDocument()
+    expect(screen.getByText('← Back')).toBeInTheDocument()
   })
 
   it('should have moon sub-navigation functionality available', () => {

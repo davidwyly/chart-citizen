@@ -14,7 +14,7 @@ interface SystemBreadcrumbProps {
   onObjectFocus: (object: THREE.Object3D, name: string, visualSize?: number, radius?: number) => void
   onObjectSelect?: (objectId: string, object: THREE.Object3D, name: string) => void
   focusedName: string
-  onBackToStarmap?: () => void
+  onNavigateBack?: () => void
   onSystemNameClick?: () => void
   // Add function to get object sizing for consistency
   getObjectSizing?: (objectId: string) => { visualSize: number }
@@ -26,7 +26,7 @@ export function SystemBreadcrumb({
   onObjectFocus,
   onObjectSelect,
   focusedName,
-  onBackToStarmap,
+  onNavigateBack,
   onSystemNameClick,
   getObjectSizing,
 }: SystemBreadcrumbProps) {
@@ -138,12 +138,12 @@ export function SystemBreadcrumb({
     <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
       {/* Main breadcrumb */}
       <div className="flex items-center gap-3 px-4 py-2 backdrop-blur-md bg-white/10 rounded-full border border-white/20">
-        {/* Starmap Button */}
+        {/* Back Button */}
         <button
-          onClick={() => onBackToStarmap && onBackToStarmap()}
+          onClick={() => onNavigateBack && onNavigateBack()}
           className="flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 hover:bg-white/20 text-white/80 hover:text-white"
         >
-          <span className="text-xs font-medium">← Starmap</span>
+          <span className="text-xs font-medium">← Back</span>
         </button>
 
         {/* Separator */}

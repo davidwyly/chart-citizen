@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { SystemViewer } from "@/engine/components/system-viewer"
+import { ModeNavigation } from "@/components/ui/mode-navigation"
 import { engineSystemLoader } from "@/engine/system-loader"
 import type * as THREE from "three"
 // import type { ViewType } from "@lib/types/effects-level"
@@ -91,6 +92,7 @@ export function RealisticModeView() {
 
   return (
     <div className="relative w-full h-screen bg-black">
+      <ModeNavigation mode="realistic" />
       <SystemViewer
         mode="realistic"
         systemId={systemId}
