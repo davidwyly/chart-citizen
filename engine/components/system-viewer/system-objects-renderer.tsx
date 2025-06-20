@@ -123,11 +123,27 @@ export function SystemObjectsRenderer({
 
   // Calculate safe orbital mechanics for all objects using the async-aware hook
   const orbitalMechanics = useOrbitalMechanicsWithDefault(systemData.objects, viewType);
+  
+  // Debug: Log the current state of orbital mechanics
+  React.useEffect(() => {
+    console.log(`🔧 ORBITAL MECHANICS STATE UPDATE: viewType=${viewType}, mechanics size=${orbitalMechanics.size}`);
+    if (orbitalMechanics.size === 0) {
+      console.log('🚨 ORBITAL MECHANICS: No mechanics data available!');
+      console.log('🔍 Input objects:', systemData.objects.map(o => ({ id: o.id, name: o.name, classification: o.classification, orbit: o.orbit })));
+    }
+  }, [orbitalMechanics, viewType, systemData.objects]);
 
   // Get object sizing from orbital mechanics calculator
   const getObjectSizing = useCallback((objectId: string) => {
     const mechanicsData = orbitalMechanics.get(objectId);
     const visualSize = mechanicsData?.visualRadius || 1.0;
+    
+    // Debug logging for objects with missing orbital mechanics data
+    if (!mechanicsData && objectId !== 'sol') { // Don't spam for central star
+      console.log(`🔍 DEBUG: getObjectSizing for ${objectId} - no mechanics data, using fallback visual size: ${visualSize}`);
+    } else if (mechanicsData && mechanicsData.orbitDistance === undefined) {
+      console.log(`🔍 DEBUG: getObjectSizing for ${objectId} - mechanics data exists but no orbitDistance:`, mechanicsData);
+    }
     
     return {
       visualSize: visualSize,
@@ -240,6 +256,18 @@ export function SystemObjectsRenderer({
       // Get safe orbital distance from our orbital mechanics calculator
       const mechanicsData = orbitalMechanics.get(object.id);
       const semiMajorAxis = mechanicsData?.orbitDistance || 0;
+      
+      // Enhanced debugging for orbital distance issues
+      if (mechanicsData) {
+        console.log(`🔍 ORBITAL DEBUG: ${object.name} (${object.id}) mechanics data:`, mechanicsData);
+        if (mechanicsData.orbitDistance === undefined) {
+          console.warn(`⚠️  ORBITAL DEBUG: ${object.name} has mechanics data but missing orbitDistance!`);
+          console.log(`    Available keys:`, Object.keys(mechanicsData));
+        }
+      } else {
+        console.warn(`❌ ORBITAL DEBUG: ${object.name} (${object.id}) has no mechanics data in result set`);
+        console.log(`    Available mechanics entries:`, Array.from(orbitalMechanics.keys()));
+      }
       
       // Debug: Log orbital distance for objects with non-existent parents
       if (object.orbit?.parent === 'barycenter' || object.classification === 'star') {

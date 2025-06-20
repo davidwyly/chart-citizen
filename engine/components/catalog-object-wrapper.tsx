@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { StarRenderer } from '@/engine/renderers/stars/star-renderer'
-import { TerrestrialPlanetRenderer } from '@/engine/renderers/planets/terrestrial-planet-renderer'
-import { GasGiantRenderer } from '@/engine/renderers/planets/gas-giant-renderer'
+import { GeometryRendererFactory } from '@/engine/renderers/geometry-renderers'
 import type { CatalogObject } from '@/engine/system-loader'
+import type { GeometryRendererProps } from '@/engine/renderers/geometry-renderers/types'
 
 interface CatalogObjectWrapperProps {
   objectId: string
@@ -59,49 +58,47 @@ export function CatalogObjectWrapper({
   const engineObject = catalogObject.engine_object || ""
   const category = catalogObject.category || ""
 
-  // Star renderers
-  if (engineObject === "main-sequence-star" || engineObject === "red-dwarf-star" || engineObject === "variable-star") {
-    return (
-      <StarRenderer
-        catalogData={catalogObject}
-        position={position}
-        scale={scale}
-        shaderScale={shaderScale}
-        onFocus={onFocus}
-      />
-    )
-  }
+  // Convert catalogData to CelestialObject format for GeometryRendererFactory
+  const celestialObject = {
+    id: catalogObject.id || objectId,
+    name: catalogObject.name || 'unnamed',
+    classification: catalogObject.classification || (engineObject.includes('star') ? 'star' : category === 'gas_giant' ? 'planet' : 'planet'),
+    geometry_type: catalogObject.geometry_type || (
+      engineObject.includes('star') ? 'star' :
+      engineObject === 'gas-giant' || category === 'gas_giant' ? 'gas_giant' :
+      engineObject === 'terrestrial-planet' || category === 'terrestrial' ? 'terrestrial' :
+      'rocky'
+    ),
+    properties: {
+      ...catalogObject.physical,
+      ...catalogObject.features,
+      ...catalogObject.appearance
+    }
+  } as const
 
-  // Gas giant renderer
-  if (engineObject === "gas-giant" || category === "gas_giant") {
-    return (
-      <GasGiantRenderer
-        catalogData={catalogObject}
-        position={position}
-        scale={scale}
-        radius={scale}
-        onFocus={onFocus}
-      />
-    )
-  }
-
-  // Terrestrial planet renderers
+  // Use GeometryRendererFactory for all celestial objects
   if (
-    engineObject === "terrestrial-planet" ||
-    engineObject === "earth-like" ||
-    engineObject === "ice-planet" ||
-    engineObject === "volcanic-planet" ||
-    engineObject === "ocean-planet" ||
-    category === "terrestrial"
+    engineObject.includes('star') ||
+    engineObject === 'gas-giant' || category === 'gas_giant' ||
+    engineObject === 'terrestrial-planet' || category === 'terrestrial' ||
+    engineObject.includes('planet')
   ) {
-    return (
-      <TerrestrialPlanetRenderer
-        catalogData={catalogObject}
-        position={position}
-        scale={scale}
-        onFocus={onFocus}
-      />
-    )
+    const geometryProps: GeometryRendererProps = {
+      object: celestialObject,
+      scale: scale,
+      starPosition: [0, 0, 0],
+      position: position,
+      isSelected: false,
+      timeMultiplier: 1,
+      isPaused: false,
+      showLabel: true,
+      onHover: () => {},
+      onSelect,
+      onFocus,
+      registerRef: registerRef || (() => {})
+    }
+    
+    return <GeometryRendererFactory {...geometryProps} />
   }
 
   // Fallback renderer

@@ -1,13 +1,11 @@
 "use client"
 
 import React from "react"
-import { StarRenderer } from "@/engine/renderers/stars/star-renderer"
-import { PlanetRenderer } from "@/engine/renderers/planets/planet-renderer"
-import { GasGiantRenderer } from "@/engine/renderers/planets/gas-giant-renderer"
-import { TerrestrialPlanetRenderer } from "@/engine/renderers/planets/terrestrial-planet-renderer"
+import { GeometryRendererFactory } from "@/engine/renderers/geometry-renderers"
 import { Protostar } from "@/engine/components/3d-ui/protostar"
 import { DEFAULT_RENDERING_CONFIGURATION } from "@/engine/core/configuration/rendering-configuration"
 import type { SystemRendererProps } from "@/engine/renderers/renderer-props"
+import type { GeometryRendererProps } from "@/engine/renderers/geometry-renderers/types"
 
 // Object factory handles system-level rendering with full interaction support
 interface ObjectFactoryProps extends SystemRendererProps {
@@ -20,6 +18,32 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, s
   const engineObject = catalogData.engine_object || ""
   const category = catalogData.category || ""
   const features = catalogData.features || {}
+
+  // Debug: Log object data to understand why we're getting fallback renderer
+  console.log(`🏭 OBJECT FACTORY: Processing ${catalogData.id || 'unknown'} (${catalogData.name || 'unnamed'})`);
+  console.log(`   engineObject: "${engineObject}"`);
+  console.log(`   category: "${category}"`);
+  console.log(`   classification: "${catalogData.classification || 'none'}"`);
+  console.log(`   geometry_type: "${catalogData.geometry_type || 'none'}"`);
+  console.log(`   Full catalogData:`, catalogData);
+
+  // Convert catalogData to CelestialObject format for GeometryRendererFactory
+  const celestialObject = {
+    id: catalogData.id || 'unknown',
+    name: catalogData.name || 'unnamed',
+    classification: catalogData.classification || (engineObject.includes('star') ? 'star' : category === 'gas_giant' ? 'planet' : 'planet'),
+    geometry_type: catalogData.geometry_type || (
+      engineObject.includes('star') ? 'star' :
+      engineObject === 'gas-giant' || category === 'gas_giant' ? 'gas_giant' :
+      engineObject === 'terrestrial-planet' || category === 'terrestrial' ? 'terrestrial' :
+      'rocky'
+    ),
+    properties: {
+      ...catalogData.physical,
+      ...catalogData.features,
+      ...catalogData.appearance
+    }
+  } as const
 
   // Special objects
   if (engineObject === "protostar") {
@@ -38,75 +62,31 @@ export function ObjectFactory({ catalogData, position, scale, shaderScale = 1, s
     )
   }
 
-  // Star renderers
-  if (engineObject === "main-sequence-star" || engineObject === "red-dwarf-star" || engineObject === "variable-star") {
-    return (
-      <StarRenderer
-        catalogData={catalogData}
-        position={position}
-        scale={scale}
-        shaderScale={shaderScale}
-        onFocus={onFocus}
-        onHover={onHover}
-        onSelect={onSelect}
-      />
-    )
-  }
-
-  // Gas giant renderer
-  if (engineObject === "gas-giant" || category === "gas_giant") {
-    return (
-      <GasGiantRenderer
-        catalogData={catalogData}
-        position={position}
-        scale={scale}
-        radius={scale || 1}
-        onFocus={onFocus}
-      />
-    )
-  }
-
-  // Habitable planet renderer - for Earth-like worlds with advanced features
-  if (engineObject === "terrestrial-planet" && category === "habitable") {
-    return (
-      <TerrestrialPlanetRenderer 
-        catalogData={catalogData} 
-        position={position} 
-        scale={scale} 
-        onFocus={onFocus} 
-      />
-    )
-  }
-
-  // Terrestrial planet renderers - use the new shader for Earth-like planets
+  // Use GeometryRendererFactory for all celestial objects except special cases
   if (
-    (engineObject === "terrestrial-planet" &&
-      ((features.ocean_coverage && features.ocean_coverage > 0.5) || features.earth_like === true)) ||
-    engineObject === "earth-like"
+    engineObject.includes('star') ||
+    engineObject === 'gas-giant' || category === 'gas_giant' ||
+    engineObject === 'terrestrial-planet' || category === 'terrestrial' ||
+    engineObject.includes('planet') ||
+    engineObject.includes('moon') || category === 'moon'
   ) {
-    return <TerrestrialPlanetRenderer catalogData={catalogData} position={position} scale={scale} onFocus={onFocus} />
-  }
-
-  // Regular terrestrial planets
-  if (
-    engineObject === "terrestrial-planet" ||
-    engineObject === "ice-planet" ||
-    engineObject === "volcanic-planet" ||
-    engineObject === "ocean-planet" ||
-    category === "terrestrial"
-  ) {
-    return <PlanetRenderer catalogData={catalogData} position={position} scale={scale} onFocus={onFocus} />
-  }
-
-  // Moon renderers - use planet renderer for now
-  if (
-    engineObject === "terrestrial-moon" ||
-    engineObject === "ice-moon" ||
-    engineObject === "volcanic-moon" ||
-    engineObject === "atmospheric-moon" ||
-    category === "moon"
-  ) {
-    return <PlanetRenderer catalogData={catalogData} position={position} scale={scale} onFocus={onFocus} />
+    // Convert to GeometryRendererProps interface
+    const geometryProps: GeometryRendererProps = {
+      object: celestialObject,
+      scale: scale || 1,
+      starPosition: starPosition || [0, 0, 0],
+      position: position || [0, 0, 0],
+      isSelected: false,
+      timeMultiplier: 1,
+      isPaused: false,
+      showLabel: true,
+      onHover,
+      onSelect,
+      onFocus,
+      registerRef: () => {} // ObjectFactory doesn't need ref registration
+    }
+    
+    return <GeometryRendererFactory {...geometryProps} />
   }
 
   // Enhanced fallback renderer with warning (only log once)

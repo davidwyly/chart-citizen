@@ -23,6 +23,11 @@ export class OrbitPositionCalculator implements IOrbitPositionCalculator {
     visualSizes: Map<string, ScalingResult>,
     context: CalculationContext
   ): Promise<Map<string, number>> {
+    console.log(`🚀 ORBITAL POSITION CALCULATION START`);
+    console.log(`   Objects to process: ${objects.length}`);
+    console.log(`   Visual sizes available: ${visualSizes.size}`);
+    console.log(`   Objects:`, objects.map(o => `${o.id} (${o.name}, ${o.classification})`));
+    console.log(`   Visual sizes:`, Array.from(visualSizes.keys()));
     // Two-pass algorithm:
     // Pass 1: Calculate moon orbits (need parent planet sizes first)
     const moonOrbits = await this.calculateMoonOrbits(objects, visualSizes, context);
@@ -74,16 +79,25 @@ export class OrbitPositionCalculator implements IOrbitPositionCalculator {
     
     for (const moon of moons) {
       if (!moon.orbit || !('semi_major_axis' in moon.orbit)) {
+        console.warn(`🌙 MOON ORBIT SKIP: ${moon.name} (${moon.id}) - missing orbit or semi_major_axis`);
+        console.log(`    Orbit data:`, moon.orbit);
         continue;
       }
       
       const parentId = moon.orbit.parent;
-      if (!parentId) continue;
+      if (!parentId) {
+        console.warn(`🌙 MOON ORBIT SKIP: ${moon.name} (${moon.id}) - no parent ID`);
+        continue;
+      }
       
       const parentObject = objects.find(obj => obj.id === parentId);
       const parentSize = visualSizes.get(parentId);
       
-      if (!parentObject || !parentSize) continue;
+      if (!parentObject || !parentSize) {
+        console.warn(`🌙 MOON ORBIT SKIP: ${moon.name} (${moon.id}) - parent not found or no size`);
+        console.log(`    Parent ID: ${parentId}, Found object: ${!!parentObject}, Has size: ${!!parentSize}`);
+        continue;
+      }
       
       const orbitDistance = this.calculateScaledOrbitDistance(
         moon,
@@ -113,16 +127,27 @@ export class OrbitPositionCalculator implements IOrbitPositionCalculator {
     
     for (const planet of planets) {
       if (!planet.orbit || !('semi_major_axis' in planet.orbit)) {
+        console.warn(`🪐 PLANET ORBIT SKIP: ${planet.name} (${planet.id}) - missing orbit or semi_major_axis`);
+        console.log(`    Orbit data:`, planet.orbit);
         continue;
       }
       
       const parentId = planet.orbit.parent;
-      if (!parentId) continue;
+      if (!parentId) {
+        console.warn(`🪐 PLANET ORBIT SKIP: ${planet.name} (${planet.id}) - no parent ID`);
+        continue;
+      }
       
       const parentObject = objects.find(obj => obj.id === parentId);
       const parentSize = visualSizes.get(parentId);
       
-      if (!parentObject || !parentSize) continue;
+      if (!parentObject || !parentSize) {
+        console.warn(`🪐 PLANET ORBIT SKIP: ${planet.name} (${planet.id}) - parent not found or no size`);
+        console.log(`    Parent ID: ${parentId}, Found object: ${!!parentObject}, Has size: ${!!parentSize}`);
+        console.log(`    Available objects:`, objects.map(o => `${o.id} (${o.name})`));
+        console.log(`    Available sizes:`, Array.from(visualSizes.keys()));
+        continue;
+      }
       
       let orbitDistance: number;
       

@@ -8,3 +8,5 @@ You are using vitest for testing
 __tests__ folder for vitest tests in each root directory for files being tested in that folder
 
 If we ever update a file, update or create the appropriate test file to capture the change in functionality
+
+Run tests with --run so the console doesn't hang, e.g., npm test --run

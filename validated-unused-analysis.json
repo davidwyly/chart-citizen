@@ -1,0 +1,1762 @@
+{
+  "definitelyUnused": [
+    {
+      "file": "engine/backgrounds/space-nebula-background.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/3d-ui/protostar.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/3d-ui/smog-planet.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/3d-ui/space-curvature-effect.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/3d-ui/types.d.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/catalog-object-wrapper.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/debug-panel.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/debug-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/error-boundary.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/components/theme-provider.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/core/camera/camera-animations.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/core/engine-state.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/core/mode-system/types.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/lib/planet-customizer.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/enhanced-terrestrial-planet-material.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/gas-giant-material.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/planet-rings-material.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/storm-material.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/types.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/system-loader-enhanced.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/types/catalog.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/utils/coordinated-scaling-calculator.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/utils/dynamic-camera-calculator.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/utils/optimal-system-scaler.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/utils/safe-scaling-calculator.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "hooks/use-mobile.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "hooks/use-toast.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    },
+    {
+      "file": "lib/performance-monitor.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Unused",
+      "reasoning": "No imports found"
+    }
+  ],
+  "potentiallyUsed": [],
+  "configurationFiles": [
+    {
+      "file": "analyze-unused-code.js",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Build Script",
+      "reasoning": "Build/development utility script"
+    },
+    {
+      "file": "jest.setup.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Configuration",
+      "reasoning": "Used by build tools/frameworks, not directly imported"
+    },
+    {
+      "file": "middleware.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Configuration",
+      "reasoning": "Used by build tools/frameworks, not directly imported"
+    },
+    {
+      "file": "next-env.d.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Configuration",
+      "reasoning": "Used by build tools/frameworks, not directly imported"
+    },
+    {
+      "file": "next.config.js",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Configuration",
+      "reasoning": "Used by build tools/frameworks, not directly imported"
+    },
+    {
+      "file": "run-profile-tests.js",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Build Script",
+      "reasoning": "Build/development utility script"
+    },
+    {
+      "file": "scripts/convert-orbital-system.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Build Script",
+      "reasoning": "Build/development utility script"
+    },
+    {
+      "file": "scripts/standardize-radius-to-km.js",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Build Script",
+      "reasoning": "Build/development utility script"
+    },
+    {
+      "file": "scripts/verify-catalog-objects.js",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Build Script",
+      "reasoning": "Build/development utility script"
+    },
+    {
+      "file": "tailwind.config.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Configuration",
+      "reasoning": "Used by build tools/frameworks, not directly imported"
+    },
+    {
+      "file": "update-game-to-profile.js",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Build Script",
+      "reasoning": "Build/development utility script"
+    },
+    {
+      "file": "vitest.config.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Configuration",
+      "reasoning": "Used by build tools/frameworks, not directly imported"
+    },
+    {
+      "file": "vitest.setup.ts",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "Configuration",
+      "reasoning": "Used by build tools/frameworks, not directly imported"
+    }
+  ],
+  "uiComponents": [
+    {
+      "file": "components/ui/button.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "components/ui/toast.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/accordion.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/alert-dialog.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/alert.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/aspect-ratio.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/avatar.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/badge.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/breadcrumb.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/button.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/calendar.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/card.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/carousel.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/chart.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/checkbox.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/collapsible.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/command.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/context-menu.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/dialog.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/drawer.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/dropdown-menu.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/form.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/hover-card.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/input-otp.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/input.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/label.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/menubar.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/navigation-menu.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/pagination.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/popover.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/progress.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/radio-group.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/resizable.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/scroll-area.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/select.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/separator.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/sheet.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/slider.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/sonner.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/switch.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/table.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/tabs.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/textarea.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/toast.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/toaster.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/toggle-group.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/toggle.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    },
+    {
+      "file": "engine/components/ui/use-mobile.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "UI Component",
+      "reasoning": "May be used dynamically or in page components"
+    }
+  ],
+  "legacySystems": [
+    {
+      "file": "analyze-unused-code.js",
+      "reason": "Filename contains legacy indicator: unused",
+      "confidence": "high",
+      "type": "filename"
+    },
+    {
+      "file": "analyze-unused-code.js",
+      "reason": "Contains legacy marker: deprecated",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "app/page.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "app/realistic/starmap/__tests__/data-loader.test.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "app/realistic/starmap/__tests__/hex-grid-rendering.test.ts",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "app/realistic/starmap/components/starmap-canvas.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "app/realistic/starmap/page.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "app/realistic/starmap/services/basic-renderer.ts",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "app/realistic/starmap/services/data-loader.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "app/realistic/starmap/types/index.ts",
+      "reason": "Contains legacy marker: deprecated",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "app/test-orbit-spacing/page.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "app/test-profile/page.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "components/__tests__/interactive-object.test.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "components/starmap/starmap-viewer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "components/ui/toast.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/integration/adaptive-time-scaling-integration.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/integration/binary-star-system.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/integration/data-loading-pipeline.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/orbital-system.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/suites/mode-system-features.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/suites/object-types.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/suites/objects.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/suites/shaders.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/__tests__/system-loader.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/backgrounds/space-nebula-background.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/3d-ui/interactive-object.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/3d-ui/materials/space-curvature-material.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/3d-ui/protostar.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/3d-ui/space-curvature-effect.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/__tests__/interactive-object.test.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/__tests__/object-selection.test.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/__tests__/system-viewer.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/__tests__/celestial-viewer-geometry.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/__tests__/celestial-viewer.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/__tests__/habitable-planet-controls.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/__tests__/object-catalog.test.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/__tests__/object-controls.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/__tests__/shader-loading.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/celestial-viewer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/controls/shader-editor.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/controls/terrestrial-controls.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/object-catalog.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/object-controls.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/celestial-viewer/object-info.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/debug-panel.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/debug-viewer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/performance-warning.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/sidebar/sidebar.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/sidebar/system-info.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/skybox/starfield-material.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/skybox/starfield-skybox.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/camera/camera-controls.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/camera/camera-framing-consistency.test.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/camera/camera-framing-fix-verification.test.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/camera/camera-jitter.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/controls/orbit-controls.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/object-details-panel.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/performance/memory-leaks.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/performance/object-selection-performance.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/profile-view/profile-time-controls.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/__tests__/profile-view/profile-view-object-discovery-integration.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/components/__tests__/stellar-zones-integration.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/components/__tests__/stellar-zones.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/components/orbital-path/orbital-path.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/components/system-info-overlay.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/hooks/__tests__/use-object-selection-bugs.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/hooks/__tests__/use-object-selection.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/hooks/__tests__/use-profile-view.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/hooks/use-system-data.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/object-details-panel.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/planet-viewer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/system-info-overlay.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer/unified-camera-controller.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/system-viewer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/__tests__/system-breadcrumb-basic.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/alert-dialog.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/badge.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/card.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/command.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/context-menu.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/dialog.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/drawer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/dropdown-menu.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/input.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/menubar.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/select.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/sheet.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/textarea.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/components/ui/toast.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/camera/camera-animations.ts",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/configuration/__tests__/rendering-configuration.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/configuration/__tests__/side-effect-detection.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/configuration/rendering-configuration.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/events/__tests__/event-driven-architecture.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/events/coordination-handlers.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/events/event-types.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/events/index.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/mode-system/__tests__/mode-features.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/mode-system/mode-system.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/pipeline/index.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/pipeline/pipeline-orchestrator.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/view-modes/__tests__/integration.test.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/view-modes/compatibility.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/view-modes/index.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/view-modes/strategies/profile-strategy.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/view-modes/strategies/view-mode-strategy.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "reason": "Contains legacy marker: deprecated",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/hooks/__tests__/use-stellar-zones.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/hooks/use-stellar-zones.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/lib/__tests__/performance-monitor.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/lib/planet-customizer.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/__tests__/rendering-artifacts.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/belt-renderer.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/geometry-logic.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/geometry-renderer-factory.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/integration.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/orbital-mechanics.test.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/star-cursor-behavior.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/star-renderer.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/__tests__/terrestrial-renderer.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/belt-renderer.tsx",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/exotic-renderer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/asteroid-material.ts",
+      "reason": "Contains legacy marker: copy",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/enhanced-terrestrial-planet-material.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/star-renderer.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/terrestrial-renderer.tsx",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/__tests__/error-reporter.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/astronomical-scaling/__tests__/astronomical-scaling.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/astronomical-scaling/astronomical-scaling-service.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/container/service-container.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/__tests__/service-layer.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/cache-manager.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/collision-detection-service.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/hierarchy-manager.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/orbit-position-calculator.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/orbital-calculation-service.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/validation-service.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/services/orbital-calculations/visual-size-calculator.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/system-loader-enhanced.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/types/__tests__/orbital-system-bugs.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/types/catalog.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/types/mode.ts",
+      "reason": "Contains legacy marker: deprecated",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "engine/types/orbital-system.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/adaptive-time-scaling.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/moon-navigation-persistence.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/moon-orbital-mechanics-validation.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-collision-detection.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-mechanics-calculator.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-mechanics-core.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-mechanics-flow.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-mechanics-integration.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-mechanics-regression.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-mechanics-scaling.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/orbital-mechanics-validation.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/__tests__/orbital-mechanics/system-orbital-mechanics-integration.test.tsx",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/adaptive-time-scaling.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "engine/utils/dynamic-camera-calculator.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "lib/__tests__/utils-bugs.test.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "lib/__tests__/utils.test.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "lib/performance-monitor.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "lib/utils.ts",
+      "reason": "Contains legacy marker: old",
+      "confidence": "medium",
+      "type": "content"
+    },
+    {
+      "file": "scripts/convert-orbital-system.ts",
+      "reason": "Contains legacy marker: legacy",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "validate-unused-analysis.js",
+      "reason": "Filename contains legacy indicator: unused",
+      "confidence": "high",
+      "type": "filename"
+    },
+    {
+      "file": "validate-unused-analysis.js",
+      "reason": "Contains legacy marker: deprecated",
+      "confidence": "high",
+      "type": "content"
+    },
+    {
+      "file": "vitest.config.ts",
+      "reason": "Contains legacy marker: temp",
+      "confidence": "medium",
+      "type": "content"
+    }
+  ],
+  "duplicateImplementations": [
+    {
+      "basename": "use-mobile.tsx",
+      "duplicateFiles": [
+        "engine/components/ui/use-mobile.tsx",
+        "hooks/use-mobile.tsx"
+      ],
+      "contentHash": "-tiolju",
+      "confidence": "high",
+      "reasoning": "Identical file content"
+    }
+  ],
+  "systemComponents": [
+    {
+      "file": "components/starmap/starmap-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    },
+    {
+      "file": "components/system-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    },
+    {
+      "file": "engine/components/starmap/starmap-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    },
+    {
+      "file": "engine/components/system-viewer/components/system-info-overlay.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    },
+    {
+      "file": "engine/components/system-viewer/planet-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    },
+    {
+      "file": "engine/components/system-viewer/profile-layout-controller.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    },
+    {
+      "file": "engine/components/system-viewer/system-info-overlay.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    },
+    {
+      "file": "engine/components/system-viewer/system-navigation-bar.tsx",
+      "reason": "No imports found",
+      "confidence": "high",
+      "category": "System Component",
+      "reasoning": "May be used as entry points or dynamically imported"
+    }
+  ]
+}

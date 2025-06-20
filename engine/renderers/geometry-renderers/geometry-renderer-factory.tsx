@@ -20,7 +20,49 @@ import { ExoticRenderer } from "./exotic-renderer"
  */
 export function GeometryRendererFactory(props: GeometryRendererProps) {
   const { object } = props
-  const geometryType: GeometryType = object.geometry_type
+  let geometryType: GeometryType = object.geometry_type
+
+  // Debug: Log what geometry types we're actually receiving
+  console.log(`🔧 GEOMETRY FACTORY: ${object.name} (${object.id})`);
+  console.log(`   geometry_type: "${geometryType}"`);
+  console.log(`   classification: "${object.classification}"`);
+  console.log(`   Available geometry types: terrestrial, rocky, gas_giant, star, compact, exotic, ring, belt, none`);
+
+  // Fallback mapping for missing or incorrect geometry types based on classification
+  if (!geometryType || geometryType === undefined) {
+    console.warn(`⚠️  No geometry_type for ${object.name}, inferring from classification: ${object.classification}`);
+    
+    switch (object.classification) {
+      case 'star':
+        geometryType = 'star';
+        break;
+      case 'planet':
+        // Determine if gas giant or terrestrial based on properties
+        if (object.properties?.mass && object.properties.mass > 5.972e25) { // Heavier than ~10 Earths
+          geometryType = 'gas_giant';
+        } else {
+          geometryType = 'terrestrial';
+        }
+        break;
+      case 'moon':
+        geometryType = 'rocky';
+        break;
+      case 'asteroid':
+        geometryType = 'rocky';
+        break;
+      case 'asteroid_belt':
+        geometryType = 'belt';
+        break;
+      case 'dwarf_planet':
+        geometryType = 'rocky';
+        break;
+      default:
+        geometryType = 'rocky'; // Safe fallback
+        break;
+    }
+    
+    console.log(`   → Inferred geometry_type: "${geometryType}"`);
+  }
 
   switch (geometryType) {
     case "terrestrial":

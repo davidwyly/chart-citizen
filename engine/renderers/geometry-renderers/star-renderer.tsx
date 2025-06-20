@@ -1,10 +1,13 @@
 "use client"
 
 import React, { useRef, useMemo } from "react"
-import { useFrame } from "@react-three/fiber"
+import { extend, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { InteractiveObject } from "../../components/3d-ui/interactive-object"
+import { SunMaterial } from "./materials/sun-material"
 import type { GeometryRendererProps } from "./types"
+
+extend({ SunMaterial })
 
 /**
  * Star renderer for stellar bodies with emissive materials and corona effects
@@ -27,6 +30,7 @@ export function StarRenderer({
   const starRef = useRef<THREE.Group>(null)
   const coreRef = useRef<THREE.Mesh>(null)
   const coronaRef = useRef<THREE.Mesh>(null)
+  const sunMatRef = useRef<THREE.ShaderMaterial>(null!)
 
   const { properties } = object
   const radius = scale
@@ -75,51 +79,7 @@ export function StarRenderer({
     return new THREE.Color(r, g, b)
   }, [colorTemperature])
 
-  // Create star surface texture with solar activity
-  const starTexture = useMemo(() => {
-    const canvas = document.createElement("canvas")
-    canvas.width = 512
-    canvas.height = 256
-    const ctx = canvas.getContext("2d")!
-
-    // Base stellar color
-    ctx.fillStyle = `rgb(${starColor.r * 255}, ${starColor.g * 255}, ${starColor.b * 255})`
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    // Add solar flares and activity
-    if (solarActivity > 0.2) {
-      const flareCount = Math.floor(solarActivity * 10)
-      for (let i = 0; i < flareCount; i++) {
-        const x = Math.random() * canvas.width
-        const y = Math.random() * canvas.height
-        const size = 10 + Math.random() * 30
-        
-        const gradient = ctx.createRadialGradient(x, y, 0, x, y, size)
-        gradient.addColorStop(0, `rgb(${Math.min(255, starColor.r * 255 + 100)}, ${Math.min(255, starColor.g * 255 + 50)}, ${starColor.b * 255})`)
-        gradient.addColorStop(1, "transparent")
-        
-        ctx.fillStyle = gradient
-        ctx.beginPath()
-        ctx.arc(x, y, size, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    }
-
-    // Add granulation pattern
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      const variation = (Math.random() - 0.5) * solarActivity * 30
-      imageData.data[i] = Math.max(0, Math.min(255, imageData.data[i] + variation))
-      imageData.data[i + 1] = Math.max(0, Math.min(255, imageData.data[i + 1] + variation * 0.5))
-      imageData.data[i + 2] = Math.max(0, Math.min(255, imageData.data[i + 2] + variation * 0.2))
-    }
-    ctx.putImageData(imageData, 0, 0)
-
-    const texture = new THREE.CanvasTexture(canvas)
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    return texture
-  }, [starColor, solarActivity])
+  // No longer need canvas texture - using SunMaterial shader instead
 
   // Variable brightness for variable stars
   const [currentLuminosity, setCurrentLuminosity] = React.useState(luminosity)
@@ -133,16 +93,14 @@ export function StarRenderer({
       setCurrentLuminosity(luminosity + variation)
     }
 
-    // Update custom shader uniforms if present
-    if (coreRef.current?.material && (coreRef.current.material as any).uniforms) {
-      const uniforms = (coreRef.current.material as any).uniforms
-      if (uniforms.time) uniforms.time.value = time
-      if (uniforms.intensity) uniforms.intensity.value = currentLuminosity
-      if (uniforms.luminosity) uniforms.luminosity.value = currentLuminosity
-      if (uniforms.colorTemperature) uniforms.colorTemperature.value = colorTemperature
-      if (uniforms.solarActivity) uniforms.solarActivity.value = solarActivity
-      if (uniforms.coronaThickness) uniforms.coronaThickness.value = coronaThickness
-      if (uniforms.variability) uniforms.variability.value = variability
+    // Update SunMaterial shader uniforms
+    if (sunMatRef.current) {
+      sunMatRef.current.uniforms.time.value = time
+      sunMatRef.current.uniforms.coreColor.value = starColor
+      sunMatRef.current.uniforms.variableStar.value = variability > 0.3
+      sunMatRef.current.uniforms.variablePeriod.value = 4.0 / (variability + 0.1)
+      sunMatRef.current.uniforms.variableAmplitude.value = variability * 0.4
+      sunMatRef.current.uniforms.flowSpeed.value = solarActivity + 0.5
     }
 
     // Rotate star slowly
@@ -182,37 +140,19 @@ export function StarRenderer({
       showLabel={showLabel}
     >
       <group ref={starRef}>
-        {/* Star core */}
+        {/* Star core with advanced SunMaterial shader */}
         <mesh ref={coreRef}>
-        <sphereGeometry args={[radius, 64, 64]} />
-        {/* Use custom shader if available, otherwise use default star material */}
-        {(object as any).customShaders ? (
-          <shaderMaterial
-            vertexShader={(object as any).customShaders.vertex}
-            fragmentShader={(object as any).customShaders.fragment}
-            uniforms={{
-              time: { value: 0 },
-              intensity: { value: currentLuminosity },
-              speed: { value: 1.0 },
-              distortion: { value: 1.0 },
-              // Star specific uniforms
-              colorTemperature: { value: colorTemperature },
-              luminosity: { value: currentLuminosity },
-              solarActivity: { value: solarActivity },
-              coronaThickness: { value: coronaThickness },
-              variability: { value: variability }
-            }}
-            transparent
+          <sphereGeometry args={[radius, 64, 64]} />
+          <sunMaterial
+            ref={sunMatRef}
+            time={0}
+            coreColor={starColor}
+            variableStar={variability > 0.3}
+            variablePeriod={4.0 / (variability + 0.1)}
+            variableAmplitude={variability * 0.4}
+            flowSpeed={solarActivity + 0.5}
           />
-        ) : (
-          <meshStandardMaterial
-            map={starTexture}
-            color={starColor}
-            emissive={starColor}
-            emissiveIntensity={currentLuminosity}
-          />
-        )}
-      </mesh>
+        </mesh>
 
       {/* Corona effect */}
       {coronaThickness > 0 && (

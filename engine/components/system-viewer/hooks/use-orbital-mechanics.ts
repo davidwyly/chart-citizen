@@ -60,6 +60,18 @@ export function useOrbitalMechanics(
         // Only update if this is still the latest calculation and not cancelled
         if (!isCancelled && currentCalculationId === calculationIdRef.current) {
           console.log(`📊 ORBITAL MECHANICS RESULT received, size: ${result.size}`);
+          
+          // Debug: Log each result to see what's being returned
+          if (result.size === 0) {
+            console.warn('🚨 ORBITAL MECHANICS: Empty result received!');
+            console.log('🔍 Input objects:', objects.map(o => ({ id: o.id, name: o.name, classification: o.classification, orbit: o.orbit })));
+          } else {
+            console.log('🔍 ORBITAL MECHANICS: Results breakdown:');
+            for (const [objectId, mechanics] of result) {
+              console.log(`   📍 ${objectId}:`, mechanics);
+            }
+          }
+          
           setMechanics(result);
           setIsLoading(false);
         }
@@ -69,6 +81,8 @@ export function useOrbitalMechanics(
         // Only update error if this is still the latest calculation and not cancelled
         if (!isCancelled && currentCalculationId === calculationIdRef.current) {
           console.error('Failed to calculate orbital mechanics:', err);
+          console.error('Stack trace:', err.stack);
+          console.log('🔍 Input objects that failed:', objects.map(o => ({ id: o.id, name: o.name, classification: o.classification, orbit: o.orbit })));
           setError(err.message);
           setIsLoading(false);
         }

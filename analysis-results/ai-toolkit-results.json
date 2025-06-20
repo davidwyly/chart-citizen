@@ -1,0 +1,2641 @@
+{
+  "command": "test-gaps",
+  "target": null,
+  "analyses": {
+    "testGaps": {
+      "summary": {
+        "totalFiles": 238,
+        "testedFiles": 76,
+        "untestedFiles": 162,
+        "coverageGaps": []
+      },
+      "untestedFiles": [
+        {
+          "file": "engine/components/debug-panel.tsx",
+          "type": "component",
+          "complexity": 5035,
+          "criticalityScore": 11,
+          "size": 142,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "app/realistic/starmap/components/starmap-canvas.tsx",
+          "type": "component",
+          "complexity": 9750,
+          "criticalityScore": 11,
+          "size": 314,
+          "exports": 1,
+          "functions": 8,
+          "components": 4,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "scripts/test-gap-analyzer.js",
+          "type": "component",
+          "complexity": 28494,
+          "criticalityScore": 10,
+          "size": 858,
+          "exports": 0,
+          "functions": 0,
+          "components": 0,
+          "reason": "No exports - may not need tests"
+        },
+        {
+          "file": "engine/components/debug-viewer.tsx",
+          "type": "component",
+          "complexity": 8483,
+          "criticalityScore": 10,
+          "size": 282,
+          "exports": 1,
+          "functions": 5,
+          "components": 12,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/catalog-object-wrapper.tsx",
+          "type": "component",
+          "complexity": 3880,
+          "criticalityScore": 10,
+          "size": 123,
+          "exports": 1,
+          "functions": 3,
+          "components": 3,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/carousel.tsx",
+          "type": "component",
+          "complexity": 6233,
+          "criticalityScore": 10,
+          "size": 263,
+          "exports": 7,
+          "functions": 3,
+          "components": 11,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "scripts/context-tracer.js",
+          "type": "component",
+          "complexity": 28378,
+          "criticalityScore": 9,
+          "size": 866,
+          "exports": 0,
+          "functions": 0,
+          "components": 0,
+          "reason": "No exports - may not need tests"
+        },
+        {
+          "file": "engine/components/error-boundary.tsx",
+          "type": "component",
+          "complexity": 7640,
+          "criticalityScore": 9,
+          "size": 267,
+          "exports": 4,
+          "functions": 1,
+          "components": 11,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/starmap/starmap-viewer.tsx",
+          "type": "component",
+          "complexity": 6073,
+          "criticalityScore": 9,
+          "size": 184,
+          "exports": 1,
+          "functions": 4,
+          "components": 7,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/3d-ui/space-curvature-effect.tsx",
+          "type": "component",
+          "complexity": 3598,
+          "criticalityScore": 9,
+          "size": 117,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/core/events/react-integration.ts",
+          "type": "component",
+          "complexity": 11909,
+          "criticalityScore": 8,
+          "size": 439,
+          "exports": 9,
+          "functions": 11,
+          "components": 3,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/use-mobile.tsx",
+          "type": "component",
+          "complexity": 567,
+          "criticalityScore": 8,
+          "size": 20,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/menubar.tsx",
+          "type": "component",
+          "complexity": 7990,
+          "criticalityScore": 8,
+          "size": 237,
+          "exports": 17,
+          "functions": 1,
+          "components": 20,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/dropdown-menu.tsx",
+          "type": "component",
+          "complexity": 7435,
+          "criticalityScore": 8,
+          "size": 201,
+          "exports": 16,
+          "functions": 1,
+          "components": 19,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/context-menu.tsx",
+          "type": "component",
+          "complexity": 7262,
+          "criticalityScore": 8,
+          "size": 201,
+          "exports": 16,
+          "functions": 1,
+          "components": 19,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/chart.tsx",
+          "type": "component",
+          "complexity": 10493,
+          "criticalityScore": 8,
+          "size": 366,
+          "exports": 8,
+          "functions": 3,
+          "components": 9,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/system-navigation-bar.tsx",
+          "type": "component",
+          "complexity": 5694,
+          "criticalityScore": 8,
+          "size": 137,
+          "exports": 1,
+          "functions": 3,
+          "components": 5,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/profile-layout-controller.tsx",
+          "type": "component",
+          "complexity": 4758,
+          "criticalityScore": 8,
+          "size": 149,
+          "exports": 1,
+          "functions": 2,
+          "components": 6,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/skybox/starfield-material.ts",
+          "type": "component",
+          "complexity": 11492,
+          "criticalityScore": 8,
+          "size": 292,
+          "exports": 1,
+          "functions": 1,
+          "components": 0,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/3d-ui/protostar.tsx",
+          "type": "component",
+          "complexity": 7410,
+          "criticalityScore": 8,
+          "size": 212,
+          "exports": 1,
+          "functions": 1,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/toast.tsx",
+          "type": "component",
+          "complexity": 4861,
+          "criticalityScore": 7,
+          "size": 130,
+          "exports": 10,
+          "functions": 0,
+          "components": 7,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/table.tsx",
+          "type": "component",
+          "complexity": 2767,
+          "criticalityScore": 7,
+          "size": 118,
+          "exports": 9,
+          "functions": 0,
+          "components": 13,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/sheet.tsx",
+          "type": "component",
+          "complexity": 4283,
+          "criticalityScore": 7,
+          "size": 141,
+          "exports": 11,
+          "functions": 2,
+          "components": 11,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/select.tsx",
+          "type": "component",
+          "complexity": 5631,
+          "criticalityScore": 7,
+          "size": 161,
+          "exports": 11,
+          "functions": 0,
+          "components": 13,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/pagination.tsx",
+          "type": "component",
+          "complexity": 2753,
+          "criticalityScore": 7,
+          "size": 118,
+          "exports": 8,
+          "functions": 5,
+          "components": 10,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/navigation-menu.tsx",
+          "type": "component",
+          "complexity": 5048,
+          "criticalityScore": 7,
+          "size": 129,
+          "exports": 10,
+          "functions": 0,
+          "components": 9,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/form.tsx",
+          "type": "component",
+          "complexity": 4532,
+          "criticalityScore": 7,
+          "size": 193,
+          "exports": 9,
+          "functions": 1,
+          "components": 17,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/drawer.tsx",
+          "type": "component",
+          "complexity": 3023,
+          "criticalityScore": 7,
+          "size": 119,
+          "exports": 11,
+          "functions": 3,
+          "components": 11,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/dialog.tsx",
+          "type": "component",
+          "complexity": 3851,
+          "criticalityScore": 7,
+          "size": 123,
+          "exports": 11,
+          "functions": 2,
+          "components": 11,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/command.tsx",
+          "type": "component",
+          "complexity": 5267,
+          "criticalityScore": 7,
+          "size": 157,
+          "exports": 10,
+          "functions": 2,
+          "components": 12,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/breadcrumb.tsx",
+          "type": "component",
+          "complexity": 2714,
+          "criticalityScore": 7,
+          "size": 116,
+          "exports": 8,
+          "functions": 2,
+          "components": 10,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/alert-dialog.tsx",
+          "type": "component",
+          "complexity": 4436,
+          "criticalityScore": 7,
+          "size": 142,
+          "exports": 12,
+          "functions": 2,
+          "components": 12,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/components/zoom-tracker.tsx",
+          "type": "component",
+          "complexity": 719,
+          "criticalityScore": 7,
+          "size": 30,
+          "exports": 1,
+          "functions": 3,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/celestial-viewer/object-info.tsx",
+          "type": "component",
+          "complexity": 8383,
+          "criticalityScore": 7,
+          "size": 190,
+          "exports": 1,
+          "functions": 1,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/3d-ui/materials/terrestrial-planet-material.ts",
+          "type": "component",
+          "complexity": 3946,
+          "criticalityScore": 7,
+          "size": 150,
+          "exports": 1,
+          "functions": 0,
+          "components": 0,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/3d-ui/materials/space-curvature-material.ts",
+          "type": "component",
+          "complexity": 4591,
+          "criticalityScore": 7,
+          "size": 134,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/3d-ui/materials/smog-planet-material.ts",
+          "type": "component",
+          "complexity": 3972,
+          "criticalityScore": 7,
+          "size": 140,
+          "exports": 1,
+          "functions": 0,
+          "components": 0,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "scripts/refactor-impact-analyzer.js",
+          "type": "component",
+          "complexity": 21332,
+          "criticalityScore": 6,
+          "size": 664,
+          "exports": 2,
+          "functions": 0,
+          "components": 0,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "hooks/use-toast.ts",
+          "type": "component",
+          "complexity": 3962,
+          "criticalityScore": 6,
+          "size": 195,
+          "exports": 3,
+          "functions": 9,
+          "components": 4,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/theme-provider.tsx",
+          "type": "component",
+          "complexity": 294,
+          "criticalityScore": 6,
+          "size": 12,
+          "exports": 1,
+          "functions": 1,
+          "components": 2,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/tooltip.tsx",
+          "type": "component",
+          "complexity": 1161,
+          "criticalityScore": 6,
+          "size": 31,
+          "exports": 4,
+          "functions": 0,
+          "components": 4,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/toggle.tsx",
+          "type": "component",
+          "complexity": 1543,
+          "criticalityScore": 6,
+          "size": 46,
+          "exports": 2,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/toggle-group.tsx",
+          "type": "component",
+          "complexity": 2544,
+          "criticalityScore": 6,
+          "size": 77,
+          "exports": 2,
+          "functions": 1,
+          "components": 3,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/toaster.tsx",
+          "type": "component",
+          "complexity": 788,
+          "criticalityScore": 6,
+          "size": 36,
+          "exports": 1,
+          "functions": 1,
+          "components": 7,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/textarea.tsx",
+          "type": "component",
+          "complexity": 691,
+          "criticalityScore": 6,
+          "size": 23,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/tabs.tsx",
+          "type": "component",
+          "complexity": 1899,
+          "criticalityScore": 6,
+          "size": 56,
+          "exports": 4,
+          "functions": 0,
+          "components": 4,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/switch.tsx",
+          "type": "component",
+          "complexity": 1156,
+          "criticalityScore": 6,
+          "size": 30,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/sonner.tsx",
+          "type": "component",
+          "complexity": 896,
+          "criticalityScore": 6,
+          "size": 32,
+          "exports": 1,
+          "functions": 1,
+          "components": 2,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/slider.tsx",
+          "type": "component",
+          "complexity": 1093,
+          "criticalityScore": 6,
+          "size": 29,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/skeleton.tsx",
+          "type": "component",
+          "complexity": 263,
+          "criticalityScore": 6,
+          "size": 16,
+          "exports": 1,
+          "functions": 1,
+          "components": 2,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/separator.tsx",
+          "type": "component",
+          "complexity": 772,
+          "criticalityScore": 6,
+          "size": 32,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/scroll-area.tsx",
+          "type": "component",
+          "complexity": 1658,
+          "criticalityScore": 6,
+          "size": 49,
+          "exports": 2,
+          "functions": 0,
+          "components": 2,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/resizable.tsx",
+          "type": "component",
+          "complexity": 1725,
+          "criticalityScore": 6,
+          "size": 46,
+          "exports": 3,
+          "functions": 2,
+          "components": 4,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/radio-group.tsx",
+          "type": "component",
+          "complexity": 1483,
+          "criticalityScore": 6,
+          "size": 45,
+          "exports": 2,
+          "functions": 0,
+          "components": 3,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/progress.tsx",
+          "type": "component",
+          "complexity": 793,
+          "criticalityScore": 6,
+          "size": 29,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/popover.tsx",
+          "type": "component",
+          "complexity": 1246,
+          "criticalityScore": 6,
+          "size": 32,
+          "exports": 3,
+          "functions": 0,
+          "components": 3,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/label.tsx",
+          "type": "component",
+          "complexity": 726,
+          "criticalityScore": 6,
+          "size": 27,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/input.tsx",
+          "type": "component",
+          "complexity": 793,
+          "criticalityScore": 6,
+          "size": 23,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/input-otp.tsx",
+          "type": "component",
+          "complexity": 2170,
+          "criticalityScore": 6,
+          "size": 72,
+          "exports": 4,
+          "functions": 0,
+          "components": 6,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/hover-card.tsx",
+          "type": "component",
+          "complexity": 1200,
+          "criticalityScore": 6,
+          "size": 30,
+          "exports": 3,
+          "functions": 0,
+          "components": 3,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/collapsible.tsx",
+          "type": "component",
+          "complexity": 331,
+          "criticalityScore": 6,
+          "size": 12,
+          "exports": 3,
+          "functions": 0,
+          "components": 3,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/checkbox.tsx",
+          "type": "component",
+          "complexity": 1072,
+          "criticalityScore": 6,
+          "size": 31,
+          "exports": 1,
+          "functions": 0,
+          "components": 2,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/card.tsx",
+          "type": "component",
+          "complexity": 1860,
+          "criticalityScore": 6,
+          "size": 80,
+          "exports": 6,
+          "functions": 0,
+          "components": 7,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/calendar.tsx",
+          "type": "component",
+          "complexity": 2589,
+          "criticalityScore": 6,
+          "size": 67,
+          "exports": 2,
+          "functions": 3,
+          "components": 4,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/button.tsx",
+          "type": "component",
+          "complexity": 1903,
+          "criticalityScore": 6,
+          "size": 57,
+          "exports": 3,
+          "functions": 0,
+          "components": 3,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/badge.tsx",
+          "type": "component",
+          "complexity": 1130,
+          "criticalityScore": 6,
+          "size": 37,
+          "exports": 3,
+          "functions": 1,
+          "components": 2,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/ui/avatar.tsx",
+          "type": "component",
+          "complexity": 1421,
+          "criticalityScore": 6,
+          "size": 51,
+          "exports": 3,
+          "functions": 0,
+          "components": 3,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/aspect-ratio.tsx",
+          "type": "component",
+          "complexity": 156,
+          "criticalityScore": 6,
+          "size": 8,
+          "exports": 1,
+          "functions": 0,
+          "components": 1,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/alert.tsx",
+          "type": "component",
+          "complexity": 1586,
+          "criticalityScore": 6,
+          "size": 60,
+          "exports": 3,
+          "functions": 0,
+          "components": 6,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/ui/accordion.tsx",
+          "type": "component",
+          "complexity": 1993,
+          "criticalityScore": 6,
+          "size": 59,
+          "exports": 4,
+          "functions": 0,
+          "components": 5,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/system-viewer/system-info-overlay.tsx",
+          "type": "component",
+          "complexity": 3156,
+          "criticalityScore": 6,
+          "size": 90,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/planet-viewer.tsx",
+          "type": "component",
+          "complexity": 2834,
+          "criticalityScore": 6,
+          "size": 81,
+          "exports": 1,
+          "functions": 2,
+          "components": 10,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/loading-states.tsx",
+          "type": "component",
+          "complexity": 1440,
+          "criticalityScore": 6,
+          "size": 48,
+          "exports": 2,
+          "functions": 2,
+          "components": 2,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/components/system-info-overlay.tsx",
+          "type": "component",
+          "complexity": 2730,
+          "criticalityScore": 6,
+          "size": 75,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/components/scene-lighting.tsx",
+          "type": "component",
+          "complexity": 1351,
+          "criticalityScore": 6,
+          "size": 42,
+          "exports": 1,
+          "functions": 1,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/system-viewer/components/back-button.tsx",
+          "type": "component",
+          "complexity": 414,
+          "criticalityScore": 6,
+          "size": 19,
+          "exports": 1,
+          "functions": 2,
+          "components": 2,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/skybox/starfield-skybox.tsx",
+          "type": "component",
+          "complexity": 1745,
+          "criticalityScore": 6,
+          "size": 50,
+          "exports": 1,
+          "functions": 1,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/sidebar/view-mode-selector.tsx",
+          "type": "component",
+          "complexity": 2278,
+          "criticalityScore": 6,
+          "size": 69,
+          "exports": 1,
+          "functions": 2,
+          "components": 3,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/sidebar/system-selector.tsx",
+          "type": "component",
+          "complexity": 1420,
+          "criticalityScore": 6,
+          "size": 39,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/sidebar/system-info.tsx",
+          "type": "component",
+          "complexity": 2458,
+          "criticalityScore": 6,
+          "size": 73,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/celestial-viewer/controls/parameter-slider.tsx",
+          "type": "component",
+          "complexity": 1511,
+          "criticalityScore": 6,
+          "size": 66,
+          "exports": 1,
+          "functions": 2,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "engine/components/celestial-viewer/controls/index.ts",
+          "type": "component",
+          "complexity": 165,
+          "criticalityScore": 6,
+          "size": 3,
+          "exports": 3,
+          "functions": 0,
+          "components": 0,
+          "reason": "No testable units found"
+        },
+        {
+          "file": "engine/components/3d-ui/types.d.ts",
+          "type": "component",
+          "complexity": 213,
+          "criticalityScore": 6,
+          "size": 9,
+          "exports": 0,
+          "functions": 0,
+          "components": 0,
+          "reason": "No exports - may not need tests"
+        },
+        {
+          "file": "engine/components/3d-ui/smog-planet.tsx",
+          "type": "component",
+          "complexity": 2461,
+          "criticalityScore": 6,
+          "size": 78,
+          "exports": 1,
+          "functions": 1,
+          "components": 1,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "app/realistic/starmap/page.tsx",
+          "type": "component",
+          "complexity": 2626,
+          "criticalityScore": 4,
+          "size": 76,
+          "exports": 2,
+          "functions": 1,
+          "components": 3,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "components/starmap/starmap-viewer.tsx",
+          "type": "component",
+          "complexity": 1256,
+          "criticalityScore": 3,
+          "size": 30,
+          "exports": 1,
+          "functions": 2,
+          "components": 5,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "app/page.tsx",
+          "type": "component",
+          "complexity": 4470,
+          "criticalityScore": 3,
+          "size": 95,
+          "exports": 3,
+          "functions": 1,
+          "components": 6,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "app/not-found.tsx",
+          "type": "component",
+          "complexity": 799,
+          "criticalityScore": 3,
+          "size": 21,
+          "exports": 2,
+          "functions": 1,
+          "components": 2,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "app/test-profile/page.tsx",
+          "type": "component",
+          "complexity": 1455,
+          "criticalityScore": 3,
+          "size": 39,
+          "exports": 2,
+          "functions": 1,
+          "components": 3,
+          "reason": "Missing test coverage"
+        },
+        {
+          "file": "app/celestial-viewer/[objectType]/page.tsx",
+          "type": "component",
+          "complexity": 613,
+          "criticalityScore": 3,
+          "size": 19,
+          "exports": 2,
+          "functions": 1,
+          "components": 2,
+          "reason": "Missing test coverage"
+        }
+      ],
+      "missingTestTypes": [
+        {
+          "file": "lib/roman-numerals.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "component"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has component features but missing corresponding tests"
+        },
+        {
+          "file": "lib/performance-monitor.ts",
+          "type": "hook",
+          "missingTestTypes": [
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "unit",
+            "component"
+          ],
+          "reason": "Has integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/object-factory.tsx",
+          "type": "other",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "unit",
+            "component",
+            "api",
+            "integration"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/utils/adaptive-time-scaling.ts",
+          "type": "util",
+          "missingTestTypes": [
+            "component"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has component features but missing corresponding tests"
+        },
+        {
+          "file": "engine/types/view-mode-config.ts",
+          "type": "types",
+          "missingTestTypes": [
+            "component"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has component features but missing corresponding tests"
+        },
+        {
+          "file": "engine/types/stellar-zones.ts",
+          "type": "types",
+          "missingTestTypes": [
+            "component",
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has component, interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/error-reporter.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api",
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has component, api, interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/visual-size-calculator.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api",
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration"
+          ],
+          "reason": "Has component, api, interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/validation-service.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/orbital-calculation-service.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api",
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration"
+          ],
+          "reason": "Has component, api, interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/orbit-position-calculator.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration",
+            "unit",
+            "unit",
+            "integration"
+          ],
+          "reason": "Has component, api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/hierarchy-manager.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration",
+            "unit"
+          ],
+          "reason": "Has component, api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/collision-detection-service.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration"
+          ],
+          "reason": "Has api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/cache-manager.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration"
+          ],
+          "reason": "Has component, api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration",
+            "unit",
+            "unit",
+            "unit",
+            "integration"
+          ],
+          "reason": "Has component features but missing corresponding tests"
+        },
+        {
+          "file": "engine/services/container/service-container.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration"
+          ],
+          "reason": "Has component, api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/terrestrial-renderer.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/star-renderer.tsx",
+          "type": "other",
+          "missingTestTypes": [
+            "interaction",
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "unit",
+            "component"
+          ],
+          "reason": "Has interaction, integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/geometry-renderer-factory.tsx",
+          "type": "other",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "integration",
+            "unit",
+            "component"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/belt-renderer.tsx",
+          "type": "other",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/materials/terrestrial-planet-material.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "component"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has component features but missing corresponding tests"
+        },
+        {
+          "file": "engine/lib/material-registry.ts",
+          "type": "util",
+          "missingTestTypes": [
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/view-modes/registry.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "api",
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has api, interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/view-modes/index.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "component",
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration",
+            "unit"
+          ],
+          "reason": "Has component, api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/view-modes/compatibility.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration",
+            "unit",
+            "unit",
+            "component",
+            "integration"
+          ],
+          "reason": "Has api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/view-modes/strategies/view-mode-strategy.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration",
+            "unit",
+            "unit",
+            "unit",
+            "unit",
+            "integration"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/view-modes/strategies/view-mode-registry.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "api",
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has api, interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/view-modes/strategies/navigational-strategy.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "unit"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/mode-system/view-mode.constants.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "component"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "unit",
+            "unit",
+            "unit"
+          ],
+          "reason": "Has component features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/events/event-bus.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "component"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "api",
+            "integration"
+          ],
+          "reason": "Has component features but missing corresponding tests"
+        },
+        {
+          "file": "engine/core/configuration/rendering-configuration.ts",
+          "type": "other",
+          "missingTestTypes": [
+            "component",
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "integration",
+            "unit",
+            "unit",
+            "unit",
+            "integration"
+          ],
+          "reason": "Has component, interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/unified-camera-controller.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "integration",
+            "unit",
+            "component",
+            "unit",
+            "component",
+            "unit",
+            "component",
+            "integration"
+          ],
+          "reason": "Has api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/system-objects-renderer.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "integration",
+            "unit",
+            "component",
+            "interaction",
+            "e2e"
+          ],
+          "reason": "Has api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/system-breadcrumb.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "api",
+            "interaction",
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component"
+          ],
+          "reason": "Has api, interaction, integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/object-details-panel.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "interaction"
+          ],
+          "reason": "Has integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/hooks/use-system-data.ts",
+          "type": "component",
+          "missingTestTypes": [
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component"
+          ],
+          "reason": "Has integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/hooks/use-profile-view.ts",
+          "type": "component",
+          "missingTestTypes": [
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component"
+          ],
+          "reason": "Has integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/hooks/use-orbital-mechanics.ts",
+          "type": "component",
+          "missingTestTypes": [
+            "interaction",
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component"
+          ],
+          "reason": "Has interaction, integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/hooks/use-object-selection.ts",
+          "type": "component",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "integration",
+            "unit",
+            "component",
+            "unit",
+            "component",
+            "integration"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/system-viewer/components/orbital-path/orbital-path.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "unit",
+            "component",
+            "integration"
+          ],
+          "reason": "Has api features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/sidebar/sidebar.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "interaction"
+          ],
+          "reason": "Has integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/celestial-viewer/object-catalog.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "interaction"
+          ],
+          "reason": "Has integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/celestial-viewer/controls/terrestrial-controls.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "api",
+            "integration"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/celestial-viewer/controls/shader-editor.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "interaction",
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component"
+          ],
+          "reason": "Has interaction, integration features but missing corresponding tests"
+        },
+        {
+          "file": "engine/components/3d-ui/interactive-object.tsx",
+          "type": "component",
+          "missingTestTypes": [
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "interaction",
+            "unit",
+            "component",
+            "interaction",
+            "unit",
+            "component",
+            "interaction",
+            "unit",
+            "component",
+            "interaction"
+          ],
+          "reason": "Has integration features but missing corresponding tests"
+        },
+        {
+          "file": "app/realistic/starmap/services/data-loader.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "component",
+            "api"
+          ],
+          "currentTestTypes": [
+            "unit"
+          ],
+          "reason": "Has component, api features but missing corresponding tests"
+        },
+        {
+          "file": "app/realistic/starmap/services/basic-renderer.ts",
+          "type": "service",
+          "missingTestTypes": [
+            "interaction"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "api",
+            "unit"
+          ],
+          "reason": "Has interaction features but missing corresponding tests"
+        },
+        {
+          "file": "app/realistic/starmap/hooks/use-starmap-renderer.ts",
+          "type": "hook",
+          "missingTestTypes": [
+            "interaction",
+            "integration"
+          ],
+          "currentTestTypes": [
+            "unit",
+            "component",
+            "api"
+          ],
+          "reason": "Has interaction, integration features but missing corresponding tests"
+        }
+      ],
+      "criticalGaps": [
+        {
+          "file": "engine/components/system-viewer/hooks/use-system-data.ts",
+          "type": "component",
+          "criticalityScore": 13,
+          "complexity": 6345,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/services/error-reporter.ts",
+          "type": "service",
+          "criticalityScore": 12,
+          "complexity": 6300,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/system-viewer/hooks/use-profile-view.ts",
+          "type": "component",
+          "criticalityScore": 12,
+          "complexity": 6222,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/system-viewer/hooks/use-orbital-mechanics.ts",
+          "type": "component",
+          "criticalityScore": 12,
+          "complexity": 4594,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "app/realistic/starmap/services/data-loader.ts",
+          "type": "service",
+          "criticalityScore": 12,
+          "complexity": 12833,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/debug-panel.tsx",
+          "type": "component",
+          "criticalityScore": 11,
+          "complexity": 5035,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Add API integration tests",
+            "Test error scenarios",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "app/realistic/starmap/components/starmap-canvas.tsx",
+          "type": "component",
+          "criticalityScore": 11,
+          "complexity": 9750,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "scripts/test-gap-analyzer.js",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 28494,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add API integration tests",
+            "Test error scenarios",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "scripts/problem-solver.js",
+          "type": "other",
+          "criticalityScore": 10,
+          "complexity": 13188,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/debug-viewer.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 8483,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/catalog-object-wrapper.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 3880,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/ui/carousel.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 6233,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/system-viewer/system-breadcrumb.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 9306,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/system-viewer/object-details-panel.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 29446,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/sidebar/sidebar.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 18337,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/celestial-viewer/object-catalog.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 7702,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/celestial-viewer/controls/shader-editor.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 18352,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/3d-ui/interactive-object.tsx",
+          "type": "component",
+          "criticalityScore": 10,
+          "complexity": 10623,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "app/realistic/starmap/services/basic-renderer.ts",
+          "type": "service",
+          "criticalityScore": 10,
+          "complexity": 27261,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "app/realistic/starmap/hooks/use-starmap-renderer.ts",
+          "type": "hook",
+          "criticalityScore": 10,
+          "complexity": 5579,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "scripts/pattern-analyzer.js",
+          "type": "other",
+          "criticalityScore": 9,
+          "complexity": 17411,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "scripts/context-tracer.js",
+          "type": "component",
+          "criticalityScore": 9,
+          "complexity": 28378,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add API integration tests",
+            "Test error scenarios",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+          "type": "service",
+          "criticalityScore": 9,
+          "complexity": 11705,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/services/astronomical-scaling/astronomical-scaling-service.ts",
+          "type": "service",
+          "criticalityScore": 9,
+          "complexity": 11883,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/error-boundary.tsx",
+          "type": "component",
+          "criticalityScore": 9,
+          "complexity": 7640,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/starmap/starmap-viewer.tsx",
+          "type": "component",
+          "criticalityScore": 9,
+          "complexity": 6073,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/3d-ui/space-curvature-effect.tsx",
+          "type": "component",
+          "criticalityScore": 9,
+          "complexity": 3598,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "app/realistic/starmap/services/spiral-galaxy-shader.ts",
+          "type": "service",
+          "criticalityScore": 9,
+          "complexity": 9595,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "scripts/project-intelligence.js",
+          "type": "other",
+          "criticalityScore": 8,
+          "complexity": 21226,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add API integration tests",
+            "Test error scenarios",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/system-loader-enhanced.ts",
+          "type": "other",
+          "criticalityScore": 8,
+          "complexity": 11708,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add API integration tests",
+            "Test error scenarios",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/utils/stellar-zone-geometry.ts",
+          "type": "util",
+          "criticalityScore": 8,
+          "complexity": 6727,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Add API integration tests",
+            "Test error scenarios",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/hooks/use-stellar-zones.ts",
+          "type": "hook",
+          "criticalityScore": 8,
+          "complexity": 5008,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/events/react-integration.ts",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 11909,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/ui/use-mobile.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 567,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/ui/menubar.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 7990,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/ui/dropdown-menu.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 7435,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/ui/context-menu.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 7262,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/ui/chart.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 10493,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/system-viewer/system-navigation-bar.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 5694,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Add API integration tests",
+            "Test error scenarios",
+            "Test state management logic",
+            "Test state updates and side effects",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/system-viewer/profile-layout-controller.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 4758,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/skybox/starfield-material.ts",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 11492,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "engine/components/3d-ui/protostar.tsx",
+          "type": "component",
+          "criticalityScore": 8,
+          "complexity": 7410,
+          "reason": "High criticality file with no test coverage",
+          "recommendations": [
+            "Add component rendering tests",
+            "Test component props and interactions",
+            "Add unit tests for functions",
+            "Test function inputs and outputs",
+            "Focus on testing complex logic",
+            "Consider breaking down complex functions"
+          ]
+        },
+        {
+          "file": "lib/performance-monitor.ts",
+          "type": "hook",
+          "criticalityScore": 6,
+          "complexity": 2938,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/terrestrial-renderer.tsx",
+          "type": "component",
+          "criticalityScore": 6,
+          "complexity": 16110,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/star-renderer.tsx",
+          "type": "other",
+          "criticalityScore": 6,
+          "complexity": 6108,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/belt-renderer.tsx",
+          "type": "other",
+          "criticalityScore": 6,
+          "complexity": 7770,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/view-modes/registry.ts",
+          "type": "other",
+          "criticalityScore": 6,
+          "complexity": 12970,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/performance-warning.tsx",
+          "type": "component",
+          "criticalityScore": 6,
+          "complexity": 1168,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/system-viewer/components/orbital-path/index.ts",
+          "type": "component",
+          "criticalityScore": 6,
+          "complexity": 70,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/3d-ui/terrestrial-planet.tsx",
+          "type": "component",
+          "criticalityScore": 6,
+          "complexity": 3334,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/components/3d-ui/black-hole.tsx",
+          "type": "component",
+          "criticalityScore": 6,
+          "complexity": 596,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/utils/adaptive-time-scaling.ts",
+          "type": "util",
+          "criticalityScore": 5,
+          "complexity": 2979,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/types/view-mode-config.ts",
+          "type": "types",
+          "criticalityScore": 5,
+          "complexity": 9590,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/view-modes/strategies/view-mode-registry.ts",
+          "type": "other",
+          "criticalityScore": 5,
+          "complexity": 9072,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/view-modes/strategies/profile-strategy.ts",
+          "type": "other",
+          "criticalityScore": 5,
+          "complexity": 11021,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/view-modes/strategies/navigational-strategy.ts",
+          "type": "other",
+          "criticalityScore": 5,
+          "complexity": 10711,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/types/stellar-zones.ts",
+          "type": "types",
+          "criticalityScore": 4,
+          "complexity": 3466,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/renderers/geometry-renderers/materials/terrestrial-planet-material.ts",
+          "type": "other",
+          "criticalityScore": 4,
+          "complexity": 4980,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/view-modes/types.ts",
+          "type": "other",
+          "criticalityScore": 4,
+          "complexity": 5163,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "lib/utils.ts",
+          "type": "other",
+          "criticalityScore": 3,
+          "complexity": 1017,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "lib/roman-numerals.ts",
+          "type": "other",
+          "criticalityScore": 3,
+          "complexity": 1617,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/types/view-mode.types.ts",
+          "type": "types",
+          "criticalityScore": 3,
+          "complexity": 479,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/types/mode.ts",
+          "type": "types",
+          "criticalityScore": 3,
+          "complexity": 1235,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/types/errors.ts",
+          "type": "types",
+          "criticalityScore": 3,
+          "complexity": 3127,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/lib/material-registry.ts",
+          "type": "util",
+          "criticalityScore": 3,
+          "complexity": 1588,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/mode-system/view-mode.constants.ts",
+          "type": "other",
+          "criticalityScore": 3,
+          "complexity": 1803,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "engine/core/mode-system/types.ts",
+          "type": "other",
+          "criticalityScore": 3,
+          "complexity": 794,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "components/ui/mode-navigation.tsx",
+          "type": "component",
+          "criticalityScore": 3,
+          "complexity": 1374,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        },
+        {
+          "file": "app/layout.tsx",
+          "type": "component",
+          "criticalityScore": 3,
+          "complexity": 537,
+          "reason": "Complex file missing integration tests",
+          "recommendations": [
+            "Add integration tests",
+            "Test error scenarios",
+            "Test edge cases"
+          ]
+        }
+      ],
+      "recommendations": [
+        "Low test coverage detected - prioritize adding tests for critical files",
+        "69 critical gaps found - prioritize testing high-criticality files",
+        "Many untested files - consider setting up test automation",
+        "Many untested components - add component testing with React Testing Library"
+      ],
+      "testPatterns": {
+        "components": {
+          "total": 0,
+          "tested": 0,
+          "coverage": 0
+        },
+        "hooks": {
+          "total": 0,
+          "tested": 0,
+          "coverage": 0
+        },
+        "utils": {
+          "total": 0,
+          "tested": 0,
+          "coverage": 0
+        },
+        "services": {
+          "total": 0,
+          "tested": 0,
+          "coverage": 0
+        }
+      },
+      "metrics": {
+        "totalCoverage": "32%",
+        "untestedFiles": 90,
+        "criticalGaps": 69,
+        "missingTestTypes": 48,
+        "averageCriticality": 6,
+        "testFilesFound": 474,
+        "analysisTime": "577ms"
+      }
+    }
+  },
+  "summary": {},
+  "recommendations": [],
+  "metrics": {
+    "analysisTime": "577ms"
+  }
+}

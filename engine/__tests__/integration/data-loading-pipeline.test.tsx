@@ -21,21 +21,14 @@ vi.mock('@react-three/fiber', () => ({
   useThree: vi.fn(() => ({ scene: {}, camera: {} })),
 }));
 
-// Mock all renderer components
-vi.mock('@/engine/renderers/stars/star-renderer', () => ({
-  StarRenderer: (props: any) => <div data-testid="star-renderer" data-props={JSON.stringify(props)} />
-}));
-
-vi.mock('@/engine/renderers/planets/gas-giant-renderer', () => ({
-  GasGiantRenderer: (props: any) => <div data-testid="gas-giant-renderer" data-props={JSON.stringify(props)} />
-}));
-
-vi.mock('@/engine/renderers/planets/terrestrial-planet-renderer', () => ({
-  TerrestrialPlanetRenderer: (props: any) => <div data-testid="terrestrial-planet-renderer" data-props={JSON.stringify(props)} />
-}));
-
-vi.mock('@/engine/renderers/planets/planet-renderer', () => ({
-  PlanetRenderer: (props: any) => <div data-testid="planet-renderer" data-props={JSON.stringify(props)} />
+// Mock GeometryRendererFactory
+vi.mock('@/engine/renderers/geometry-renderers', () => ({
+  GeometryRendererFactory: (props: any) => {
+    // Mock different renderers based on geometry_type for testing
+    const geometryType = props.object?.geometry_type || 'unknown';
+    const testId = `geometry-renderer-${geometryType}`;
+    return <div data-testid={testId} data-props={JSON.stringify(props)} />;
+  }
 }));
 
 // Mock fetch globally
@@ -220,10 +213,10 @@ describe('Data Loading Pipeline Integration', () => {
 
       const { container } = render(<div>{renderedComponents}</div>);
 
-      // Verify all objects are rendered with correct renderers
-      expect(container.querySelector('[data-testid="star-renderer"]')).toBeInTheDocument();
-      expect(container.querySelector('[data-testid="gas-giant-renderer"]')).toBeInTheDocument();
-      expect(container.querySelector('[data-testid="terrestrial-planet-renderer"]')).toBeInTheDocument();
+      // Verify all objects are rendered with correct geometry renderers
+      expect(container.querySelector('[data-testid="geometry-renderer-star"]')).toBeInTheDocument();
+      expect(container.querySelector('[data-testid="geometry-renderer-gas-giant"]')).toBeInTheDocument();
+      expect(container.querySelector('[data-testid="geometry-renderer-terrestrial"]')).toBeInTheDocument();
     });
 
     it('should handle mode switching and load different data', async () => {

@@ -10,6 +10,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import * as THREE from 'three';
 import * as pipeline from '@/engine/core/pipeline';
 import { SystemViewer } from '../../system-viewer';
 
@@ -26,6 +27,11 @@ vi.mock('@react-three/fiber', () => ({
 vi.mock('@react-three/drei', () => ({
   OrbitControls: () => null,
   Preload: () => null,
+  shaderMaterial: vi.fn(() => {
+    const Material = function() {};
+    Material.prototype = Object.create(THREE.ShaderMaterial.prototype);
+    return Material;
+  }),
 }));
 
 vi.mock('../system-viewer/components/scene-lighting', () => ({

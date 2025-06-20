@@ -4,18 +4,9 @@ import React from 'react'
 import { ObjectFactory } from '../object-factory'
 import type { CatalogObject } from '../system-loader'
 
-// Mock all renderer components
-vi.mock('@/engine/renderers/stars/star-renderer', () => ({
-  StarRenderer: (props: any) => <div data-testid="star-renderer" {...props} />
-}))
-vi.mock('@/engine/renderers/planets/gas-giant-renderer', () => ({
-  GasGiantRenderer: (props: any) => <div data-testid="gas-giant-renderer" {...props} />
-}))
-vi.mock('@/engine/renderers/planets/terrestrial-planet-renderer', () => ({
-  TerrestrialPlanetRenderer: (props: any) => <div data-testid="terrestrial-planet-renderer" {...props} />
-}))
-vi.mock('@/engine/renderers/planets/planet-renderer', () => ({
-  PlanetRenderer: (props: any) => <div data-testid="planet-renderer" {...props} />
+// Mock GeometryRendererFactory
+vi.mock('@/engine/renderers/geometry-renderers', () => ({
+  GeometryRendererFactory: (props: any) => <div data-testid="geometry-renderer-factory" {...props} />
 }))
 
 describe('ObjectFactory', () => {

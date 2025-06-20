@@ -1,0 +1,1835 @@
+{
+  "unusedFiles": [
+    {
+      "file": "analyze-unused-code.js",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "components/starmap/starmap-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "components/system-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "components/ui/toast.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/backgrounds/space-nebula-background.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/3d-ui/protostar.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/3d-ui/smog-planet.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/3d-ui/space-curvature-effect.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/3d-ui/types.d.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/catalog-object-wrapper.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/debug-panel.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/debug-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/error-boundary.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/starmap/starmap-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/components/system-info-overlay.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/planet-viewer.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/profile-layout-controller.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/system-info-overlay.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/system-navigation-bar.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/theme-provider.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/accordion.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/alert-dialog.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/alert.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/aspect-ratio.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/avatar.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/badge.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/breadcrumb.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/button.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/calendar.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/card.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/carousel.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/chart.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/checkbox.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/collapsible.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/command.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/context-menu.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/dialog.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/drawer.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/dropdown-menu.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/form.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/hover-card.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/input-otp.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/input.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/label.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/menubar.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/navigation-menu.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/pagination.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/popover.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/progress.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/radio-group.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/resizable.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/scroll-area.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/select.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/separator.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/sheet.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/slider.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/sonner.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/switch.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/table.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/tabs.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/textarea.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/toast.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/toaster.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/toggle-group.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/toggle.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/use-mobile.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/camera/camera-animations.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/engine-state.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/mode-system/types.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/lib/planet-customizer.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/enhanced-terrestrial-planet-material.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/gas-giant-material.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/planet-rings-material.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/storm-material.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/types.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/system-loader-enhanced.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/catalog.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/coordinated-scaling-calculator.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/dynamic-camera-calculator.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/optimal-system-scaler.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/safe-scaling-calculator.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "hooks/use-mobile.tsx",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "hooks/use-toast.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "jest.setup.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "lib/performance-monitor.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "middleware.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "next-env.d.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "next.config.js",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "run-profile-tests.js",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "scripts/convert-orbital-system.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "scripts/standardize-radius-to-km.js",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "scripts/verify-catalog-objects.js",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "tailwind.config.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "update-game-to-profile.js",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "vitest.config.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    },
+    {
+      "file": "vitest.setup.ts",
+      "reason": "No imports found",
+      "confidence": "high"
+    }
+  ],
+  "unusedExports": [
+    {
+      "file": "components/starmap/starmap-viewer.tsx",
+      "export": "StarmapViewer",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "export": "ButtonProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/backgrounds/space-nebula-background.tsx",
+      "export": "SpaceNebulaBackground",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/backgrounds/space-nebula-background.tsx",
+      "export": "SpaceNebulaBackground",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/3d-ui/protostar.tsx",
+      "export": "Protostar",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/3d-ui/smog-planet.tsx",
+      "export": "SmogPlanet",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/3d-ui/space-curvature-effect.tsx",
+      "export": "SpaceCurvatureEffect",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/catalog-object-wrapper.tsx",
+      "export": "CatalogObjectWrapper",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/debug-panel.tsx",
+      "export": "DebugPanel",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/debug-viewer.tsx",
+      "export": "DebugViewer",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/error-boundary.tsx",
+      "export": "ErrorBoundary",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/error-boundary.tsx",
+      "export": "withErrorBoundary",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/error-boundary.tsx",
+      "export": "SystemViewerErrorBoundary",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/error-boundary.tsx",
+      "export": "UIErrorBoundary",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/starmap/starmap-viewer.tsx",
+      "export": "StarmapViewer",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/components/system-info-overlay.tsx",
+      "export": "SystemInfoOverlay",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/planet-viewer.tsx",
+      "export": "PlanetViewer",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/profile-layout-controller.tsx",
+      "export": "ProfileLayoutController",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/system-info-overlay.tsx",
+      "export": "SystemInfoOverlay",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/system-viewer/system-navigation-bar.tsx",
+      "export": "SystemNavigationBar",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/theme-provider.tsx",
+      "export": "ThemeProvider",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/badge.tsx",
+      "export": "BadgeProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/button.tsx",
+      "export": "ButtonProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/calendar.tsx",
+      "export": "CalendarProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/chart.tsx",
+      "export": "ChartConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/toaster.tsx",
+      "export": "Toaster",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/components/ui/use-mobile.tsx",
+      "export": "useIsMobile",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/camera/camera-animations.ts",
+      "export": "CameraAnimationConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/camera/camera-animations.ts",
+      "export": "AnimationState",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/camera/camera-animations.ts",
+      "export": "CameraAnimator",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/camera/camera-animations.ts",
+      "export": "CameraPositionCalculator",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/configuration/__tests__/side-effect-detection.test.ts",
+      "export": "BASELINE_TEST_DATA",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/configuration/__tests__/side-effect-detection.test.ts",
+      "export": "SideEffectDetector",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/configuration/__tests__/side-effect-detection.test.ts",
+      "export": "BASELINE",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/engine-state.ts",
+      "export": "useEngineStore",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useEventSubscription",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useEventEmitter",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useObjectSelectionEvents",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useViewModeEvents",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useTimeControlEvents",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useEventMonitoring",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useCameraEvents",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "EventBusProvider",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/events/react-integration.ts",
+      "export": "useEventBus",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/mode-system/types.ts",
+      "export": "Mode",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/mode-system/types.ts",
+      "export": "ViewMode",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/mode-system/types.ts",
+      "export": "ModeFeatures",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/mode-system/types.ts",
+      "export": "ModeState",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/mode-system/types.ts",
+      "export": "ViewModeState",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewModeScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "CameraConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "OrbitalConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ObjectScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "FeatureSet",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "UIConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "CalculationContext",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "RenderContext",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ObjectState",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "StyleConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewModeDefinition",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewModeId",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewModeCategory",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewType",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewMode",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewModeValidationResult",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/core/view-modes/types.ts",
+      "export": "ViewModeRegistrationOptions",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/lib/planet-customizer.ts",
+      "export": "PlanetCustomizations",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/lib/planet-customizer.ts",
+      "export": "CustomizedPlanet",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/lib/planet-customizer.ts",
+      "export": "PlanetCustomizer",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/enhanced-terrestrial-planet-material.ts",
+      "export": "TerrestrialPlanetUniforms",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/enhanced-terrestrial-planet-material.ts",
+      "export": "EnhancedTerrestrialPlanetMaterial",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/enhanced-terrestrial-planet-material.ts",
+      "export": "createEnhancedTerrestrialPlanetMaterial",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/gas-giant-material.ts",
+      "export": "GasGiantMaterial",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/planet-rings-material.ts",
+      "export": "PlanetRingsMaterial",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/planet-rings-material.ts",
+      "export": "createPlanetRingsMaterial",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/storm-material.ts",
+      "export": "StormMaterial",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/types.ts",
+      "export": "GeometryRendererProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/types.ts",
+      "export": "GeometryRendererComponent",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/types.ts",
+      "export": "RingCapableRenderer",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/types.ts",
+      "export": "RingAttachmentProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "export": "RendererProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "export": "InteractiveRendererProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "export": "ShaderRendererProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "export": "SystemRendererProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "export": "isRendererProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/renderers/renderer-props.ts",
+      "export": "extractStandardProps",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "CalculationResult",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "BeltData",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "CollisionAdjustment",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "SystemLayout",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "CalculationContext",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "IVisualSizeCalculator",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "IOrbitPositionCalculator",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "ICollisionDetectionService",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "IHierarchyManager",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "HierarchyNode",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "ICalculationCacheManager",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "CacheStatistics",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "IOrbitalCalculationService",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "ServiceStatistics",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "IValidationService",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "ServiceDependencies",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/orbital-calculations/interfaces/calculation-services.ts",
+      "export": "IServiceFactory",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+      "export": "ShaderScalingParameters",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+      "export": "AtmosphereScalingParameters",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+      "export": "StormScalingParameters",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+      "export": "RingScalingParameters",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/services/shader-scaling/shader-scaling-service.ts",
+      "export": "ShaderScalingService",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/system-loader-enhanced.ts",
+      "export": "EnhancedSystemLoader",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/catalog.ts",
+      "export": "CatalogObject",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/catalog.ts",
+      "export": "CatalogData",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/catalog.ts",
+      "export": "CatalogLoader",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "StellarZoneType",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "ZoneVisibilityConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "ZoneStyleConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "ZoneConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "StellarZonesConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "ZoneCalculationResult",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "StellarZoneRenderData",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "DEFAULT_STELLAR_ZONES_CONFIG",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "ZONE_TYPE_CONFIGS",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/stellar-zones.ts",
+      "export": "DEFAULT",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "export": "ViewModeConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "export": "DualObjectProperties",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "export": "VIEW_MODE_CONFIGS",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "export": "determineObjectType",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "export": "createDualProperties",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/types/view-mode-config.ts",
+      "export": "VIEW",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/coordinated-scaling-calculator.ts",
+      "export": "CoordinatedScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/coordinated-scaling-calculator.ts",
+      "export": "calculateCoordinatedScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/coordinated-scaling-calculator.ts",
+      "export": "getCoordinatedScalingForViewMode",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/coordinated-scaling-calculator.ts",
+      "export": "validateCoordinatedScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/dynamic-camera-calculator.ts",
+      "export": "DynamicCameraSettings",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/dynamic-camera-calculator.ts",
+      "export": "calculateDynamicCameraSettings",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/optimal-system-scaler.ts",
+      "export": "SystemScaleInfo",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/optimal-system-scaler.ts",
+      "export": "calculateOptimalSystemScale",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/optimal-system-scaler.ts",
+      "export": "getViewModeScalingAdjustment",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/optimal-system-scaler.ts",
+      "export": "calculateOptimalOrbitScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/optimal-system-scaler.ts",
+      "export": "validateSystemScale",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/safe-scaling-calculator.ts",
+      "export": "SafeScalingResult",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/safe-scaling-calculator.ts",
+      "export": "calculateSafeScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/safe-scaling-calculator.ts",
+      "export": "getSafeScalingForViewMode",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/safe-scaling-calculator.ts",
+      "export": "validateSafeScaling",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "createZoneRingGeometry",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "createZoneLineGeometry",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "createZoneGeometry",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "createZoneMaterial",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "createZoneGeometries",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "clearGeometryCache",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "getGeometryCacheStats",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "disposeGeometry",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "validateZoneData",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "engine/utils/stellar-zone-geometry.ts",
+      "export": "calculateLODSegments",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "hooks/use-mobile.tsx",
+      "export": "useIsMobile",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "hooks/use-toast.ts",
+      "export": "reducer",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "lib/performance-monitor.ts",
+      "export": "PerformanceMonitor",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "lib/performance-monitor.ts",
+      "export": "usePerformanceMonitor",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "middleware.ts",
+      "export": "middleware",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "middleware.ts",
+      "export": "config",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "scripts/verify-catalog-objects.js",
+      "export": "objectCatalog",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "tailwind.config.ts",
+      "export": "config",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    },
+    {
+      "file": "vitest.config.ts",
+      "export": "defineConfig",
+      "reason": "File not imported anywhere",
+      "confidence": "high"
+    }
+  ],
+  "potentiallyUnused": [
+    {
+      "file": "components/ui/mode-navigation.tsx",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "components/ui/__tests__/mode-navigation.test.tsx"
+      ]
+    },
+    {
+      "file": "engine/components/3d-ui/terrestrial-planet.tsx",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/components/3d-ui/__tests__/terrestrial-planet.test.tsx"
+      ]
+    },
+    {
+      "file": "engine/components/celestial-viewer/controls/shader-editor.tsx",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/components/celestial-viewer/__tests__/shader-loading.test.tsx"
+      ]
+    },
+    {
+      "file": "engine/components/celestial-viewer/controls/terrestrial-controls.tsx",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/components/celestial-viewer/__tests__/celestial-viewer-geometry.test.tsx"
+      ]
+    },
+    {
+      "file": "engine/components/performance-warning.tsx",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/components/__tests__/performance-warning.test.tsx"
+      ]
+    },
+    {
+      "file": "engine/components/system-viewer/hooks/use-profile-view.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/components/system-viewer/hooks/__tests__/use-profile-view.test.ts"
+      ]
+    },
+    {
+      "file": "engine/core/events/coordination-handlers.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/core/events/__tests__/event-driven-architecture.test.ts"
+      ]
+    },
+    {
+      "file": "engine/core/mode-system/view-mode.constants.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/core/mode-system/__tests__/view-mode.constants.test.ts"
+      ]
+    },
+    {
+      "file": "engine/core/view-modes/compatibility.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/core/view-modes/__tests__/integration.test.ts"
+      ]
+    },
+    {
+      "file": "engine/core/view-modes/strategies/view-mode-registry.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/core/view-modes/strategies/__tests__/view-mode-strategies.test.ts"
+      ]
+    },
+    {
+      "file": "engine/hooks/use-stellar-zones.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/hooks/__tests__/use-stellar-zones.test.ts"
+      ]
+    },
+    {
+      "file": "engine/lib/material-registry.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/lib/__tests__/material-registry.test.ts"
+      ]
+    },
+    {
+      "file": "engine/object-factory.tsx",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/__tests__/object-factory.test.tsx"
+      ]
+    },
+    {
+      "file": "engine/renderers/geometry-renderers/materials/terrestrial-planet-material.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/renderers/geometry-renderers/materials/__tests__/shader-compilation.test.tsx"
+      ]
+    },
+    {
+      "file": "engine/services/container/service-container.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/services/orbital-calculations/__tests__/service-layer.test.ts"
+      ]
+    },
+    {
+      "file": "engine/services/orbital-calculations/cache-manager.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/services/orbital-calculations/__tests__/service-layer.test.ts"
+      ]
+    },
+    {
+      "file": "engine/services/orbital-calculations/collision-detection-service.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/services/orbital-calculations/__tests__/service-layer.test.ts"
+      ]
+    },
+    {
+      "file": "engine/services/orbital-calculations/orbital-calculation-service.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/services/orbital-calculations/__tests__/service-layer.test.ts"
+      ]
+    },
+    {
+      "file": "engine/services/orbital-calculations/validation-service.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/services/orbital-calculations/__tests__/service-layer.test.ts"
+      ]
+    },
+    {
+      "file": "engine/services/orbital-calculations/visual-size-calculator.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/services/orbital-calculations/__tests__/service-layer.test.ts"
+      ]
+    },
+    {
+      "file": "engine/utils/adaptive-time-scaling.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/utils/__tests__/adaptive-time-scaling.test.ts"
+      ]
+    },
+    {
+      "file": "engine/utils/stellar-zones.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "engine/utils/__tests__/stellar-zones/stellar-zones.test.ts"
+      ]
+    },
+    {
+      "file": "lib/roman-numerals.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "lib/__tests__/roman-numerals.test.ts"
+      ]
+    },
+    {
+      "file": "lib/types/effects-level.ts",
+      "reason": "Only used in tests",
+      "confidence": "medium",
+      "usedBy": [
+        "lib/types/__tests__/effects-level.test.ts"
+      ]
+    }
+  ],
+  "legacySystems": [
+    {
+      "file": "analyze-unused-code.js",
+      "reason": "Contains legacy indicator: unused",
+      "confidence": "medium"
+    },
+    {
+      "file": "analyze-unused-code.js",
+      "reason": "Contains deprecation markers",
+      "confidence": "high"
+    }
+  ],
+  "duplicates": [
+    {
+      "basename": "page.tsx",
+      "files": [
+        "app/[mode]/page.tsx",
+        "app/[mode]/starmap/page.tsx",
+        "app/[mode]/system-viewer/page.tsx",
+        "app/celestial-viewer/[objectType]/page.tsx",
+        "app/page.tsx",
+        "app/realistic/starmap/page.tsx",
+        "app/test-orbit-spacing/page.tsx",
+        "app/test-profile/page.tsx"
+      ],
+      "count": 8
+    },
+    {
+      "basename": "index.ts",
+      "files": [
+        "app/realistic/starmap/types/index.ts",
+        "engine/components/celestial-viewer/controls/index.ts",
+        "engine/components/system-viewer/components/orbital-path/index.ts",
+        "engine/core/events/index.ts",
+        "engine/core/pipeline/index.ts",
+        "engine/core/view-modes/index.ts",
+        "engine/renderers/geometry-renderers/index.ts"
+      ],
+      "count": 7
+    },
+    {
+      "basename": "interactive-object.test.tsx",
+      "files": [
+        "components/__tests__/interactive-object.test.tsx",
+        "engine/components/__tests__/interactive-object.test.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "starmap-viewer.tsx",
+      "files": [
+        "components/starmap/starmap-viewer.tsx",
+        "engine/components/starmap/starmap-viewer.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "system-viewer.tsx",
+      "files": [
+        "components/system-viewer.tsx",
+        "engine/components/system-viewer.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "button.tsx",
+      "files": [
+        "components/ui/button.tsx",
+        "engine/components/ui/button.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "toast.tsx",
+      "files": [
+        "components/ui/toast.tsx",
+        "engine/components/ui/toast.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "terrestrial-planet-material.ts",
+      "files": [
+        "engine/components/3d-ui/materials/terrestrial-planet-material.ts",
+        "engine/renderers/geometry-renderers/materials/terrestrial-planet-material.ts"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "orbital-path.test.tsx",
+      "files": [
+        "engine/components/__tests__/orbital-path.test.tsx",
+        "engine/components/system-viewer/components/orbital-path/__tests__/orbital-path.test.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "system-info-overlay.tsx",
+      "files": [
+        "engine/components/system-viewer/components/system-info-overlay.tsx",
+        "engine/components/system-viewer/system-info-overlay.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "use-mobile.tsx",
+      "files": [
+        "engine/components/ui/use-mobile.tsx",
+        "hooks/use-mobile.tsx"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "types.ts",
+      "files": [
+        "engine/core/mode-system/types.ts",
+        "engine/core/view-modes/types.ts",
+        "engine/renderers/geometry-renderers/types.ts"
+      ],
+      "count": 3
+    },
+    {
+      "basename": "visual-size-calculator.ts",
+      "files": [
+        "engine/services/orbital-calculations/visual-size-calculator.ts",
+        "engine/utils/visual-size-calculator.ts"
+      ],
+      "count": 2
+    },
+    {
+      "basename": "stellar-zones.ts",
+      "files": [
+        "engine/types/stellar-zones.ts",
+        "engine/utils/stellar-zones.ts"
+      ],
+      "count": 2
+    }
+  ]
+}
