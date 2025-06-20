@@ -6,7 +6,7 @@ import { Html } from "@react-three/drei"
 import * as THREE from "three"
 import { createDualProperties, type DualObjectProperties } from "@/engine/types/view-mode-config"
 import { getViewModeConfig } from "@/engine/core/view-modes/compatibility"
-import type { ViewType } from "@lib/types/effects-level"
+import type { ViewType } from "@/lib/types/effects-level"
 
 interface UnifiedCameraControllerProps {
   focusObject: THREE.Object3D | null
@@ -54,6 +54,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
     const lastFocusedRef = useRef<THREE.Object3D | null>(null)
     // Track the fake outermost point for "No orbiting bodies" label
     const [noOrbitingBodiesLabel, setNoOrbitingBodiesLabel] = useState<{ position: THREE.Vector3; visible: boolean } | null>(null)
+    // Smoothed label position to prevent jitter
+    const [smoothedLabelPosition, setSmoothedLabelPosition] = useState<THREE.Vector3 | null>(null)
 
     useEffect(() => {
       controlsRef.current = controls
@@ -847,8 +849,8 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
       }
     }, [focusObject, focusName, focusRadius, focusSize, focusMass, focusOrbitRadius, viewMode, camera, viewConfig, createEasingFunction, onAnimationComplete])
 
-    // Continuously follow the focused object
-    useFrame((_, delta) => {
+    // Continuously follow the focused object with smoothed tracking
+    useFrame((state, delta) => {
       if (focusObject && controlsRef.current && isFollowingRef.current && !animatingRef.current) {
         const currentPosition = new THREE.Vector3()
         focusObject.getWorldPosition(currentPosition)
@@ -856,38 +858,81 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         // Calculate movement delta
         const deltaPosition = new THREE.Vector3().subVectors(currentPosition, lastObjectPositionRef.current)
 
-        // ADAPTIVE MOVEMENT THRESHOLD: Calculate based on object visual size to handle small fast objects
-        // For small objects like Titan, use much smaller threshold to detect orbital movement
+        // ANTI-JITTER FIX: Use frame rate adaptive threshold and smoothing
         const visualSize = focusSize || focusRadius || 1.0
-        const adaptiveThreshold = Math.max(visualSize * 0.01, 1e-6) // Min threshold for small objects
+        const frameAdaptiveThreshold = Math.max(visualSize * 0.001, 1e-8) // Much smaller threshold
         
         // Only move if there's significant movement to avoid jitter
+        if (deltaPosition.length() > frameAdaptiveThreshold) {
+          // SMOOTHING: Apply exponential smoothing to reduce jitter
+          const smoothingFactor = Math.min(delta * 8, 0.3) // Responsive but smooth
+          const smoothedDelta = deltaPosition.multiplyScalar(smoothingFactor)
+          
+          // Move camera smoothly
+          camera.position.add(smoothedDelta)
+          controlsRef.current.target.add(smoothedDelta)
+          
+          // REDUCED UPDATE FREQUENCY: Only update controls every few frames to reduce jitter
+          // Update immediately for large movements, throttle for small movements
+          const isLargeMovement = deltaPosition.length() > visualSize * 0.01
+          
+          if (isLargeMovement || Math.random() < 0.3) { // Update 30% of frames for small movements
+            controlsRef.current.update()
+          }
+
+          // Update stored position with smoothed movement
+          lastObjectPositionRef.current.add(smoothedDelta)
+        }
+      }
+      
+      // LABEL SMOOTHING: Smooth the label position separately to prevent HTML jitter
+      if (noOrbitingBodiesLabel?.visible && noOrbitingBodiesLabel.position) {
+        if (!smoothedLabelPosition) {
+          // Initialize smoothed position
+          setSmoothedLabelPosition(noOrbitingBodiesLabel.position.clone())
+        } else {
+          // Smooth the label position with gentle interpolation
+          const targetPos = noOrbitingBodiesLabel.position
+          const currentPos = smoothedLabelPosition
+          const labelDelta = new THREE.Vector3().subVectors(targetPos, currentPos)
+          
+          if (labelDelta.length() > 0.01) {
+            const labelSmoothingFactor = Math.min(delta * 2, 0.1) // Very gentle for labels
+            const smoothedLabelDelta = labelDelta.multiplyScalar(labelSmoothingFactor)
+            const newSmoothedPos = currentPos.clone().add(smoothedLabelDelta)
+            setSmoothedLabelPosition(newSmoothedPos)
+          }
+        }
+      } else if (!noOrbitingBodiesLabel?.visible) {
+        // Clear smoothed position when label is hidden
+        setSmoothedLabelPosition(null)
+      }
+    })
+    
+    // Fallback reactive tracking method
+    const fallbackToReactiveTracking = useCallback(() => {
+      if (focusObject && controlsRef.current && isFollowingRef.current && !animatingRef.current) {
+        const currentPosition = new THREE.Vector3()
+        focusObject.getWorldPosition(currentPosition)
+
+        const deltaPosition = new THREE.Vector3().subVectors(currentPosition, lastObjectPositionRef.current)
+        const visualSize = focusSize || focusRadius || 1.0
+        const adaptiveThreshold = Math.max(visualSize * 0.01, 1e-6)
+        
         if (deltaPosition.length() > adaptiveThreshold) {
-          // FIXED: Always move camera and target by full delta to maintain proper tracking
-          // The jitter issue was from excessive controls.update(), not from the movement itself
           camera.position.add(deltaPosition)
           controlsRef.current.target.add(deltaPosition)
-
-          // HYBRID APPROACH: Balance responsiveness with performance
-          // Always update for large movements (object selection), reduce frequency for small movements (orbital motion)
-          const isSignificantMovement = deltaPosition.length() > 0.1
-          
-          // CRITICAL FIX: Always update controls to ensure orbit functionality works
-          // The performance impact of calling update() every frame is minimal compared to broken user interaction
-          // The original throttling was causing orbit controls to become unresponsive during object tracking
           controlsRef.current.update()
-
-          // Update stored position for accurate delta calculation
           lastObjectPositionRef.current.copy(currentPosition)
         }
       }
-    })
+    }, [focusObject, camera, focusSize, focusRadius])
 
     return (
       <>
         {/* No orbiting bodies label */}
-        {noOrbitingBodiesLabel?.visible && (
-          <group position={[noOrbitingBodiesLabel.position.x, noOrbitingBodiesLabel.position.y, noOrbitingBodiesLabel.position.z]}>
+        {noOrbitingBodiesLabel?.visible && smoothedLabelPosition && (
+          <group position={[smoothedLabelPosition.x, smoothedLabelPosition.y, smoothedLabelPosition.z]}>
             <Html center prepend zIndexRange={[100, 0]} occlude={false} sprite>
               <div
                 className="text-gray-400 text-xs font-medium transition-all duration-300 ease-out"

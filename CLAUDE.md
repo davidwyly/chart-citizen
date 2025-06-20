@@ -47,7 +47,7 @@ npm test -- --run --watch=false engine/path/to/specific/folder
 npm test -- --run --watch=false engine/path/to/specific/test.ts
 # Examples of focused testing:
 npm test -- --run --watch=false engine/renderers
-npm test -- --run --watch=false engine/components/system-viewer
+npm test -- --watch=false engine/components/system-viewer
 npm test -- --run --watch=false engine/utils/__tests__/orbital-mechanics
 # Only run full suite if absolutely necessary (may timeout):
 # npm test -- --run --watch=false
@@ -61,13 +61,13 @@ cat analysis-results/project-status.md # Current health status
 ## Daily Development Workflow  
 npm run ai-toolkit impact "target"    # Before changing specific files
 npm run ai-toolkit context "symbol"   # Before component/function changes
-npm run coordinate-agents --quick     # Weekly architectural health check
+npm run ai-toolkit imports project    # Run a quick check for broken imports
+npm run ai-toolkit dead-code          # Identify unused files or duplicates
+npm run ai-toolkit schema "file:type" # Extract a specific type or interface
 
 ## Comprehensive Analysis (Before Major Changes)
-npm run coordinate-agents             # Full project health assessment
-npm run project-intel --update        # Update architectural intelligence
-npm run ai-toolkit full-analysis      # Individual tool deep-dive
-```
+npm run ai-toolkit full-analysis      # Full project health assessment and recommendations
+npm run ai-toolkit deps               # Analyze project dependencies for issues
 
 ## Architecture Overview
 
@@ -182,182 +182,91 @@ Standard uniforms for all materials:
 
 ## AI Workflow Toolkit 🚀
 
-A comprehensive suite of AI-optimized code analysis tools designed to maximize efficiency and minimize token usage for complex development tasks. Essential for refactoring, cleanup, testing, and understanding large codebases.
+A comprehensive suite of AI-optimized code analysis tools designed to maximize efficiency and minimize token usage for complex development tasks. This toolkit provides sharp, composable primitives that allow for deep, structural understanding of the codebase.
 
-### Overview
+**💡 Prioritization Note for Claude:** When performing any task, **always prioritize the use of these AI Workflow Toolkit commands** before resorting to manual file reads or other exploration methods. These tools are specifically designed to provide you with highly distilled, token-efficient context, which is crucial for effective and cost-efficient problem-solving.
 
-The toolkit provides unified access to 5 specialized analysis tools through a single interface:
-
+### Core Usage:
+All tools are run through the main `ai-toolkit` script:
 ```bash
-npm run ai-toolkit <command> [options]
+npm run ai-toolkit -- <command> [arguments...] [--verbose]
 ```
 
-### Quick Start
+By default, the toolkit only prints essential, machine-readable output (e.g., compact JSON). The optional `--verbose` flag can be added to show human-readable status messages during execution.
 
-```bash
-# Show complete help and documentation
-npm run ai-toolkit help
+### Available Commands:
 
-# Hunt for dead code and unused files
-npm run ai-toolkit dead-code
+#### 1. `overview`
+*   **Purpose:** Provides a high-level orientation of the project's technology stack, architectural patterns, and key statistics. This command is designed to give you a foundational understanding without reading any file content.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit overview
+    ```
+*   **Output:** A JSON object detailing `projectType`, `primaryFrameworks`, `keyDirectories`, and `projectStats`.
 
-# Analyze refactoring impact for a component
-npm run ai-toolkit impact "ComponentName"
+#### 2. `schema <file-path>:<symbol-name>`
+*   **Purpose:** Extracts a single schema (type, interface, class, enum) from a file, providing its exact definition. This is the most efficient way to understand the shape of data without reading an entire file.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit schema "engine/types/engine.ts:EngineConfig"
+    ```
 
-# Trace data flow and relationships
-npm run ai-toolkit context "handleSubmit" --flow=both
+#### 3. `code-search <keyword>`
+*   **Purpose:** Efficiently finds all files in the project that contain a specific keyword. It uses `ripgrep` for speed and returns a simple list of file paths.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit code-search "myFunction"
+    ```
 
-# Find test coverage gaps
-npm run ai-toolkit test-gaps --focus=components
+#### 4. `imports <subcommand>`
+*   **Purpose:** A comprehensive tool for analyzing and fixing import paths.
+*   **Subcommands:**
+    *   `check <file>`: Validates all imports in a single file.
+    *   `fix <old> <new>`: Bulk replaces import patterns across the project.
+    *   `project`: Scans the entire project for broken or problematic imports.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit imports project
+    ```
 
-# Analyze git changes efficiently
-npm run ai-toolkit diff HEAD~1
+#### 5. `dead-code`
+*   **Purpose:** Hunts for unused files, duplicate code, and legacy systems to help with codebase cleanup.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit dead-code
+    ```
 
-# Run comprehensive codebase analysis
-npm run ai-toolkit full-analysis
-```
+#### 6. `impact <target>`
+*   **Purpose:** Analyzes the potential "blast radius" of changing a specific file or symbol, showing what other parts of the codebase will be affected.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit impact "ComponentName"
+    ```
 
-### 🏹 Dead Code Hunter
+#### 7. `context <target>`
+*   **Purpose:** Traces the data flow and relationships for a specific symbol to understand where data comes from and where it goes.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit context "handleSubmit"
+    ```
 
-**Purpose**: Find unused files, duplicates, and legacy code  
-**Command**: `npm run ai-toolkit dead-code [--no-tests]`
+#### 8. `test-gaps`
+*   **Purpose:** Identifies parts of the codebase that lack sufficient test coverage, helping to prioritize testing efforts.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit test-gaps
+    ```
 
-**What it finds**:
-- Files with no imports (safe to delete)
-- Suspicious files (need manual review)
-- Legacy systems with @deprecated markers
-- Duplicate files with identical content
+#### 9. `diff [comparison]`
+*   **Purpose:** Analyzes the changes between two git commits, providing a high-level summary of the complexity and impact without needing to read the full diff.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit diff HEAD~1
+    ```
 
-**AI Value**: Single command replaces 50+ manual searches (~12x token reduction)
-
-### 🔍 Refactor Impact Analyzer
-
-**Purpose**: Understand the blast radius of code changes  
-**Command**: `npm run ai-toolkit impact "ComponentName"`
-
-**What it analyzes**:
-- Direct impacts (files that import the target)
-- Cascading impacts (files affected by changes)
-- Test coverage for the target
-- Risk assessment and refactor plan
-
-**AI Value**: Complete refactoring context in one analysis
-
-### 🧬 Context Tracer
-
-**Purpose**: Understand data flow and component relationships  
-**Command**: `npm run ai-toolkit context "ComponentName" [options]`
-
-**Options**:
-- `--flow=up` - Trace where data comes FROM
-- `--flow=down` - Trace where data goes TO
-- `--flow=both` - Trace both directions (default)
-- `--depth=N` - Maximum depth to trace (default: 4)
-
-**What it traces**:
-- Data flow (upstream sources, downstream targets)
-- Component relationships (parents, children)
-- State management patterns
-- Event handling chains
-- Prop drilling detection
-
-**AI Value**: Understand complex interactions without manual tracing
-
-### 🧪 Test Gap Analyzer
-
-**Purpose**: Find missing test coverage and testing blind spots  
-**Command**: `npm run ai-toolkit test-gaps [--focus=type]`
-
-**Focus types**: `components`, `utils`, `hooks`, `services`, `all`
-
-**What it finds**:
-- Untested files with criticality scores
-- Missing test types (unit, integration, component)
-- Critical gaps (high-risk files without tests)
-- Test coverage by file type
-
-**AI Value**: Prioritized testing roadmap with impact assessment
-
-### 📈 Git Diff Analyzer
-
-**Purpose**: Analyze code changes between commits efficiently  
-**Command**: `npm run ai-toolkit diff [comparison]`
-
-**Examples**:
-- `npm run ai-toolkit diff HEAD~1` - Compare with previous commit
-- `npm run ai-toolkit diff main..HEAD` - Compare branch with main
-- `npm run ai-toolkit diff abc123..def456` - Compare specific commits
-
-**What it analyzes**:
-- Change complexity and file impact assessment
-- Critical, high, medium, and low impact changes
-- File operations (added, deleted, modified, renamed)
-- Change distribution by file type
-
-**AI Value**: Instant change review context without reading full diffs
-
-### 🔬 Full Analysis
-
-**Purpose**: Comprehensive codebase health assessment  
-**Command**: `npm run ai-toolkit full-analysis [target]`
-
-**Provides**:
-- Codebase health score (0-100)
-- Unified recommendations
-- Priority action items
-- Cross-analysis insights
-
-**AI Value**: Complete picture for major refactoring or cleanup
-
-### Output Structure
-
-All tools generate results in `analysis-results/` folder:
-
-```
-analysis-results/
-├── ai-toolkit-report.md      # Main unified report
-├── ai-toolkit-results.json   # Raw data for programmatic access
-├── dead-code-analysis.md     # Detailed dead code findings
-├── impact-analysis.md        # Detailed refactor impact
-├── context-analysis.md       # Detailed context tracing
-└── test-gap-analysis.md      # Detailed test gap analysis
-```
-
-### Cleanup
-
-```bash
-# Remove all analysis results when done
-rm -rf analysis-results
-```
-
-### AI Workflow Optimization
-
-**Token Efficiency**:
-- **Before**: 50+ tool calls, 25,000+ tokens
-- **After**: 1 command, ~2,000 tokens
-- **12x reduction** in token usage
-
-**Perfect for AI tasks**:
-- Refactoring complex code
-- Understanding unfamiliar codebases
-- Planning test strategies
-- Code cleanup and maintenance
-- Architecture analysis
-
-### Advanced Usage
-
-```bash
-# Focused dead code analysis (exclude tests)
-npm run ai-toolkit dead-code --no-tests
-
-# Context tracing with custom depth
-npm run ai-toolkit context "MyHook" --depth=6 --flow=up
-
-# Test gap analysis for specific file types
-npm run ai-toolkit test-gaps --focus=services
-
-# Full analysis with specific target
-npm run ai-toolkit full-analysis "CriticalComponent"
-```
-
-This toolkit is specifically designed to maximize AI efficiency for complex development workflows.
+#### 10. `deps`
+*   **Purpose:** Analyzes project dependencies to find unused packages or circular dependencies.
+*   **Usage:**
+    ```bash
+    npm run ai-toolkit deps
+    ```

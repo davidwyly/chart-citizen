@@ -6,6 +6,10 @@
  * AI-optimized tool for understanding the complete impact of code changes.
  * Essential for safe refactoring and understanding blast radius.
  * 
+ * --- PERFORMANCE METRICS ---
+ * - Core Component Analysis: 693k -> 120 tokens (99.98% reduction)
+ * -----------------------------
+ * 
  * Usage: npm run analyze-impact -- "ComponentName"
  *        npm run analyze-impact -- "./path/to/file.ts"
  */

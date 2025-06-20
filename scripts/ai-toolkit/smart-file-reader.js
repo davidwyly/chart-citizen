@@ -292,6 +292,157 @@ class SmartFileReader {
   clearCache() {
     this.cache.clear();
   }
+
+  // Extract a high-level summary of a file for maximum token efficiency
+  async summarizeFile(filePath) {
+    const content = await this.getCachedContent(filePath);
+    const lines = content.split('\n');
+    const summary = {
+      filePath,
+      imports: [],
+      exports: [],
+      classNames: [],
+      functionSignatures: [],
+      tokenEstimate: Math.round(content.length / 4) // Rough estimate
+    };
+
+    // Regex patterns for extraction
+    const importPattern = /^(import|export)\s+.*?\s+from\s+['"](.*?)['"];?$/;
+    const exportPattern = /^export\s+(?:(const|let|var|function|class|type|interface)\s+)?([A-Za-z0-9_{} ,*]+)/;
+    const classPattern = /^class\s+([A-Za-z0-9_]+)/;
+    const functionPattern = /^(?:export\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)\s*\(.*?\)/;
+    const arrowFunctionPattern = /^(?:export\s+)?const\s+([A-Za-z0-9_]+)\s*=\s*\(.*?\)\s*=>/;
+
+    lines.forEach(line => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return;
+
+      let match;
+      if ((match = trimmedLine.match(importPattern))) {
+        summary.imports.push(match[2]);
+      } else if ((match = trimmedLine.match(exportPattern))) {
+        summary.exports.push(match[2].replace(/{|}|,/g, '').trim());
+      } else if ((match = trimmedLine.match(classPattern))) {
+        summary.classNames.push(match[1]);
+      } else if ((match = trimmedLine.match(functionPattern))) {
+        summary.functionSignatures.push(match[1]);
+      } else if ((match = trimmedLine.match(arrowFunctionPattern))) {
+        summary.functionSignatures.push(match[1]);
+      }
+    });
+
+    // Deduplicate and clean up results
+    summary.imports = [...new Set(summary.imports)];
+    summary.exports = [...new Set(summary.exports.flatMap(e => e.split(' ')).filter(Boolean))];
+    summary.classNames = [...new Set(summary.classNames)];
+    summary.functionSignatures = [...new Set(summary.functionSignatures)];
+
+    return summary;
+  }
+
+  // Extract the props from a React component
+  async getComponentProps(filePath, componentName) {
+    const content = await this.getCachedContent(filePath);
+    const props = {
+      filePath,
+      componentName,
+      propCount: 0,
+      propNames: [],
+      hasReactMemo: false,
+    };
+
+    // Check if the component is wrapped in React.memo
+    const memoPattern = new RegExp(`export default React\\.memo\\(${componentName}\\)`);
+    if (memoPattern.test(content)) {
+      props.hasReactMemo = true;
+    }
+
+    // Find the props type or interface
+    // Look for: const ${componentName}: React.FC<${PropsType}> = ({...})
+    const fcPattern = new RegExp(`const\\s+${componentName}:.*?React\\.FC<(.*?)>\\s*=\\s*\\(\\{([^}]+)\\}`, 's');
+    const fcMatch = content.match(fcPattern);
+
+    let propDefs;
+
+    if (fcMatch) {
+      propDefs = fcMatch[2];
+    } else {
+      // Look for: function ${componentName}({...}: Props)
+      const funcPattern = new RegExp(`function\\s+${componentName}\\s*\\(\\{([^}]+)\\}`, 's');
+      const funcMatch = content.match(funcPattern);
+      if (funcMatch) {
+        propDefs = funcMatch[1];
+      }
+    }
+    
+    if (propDefs) {
+        // Extract prop names from the destructuring
+        const propNames = propDefs.split(',').map(p => p.split(':')[0].trim()).filter(Boolean);
+        props.propNames = propNames;
+        props.propCount = propNames.length;
+    }
+
+    return props;
+  }
+
+  // Detect which state management libraries are used in a file
+  async getStateManagementInfo(filePath) {
+    const content = await this.getCachedContent(filePath);
+    const info = {
+      filePath,
+      libraries: [],
+      storesUsed: [],
+    };
+
+    const statePatterns = {
+      'Zustand': /create\(.*\)/,
+      'Jotai': /atom\(.*\)/,
+      'Redux': /createStore\(|configureStore\(|createSlice\(/,
+      'React Context': /createContext\(.*\)/,
+    };
+
+    const importPatterns = {
+      'Zustand': /['"]zustand['"]/,
+      'Jotai': /['"]jotai['"]/,
+      'Redux': /['"]@reduxjs\/toolkit['"]|['"]redux['"]/,
+      'React Context': /['"]react['"]/,
+    };
+
+    const storePatterns = {
+        'Zustand': /use[A-Z][a-zA-Z]*Store/g,
+    };
+
+    const lines = content.split('\n');
+    let detectedLibs = new Set();
+
+    for (const line of lines) {
+      // First, check for imports to identify potential libraries
+      for (const [lib, pattern] of Object.entries(importPatterns)) {
+        if (pattern.test(line)) {
+            detectedLibs.add(lib);
+        }
+      }
+    }
+    
+    // Now, confirm usage to avoid flagging 'react' for context every time
+    for (const lib of detectedLibs) {
+        if (statePatterns[lib] && statePatterns[lib].test(content)) {
+            info.libraries.push(lib);
+
+            // If we found a library, try to find the specific store being used
+            if (storePatterns[lib]) {
+                const matches = content.match(storePatterns[lib]);
+                if (matches) {
+                    info.storesUsed.push(...matches);
+                }
+            }
+        }
+    }
+    
+    info.storesUsed = [...new Set(info.storesUsed)]; // Deduplicate
+    
+    return info;
+  }
 }
 
 // CLI interface

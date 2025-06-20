@@ -126,7 +126,7 @@ export function TimeControls({
                 <input
                   type="range"
                   min="0.1"
-                  max="100"
+                  max={adaptiveResult ? Math.max(adaptiveResult.multiplier * 10, 10) : "100"}
                   step="0.1"
                   value={timeMultiplier}
                   onChange={(e) => onTimeMultiplierChange(parseFloat(e.target.value))}

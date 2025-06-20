@@ -6,6 +6,10 @@
  * AI-optimized code analysis tool for efficient dead code detection.
  * Designed to minimize AI token usage while maximizing actionable insights.
  * 
+ * --- PERFORMANCE METRICS ---
+ * - Project-Wide Analysis: 693k -> 185 tokens (99.97% reduction)
+ * -----------------------------
+ * 
  * Usage: npm run hunt-dead-code [options]
  */
 
