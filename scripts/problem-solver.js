@@ -37,17 +37,26 @@ class ProblemSolver {
     
     this.results.problem = problemDescription;
     
-    // Extract key terms from problem description
-    const keywords = this.extractKeywords(problemDescription);
-    console.log('🎯 Key terms:', keywords.join(', '));
-    
-    // Find relevant files based on problem description
-    await this.findRelevantFiles(keywords);
+    // Enhanced: Parse build errors and extract specific issues
+    const buildError = this.parseBuildError(problemDescription);
+    if (buildError) {
+      console.log('🚨 Build error detected:', buildError.type);
+      this.results.buildError = buildError;
+      
+      // For build errors, do targeted analysis
+      await this.analyzeBuildError(buildError);
+    } else {
+      // Standard problem analysis flow
+      const keywords = this.extractKeywords(problemDescription);
+      console.log('🎯 Key terms:', keywords.join(', '));
+      
+      await this.findRelevantFiles(keywords);
+    }
     
     // Analyze patterns related to the problem
-    await this.findRelatedPatterns(keywords);
+    await this.findRelatedPatterns(this.results.keywords || []);
     
-    // Check dependencies and impact
+    // Enhanced: Deep dependency analysis with import validation
     await this.analyzeDependencies();
     
     // Assess test coverage for relevant areas
@@ -55,6 +64,9 @@ class ProblemSolver {
     
     // Generate risk assessment
     this.assessRisk();
+    
+    // Enhanced: Generate comprehensive fix suggestions
+    await this.generateFixSuggestions();
     
     // Suggest implementation approach
     this.suggestApproach();
@@ -82,6 +94,188 @@ class ProblemSolver {
     keywords.push(...filePatterns);
     
     return [...new Set(keywords.map(k => k.toLowerCase()))];
+  }
+
+  parseBuildError(description) {
+    // Parse different types of build errors
+    const patterns = {
+      moduleNotFound: /Module not found.*Can't resolve\s+['"]([^'"]+)['"]/i,
+      importError: /Cannot import.*from\s+['"]([^'"]+)['"]/i,
+      typeError: /Type\s+['"]([^'"]+)['"]\s+has no property\s+['"]([^'"]+)['"]/i,
+      syntaxError: /SyntaxError.*in\s+(.+?):/i
+    };
+
+    for (const [type, pattern] of Object.entries(patterns)) {
+      const match = description.match(pattern);
+      if (match) {
+        const result = { type, rawError: description };
+        
+        switch (type) {
+          case 'moduleNotFound':
+            result.missingModule = match[1];
+            result.affectedFile = this.extractFileFromError(description);
+            break;
+          case 'importError':
+            result.importPath = match[1];
+            result.affectedFile = this.extractFileFromError(description);
+            break;
+          case 'typeError':
+            result.typeName = match[1];
+            result.property = match[2];
+            break;
+          case 'syntaxError':
+            result.affectedFile = match[1];
+            break;
+        }
+        
+        return result;
+      }
+    }
+    
+    return null;
+  }
+
+  extractFileFromError(errorMessage) {
+    // Extract file path from common error message formats
+    const patterns = [
+      /\.\/([^:\s]+\.tsx?)/,
+      /in\s+([^:\s]+\.tsx?)/,
+      /at\s+([^:\s]+\.tsx?)/
+    ];
+    
+    for (const pattern of patterns) {
+      const match = errorMessage.match(pattern);
+      if (match) return match[1];
+    }
+    
+    return null;
+  }
+
+  async analyzeBuildError(buildError) {
+    console.log('🔧 Analyzing build error...');
+    
+    if (buildError.type === 'moduleNotFound' && buildError.affectedFile) {
+      // Import the ImportAnalyzer for dependency analysis
+      const { ImportAnalyzer } = require('./import-analyzer');
+      const importAnalyzer = new ImportAnalyzer();
+      
+      try {
+        // Analyze the specific file with the error
+        const filePath = buildError.affectedFile.startsWith('./') 
+          ? buildError.affectedFile.slice(2) 
+          : buildError.affectedFile;
+        
+        const fullPath = require('path').join(process.cwd(), filePath);
+        const analysis = await importAnalyzer.analyzeFile(fullPath);
+        
+        this.results.importAnalysis = analysis;
+        this.results.relevantFiles = [{ 
+          path: fullPath, 
+          score: 100, 
+          description: 'File with build error',
+          analysis 
+        }];
+        
+        // Find suggestions for the missing module
+        const missingImport = analysis.broken.find(b => 
+          b.path.includes(buildError.missingModule) || 
+          buildError.missingModule.includes(b.path)
+        );
+        
+        if (missingImport) {
+          this.results.missingImport = missingImport;
+          
+          // Look for similar files that might be the correct import
+          const suggestions = analysis.suggestions.filter(s => 
+            s.broken.includes(buildError.missingModule.split('/').pop())
+          );
+          
+          this.results.importSuggestions = suggestions;
+        }
+        
+        this.results.keywords = [buildError.missingModule, require('path').basename(buildError.affectedFile)];
+        
+      } catch (error) {
+        console.warn('⚠️ Could not analyze import error:', error.message);
+        // Fallback to keyword-based analysis
+        this.results.keywords = this.extractKeywords(buildError.rawError);
+        await this.findRelevantFiles(this.results.keywords);
+      }
+    } else {
+      // For other build errors, use keyword extraction
+      this.results.keywords = this.extractKeywords(buildError.rawError);
+      await this.findRelevantFiles(this.results.keywords);
+    }
+  }
+
+  async generateFixSuggestions() {
+    console.log('💡 Generating fix suggestions...');
+    
+    const suggestions = [];
+    
+    // Build error specific suggestions
+    if (this.results.buildError) {
+      const { buildError } = this.results;
+      
+      if (buildError.type === 'moduleNotFound') {
+        suggestions.push({
+          type: 'import-fix',
+          priority: 'critical',
+          description: `Fix missing import: ${buildError.missingModule}`,
+          action: 'fix-import',
+          details: {
+            file: buildError.affectedFile,
+            missingImport: buildError.missingModule,
+            suggestions: this.results.importSuggestions || []
+          }
+        });
+        
+        // Check for pattern-based fixes
+        if (this.results.importAnalysis?.broken.length > 1) {
+          suggestions.push({
+            type: 'bulk-fix',
+            priority: 'high',
+            description: `Fix ${this.results.importAnalysis.broken.length} broken imports in this file`,
+            action: 'bulk-fix-imports',
+            details: {
+              file: buildError.affectedFile,
+              brokenImports: this.results.importAnalysis.broken
+            }
+          });
+        }
+      }
+    }
+    
+    // Pattern-based suggestions
+    if (this.results.patterns?.includes('Performance Optimization')) {
+      suggestions.push({
+        type: 'performance',
+        priority: 'medium',
+        description: 'Add performance monitoring and optimization',
+        action: 'add-performance-monitoring'
+      });
+    }
+    
+    if (this.results.patterns?.includes('Testing')) {
+      suggestions.push({
+        type: 'testing',
+        priority: 'medium',
+        description: 'Enhance test coverage for affected components',
+        action: 'add-comprehensive-tests'
+      });
+    }
+    
+    // Coverage-based suggestions
+    if (this.results.testCoverage?.coverage < 50) {
+      suggestions.push({
+        type: 'testing',
+        priority: 'high',
+        description: `Improve test coverage from ${this.results.testCoverage.coverage}% to 70%+`,
+        action: 'improve-test-coverage'
+      });
+    }
+    
+    this.results.fixSuggestions = suggestions;
   }
 
   async findRelevantFiles(keywords) {
@@ -339,11 +533,39 @@ ${this.results.dependencies.map(d => `- ${d}`).join('\n')}
 
 ${this.results.patterns.map(p => `- ${p}`).join('\n')}
 
+${this.results.buildError ? `
+## 🚨 Build Error Analysis
+
+**Error Type**: ${this.results.buildError.type}
+**Missing Module**: ${this.results.buildError.missingModule || 'N/A'}
+**Affected File**: ${this.results.buildError.affectedFile || 'N/A'}
+
+${this.results.importSuggestions && this.results.importSuggestions.length > 0 ? `
+### Import Suggestions
+${this.results.importSuggestions.map(s => 
+  `- Replace \`${s.broken}\` with \`${s.suggested}\` (${s.confidence} confidence)`
+).join('\n')}
+` : ''}
+` : ''}
+
 ## 🧪 Test Coverage Analysis
 
 - **Coverage**: ${this.results.testCoverage.coverage}%
 - **Tested Files**: ${this.results.testCoverage.tested}
 - **Untested Files**: ${this.results.testCoverage.untested}
+
+${this.results.fixSuggestions && this.results.fixSuggestions.length > 0 ? `
+## 🔧 Fix Suggestions
+
+${this.results.fixSuggestions.map(fix => 
+  `### ${fix.priority === 'critical' ? '🚨' : fix.priority === 'high' ? '⚠️' : '💡'} ${fix.description}
+**Priority**: ${fix.priority}
+**Type**: ${fix.type}
+**Action**: ${fix.action}
+${fix.details ? `**Details**: ${JSON.stringify(fix.details, null, 2)}` : ''}
+`
+).join('\n')}
+` : ''}
 
 ## 💡 Suggested Implementation Approach
 

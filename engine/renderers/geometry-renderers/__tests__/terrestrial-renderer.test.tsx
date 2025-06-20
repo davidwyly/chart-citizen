@@ -12,7 +12,7 @@ vi.mock('../../planets/planet-rings-renderer', () => ({
 }))
 
 // Mock the terrestrial planet material
-vi.mock('../../planets/materials/terrestrial-planet-material', () => ({
+vi.mock('../materials/terrestrial-planet-material', () => ({
   TerrestrialPlanetMaterial: (props: any) => <meshBasicMaterial data-testid="terrestrial-material" {...props} />
 }))
 

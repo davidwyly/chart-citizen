@@ -3,7 +3,7 @@
 import React, { useRef, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
-import { PlanetRingsRenderer } from "../planets/planet-rings-renderer"
+import { PlanetRingsRenderer } from "./planet-rings-renderer"
 import { InteractiveObject } from "../../components/3d-ui/interactive-object"
 import type { GeometryRendererProps } from "./types"
 

@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react"
 import * as THREE from "three"
-import { PlanetRingsRenderer } from "../planets/planet-rings-renderer"
+import { PlanetRingsRenderer } from "./planet-rings-renderer"
 import type { GeometryRendererProps } from "./types"
 
 /**
