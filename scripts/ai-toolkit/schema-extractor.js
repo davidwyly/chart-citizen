@@ -7,8 +7,7 @@ class SchemaExtractor {
     this.verbose = Boolean(options.verbose);
   }
 
-  async extractSchema(target) {
-    const [filePath, symbolName] = target.split(':');
+  async extractSchema(filePath, symbolName) {
     if (!filePath || !symbolName) {
       console.error('❌ Invalid target. Use format: <file-path>:<symbol-name>');
       process.exit(1);

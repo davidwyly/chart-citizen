@@ -772,15 +772,25 @@ For detailed help: npm run ai-toolkit help
     await searcher.search(keyword);
   }
 
-  async runSchemaExtractor(target) {
-    const [filePath, symbolName] = target.split(':');
-    if (!filePath || !symbolName) {
-      console.error('❌ Invalid target. Use format: <file-path>:<symbol-name>');
-      process.exit(1);
+  async runSchemaExtractor(args) {
+    const target = args[0];
+    if (!target) {
+      this.logError('❌ Schema command requires a target in the format "file:symbol"');
+      return;
     }
-    this.log(`🔎 Extracting schema for: ${target}`);
-    const extractor = new SchemaExtractor({ rootDir: this.options.rootDir, debug: this.debug });
-    await extractor.extractSchema(target);
+    this.log(`🧬 Extracting schema for: ${target}`);
+    try {
+      const [filePath, symbolName] = target.split(':');
+      if (!filePath || !symbolName) {
+        this.logError('❌ Invalid schema target format. Use "path/to/file.ts:symbolName"');
+        return;
+      }
+      const extractor = new SchemaExtractor(this.options.rootDir);
+      const schema = await extractor.extractSchema(filePath, symbolName);
+      this.log(schema);
+    } catch (error) {
+      this.logError(`❌ Analysis failed: ${error}`);
+    }
   }
 
   async runErrorAnalysis(errorMessage) {
@@ -804,14 +814,31 @@ For detailed help: npm run ai-toolkit help
   }
 
   async runTestSummary(args) {
-    this.log('🧪 Summarizing test output...');
-    const analyzer = new TestOutputAnalyzer({ 
-      rootDir: this.options.rootDir, 
-      debug: this.debug,
-      failuresOnly: args.includes('--failures-only')
-    });
-    const summary = await analyzer.analyze(args);
-    printCompactJSON(summary);
+    this.log('Running test summary...');
+    // Allow parsing a log file directly for CI/CD or offline use
+    const logFileFlag = '--parse-log=';
+    const logFileArg = args.find(arg => arg.startsWith(logFileFlag));
+    const failuresOnly = args.includes('--failures-only');
+    
+    try {
+      const analyzer = new TestOutputAnalyzer({
+        rootDir: this.options.rootDir,
+        verbose: this.debug,
+        failuresOnly,
+      });
+
+      if (logFileArg) {
+        const logPath = logFileArg.replace(logFileFlag, '');
+        const summary = await analyzer.analyzeLogFile(logPath);
+        this.log(summary);
+      } else {
+        const command = 'npm test -- --run'; // Default test command
+        const summary = await analyzer.runTestAnalysis(command);
+        this.log(summary);
+      }
+    } catch (error) {
+      this.logError(`❌ Analysis failed: ${error.stack}`);
+    }
   }
 
   async runFindUsages(args) {
