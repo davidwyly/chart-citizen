@@ -70,7 +70,7 @@ describe('RenderingConfiguration', () => {
       expect(orbital.safetyFactors.minimum).toBe(2.0);           // At least 2x safety
       expect(orbital.safetyFactors.explorational).toBe(2.5);     // explorational mode
       expect(orbital.safetyFactors.navigational).toBe(3.0);      // navigational mode
-      expect(orbital.safetyFactors.profile).toBe(3.5);           // profile mode
+      expect(orbital.safetyFactors.profile).toBe(1.05);          // profile mode (updated for tighter layouts)
       expect(orbital.safetyFactors.scientific).toBe(1.1);        // scientific mode
       expect(orbital.safetyFactors.moonMinimum).toBe(2.0);       // Moon safety factor
     });

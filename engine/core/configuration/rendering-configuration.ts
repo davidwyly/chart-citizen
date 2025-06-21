@@ -67,7 +67,7 @@ export interface OrbitalConfiguration {
   readonly baseScaling: {
     readonly explorational: number;       // 50.0 - Base orbit scaling for explorational mode
     readonly navigational: number;        // 40.0 - Base orbit scaling for navigational mode
-    readonly profile: number;             // 0.3 - Base orbit scaling for profile mode
+    readonly profile: number;             // 0.05 - Base orbit scaling for profile mode (highly compressed for diagrams)
     readonly scientific: number;          // 1.0 - Base orbit scaling for scientific mode (uses real data)
     readonly default: number;             // 50.0 - Default orbit scaling fallback
   };
@@ -76,7 +76,7 @@ export interface OrbitalConfiguration {
     readonly minimum: number;             // 2.0 - Minimum safety factor for all modes
     readonly explorational: number;       // 2.5 - Safety factor for explorational mode
     readonly navigational: number;        // 3.0 - Safety factor for navigational mode
-    readonly profile: number;             // 3.5 - Safety factor for profile mode
+    readonly profile: number;             // 1.05 - Safety factor for profile mode (minimal for very tight diagrams)
     readonly scientific: number;          // 1.1 - Safety factor for scientific mode (minimal for accuracy)
     readonly moonMinimum: number;         // 2.0 - Minimum safety factor specifically for moon spacing
   };
@@ -104,8 +104,8 @@ export interface OrbitalConfiguration {
   };
   
   readonly equidistantSpacing: {
-    readonly baseSpacing: number;         // 10 - Base spacing for equidistant orbital layout
-    readonly spacingMultiplier: number;   // 1.5 - Multiplier for spacing between orbits
+    readonly baseSpacing: number;         // 0.5 - Base spacing for equidistant orbital layout (tighter profile diagrams)
+    readonly spacingMultiplier: number;   // 1.0 - Multiplier for spacing between orbits (linear for profiles)
   };
 }
 
@@ -225,7 +225,7 @@ export const DEFAULT_RENDERING_CONFIGURATION: RenderingConfiguration = {
     baseScaling: {
       explorational: 50.0,
       navigational: 40.0,
-      profile: 0.3,
+      profile: 0.05,        // FIXED: Much more compressed for profile diagrams (was 0.3)
       scientific: 1.0,
       default: 50.0,
     },
@@ -233,7 +233,7 @@ export const DEFAULT_RENDERING_CONFIGURATION: RenderingConfiguration = {
       minimum: 2.0,
       explorational: 2.5,
       navigational: 3.0,
-      profile: 3.5,
+      profile: 1.05,        // FIXED: Even smaller safety factor for tighter profile diagrams (was 1.2)
       scientific: 1.1,
       moonMinimum: 2.0,
     },
@@ -256,8 +256,8 @@ export const DEFAULT_RENDERING_CONFIGURATION: RenderingConfiguration = {
       defaultBeltWidth: 0.2,
     },
     equidistantSpacing: {
-      baseSpacing: 10,
-      spacingMultiplier: 1.5,
+      baseSpacing: 0.5,     // FIXED: Even smaller base spacing for tighter profile diagrams (was 0.8)
+      spacingMultiplier: 1.0, // FIXED: Linear spacing for clean profile layout (was 1.5)
     },
   },
   
