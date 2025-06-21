@@ -39,7 +39,7 @@ vi.mock('@react-three/drei', () => ({
 
 vi.mock('@react-three/postprocessing', () => ({
   EffectComposer: ({ children }: { children: React.ReactNode }) => <div data-testid="effect-composer">{children}</div>,
-  Bloom: () => <div data-testid="bloom" />
+  // Bloom: () => <div data-testid="bloom" /> // Removed for build compatibility
 }))
 
 // Mock Three.js

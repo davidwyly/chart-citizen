@@ -353,6 +353,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         console.log('    🌐 scene children count:', scene?.children?.length)
         
         // Use system data to find orbital relationships instead of Three.js traversal
+        let childObjects: any[] = []
         if (systemData && focusName && objectRefsMap) {
           console.log('  ✅ Using system data to find orbital relationships')
           console.log('  🔍 Looking for children of:', focusName)
@@ -364,7 +365,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           )
           const focusedObjectId = focusedObjectData?.id
           
-          const childObjects = systemData.objects?.filter((obj: any) => 
+          childObjects = systemData.objects?.filter((obj: any) => 
             obj.orbit?.parent === focusName.toLowerCase() || 
             obj.orbit?.parent === focusedObjectId
           ) || []
@@ -375,13 +376,45 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           for (const childObj of childObjects) {
             const childThreeObj = objectRefsMap.current.get(childObj.id)
             if (childThreeObj) {
+              let actualChildObject = childThreeObj
+              
+              // PROFILE VIEW FIX: If the ref is an orbital group, find the actual object inside
+              if (childThreeObj.type === 'Group') {
+                console.log('  🔧 Found orbital group for', childObj.name, '- searching for actual object inside')
+                
+                // Look for the actual object inside the group
+                let foundChild = null
+                childThreeObj.traverse((child: THREE.Object3D) => {
+                  // Skip the group itself and find actual objects
+                  if (child !== childThreeObj && 
+                      (child.userData?.name === childObj.name || 
+                       child.userData?.id === childObj.id ||
+                       child.type === 'Mesh' || 
+                       child.type === 'Object3D')) {
+                    foundChild = child
+                  }
+                })
+                
+                if (foundChild) {
+                  actualChildObject = foundChild
+                  console.log('  ✅ Found actual', childObj.name, 'object inside group')
+                } else {
+                  console.log('  ⚠️ Could not find actual object inside group for', childObj.name)
+                }
+              }
+              
               // Use getWorldPosition instead of .position for objects in orbital groups
               const childWorldPos = new THREE.Vector3()
-              childThreeObj.getWorldPosition(childWorldPos)
+              actualChildObject.getWorldPosition(childWorldPos)
+              console.log('  📍', childObj.name, 'world position:', childWorldPos)
+              
               const distance = focalCenter.distanceTo(childWorldPos)
+              console.log('  📏 Distance from focal center:', distance)
+              
               if (distance > maxDistance) {
                 maxDistance = distance
                 outermostCenter = childWorldPos.clone()
+                console.log('  🎯 New outermost:', childObj.name, 'at distance', distance)
               }
             }
           }
@@ -449,13 +482,15 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
         const layoutSpan = focalCenter.distanceTo(outermostCenter)
         let profileDistance: number
         
-        // For single objects (fake outermost), use a fixed reasonable distance
-        if (maxDistance > 0 && maxDistance < 20) { // This indicates we used a fake small offset
-          profileDistance = 15 // Fixed reasonable distance for single objects
-          console.log('    🎯 Using fixed distance for single object:', profileDistance)
+        // Check if we found actual child objects or used a fake outermost point
+        if (childObjects.length === 0) {
+          // No child objects found - use fixed reasonable distance for single objects
+          profileDistance = 15
+          console.log('    🎯 Using fixed distance for single object (no children):', profileDistance)
         } else {
-          profileDistance = Math.max(layoutSpan * 1.2, 20) // Normal calculation for multi-object systems
-          console.log('    🌌 Using layout span distance:', profileDistance)
+          // Real child objects found - use layout span calculation
+          profileDistance = Math.max(layoutSpan * 1.2, 20)
+          console.log('    🌌 Using layout span distance (with children):', profileDistance)
         }
         
         const profileAngle = viewConfig.cameraConfig.viewingAngles.defaultElevation * (Math.PI / 180)
@@ -638,6 +673,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           console.log('    🌐 scene children count:', scene?.children?.length)
           
           // Use system data to find orbital relationships instead of Three.js traversal
+          let childObjects: any[] = []
           if (systemData && focusName && objectRefsMap) {
             console.log('  ✅ Object focus - Using system data to find orbital relationships')
             console.log('  🔍 Looking for children of:', focusName)
@@ -649,7 +685,7 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
             )
             const focusedObjectId = focusedObjectData?.id
             
-            const childObjects = systemData.objects?.filter((obj: any) => 
+            childObjects = systemData.objects?.filter((obj: any) => 
               obj.orbit?.parent === focusName.toLowerCase() || 
               obj.orbit?.parent === focusedObjectId
             ) || []
@@ -660,13 +696,45 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
             for (const childObj of childObjects) {
               const childThreeObj = objectRefsMap.current.get(childObj.id)
               if (childThreeObj) {
+                let actualChildObject = childThreeObj
+                
+                // PROFILE VIEW FIX: If the ref is an orbital group, find the actual object inside
+                if (childThreeObj.type === 'Group') {
+                  console.log('  🔧 Object focus - Found orbital group for', childObj.name, '- searching for actual object inside')
+                  
+                  // Look for the actual object inside the group
+                  let foundChild = null
+                  childThreeObj.traverse((child: THREE.Object3D) => {
+                    // Skip the group itself and find actual objects
+                    if (child !== childThreeObj && 
+                        (child.userData?.name === childObj.name || 
+                         child.userData?.id === childObj.id ||
+                         child.type === 'Mesh' || 
+                         child.type === 'Object3D')) {
+                      foundChild = child
+                    }
+                  })
+                  
+                  if (foundChild) {
+                    actualChildObject = foundChild
+                    console.log('  ✅ Object focus - Found actual', childObj.name, 'object inside group')
+                  } else {
+                    console.log('  ⚠️ Object focus - Could not find actual object inside group for', childObj.name)
+                  }
+                }
+                
                 // Use getWorldPosition instead of .position for objects in orbital groups
                 const childWorldPos = new THREE.Vector3()
-                childThreeObj.getWorldPosition(childWorldPos)
+                actualChildObject.getWorldPosition(childWorldPos)
+                console.log('  📍 Object focus -', childObj.name, 'world position:', childWorldPos)
+                
                 const distance = focalCenter.distanceTo(childWorldPos)
+                console.log('  📏 Object focus - Distance from focal center:', distance)
+                
                 if (distance > maxDistance) {
                   maxDistance = distance
                   outermostCenter = childWorldPos.clone()
+                  console.log('  🎯 Object focus - New outermost:', childObj.name, 'at distance', distance)
                 }
               }
             }
@@ -734,13 +802,15 @@ export const UnifiedCameraController = forwardRef<UnifiedCameraControllerRef, Un
           const layoutSpan = focalCenter.distanceTo(outermostCenter)
           let profileDistance: number
           
-          // For single objects (fake outermost), use a fixed reasonable distance
-          if (maxDistance > 0 && maxDistance < 20) { // This indicates we used a fake small offset
-            profileDistance = targetDistance * 1.5 // Use the target distance calculated for this object
-            console.log('    🎯 Object focus - Using target distance for single object:', profileDistance)
+          // Check if we found actual child objects or used a fake outermost point
+          if (childObjects.length === 0) {
+            // No child objects found - use target distance for single object
+            profileDistance = targetDistance * 1.5
+            console.log('    🎯 Object focus - Using target distance for single object (no children):', profileDistance)
           } else {
-            profileDistance = Math.max(layoutSpan * 1.2, targetDistance * 1.5) // Normal calculation for multi-object systems
-            console.log('    🌌 Object focus - Using layout span distance:', profileDistance)
+            // Real child objects found - use layout span calculation
+            profileDistance = Math.max(layoutSpan * 1.2, targetDistance * 1.5)
+            console.log('    🌌 Object focus - Using layout span distance (with children):', profileDistance)
           }
           
           const profileAngle = viewConfig.cameraConfig.viewingAngles.defaultElevation * (Math.PI / 180)

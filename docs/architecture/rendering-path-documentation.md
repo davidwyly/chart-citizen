@@ -334,12 +334,32 @@ actualDistance = Math.max(desired, previousObject + effectiveRadius)
 - Use view-mode specific elevation angle
 - Frame entire system with smart distance calculation
 
-### Profile Mode Special Camera
+### Profile Mode Camera Integration
 
-**Layout** (`profile-layout-controller.tsx:75-95`):
-- 45° elevation angle
+**Strategy-Based Camera System** (`unified-camera-controller.tsx:338-378`):
+- **Primary**: Uses ProfileStrategy from strategy registry for camera positioning
+- **Fallback**: Legacy profile camera logic if strategy fails
+- Integrates with the strategy pattern architecture introduced in the pipeline redesign
+
+**ProfileStrategy Camera Calculation** (`profile-strategy.ts:40-64`):
+- 45° elevation angle via strategy interface
+- Uses `calculateProfileLayout()` method for layout-specific positioning
 - Centers between focal object and outermost orbiter
 - Automatic width-based distance calculation
+- Returns structured CameraPosition with animation settings
+
+**Integration Process**:
+1. `getViewModeStrategy('profile')` retrieves the ProfileStrategy
+2. Prepares LayoutInfo and SystemContext from current system state
+3. Calls `profileStrategy.calculateCameraPosition(layoutInfo, systemContext, config)`
+4. Applies returned camera position and target to Three.js camera
+5. Falls back to legacy logic if strategy fails
+
+**Benefits of Strategy Integration**:
+- Consistent camera behavior across view modes
+- Testable camera positioning logic
+- Extensible architecture for future camera enhancements
+- Clear separation between camera logic and view mode specifics
 
 ## Performance Optimizations
 

@@ -42,7 +42,7 @@ export class ProfileStrategy extends BaseViewModeStrategy {
     systemContext: SystemContext,
     config: RenderingConfiguration
   ): CameraPosition {
-    const { focusObject, focusObjectId, childObjects, systemBounds } = layoutInfo;
+    const { focusObject, childObjects, systemBounds } = layoutInfo;
     const { camera } = config;
     
     // Profile view uses special layout calculation
@@ -67,7 +67,7 @@ export class ProfileStrategy extends BaseViewModeStrategy {
     object: CelestialObject,
     focusObjectId: string | null,
     systemContext: SystemContext,
-    config: RenderingConfiguration
+    _config: RenderingConfiguration
   ): VisibilityConfig {
     const isFocused = object.id === focusObjectId;
     const isRelevantToFocus = this.isRelevantToFocusedObject(object, focusObjectId, systemContext);
@@ -264,7 +264,7 @@ export class ProfileStrategy extends BaseViewModeStrategy {
   private isRelevantToFocusedObject(
     object: CelestialObject,
     focusObjectId: string | null,
-    systemContext: SystemContext
+    _systemContext: SystemContext
   ): boolean {
     if (!focusObjectId) return true;
     
@@ -285,7 +285,7 @@ export class ProfileStrategy extends BaseViewModeStrategy {
   /**
    * Determine if a label should be shown in profile view
    */
-  private shouldShowProfileLabel(object: CelestialObject): boolean {
+  private shouldShowProfileLabel(_object: CelestialObject): boolean {
     // Show labels for all visible objects in profile mode for diagram clarity
     return true;
   }

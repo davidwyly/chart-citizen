@@ -125,9 +125,12 @@ export function TerrestrialRenderer({
     const atmosphereColor = new THREE.Color(0.5, 0.7, 0.9)
     const nightLightColor = new THREE.Color(1, 1, 0.6)
     // Scale terrain noise with mesh scale to maintain proper texture scale
-    // Larger planets should have more detailed terrain, not zoomed-in textures
+    // Use adaptive scaling that works for both large system scales and small celestial viewer scales
     const baseNoiseScale = tectonics * 2.0
-    const scaleAdjustedNoiseScale = baseNoiseScale * Math.max(scale * 0.5, 0.1) // Scale UP with planet size
+    // For very large scales (system viewer), scale down more aggressively
+    // For normal scales (celestial viewer), use moderate scaling
+    const scaleFactor = scale > 10 ? scale * 0.5 : Math.max(scale * 0.5, 0.1)
+    const scaleAdjustedNoiseScale = baseNoiseScale / scaleFactor
     const noiseScale = scaleAdjustedNoiseScale
 
     // Update refs for use in JSX
@@ -162,9 +165,9 @@ export function TerrestrialRenderer({
         if (uniforms.nightLightIntensity) uniforms.nightLightIntensity.value = hasNightLights
         if (uniforms.terrainScale) uniforms.terrainScale.value = noiseScaleRef.current
         if (uniforms.rotationSpeed) uniforms.rotationSpeed.value = 0.2
-        if (uniforms.cloudScale) uniforms.cloudScale.value = 1.5 * Math.max(scale * 0.3, 0.1)
+        if (uniforms.cloudScale) uniforms.cloudScale.value = 1.5 / Math.max(scale * 0.3, 0.1)
         if (uniforms.cloudOpacity) uniforms.cloudOpacity.value = hasClouds * 0.6
-        if (uniforms.nightLightScale) uniforms.nightLightScale.value = 32.0 * Math.max(scale * 0.2, 0.1)
+        if (uniforms.nightLightScale) uniforms.nightLightScale.value = 32.0 / Math.max(scale, 0.1)
         
         // Debug: Check for NaN/Infinity values that could cause black squares
         if (isNaN(time) || !isFinite(time)) {
@@ -286,10 +289,10 @@ export function TerrestrialRenderer({
                 seed: { value: seed },
                 rotationSpeed: { value: 0.2 },
                 terrainScale: { value: noiseScaleRef.current },
-                cloudScale: { value: 1.5 * Math.max(scale * 0.3, 0.1) },
+                cloudScale: { value: 1.5 / Math.max(scale * 0.3, 0.1) },
                 nightLightIntensity: { value: hasNightLights },
                 cloudOpacity: { value: hasClouds * 0.6 },
-                nightLightScale: { value: 32.0 * Math.max(scale * 0.2, 0.1) }
+                nightLightScale: { value: 32.0 / Math.max(scale, 0.1) }
               }}
               transparent
             />
@@ -305,7 +308,7 @@ export function TerrestrialRenderer({
               nightLightColor={nightLightColorRef.current}
               rotationSpeed={0.2}
               terrainScale={noiseScaleRef.current}
-              cloudScale={1.5 * Math.max(scale * 0.3, 0.1)}
+              cloudScale={1.5 / Math.max(scale * 0.3, 0.1)}
               // Use our calculated parameters
               waterCoverage={waterCoverage}
               temperatureClass={temperatureClass}

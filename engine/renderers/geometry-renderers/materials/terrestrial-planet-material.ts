@@ -1,6 +1,7 @@
 import { shaderMaterial } from "@react-three/drei"
 import * as THREE from "three"
 import { extend } from "@react-three/fiber"
+import type { EffectsLevel } from "@/lib/types/effects-level"
 
 export const TerrestrialPlanetMaterial = shaderMaterial(
   {
@@ -10,7 +11,9 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     seaColor: new THREE.Color(0.0, 0.18, 0.45),
     sandColor: new THREE.Color(0.9, 0.66, 0.3),
     snowColor: new THREE.Color(1.0, 1.0, 1.0),
+    floraColor: new THREE.Color(0.2, 0.5, 0.1),
     atmosphereColor: new THREE.Color(0.05, 0.8, 1.0),
+    nightLightColor: new THREE.Color(1.0, 1.0, 0.6),
     lightDirection: new THREE.Vector3(1.0, 0.0, 1.0),
     rotationSpeed: 0.2,
     terrainScale: 2.0,
@@ -18,6 +21,15 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     nightLightIntensity: 0.8,
     cloudOpacity: 0.6,
     nightLightScale: 32.0,
+    // Missing uniforms that are being passed from renderer
+    waterCoverage: 0.5,
+    temperatureClass: 0.5,
+    tectonics: 0.5,
+    geomagnetism: 0.3,
+    population: 0.0,
+    flora: 0.3,
+    soilTint: 0.45,
+    seed: 0.0,
   },
 
   // Vertex Shader
@@ -40,7 +52,9 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     uniform vec3 seaColor;
     uniform vec3 sandColor;
     uniform vec3 snowColor;
+    uniform vec3 floraColor;
     uniform vec3 atmosphereColor;
+    uniform vec3 nightLightColor;
     uniform float rotationSpeed;
     uniform float terrainScale;
     uniform float cloudScale;
@@ -48,13 +62,23 @@ export const TerrestrialPlanetMaterial = shaderMaterial(
     uniform float cloudOpacity;
     uniform float nightLightScale;
     uniform vec3 lightDirection;
+    uniform float waterCoverage;
+    uniform float temperatureClass;
+    uniform float tectonics;
+    uniform float geomagnetism;
+    uniform float population;
+    uniform float flora;
+    uniform float soilTint;
+    uniform float seed;
 
     varying vec3 vPosition;
 
     #define PI 3.14159265359
 
     float hash(vec3 p) {
-      return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
+      p = fract(p * 0.3183099 + 0.1);
+      p *= 17.0;
+      return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
     }
 
     float noise(vec3 p) {

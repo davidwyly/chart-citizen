@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense, useRef, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Preload } from '@react-three/drei'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
+// Post-processing effects removed for build compatibility
 import * as THREE from 'three'
 
 import { StarfieldSkybox } from '../skybox/starfield-skybox'
@@ -631,10 +631,7 @@ export function CelestialViewer({ initialObjectType, mode }: CelestialViewerProp
               </mesh>
             )}
 
-            {/* Post-processing */}
-            <EffectComposer>
-              <Bloom intensity={0.5} luminanceThreshold={0.1} />
-            </EffectComposer>
+            {/* Post-processing removed for build compatibility */}
 
             <Preload all />
           </Suspense>
