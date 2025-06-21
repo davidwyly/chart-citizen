@@ -29,6 +29,8 @@ const { LintSummaryAnalyzer } = require('./ai-toolkit/lint-summary-analyzer');
 const { SymbolLister } = require('./ai-toolkit/symbol-lister');
 const UsageFinder = require('./ai-toolkit/usage-finder');
 const PatternAnalyzer = require('./ai-toolkit/pattern-analyzer');
+const { SmartFileReader } = require('./ai-toolkit/smart-file-reader');
+const CodeHistoryAnalyzer = require('./ai-toolkit/code-history-analyzer');
 
 // --- NEW CONSTANTS/HELPERS FOR TOKEN-EFFICIENT OUTPUT ------------------------------------
 // Utility that prints compact JSON without spacing – drastically reduces tokens vs pretty print.
@@ -56,7 +58,7 @@ class AIWorkflowToolkit {
     };
 
     this.writeFiles = Boolean(options.writeFiles);
-    this.verbose = Boolean(options.verbose);
+    this.debug = Boolean(options.debug);
 
     this.commands = {
       'imports': { handler: this.runImportAnalysis, description: 'Comprehensive import analysis and bulk fixing' },
@@ -70,6 +72,8 @@ class AIWorkflowToolkit {
       'list-symbols': { handler: this.runListSymbols, description: 'List all exported symbols from a file' },
       'find-usages': { handler: this.runFindUsages, description: 'Find all usages of a symbol' },
       'analyze-patterns': { handler: this.runPatternAnalysis, description: 'Find inconsistent patterns and implementations' },
+      'extract-code': { handler: this.runCodeExtraction, description: 'Extract specific code snippets from a file (e.g., functions, classes, imports, exports, minified)' },
+      'code-history': { handler: this.runCodeHistoryAnalysis, description: 'Analyze git history for specific code snippets (functions, lines, classes)' },
       'dead-code': { handler: this.runDeadCodeAnalysis, description: 'Hunt for unused code and files', unifiedReport: true },
       'impact': { handler: this.runImpactAnalysis, description: 'Analyze refactoring impact', unifiedReport: true },
       'context': { handler: this.runContextAnalysis, description: 'Trace data flow and relationships' },
@@ -82,23 +86,19 @@ class AIWorkflowToolkit {
   }
 
   log(message) {
-    if (this.verbose) {
-      console.log(message);
+    if (this.debug) {
+      console.log(`[AIWorkflowToolkit DEBUG] ${message}`);
     }
   }
 
   async run(command, args = []) {
-    // Detect CLI flags and strip from args so downstream logic is unaffected
-    if (args.includes('--write-files')) {
-      this.writeFiles = true;
-      args = args.filter(a => a !== '--write-files');
-    }
-    if (args.includes('--verbose')) {
-      this.verbose = true;
-      args = args.filter(a => a !== '--verbose');
-    }
+    // The debug flag is now handled at the entry point before toolkit instantiation.
+    // No need to process it here from `args`.
     
     this.log(`🚀 AI Workflow Toolkit Starting...`);
+    this.log(`AIWorkflowToolkit.run - this.debug: ${this.debug}`);
+    this.log(`AIWorkflowToolkit.run - command: ${command}, args: ${JSON.stringify(args)}`);
+
     const startTime = Date.now();
     
     this.results.command = command;
@@ -146,7 +146,8 @@ class AIWorkflowToolkit {
     const excludeTests = args.includes('--no-tests');
     const hunter = new DeadCodeHunter({
       rootDir: this.options.rootDir,
-      excludeTests
+      excludeTests,
+      debug: this.debug
     });
     
     const results = await hunter.hunt();
@@ -185,7 +186,8 @@ class AIWorkflowToolkit {
     }
     const analyzer = new ImportAnalyzer({ 
       rootDir: this.options.rootDir,
-      writeFiles: this.writeFiles 
+      writeFiles: this.writeFiles,
+      debug: this.debug
     });
 
     switch (subCommand) {
@@ -421,7 +423,7 @@ class AIWorkflowToolkit {
     this.log('🧪 Running Lint Summary Analysis...');
     const analyzer = new LintSummaryAnalyzer({ 
       rootDir: this.options.rootDir, 
-      verbose: this.verbose 
+      debug: this.debug 
     });
     await analyzer.analyze();
   }
@@ -434,7 +436,7 @@ class AIWorkflowToolkit {
       process.exit(1);
     }
     this.log(`🔎 Listing symbols for: ${filePath}`);
-    const lister = new SymbolLister({ rootDir: this.options.rootDir, verbose: this.verbose });
+    const lister = new SymbolLister({ rootDir: this.options.rootDir, debug: this.debug });
     await lister.listSymbols(filePath);
   }
 
@@ -580,11 +582,11 @@ class AIWorkflowToolkit {
     
     // Specific insights
     if (analyses.deadCode && analyses.deadCode.deadFiles.length > 0) {
-      summary.push(`**Dead Code Impact**: Removing ${analyses.deadCode.deadFiles.length} dead files can significantly improve codebase clarity, reduce cognitive load, and potentially decrease build times and bundle sizes.`);
+      summary.push(`**Dead Code**: ${analyses.deadCode.deadFiles.length} files for removal.`);
     }
     
     if (analyses.context && analyses.context.propChains.length > 0) {
-      summary.push(`**Architecture**: ${analyses.context.propChains.length} prop drilling patterns detected`);
+      summary.push(`**Architecture**: ${analyses.context.propChains.length} prop drilling patterns.`);
     }
     
     return summary.join('\n');
@@ -735,7 +737,7 @@ Options:
   --focus=type          Focus test gap analysis on specific file type
   --timeout=N           Command timeout in seconds (default: varies by command)
   --write-files         Persist detailed markdown/JSON reports (default: disabled)
-  --verbose             Show verbose status messages during execution
+  --debug               Show verbose status messages during execution
   --json                Generate JSON output (legacy)
 
 For detailed help: npm run ai-toolkit help
@@ -766,77 +768,60 @@ For detailed help: npm run ai-toolkit help
       console.log('   Usage: npm run ai-toolkit code-search "myFunction"');
       process.exit(1);
     }
-    const searcher = new CodeSearcher({ rootDir: this.options.rootDir, verbose: this.verbose });
+    const searcher = new CodeSearcher({ rootDir: this.options.rootDir, debug: this.debug });
     await searcher.search(keyword);
   }
 
-  async runSchemaExtractor(args) {
-    const target = args[0];
-    if (!target) {
-      console.error('❌ Schema extractor requires a target. Use format: <file-path>:<symbol-name>');
-      console.log('   Usage: npm run ai-toolkit schema "engine/types/engine.ts:EngineConfig"');
+  async runSchemaExtractor(target) {
+    const [filePath, symbolName] = target.split(':');
+    if (!filePath || !symbolName) {
+      console.error('❌ Invalid target. Use format: <file-path>:<symbol-name>');
       process.exit(1);
     }
     this.log(`🔎 Extracting schema for: ${target}`);
-    const extractor = new SchemaExtractor({ rootDir: this.options.rootDir, verbose: this.verbose });
+    const extractor = new SchemaExtractor({ rootDir: this.options.rootDir, debug: this.debug });
     await extractor.extractSchema(target);
   }
 
-  async runErrorAnalysis(args) {
-    const errorMessage = args[0];
-    if (!errorMessage) {
-      console.error('❌ Error analysis requires an error message');
-      console.log('   Usage: npm run ai-toolkit analyze-error "BatchedMesh is not exported from \'three\'"');
-      process.exit(1);
-    }
-    
-    this.log(`🔍 Analyzing error: ${errorMessage}`);
+  async runErrorAnalysis(errorMessage) {
+    this.log(`🚨 Analyzing error: "${errorMessage}"...`);
     const analyzer = new CompatibilityAnalyzer({ 
       rootDir: this.options.rootDir, 
-      verbose: this.verbose 
+      debug: this.debug 
     });
-    
-    await analyzer.analyzeError(errorMessage);
+    const solution = await analyzer.analyzeError(errorMessage);
+    printCompactJSON(solution);
   }
 
-  async runCompatibilityCheck(args) {
+  async runCompatibilityCheck() {
     this.log('🔍 Checking package compatibility...');
     const analyzer = new CompatibilityAnalyzer({ 
       rootDir: this.options.rootDir, 
-      verbose: this.verbose 
+      debug: this.debug 
     });
-    
-    await analyzer.checkCompatibility();
+    const conflicts = await analyzer.checkCompatibility();
+    printCompactJSON(conflicts);
   }
 
   async runTestSummary(args) {
-    this.log('🧪 Running test summary analysis...');
+    this.log('🧪 Summarizing test output...');
     const analyzer = new TestOutputAnalyzer({ 
       rootDir: this.options.rootDir, 
-      verbose: this.verbose,
+      debug: this.debug,
       failuresOnly: args.includes('--failures-only')
     });
-    
-    // Check if we should parse a log file
-    const logFile = args.find(arg => arg.startsWith('--log='))?.split('=')[1];
-    if (logFile) {
-      await analyzer.analyzeLogFile(logFile);
-    } else {
-      // Run tests and analyze output
-      const testCommand = args.find(arg => arg.startsWith('--command='))?.split('=')[1] || 'npm test --run';
-      const timeout = parseInt(args.find(arg => arg.startsWith('--timeout='))?.split('=')[1] || '120');
-      await analyzer.runTestAnalysis(testCommand, timeout);
-    }
+    const summary = await analyzer.analyze(args);
+    printCompactJSON(summary);
   }
 
   async runFindUsages(args) {
     const target = args[0];
     if (!target) {
-      console.error('❌ find-usages requires a target in the format "file:symbol"');
+      console.error('❌ Usage: npm run ai-toolkit find-usages <file-path>:<symbol-name>');
       process.exit(1);
     }
     this.log(`🔎 Finding usages for: ${target}`);
-    const finder = new UsageFinder({ rootDir: this.options.rootDir });
+    const finder = new UsageFinder({ rootDir: this.options.rootDir, debug: this.debug });
     const results = finder.findUsages(target);
     printCompactJSON(results);
   }
@@ -844,90 +829,146 @@ For detailed help: npm run ai-toolkit help
   async runPatternAnalysis(args) {
     this.log('🔬 Analyzing for architectural pattern inconsistencies...');
     
-    // This is the targeted logic from our purpose-built script.
-    // It's designed to find the exact kind of issue we faced.
-    const targetDir = path.join(this.options.rootDir, 'engine/renderers/geometry-renderers');
-    const filePattern = /-renderer\.tsx$/;
+    const analyzer = new PatternAnalyzer({ rootDir: this.options.rootDir, debug: this.debug });
+    const inconsistencies = await analyzer.analyzePatterns();
+    printCompactJSON({ summary: `Found ${inconsistencies.length} inconsistencies.`, inconsistencies });
+  }
 
-    // We need to define findInDir and other helpers here or import them. For now, let's assume they are available.
-    // To make this runnable, I'll need to create a temporary file with the simple analyzer logic.
-    
-    // Since I cannot create a new file, I will have to add the logic directly here.
-    const readFile = require('util').promisify(require('fs').readFile);
-    const { findInDir } = require('./ai-toolkit/utils'); // This file exists.
+  async runCodeExtraction(args) {
+    const subCommand = args[0];
+    const filePath = args[1];
+    const symbolName = args[2];
 
-    const IMPORT_REGEX = /import\s+.*\s+from\s+['"]((?:\.\/|\.\.\/)[^'"]+)['"]/g;
+    if (!subCommand || !filePath) {
+      console.error('❌ Usage: npm run ai-toolkit extract-code <function|class|imports|exports|minified|types|component-signature|component-props|state-management> <file-path> [symbol-name]');
+      process.exit(1);
+    }
 
-    async function analyzeFileImports(filePath) {
-        try {
-            const content = await readFile(filePath, 'utf8');
-            const imports = new Set();
-            let match;
-            while ((match = IMPORT_REGEX.exec(content)) !== null) {
-                imports.add(match[1]);
-            }
-            return imports;
-        } catch (error) {
-            return new Set();
+    const reader = new SmartFileReader();
+    let result = null;
+
+    this.log(`🔍 Extracting ${subCommand} from ${filePath}...`);
+
+    try {
+      switch (subCommand) {
+        case 'function':
+          if (!symbolName) throw new Error('Function name is required for \'function\' subcommand.');
+          result = await reader.getFunction(filePath, symbolName);
+          break;
+        case 'class':
+          if (!symbolName) throw new Error('Class name is required for \'class\' subcommand.');
+          result = await reader.getClass(filePath, symbolName);
+          break;
+        case 'imports':
+          result = await reader.getImports(filePath);
+          break;
+        case 'exports':
+          result = await reader.getExports(filePath);
+          break;
+        case 'minified':
+          result = await reader.getMinified(filePath);
+          break;
+        case 'types':
+          result = await reader.getTypes(filePath);
+          break;
+        case 'component-signature':
+          if (!symbolName) throw new Error('Component name is required for \'component-signature\' subcommand.');
+          result = await reader.getComponentSignature(filePath, symbolName);
+          break;
+        case 'component-props':
+          if (!symbolName) throw new Error('Component name is required for \'component-props\' subcommand.');
+          result = await reader.getComponentProps(filePath, symbolName);
+          break;
+        case 'state-management':
+          result = await reader.getStateManagementInfo(filePath);
+          break;
+        default:
+          throw new Error(`Unknown subcommand for extract-code: ${subCommand}`);
+      }
+
+      if (result) {
+        printCompactJSON(result);
+      } else {
+        console.log(JSON.stringify({ file: filePath, subcommand: subCommand, symbol: symbolName || 'N/A', message: 'No matching code found.' }));
+      }
+    } catch (error) {
+      console.error(`❌ Error during code extraction: ${error.message}`);
+      process.exit(1);
+    }
+  }
+
+  async runCodeHistoryAnalysis(args) {
+    const filePath = args[0];
+
+    // Flexible flag parsing helper
+    const getFlagValue = (flag) => {
+      const prefixed = `--${flag}=`;
+      for (let i = 1; i < args.length; i++) {
+        const a = args[i];
+        // --flag=value form
+        if (a.startsWith(prefixed)) {
+          return a.substring(prefixed.length);
         }
-    }
-
-    function classifyImports(imports) {
-        const patterns = { enhanced: new Set(), standard: new Set() };
-        for (const imp of imports) {
-            if (imp.includes('enhanced')) patterns.enhanced.add(imp);
-            else if (imp.includes('material')) patterns.standard.add(imp);
+        // --flag value form
+        if (a === `--${flag}` && i + 1 < args.length) {
+          return args[i + 1];
         }
-        return patterns;
+      }
+      return null;
+    };
+
+    const symbolName = getFlagValue('symbol');
+    const lineRange = getFlagValue('lines');
+
+    if (!filePath) {
+      console.error('❌ Usage: npm run ai-toolkit code-history <file-path> [--symbol=<symbol-name> | --lines=<start-line>:<end-line>]');
+      process.exit(1);
     }
 
-    const files = await findInDir(targetDir, filePattern);
-    const fileAnalyses = await Promise.all(files.map(async file => {
-        const imports = await analyzeFileImports(file);
-        return { file, patterns: classifyImports(imports) };
-    }));
-
-    const enhancedFiles = fileAnalyses.filter(f => f.patterns.enhanced.size > 0);
-    const standardFiles = fileAnalyses.filter(f => f.patterns.standard.size > 0 && f.patterns.enhanced.size === 0);
-
-    let inconsistencies = [];
-    // If we have a mix of some files using enhanced materials and others using standard ones, we have a pattern drift.
-    if (enhancedFiles.length > 0 && standardFiles.length > 0) {
-        inconsistencies = standardFiles.map(({ file, patterns }) => ({
-            file: path.relative(this.options.rootDir, file),
-            type: 'DependencyOutlier',
-            severity: 'High',
-            message: `This component appears to be using an outdated standard material, while other components in this directory have been updated to an 'enhanced' material pattern.`,
-            details: { used: [...patterns.standard] },
-            recommendation: 'Review this file and consider upgrading its dependencies to align with the current architecture.'
-        }));
+    let startLine = null;
+    let endLine = null;
+    if (lineRange) {
+      const parts = lineRange.split(':');
+      if (parts.length === 2) {
+        startLine = parseInt(parts[0], 10);
+        endLine = parseInt(parts[1], 10);
+        if (isNaN(startLine) || isNaN(endLine)) {
+          console.error('❌ Invalid line range format. Use --lines=<start-line>:<end-line>');
+          process.exit(1);
+        }
+      } else {
+        console.error('❌ Invalid line range format. Use --lines=<start-line>:<end-line>');
+        process.exit(1);
+      }
     }
 
-    if (inconsistencies.length === 0) {
-        printCompactJSON({
-            summary: "✅ No major architectural pattern inconsistencies were detected among peer components.",
-            inconsistencies: []
-        });
-    } else {
-        printCompactJSON({
-            summary: `⚠️ Found ${inconsistencies.length} component(s) that deviate from the dominant architectural pattern.`,
-            inconsistencies
-        });
+    const analyzer = new CodeHistoryAnalyzer({ rootDir: this.options.rootDir, debug: this.debug });
+    this.log(`DEBUG: runCodeHistoryAnalysis - CodeHistoryAnalyzer options debug: ${this.debug}`);
+
+    this.log(`🔍 Analyzing code history for ${filePath}${symbolName ? ' (symbol: ' + symbolName + ')' : ''}${lineRange ? ' (lines: ' + lineRange + ')' : ''}...`);
+
+    try {
+      const result = await analyzer.analyze(filePath, symbolName, startLine, endLine);
+      printCompactJSON(result);
+    } catch (error) {
+      console.error(`❌ Error during code history analysis: ${error.message}`);
+      process.exit(1);
     }
   }
 }
 
-// CLI interface
-if (require.main === module) {
-  const command = process.argv[2];
-  const args = process.argv.slice(3);
+// CLI entry point
+const args = process.argv.slice(2);
+let command = args[0];
+let commandArgs = args.slice(1);
 
-  const toolkit = new AIWorkflowToolkit();
-
-  if (!command || !toolkit.commands[command]) {
-    toolkit.showUsage();
-    process.exit(1);
-  }
-
-  toolkit.run(command, args);
+// Extract global flags like --debug before instantiating toolkit
+let isDebug = false;
+if (commandArgs.includes('--debug')) {
+  isDebug = true;
+  commandArgs = commandArgs.filter(a => a !== '--debug');
 }
+
+// Pass debug option to constructor
+const toolkit = new AIWorkflowToolkit({ debug: isDebug });
+toolkit.run(command, commandArgs);

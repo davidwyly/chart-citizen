@@ -164,6 +164,47 @@ By following this `Scoping -> Analysis -> Reading` workflow, you reserve the mos
 
 ─────────────────────────────────────────────────────────────────────────────── 
 
+🔍 FIND USAGES (NEW!)
+   Purpose: Find all usages of a given symbol across the codebase.
+   Command: npm run ai-toolkit find-usages <symbol-name>
+   
+   What it provides:
+   • A list of files and line numbers where the symbol is used.
+   • Supports various symbol types (functions, classes, variables, etc.).
+   
+   Examples:
+   npm run ai-toolkit find-usages "MyComponent"
+   npm run ai-toolkit find-usages "utilityFunction"
+   
+   AI Value: Quickly understand the impact of changes to a specific symbol.
+
+─────────────────────────────────────────────────────────────────────────────── 
+
+✂️ CODE EXTRACTOR (NEW!)
+   Purpose: Extract specific code snippets (functions, classes, imports, etc.) from files for highly token-efficient analysis.
+   Command: npm run ai-toolkit extract-code <subcommand> <file-path> [symbol-name]
+   
+   Subcommands:
+   • function <file> <name>           - Extract a specific function's code.
+   • class <file> <name>              - Extract a specific class's code.
+   • imports <file>                   - Extract all import statements.
+   • exports <file>                   - Extract all export statements.
+   • minified <file>                  - Extract minified code (no comments/excess whitespace).
+   • types <file>                     - Extract all interface/type definitions.
+   • component-signature <file> <name>- Extract React component props and return type.
+   • component-props <file> <name>    - Extract only the props interface of a React component.
+   • state-management <file>          - Extract state management related code (e.g., Zustand store definitions).
+   
+   Examples:
+   npm run ai-toolkit extract-code function "engine/core/camera.ts" "updateCameraPosition"
+   npm run ai-toolkit extract-code class "engine/core/engine.ts" "Engine"
+   npm run ai-toolkit extract-code imports "app/layout.tsx"
+   npm run ai-toolkit extract-code minified "engine/components/celestial-viewer.tsx"
+   
+   AI Value: Massive token savings when only specific code blocks are relevant, enabling highly targeted analysis.
+
+─────────────────────────────────────────────────────────────────────────────── 
+
 🏹 DEAD CODE HUNTER
    Purpose: Find unused files, duplicates, and legacy code
    Command: npm run ai-toolkit dead-code [--no-tests]
@@ -335,7 +376,7 @@ Perfect for AI tasks:
 
 🔬 PROJECT INTELLIGENCE (NEW!)
    Purpose: Maintains persistent architectural knowledge to prevent context drift.
-   Command: npm run ai-toolkit project-intel [--update|--validate]
+   Command: npm run project-intel [--update|--validate]
    
    What it provides:
    • Living document of project structure, patterns, and integration flows.
@@ -343,13 +384,13 @@ Perfect for AI tasks:
    • Prevents context drift and ensures architectural consistency.
    
    Examples:
-   npm run ai-toolkit project-intel
-   npm run ai-toolkit project-intel --update
-   npm run ai-toolkit project-intel --validate
+   npm run project-intel
+   npm run project-intel --update
+   npm run project-intel --validate
    
    AI Value: Essential for maintaining AI context across sessions and guiding architectural decisions.
 
-───────────────────────────────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────────── 
 
 🔎 PATTERN ANALYZER (NEW!)
    Purpose: Find inconsistent patterns and implementations across the codebase.
@@ -366,5 +407,51 @@ Perfect for AI tasks:
    • Event handler patterns (handle functions, onEvent props)
    
    AI Value: Identifies refactoring opportunities and enforces code consistency.
+
+─────────────────────────────────────────────────────────────────────────────── 
+
+❓ HELP
+   Purpose: Display detailed help and usage instructions for the AI Workflow Toolkit.
+   Command: npm run ai-toolkit help
+   
+   What it provides:
+   • A comprehensive overview of all available commands and their options.
+   • Examples for each command to guide proper usage.
+   
+   AI Value: A quick reference for all toolkit functionalities.
+
+─────────────────────────────────────────────────────────────────────────────── 
+
+#### Discovery & Exploration
+-   **`overview`**: Get a high-level summary of the project's tech stack, architecture, and stats.
+-   **`code-search <keyword>`**: Find all files containing a specific keyword.
+-   **`list-symbols <file>`**: List all exported functions, classes, and types from a file.
+-   **`find-usages <symbol-name>`**: Find all usages of a specific symbol.
+-   **`schema <file>:<symbol>`**: Extract the detailed source code for a specific interface or type.
+-   **`extract-code <subcommand> <file> [symbol]`**: Extract specific code snippets (functions, classes, imports, etc.) for highly token-efficient analysis.
+-   **`code-history <file> [--symbol=<name> | --lines=<start>:<end>]`**: Analyze git history for specific code snippets, focusing on relevant commits.
+-   **`context <file>:<symbol>`**: Trace the data flow and component relationships for a symbol.
+-   **`impact <file>:<symbol>`**: Analyze the "blast radius" of changing a symbol.
+-   **`help`**: Display detailed help and usage instructions for the AI Workflow Toolkit.
+
+#### Code Analysis & Maintenance
+
+Options:
+  --no-tests            Exclude test files from dead code analysis
+  --flow=up|down|both   Direction for context tracing
+  --depth=N             Maximum depth for analysis
+  --focus=type          Focus test gap analysis on specific file type
+  --timeout=N           Command timeout in seconds (default: varies by command)
+  --write-files         Persist detailed markdown/JSON reports (default: disabled)
+  --debug               Show verbose status messages during execution
+  --json                Generate JSON output (legacy)
+
+For detailed help: npm run ai-toolkit help
+
+**Note on flags with `npm run`:** When using flags for `ai-toolkit` commands that also start with `--`, you must separate them from the `npm run ai-toolkit` command with `--`. For example:
+```bash
+npm run ai-toolkit -- code-history path/to/file.ts --symbol=myFunc --debug
+npm run ai-toolkit -- code-history path/to/file.ts --lines=10:25
+```
 
 ─────────────────────────────────────────────────────────────────────────────── 

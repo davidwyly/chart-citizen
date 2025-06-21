@@ -203,15 +203,19 @@ By default, the toolkit only prints essential, machine-readable output (e.g., co
 -   **`overview`**: Get a high-level summary of the project's tech stack, architecture, and stats.
 -   **`code-search <keyword>`**: Find all files containing a specific keyword.
 -   **`list-symbols <file>`**: List all exported functions, classes, and types from a file.
--   **`find-usages <file>:<symbol>`**: Find all usages of a specific symbol.
+-   **`find-usages <symbol-name>`**: Find all usages of a specific symbol.
 -   **`schema <file>:<symbol>`**: Extract the detailed source code for a specific interface or type.
+-   **`extract-code <subcommand> <file> [symbol]`**: Extract specific code snippets (functions, classes, imports, etc.) for highly token-efficient analysis.
+-   **`code-history <file> [--symbol=<name> | --lines=<start>:<end>]`**: Analyze git history for specific code snippets, focusing on relevant commits.
 -   **`context <file>:<symbol>`**: Trace the data flow and component relationships for a symbol.
 -   **`impact <file>:<symbol>`**: Analyze the "blast radius" of changing a symbol.
+-   **`help`**: Display detailed help and usage instructions for the AI Workflow Toolkit.
 
 #### Code Analysis & Maintenance
 -   **`imports <subcommand>`**: Check for and fix broken import paths (`check`, `fix`, `project`).
 -   **`deps`**: Find issues with project dependencies, like unused packages or circular dependencies.
 -   **`dead-code`**: Hunt for unused and duplicate files.
+-   **`analyze-patterns`**: Find inconsistent patterns and implementations across the codebase.
 
 #### Quality & Testing
 -   **`lint-summary`**: Get a compact, token-efficient summary of linter errors and warnings.
@@ -223,7 +227,14 @@ By default, the toolkit only prints essential, machine-readable output (e.g., co
 -   **`check-compatibility`**: Check for known version conflicts between critical packages.
 
 #### Refactoring & Change Analysis
--   **`impact <target>`**: Analyze the "blast radius" of changing a file or symbol.
--   **`context <target>`**: Trace data flow and component relationships for a symbol.
 -   **`diff <comparison>`**: Get a token-efficient summary of changes between two git commits.
 -   **`full-analysis`**: Run a comprehensive suite of analyses for a full codebase health report.
+
+#### Project Intelligence
+-   **`project-intel [--update|--validate]`**: Maintains persistent architectural knowledge to prevent context drift (run via `npm run project-intel`).
+
+**Note on flags with `npm run`:** When using flags for `ai-toolkit` commands that also start with `--`, you must separate them from the `npm run ai-toolkit` command with `--`. For example:
+```bash
+npm run ai-toolkit -- code-history path/to/file.ts --symbol=myFunc --debug
+npm run ai-toolkit -- code-history path/to/file.ts --lines=10:25
+```
