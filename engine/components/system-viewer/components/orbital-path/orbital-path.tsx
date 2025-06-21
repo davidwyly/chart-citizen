@@ -4,6 +4,7 @@ import React, { useRef, useMemo, useEffect, useCallback } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import type { ViewType } from "@/lib/types/effects-level"
+import { getViewModeStrategy } from "@/engine/core/view-modes/strategies/view-mode-registry"
 
 export interface OrbitalPathProps {
   semiMajorAxis: number
@@ -219,8 +220,10 @@ export function OrbitalPath({
       // If parent not found, don't update position to prevent jumps
     }
 
-    // Skip dynamic orbital motion if paused or when in static profile view mode
-    if (isPaused || viewType === 'profile') return;
+    // Use view mode strategy to determine if orbits should animate
+    const strategy = getViewModeStrategy(viewType);
+    const shouldAnimate = strategy.shouldAnimateOrbits(isPaused);
+    if (!shouldAnimate) return;
 
     // Update time – use a consistent time step to avoid jitter
     // Scale time based on orbital period (in days) to radians per frame

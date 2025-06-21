@@ -140,6 +140,93 @@ class AIWorkflowToolkit {
     }
   }
 
+  async runChained(chainedCommandString) {
+    this.log(`🔗 Running chained commands: ${chainedCommandString}`);
+    
+    // Parse the chained commands
+    const commands = chainedCommandString.split(';').map(cmd => cmd.trim()).filter(cmd => cmd.length > 0);
+    
+    if (commands.length === 0) {
+      console.error('❌ No valid commands found in chain');
+      process.exit(1);
+    }
+    
+    console.log(`=== AI Toolkit Chained Analysis (${commands.length} commands) ===\n`);
+    
+    const overallStartTime = Date.now();
+    const results = [];
+    
+    for (let i = 0; i < commands.length; i++) {
+      const command = commands[i];
+      const parts = command.split(/\s+/);
+      const cmd = parts[0];
+      const args = parts.slice(1);
+      
+      console.log(`--- Command ${i + 1}/${commands.length}: ${cmd} ${args.join(' ')} ---`);
+      
+      const commandStartTime = Date.now();
+      
+      try {
+        const cmdHandler = this.commands[cmd];
+        if (!cmdHandler) {
+          console.error(`❌ Unknown command: ${cmd}`);
+          console.log('Available commands:', Object.keys(this.commands).join(', '));
+          continue;
+        }
+        
+        // Reset results for each command to avoid accumulation
+        this.results = {
+          command: cmd,
+          target: null,
+          analyses: {},
+          summary: {},
+          recommendations: [],
+          metrics: {}
+        };
+        
+        await cmdHandler.handler.call(this, args);
+        
+        const commandEndTime = Date.now();
+        const commandTime = commandEndTime - commandStartTime;
+        
+        results.push({
+          command: cmd,
+          args: args,
+          time: `${commandTime}ms`,
+          success: true
+        });
+        
+        // Add spacing between commands for readability
+        if (i < commands.length - 1) {
+          console.log('');
+        }
+        
+      } catch (error) {
+        console.error(`❌ Command failed: ${cmd} - ${error.message}`);
+        results.push({
+          command: cmd,
+          args: args,
+          error: error.message,
+          success: false
+        });
+      }
+    }
+    
+    const overallEndTime = Date.now();
+    const totalTime = overallEndTime - overallStartTime;
+    
+    console.log(`\n=== Chained Analysis Complete ===`);
+    console.log(`Total time: ${totalTime}ms`);
+    console.log(`Commands executed: ${results.filter(r => r.success).length}/${results.length}`);
+    
+    if (results.some(r => !r.success)) {
+      console.log(`\n⚠️  Some commands failed:`);
+      results.filter(r => !r.success).forEach(r => {
+        console.log(`   ${r.command}: ${r.error}`);
+      });
+    }
+  }
+
   async runDeadCodeAnalysis(args) {
     this.log('🏹 Running Dead Code Hunter...');
     
@@ -696,6 +783,7 @@ class AIWorkflowToolkit {
 🚀 AI Workflow Toolkit - Unified Code Analysis
 
 Usage: npm run ai-toolkit <command> [options]
+       npm run ai-toolkit "command1; command2; command3"  # Chain multiple commands
 `);
 
     console.log('Commands:');
@@ -715,6 +803,11 @@ Examples:
   npm run ai-toolkit code-search "myFunction"
   npm run ai-toolkit schema "engine/types/engine.ts:EngineConfig"
   npm run ai-toolkit imports project
+  
+Chaining Examples:
+  npm run ai-toolkit "overview; code-search profile"
+  npm run ai-toolkit "dead-code; test-gaps; analyze-patterns"
+  npm run ai-toolkit "list-symbols file.ts; find-usages file.ts:Symbol; impact file.ts"
   npm run ai-toolkit analyze-error "BatchedMesh is not exported from 'three'"
   npm run ai-toolkit check-compatibility
   npm run ai-toolkit test-summary
@@ -986,16 +1079,32 @@ For detailed help: npm run ai-toolkit help
 
 // CLI entry point
 const args = process.argv.slice(2);
-let command = args[0];
-let commandArgs = args.slice(1);
 
-// Extract global flags like --debug before instantiating toolkit
+// Check if first argument contains semicolons (command chaining)
+const firstArg = args[0] || '';
+const isChainedCommands = firstArg.includes(';');
+
+// Extract global flags like --debug before processing
 let isDebug = false;
-if (commandArgs.includes('--debug')) {
+if (args.includes('--debug')) {
   isDebug = true;
-  commandArgs = commandArgs.filter(a => a !== '--debug');
 }
 
 // Pass debug option to constructor
 const toolkit = new AIWorkflowToolkit({ debug: isDebug });
-toolkit.run(command, commandArgs);
+
+if (isChainedCommands) {
+  // Handle chained commands
+  toolkit.runChained(firstArg);
+} else {
+  // Handle single command (existing behavior)
+  let command = args[0];
+  let commandArgs = args.slice(1);
+  
+  // Filter out debug flag from command args
+  if (commandArgs.includes('--debug')) {
+    commandArgs = commandArgs.filter(a => a !== '--debug');
+  }
+  
+  toolkit.run(command, commandArgs);
+}

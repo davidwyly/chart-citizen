@@ -68,4 +68,20 @@ describe('OrbitalPath', () => {
     const { container: paused } = renderInCanvas({ isPaused: true });
     expect(paused).toBeTruthy();
   });
+
+  it('uses view mode strategy for animation control', () => {
+    // Test that navigational mode allows animation (not paused)
+    const { container: navigational } = renderInCanvas({ 
+      viewType: 'navigational',
+      isPaused: false
+    });
+    expect(navigational).toBeTruthy();
+
+    // Test that profile mode is handled by strategy
+    const { container: profile } = renderInCanvas({ 
+      viewType: 'profile',
+      isPaused: false
+    });
+    expect(profile).toBeTruthy();
+  });
 }); 
