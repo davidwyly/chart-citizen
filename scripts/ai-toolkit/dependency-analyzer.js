@@ -53,6 +53,8 @@ class DependencyAnalyzer {
     this.fileAnalysis = new Map();
     this.packageUsage = new Map();
     this.importGraph = new Map();
+    // Load alias mappings from tsconfig.json for path-alias awareness (e.g. @engine/* → engine/*)
+    this.aliasMappings = this.loadTsconfigAliases();
   }
 
   /**
@@ -386,30 +388,63 @@ class DependencyAnalyzer {
     }
     
     if (recommendations.length === 0) {
-      recommendations.push('✅ **Status**: Dependency graph appears healthy and well-maintained');
+      recommendations.push('No significant dependency issues identified');
     }
     
     this.results.recommendations = recommendations;
   }
 
   calculateMetrics() {
+    // --- Coupling metrics ---------------------------------------------------
+    const fanIn = {};
+    const fanOut = {};
+    for (const [file, deps] of this.importGraph) {
+      fanOut[file] = deps.length;
+      deps.forEach(dep => {
+        fanIn[dep] = (fanIn[dep] || 0) + 1;
+      });
+    }
+    const fanInValues = Object.values(fanIn);
+    const fanOutValues = Object.values(fanOut);
+    const avgFanIn = fanInValues.length ? fanInValues.reduce((a,b)=>a+b,0) / fanInValues.length : 0;
+    const avgFanOut = fanOutValues.length ? fanOutValues.reduce((a,b)=>a+b,0) / fanOutValues.length : 0;
+
+    // Determine files with max coupling
+    const maxFanInFile = Object.entries(fanIn).sort((a,b)=>b[1]-a[1])[0] || [null,0];
+    const maxFanOutFile = Object.entries(fanOut).sort((a,b)=>b[1]-a[1])[0] || [null,0];
+
     this.results.metrics = {
       ...this.results.metrics,
       filesAnalyzed: this.fileAnalysis.size,
       packagesTracked: this.packageUsage.size,
       dependencyUtilization: this.results.summary.totalPackages > 0 ? 
         Math.round((this.results.summary.usedPackages / this.results.summary.totalPackages) * 100) : 0,
-      circularComplexity: this.results.circularDependencies.reduce((sum, c) => sum + c.length, 0)
+      circularComplexity: this.results.circularDependencies.reduce((sum, c) => sum + c.length, 0),
+      coupling: {
+        averageFanIn: Number(avgFanIn.toFixed(2)),
+        averageFanOut: Number(avgFanOut.toFixed(2)),
+        maxFanIn: {
+          file: maxFanInFile[0] ? this.relativePath(maxFanInFile[0]) : 'N/A',
+          count: maxFanInFile[1]
+        },
+        maxFanOut: {
+          file: maxFanOutFile[0] ? this.relativePath(maxFanOutFile[0]) : 'N/A',
+          count: maxFanOutFile[1]
+        }
+      }
     };
   }
 
   // Helper methods
   isExternalPackage(importPath) {
-    return !importPath.startsWith('.') && !importPath.startsWith('/') && !importPath.startsWith('@/');
+    // Treat path-alias prefixes as local (internal) imports
+    const isAlias = this.aliasMappings.some(m => importPath.startsWith(m.alias));
+    return !importPath.startsWith('.') && !importPath.startsWith('/') && !importPath.startsWith('@/') && !isAlias;
   }
 
   isLocalImport(importPath) {
-    return importPath.startsWith('.') || importPath.startsWith('@/');
+    if (importPath.startsWith('.') || importPath.startsWith('@/')) return true;
+    return this.aliasMappings.some(m => importPath.startsWith(m.alias));
   }
 
   getPackageName(importPath) {
@@ -434,27 +469,38 @@ class DependencyAnalyzer {
 
   resolveImportPath(fromFile, importPath) {
     let resolved;
-    
+
+    // Handle @/ alias (root-relative)
     if (importPath.startsWith('@/')) {
       resolved = path.resolve(this.options.rootDir, importPath.substring(2));
-    } else {
+    }
+
+    // Handle user-defined aliases from tsconfig
+    if (!resolved) {
+      const match = this.aliasMappings.find(m => importPath.startsWith(m.alias));
+      if (match) {
+        const subPath = importPath.substring(match.alias.length);
+        resolved = path.resolve(this.options.rootDir, match.target, subPath);
+      }
+    }
+
+    // Handle relative import
+    if (!resolved && importPath.startsWith('.')) {
       resolved = path.resolve(path.dirname(fromFile), importPath);
     }
-    
-    const extensions = ['.ts', '.tsx', '.js', '.jsx'];
+
+    if (!resolved) return null;
+
+    // Attempt to resolve with multiple extensions
+    const extensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '/index.ts', '/index.tsx', '/index.js', '/index.jsx'];
     for (const ext of extensions) {
-      if (fs.existsSync(resolved + ext)) {
-        return resolved + ext;
+      const fullPath = resolved.endsWith(ext) ? resolved : resolved + ext;
+      if (fs.existsSync(fullPath)) {
+        return fullPath;
       }
     }
-    
-    for (const ext of extensions) {
-      if (fs.existsSync(path.join(resolved, 'index' + ext))) {
-        return path.join(resolved, 'index' + ext);
-      }
-    }
-    
-    return fs.existsSync(resolved) ? resolved : null;
+
+    return null;
   }
 
   getOptimizationRecommendation(packageName, usage) {
@@ -512,6 +558,12 @@ ${heavyImports.length === 0 ? 'No heavy import patterns detected.' : heavyImport
 ## 💡 Recommendations
 ${recommendations.map(rec => `- ${rec}`).join('\n')}
 
+## 📈 Coupling Metrics
+- **Max Fan-In**: ${metrics.coupling.maxFanIn.count} → ${metrics.coupling.maxFanIn.file}
+- **Max Fan-Out**: ${metrics.coupling.maxFanOut.count} ← ${metrics.coupling.maxFanOut.file}
+- **Average Fan-In**: ${metrics.coupling.averageFanIn}
+- **Average Fan-Out**: ${metrics.coupling.averageFanOut}
+
 ## 📊 Analysis Metrics
 - **Files Analyzed**: ${metrics.filesAnalyzed}
 - **Packages Tracked**: ${metrics.packagesTracked}
@@ -526,6 +578,42 @@ ${recommendations.map(rec => `- ${rec}`).join('\n')}
 
 *Generated on ${new Date().toISOString()}*
 `;
+  }
+
+  /**
+   * Parse tsconfig.json to extract "paths" aliases so the analyzer
+   * can treat alias imports (e.g. @engine/* → engine/*) as local paths.
+   * Returns an array like [{ alias: '@engine/', target: 'engine/' }, … ]
+   * The method is intentionally lightweight – it does not cover advanced
+   * path pattern edge-cases but is sufficent for common alias usage.
+   */
+  loadTsconfigAliases() {
+    try {
+      const tsconfigPath = path.join(this.options.rootDir, 'tsconfig.json');
+      if (!fs.existsSync(tsconfigPath)) return [];
+
+      const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
+      const paths = (tsconfig.compilerOptions && tsconfig.compilerOptions.paths) || {};
+      const mappings = [];
+
+      Object.entries(paths).forEach(([key, value]) => {
+        if (!Array.isArray(value) || value.length === 0) return;
+        // Strip trailing /* if present to get clean prefix
+        const aliasPrefix = key.replace(/\*$/, '').replace(/\/*$/, '/');
+        const targetPrefix = value[0].replace(/\*$/, '').replace(/\/*$/, '/');
+        if (aliasPrefix && targetPrefix) {
+          mappings.push({ alias: aliasPrefix, target: targetPrefix });
+        }
+      });
+
+      if (mappings.length > 0) {
+        console.log(`🔗 Loaded ${mappings.length} path alias${mappings.length > 1 ? 'es' : ''} from tsconfig.json`);
+      }
+
+      return mappings;
+    } catch (_) {
+      return [];
+    }
   }
 }
 

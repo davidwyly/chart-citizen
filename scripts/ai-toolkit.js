@@ -6,30 +6,7 @@
  * Unified interface for all AI-optimized code analysis tools.
  * Designed to maximize AI efficiency and minimize token usage.
  * 
- * --- PERFORMANCE METRICS (POST-REFACTOR) ---
- * - Overall Token Efficiency Gain: ~99.9%
- * - Dead Code Analysis: 693k -> 185 tokens (99.97% reduction)
- * - Impact Analysis: 693k -> 120 tokens (99.98% reduction)
- * - Bulk Import Fixing: 693k -> 64 tokens (99.99% reduction)
- * ------------------------------------------------
- * 
- * Usage: npm run ai-toolkit [command] [options]
- * 
- * Commands:
- *   overview                 Generate a high-level, token-efficient project summary
- *   code-search <keyword>    Efficiently find files containing a keyword
- *   schema <target>          Extract a specific type/interface/class schema
- *   imports <subcommand>     Comprehensive import analysis and bulk fixing
- *   analyze-error <message>  Analyze specific build/runtime errors (NEW!)
- *   check-compatibility      Check for package version conflicts (NEW!)
- *   dead-code                Hunt for unused code and files
- *   impact <target>          Analyze refactoring impact
- *   context <target>         Trace data flow and relationships
- *   test-gaps                Find missing test coverage
- *   diff [comparison]        Analyze git changes between commits
- *   deps                     Analyze project dependencies
- *   full-analysis [target]   Run comprehensive analysis
- *   help                     Show detailed help
+ * Usage: see ai-toolkit/USAGE.md
  */
 
 const fs = require('fs');
@@ -42,11 +19,16 @@ const ContextTracer = require('./ai-toolkit/context-tracer');
 const TestGapAnalyzer = require('./ai-toolkit/test-gap-analyzer');
 const GitDiffAnalyzer = require('./ai-toolkit/git-diff-analyzer');
 const DependencyAnalyzer = require('./ai-toolkit/dependency-analyzer');
-const { EnhancedDependencyAnalyzer } = require('./ai-toolkit/enhanced-dependency-analyzer');
+const { CompatibilityAnalyzer } = require('./ai-toolkit/compatibility-analyzer');
+const { TestOutputAnalyzer } = require('./ai-toolkit/test-output-analyzer');
 const { ImportAnalyzer } = require('./ai-toolkit/import-analyzer');
 const { ProjectOverview } = require('./ai-toolkit/project-overview');
 const { CodeSearcher } = require('./ai-toolkit/code-searcher');
 const SchemaExtractor = require('./ai-toolkit/schema-extractor');
+const { LintSummaryAnalyzer } = require('./ai-toolkit/lint-summary-analyzer');
+const { SymbolLister } = require('./ai-toolkit/symbol-lister');
+const UsageFinder = require('./ai-toolkit/usage-finder');
+const PatternAnalyzer = require('./ai-toolkit/pattern-analyzer');
 
 // --- NEW CONSTANTS/HELPERS FOR TOKEN-EFFICIENT OUTPUT ------------------------------------
 // Utility that prints compact JSON without spacing – drastically reduces tokens vs pretty print.
@@ -75,6 +57,28 @@ class AIWorkflowToolkit {
 
     this.writeFiles = Boolean(options.writeFiles);
     this.verbose = Boolean(options.verbose);
+
+    this.commands = {
+      'imports': { handler: this.runImportAnalysis, description: 'Comprehensive import analysis and bulk fixing' },
+      'code-search': { handler: this.runCodeSearch, description: 'Efficiently find files containing a keyword' },
+      'overview': { handler: this.runProjectOverview, description: 'Generate a high-level, token-efficient project summary' },
+      'schema': { handler: this.runSchemaExtractor, description: 'Extract a specific type/interface/class schema' },
+      'analyze-error': { handler: this.runErrorAnalysis, description: 'Analyze specific build/runtime errors' },
+      'check-compatibility': { handler: this.runCompatibilityCheck, description: 'Check for package version conflicts' },
+      'test-summary': { handler: this.runTestSummary, description: 'Token-efficient test output analysis' },
+      'lint-summary': { handler: this.runLintSummaryAnalysis, description: 'Generate a token-efficient summary of linting issues' },
+      'list-symbols': { handler: this.runListSymbols, description: 'List all exported symbols from a file' },
+      'find-usages': { handler: this.runFindUsages, description: 'Find all usages of a symbol' },
+      'analyze-patterns': { handler: this.runPatternAnalysis, description: 'Find inconsistent patterns and implementations' },
+      'dead-code': { handler: this.runDeadCodeAnalysis, description: 'Hunt for unused code and files', unifiedReport: true },
+      'impact': { handler: this.runImpactAnalysis, description: 'Analyze refactoring impact', unifiedReport: true },
+      'context': { handler: this.runContextAnalysis, description: 'Trace data flow and relationships' },
+      'test-gaps': { handler: this.runTestGapAnalysis, description: 'Find missing test coverage', unifiedReport: true },
+      'diff': { handler: this.runDiffAnalysis, description: 'Analyze git changes between commits', unifiedReport: true },
+      'deps': { handler: this.runDependencyAnalysis, description: 'Analyze project dependencies', unifiedReport: true },
+      'full-analysis': { handler: this.runFullAnalysis, description: 'Run comprehensive analysis', unifiedReport: true },
+      'help': { handler: this.showHelp, description: 'Show detailed help' },
+    };
   }
 
   log(message) {
@@ -104,58 +108,20 @@ class AIWorkflowToolkit {
     }
     
     try {
-      switch (command) {
-        case 'imports':
-          await this.runImportAnalysis(args);
-          return; // Import analyzer generates its own report
-        case 'code-search':
-          await this.runCodeSearch(args);
-          return;
-        case 'overview':
-          await this.runProjectOverview(args);
-          return; // This command also prints its own output
-        case 'schema':
-          await this.runSchemaExtractor(args);
-          return;
-        case 'analyze-error':
-          await this.runErrorAnalysis(args);
-          return;
-        case 'check-compatibility':
-          await this.runCompatibilityCheck(args);
-          return;
-        case 'dead-code':
-          await this.runDeadCodeAnalysis(args);
-          break;
-        case 'impact':
-          await this.runImpactAnalysis(args);
-          break;
-        case 'context':
-          await this.runContextAnalysis(args);
-          break;
-        case 'test-gaps':
-          await this.runTestGapAnalysis(args);
-          break;
-        case 'diff':
-          await this.runDiffAnalysis(args);
-          break;
-        case 'deps':
-          await this.runDependencyAnalysis(args);
-          break;
-        case 'full-analysis':
-          await this.runFullAnalysis(args);
-          break;
-        case 'help':
-          this.showHelp();
-          return;
-        default:
-          this.showUsage();
-          return;
-      }
-      
-      if (this.writeFiles) {
-        await this.generateUnifiedReport();
+      const cmd = this.commands[command];
+
+      if (cmd) {
+        await cmd.handler.call(this, args);
+        if (cmd.unifiedReport) {
+          if (this.writeFiles) {
+            await this.generateUnifiedReport();
+          } else {
+            this.printTokenEfficientSummary();
+          }
+        }
       } else {
-        this.printTokenEfficientSummary();
+        this.showUsage();
+        return;
       }
       
       const endTime = Date.now();
@@ -217,7 +183,10 @@ class AIWorkflowToolkit {
     if (this.writeFiles) {
       this.ensureOutputDir();
     }
-    const analyzer = new ImportAnalyzer({ rootDir: this.options.rootDir });
+    const analyzer = new ImportAnalyzer({ 
+      rootDir: this.options.rootDir,
+      writeFiles: this.writeFiles 
+    });
 
     switch (subCommand) {
       case 'check':
@@ -448,6 +417,27 @@ class AIWorkflowToolkit {
     await overview.generateSummary();
   }
 
+  async runLintSummaryAnalysis(args) {
+    this.log('🧪 Running Lint Summary Analysis...');
+    const analyzer = new LintSummaryAnalyzer({ 
+      rootDir: this.options.rootDir, 
+      verbose: this.verbose 
+    });
+    await analyzer.analyze();
+  }
+
+  async runListSymbols(args) {
+    const filePath = args[0];
+    if (!filePath) {
+      console.error('❌ list-symbols requires a file path.');
+      console.log('   Usage: npm run ai-toolkit list-symbols <file-path>');
+      process.exit(1);
+    }
+    this.log(`🔎 Listing symbols for: ${filePath}`);
+    const lister = new SymbolLister({ rootDir: this.options.rootDir, verbose: this.verbose });
+    await lister.listSymbols(filePath);
+  }
+
   async runFullAnalysis(args) {
     this.log('🔬 Running Full Comprehensive Analysis...');
     
@@ -585,7 +575,7 @@ class AIWorkflowToolkit {
     if (issues.length > 0) {
       summary.push(`**Key Issues**: ${issues.join(', ')}`);
     } else {
-      summary.push(`**Status**: Codebase appears healthy`);
+      summary.push(`**Status**: No critical issues detected`);
     }
     
     // Specific insights
@@ -641,7 +631,7 @@ class AIWorkflowToolkit {
     }
     
     if (recommendations.length === 0) {
-      recommendations.push('✅ **Status**: No major issues detected - codebase appears well maintained');
+      recommendations.push('No major issues detected');
     }
     
     return recommendations;
@@ -704,23 +694,20 @@ class AIWorkflowToolkit {
 🚀 AI Workflow Toolkit - Unified Code Analysis
 
 Usage: npm run ai-toolkit <command> [options]
+`);
 
-Commands:
-  overview               Generate a high-level, token-efficient project summary
-  code-search <keyword>  Efficiently find files containing a keyword
-  schema <target>        Extract a specific type/interface/class schema
-  imports <subcommand>   Comprehensive import analysis and bulk fixing
-  analyze-error <message> Analyze specific build/runtime errors (NEW!)
-  check-compatibility    Check for package version conflicts (NEW!)
-  dead-code              Hunt for unused code and files
-  impact <target>        Analyze refactoring impact for file/symbol
-  context <target>       Trace data flow and relationships
-  test-gaps              Find missing test coverage
-  diff [comparison]      Analyze git changes between commits
-  deps                   Analyze project dependencies
-  full-analysis [target] Run comprehensive analysis
-  help                   Show detailed help
+    console.log('Commands:');
+    const commandKeys = Object.keys(this.commands);
+    // Find the longest command key for alignment
+    const maxLength = Math.max(...commandKeys.map(key => key.length));
+    
+    commandKeys.forEach(key => {
+        const command = this.commands[key];
+        const paddedKey = key.padEnd(maxLength + 2, ' ');
+        console.log(`  ${paddedKey}${command.description}`);
+    });
 
+    console.log(`
 Examples:
   npm run ai-toolkit overview
   npm run ai-toolkit code-search "myFunction"
@@ -728,6 +715,10 @@ Examples:
   npm run ai-toolkit imports project
   npm run ai-toolkit analyze-error "BatchedMesh is not exported from 'three'"
   npm run ai-toolkit check-compatibility
+  npm run ai-toolkit test-summary
+  npm run ai-toolkit test-summary --failures-only
+  npm run ai-toolkit lint-summary
+  npm run ai-toolkit list-symbols "engine/core/engine-state.ts"
   npm run ai-toolkit dead-code
   npm run ai-toolkit impact "ComponentName"
   npm run ai-toolkit context "handleSubmit" --flow=both
@@ -742,6 +733,7 @@ Options:
   --flow=up|down|both   Direction for context tracing
   --depth=N             Maximum depth for analysis
   --focus=type          Focus test gap analysis on specific file type
+  --timeout=N           Command timeout in seconds (default: varies by command)
   --write-files         Persist detailed markdown/JSON reports (default: disabled)
   --verbose             Show verbose status messages during execution
   --json                Generate JSON output (legacy)
@@ -751,255 +743,13 @@ For detailed help: npm run ai-toolkit help
   }
 
   showHelp() {
-    console.log(`
-🚀 AI Workflow Toolkit - Complete Documentation
-
-This toolkit provides a suite of AI-optimized, token-efficient, and composable
-code analysis tools. Each tool is designed to do one thing well, providing
-a reliable and low-cost primitive for complex AI-driven development tasks.
-
-═══════════════════════════════════════════════════════════════════════════════
-
-🔎 SCHEMA EXTRACTOR (NEW!)
-   Purpose: Extract a single schema (type, interface, class, enum) from a file.
-   Command: npm run ai-toolkit schema <file-path>:<symbol-name>
-   
-   What it provides:
-   • The precise, trimmed source code for a single schema definition.
-   • Outputs compact JSON containing the file, symbol, and schema.
-   • Avoids reading entire files just to get a type definition.
-   
-   Examples:
-   npm run ai-toolkit schema "engine/types/engine.ts:EngineConfig"
-   npm run ai-toolkit schema "components/ui/button.tsx:ButtonProps"
-   
-   AI Value: Massive token savings for one of the most common developer lookups.
-
-───────────────────────────────────────────────────────────────────────────────
-
-🔧 IMPORT ANALYZER (NEW!)
-   Purpose: Comprehensive import analysis and bulk fixing
-   Command: npm run ai-toolkit imports <check|fix|batch|project>
-   
-   Subcommands:
-   • check <file>               - Validate all imports in a file
-   • fix <old> <new> [--dry-run] - Bulk replace import patterns
-   • batch <files...>           - Analyze multiple files at once
-   • project                    - Scan entire project for broken imports
-   
-   Examples:
-   npm run ai-toolkit imports check gas-giant-renderer.tsx
-   npm run ai-toolkit imports fix "../planets/materials" "./materials"
-   npm run ai-toolkit imports project
-   
-   AI Value: 80% token reduction vs manual find/grep commands
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-🚨 ERROR ANALYZER (NEW!)
-   Purpose: Smart analysis of build and runtime errors with automatic solutions
-   Command: npm run ai-toolkit analyze-error "error message"
-   
-   What it analyzes:
-   • Missing export errors (BatchedMesh, WebGPURenderer, etc.)
-   • Version compatibility issues
-   • Import/dependency conflicts
-   • Peer dependency problems
-   
-   Examples:
-   npm run ai-toolkit analyze-error "BatchedMesh is not exported from 'three'"
-   npm run ai-toolkit analyze-error "Cannot resolve module '@react-three/drei'"
-   
-   AI Value: Instant diagnosis with specific fix commands - 90% token reduction
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-🔍 COMPATIBILITY CHECKER (NEW!)
-   Purpose: Proactive detection of package version conflicts
-   Command: npm run ai-toolkit check-compatibility
-   
-   What it checks:
-   • Three.js ecosystem compatibility (drei, fiber, three-mesh-bvh)
-   • React version synchronization
-   • TypeScript compatibility
-   • Peer dependency conflicts
-   
-   Example:
-   npm run ai-toolkit check-compatibility
-   
-   AI Value: Prevents issues before they occur - finds conflicts in seconds
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-🏹 DEAD CODE HUNTER
-   Purpose: Find unused files, duplicates, and legacy code
-   Command: npm run ai-toolkit dead-code [--no-tests]
-   
-   What it finds:
-   • Files with no imports (safe to delete)
-   • Suspicious files (need manual review)
-   • Legacy systems with @deprecated markers
-   • Duplicate files with identical content
-   
-   AI Value: Single command replaces 50+ manual searches
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-🔍 REFACTOR IMPACT ANALYZER
-   Purpose: Understand the blast radius of code changes
-   Command: npm run ai-toolkit impact "ComponentName"
-           npm run ai-toolkit impact "./path/to/file.ts"
-   
-   What it analyzes:
-   • Direct impacts (files that import the target)
-   • Cascading impacts (files affected by changes)
-   • Test coverage for the target
-   • Risk assessment and refactor plan
-   
-   AI Value: Complete refactoring context in one analysis
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-🧬 CONTEXT TRACER
-   Purpose: Understand data flow and component relationships
-   Command: npm run ai-toolkit context "ComponentName" [options]
-   
-   Options:
-   --flow=up      Trace where data comes FROM
-   --flow=down    Trace where data goes TO
-   --flow=both    Trace both directions (default)
-   --depth=N      Maximum depth to trace (default: 4)
-   
-   What it traces:
-   • Data flow (upstream sources, downstream targets)
-   • Component relationships (parents, children)
-   • State management patterns
-   • Event handling chains
-   • Prop drilling detection
-   
-   AI Value: Understand complex interactions without manual tracing
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-🧪 TEST GAP ANALYZER
-   Purpose: Find missing test coverage and testing blind spots
-   Command: npm run ai-toolkit test-gaps [--focus=type]
-   
-   Focus types: components, utils, hooks, services, all
-   
-   What it finds:
-   • Untested files with criticality scores
-   • Missing test types (unit, integration, component)
-   • Critical gaps (high-risk files without tests)
-   • Test coverage by file type
-   
-   AI Value: Prioritized testing roadmap with impact assessment
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-📈 GIT DIFF ANALYZER
-   Purpose: Analyze code changes between commits efficiently
-   Command: npm run ai-toolkit diff [comparison]
-           npm run ai-toolkit diff HEAD~1
-           npm run ai-toolkit diff main..HEAD
-   
-   What it analyzes:
-   • Change complexity and file impact assessment
-   • Critical, high, medium, and low impact changes
-   • File operations (added, deleted, modified, renamed)
-   • Change distribution by file type
-   
-   AI Value: Instant change review context without reading full diffs
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-📦 DEPENDENCY ANALYZER
-   Purpose: Analyze project dependencies for issues like unused or circular dependencies.
-   Command: npm run ai-toolkit deps [--focus=type]
-   
-   Focus types: packages, files, all
-   
-   What it analyzes:
-   • Unused packages and their potential for removal.
-   • Circular dependencies that can lead to code instability.
-   • Dependency trees and relationships.
-   
-   AI Value: Streamlines dependency management and codebase health.
-
-─────────────────────────────────────────────────────────────────────────────── 
-
-🔬 FULL ANALYSIS
-   Purpose: Comprehensive codebase health assessment
-   Command: npm run ai-toolkit full-analysis [target]
-   
-   Runs all analyses and provides:
-   • Codebase health score
-   • Unified recommendations
-   • Priority action items
-   • Cross-analysis insights
-   
-   AI Value: Complete picture for major refactoring or cleanup
-
-═══════════════════════════════════════════════════════════════════════════════
-
-🎯 OUTPUT STRUCTURE
-
-All tools generate results in analysis-results/ folder:
-
-• ai-toolkit-report.md      - Main unified report
-• ai-toolkit-results.json   - Raw data for programmatic access
-• dead-code-analysis.md     - Detailed dead code findings
-• impact-analysis.md        - Detailed refactor impact
-• context-analysis.md       - Detailed context tracing
-• test-gap-analysis.md      - Detailed test gap analysis
-
-Clean up: rm -rf analysis-results
-
-═══════════════════════════════════════════════════════════════════════════════
-
-🚀 AI WORKFLOW OPTIMIZATION
-
-Token Efficiency:
-• Before: 50+ tool calls, 25,000+ tokens
-• After: 1 command, ~2,000 tokens
-• 12x reduction in token usage
-
-Perfect for AI tasks:
-• Refactoring complex code
-• Understanding unfamiliar codebases  
-• Planning test strategies
-• Code cleanup and maintenance
-• Architecture analysis
-
-═══════════════════════════════════════════════════════════════════════════════
-
-📊 PROJECT OVERVIEW (NEW!)
-   Purpose: Get a high-level, token-efficient summary of the project.
-   Command: npm run ai-toolkit overview
-   
-   What it provides:
-   • Project type and primary frameworks
-   • Deduced architectural style
-   • Key directories and overall project stats
-   • Zero file-reads for maximum token efficiency
-   
-   AI Value: The perfect starting point for any new task in the codebase.
-
-───────────────────────────────────────────────────────────────────────────────
-
-🔎 CODE SEARCHER (NEW!)
-   Purpose: Find files containing a keyword with maximum token efficiency.
-   Command: npm run ai-toolkit code-search "keyword"
-   
-   What it provides:
-   • A simple JSON array of file paths.
-   • Uses 'ripgrep' for high speed and .gitignore awareness if available.
-   • Reads zero file content, only returns paths.
-   
-   AI Value: The most efficient way to begin exploration for any task.
-
-───────────────────────────────────────────────────────────────────────────────
-`);
+    try {
+      const helpContent = fs.readFileSync(path.join(__dirname, 'ai-toolkit', 'USAGE.md'), 'utf8');
+      console.log(helpContent);
+    } catch (error) {
+      console.error('❌ Could not load help documentation.', error);
+      console.log('Please ensure "scripts/ai-toolkit/USAGE.md" exists.');
+    }
   }
 
   printTokenEfficientSummary() {
@@ -1041,7 +791,7 @@ Perfect for AI tasks:
     }
     
     this.log(`🔍 Analyzing error: ${errorMessage}`);
-    const analyzer = new EnhancedDependencyAnalyzer({ 
+    const analyzer = new CompatibilityAnalyzer({ 
       rootDir: this.options.rootDir, 
       verbose: this.verbose 
     });
@@ -1051,12 +801,119 @@ Perfect for AI tasks:
 
   async runCompatibilityCheck(args) {
     this.log('🔍 Checking package compatibility...');
-    const analyzer = new EnhancedDependencyAnalyzer({ 
+    const analyzer = new CompatibilityAnalyzer({ 
       rootDir: this.options.rootDir, 
       verbose: this.verbose 
     });
     
     await analyzer.checkCompatibility();
+  }
+
+  async runTestSummary(args) {
+    this.log('🧪 Running test summary analysis...');
+    const analyzer = new TestOutputAnalyzer({ 
+      rootDir: this.options.rootDir, 
+      verbose: this.verbose,
+      failuresOnly: args.includes('--failures-only')
+    });
+    
+    // Check if we should parse a log file
+    const logFile = args.find(arg => arg.startsWith('--log='))?.split('=')[1];
+    if (logFile) {
+      await analyzer.analyzeLogFile(logFile);
+    } else {
+      // Run tests and analyze output
+      const testCommand = args.find(arg => arg.startsWith('--command='))?.split('=')[1] || 'npm test --run';
+      const timeout = parseInt(args.find(arg => arg.startsWith('--timeout='))?.split('=')[1] || '120');
+      await analyzer.runTestAnalysis(testCommand, timeout);
+    }
+  }
+
+  async runFindUsages(args) {
+    const target = args[0];
+    if (!target) {
+      console.error('❌ find-usages requires a target in the format "file:symbol"');
+      process.exit(1);
+    }
+    this.log(`🔎 Finding usages for: ${target}`);
+    const finder = new UsageFinder({ rootDir: this.options.rootDir });
+    const results = finder.findUsages(target);
+    printCompactJSON(results);
+  }
+
+  async runPatternAnalysis(args) {
+    this.log('🔬 Analyzing for architectural pattern inconsistencies...');
+    
+    // This is the targeted logic from our purpose-built script.
+    // It's designed to find the exact kind of issue we faced.
+    const targetDir = path.join(this.options.rootDir, 'engine/renderers/geometry-renderers');
+    const filePattern = /-renderer\.tsx$/;
+
+    // We need to define findInDir and other helpers here or import them. For now, let's assume they are available.
+    // To make this runnable, I'll need to create a temporary file with the simple analyzer logic.
+    
+    // Since I cannot create a new file, I will have to add the logic directly here.
+    const readFile = require('util').promisify(require('fs').readFile);
+    const { findInDir } = require('./ai-toolkit/utils'); // This file exists.
+
+    const IMPORT_REGEX = /import\s+.*\s+from\s+['"]((?:\.\/|\.\.\/)[^'"]+)['"]/g;
+
+    async function analyzeFileImports(filePath) {
+        try {
+            const content = await readFile(filePath, 'utf8');
+            const imports = new Set();
+            let match;
+            while ((match = IMPORT_REGEX.exec(content)) !== null) {
+                imports.add(match[1]);
+            }
+            return imports;
+        } catch (error) {
+            return new Set();
+        }
+    }
+
+    function classifyImports(imports) {
+        const patterns = { enhanced: new Set(), standard: new Set() };
+        for (const imp of imports) {
+            if (imp.includes('enhanced')) patterns.enhanced.add(imp);
+            else if (imp.includes('material')) patterns.standard.add(imp);
+        }
+        return patterns;
+    }
+
+    const files = await findInDir(targetDir, filePattern);
+    const fileAnalyses = await Promise.all(files.map(async file => {
+        const imports = await analyzeFileImports(file);
+        return { file, patterns: classifyImports(imports) };
+    }));
+
+    const enhancedFiles = fileAnalyses.filter(f => f.patterns.enhanced.size > 0);
+    const standardFiles = fileAnalyses.filter(f => f.patterns.standard.size > 0 && f.patterns.enhanced.size === 0);
+
+    let inconsistencies = [];
+    // If we have a mix of some files using enhanced materials and others using standard ones, we have a pattern drift.
+    if (enhancedFiles.length > 0 && standardFiles.length > 0) {
+        inconsistencies = standardFiles.map(({ file, patterns }) => ({
+            file: path.relative(this.options.rootDir, file),
+            type: 'DependencyOutlier',
+            severity: 'High',
+            message: `This component appears to be using an outdated standard material, while other components in this directory have been updated to an 'enhanced' material pattern.`,
+            details: { used: [...patterns.standard] },
+            recommendation: 'Review this file and consider upgrading its dependencies to align with the current architecture.'
+        }));
+    }
+
+    if (inconsistencies.length === 0) {
+        printCompactJSON({
+            summary: "✅ No major architectural pattern inconsistencies were detected among peer components.",
+            inconsistencies: []
+        });
+    } else {
+        printCompactJSON({
+            summary: `⚠️ Found ${inconsistencies.length} component(s) that deviate from the dominant architectural pattern.`,
+            inconsistencies
+        });
+    }
   }
 }
 
@@ -1064,13 +921,13 @@ Perfect for AI tasks:
 if (require.main === module) {
   const command = process.argv[2];
   const args = process.argv.slice(3);
-  
-  if (!command) {
-    const toolkit = new AIWorkflowToolkit();
+
+  const toolkit = new AIWorkflowToolkit();
+
+  if (!command || !toolkit.commands[command]) {
     toolkit.showUsage();
     process.exit(1);
   }
-  
-  const toolkit = new AIWorkflowToolkit();
+
   toolkit.run(command, args);
 }

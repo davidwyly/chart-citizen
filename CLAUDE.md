@@ -182,6 +182,9 @@ Standard uniforms for all materials:
 
 ## AI Workflow Toolkit 🚀
 
+**Note:** For a complete guide to each tool, including the design philosophy and the specific question each tool is designed to answer, please refer to the full documentation:
+`scripts/ai-toolkit/ai-toolkit.md`
+
 A comprehensive suite of AI-optimized code analysis tools designed to maximize efficiency and minimize token usage for complex development tasks. This toolkit provides sharp, composable primitives that allow for deep, structural understanding of the codebase.
 
 **💡 Prioritization Note for Claude:** When performing any task, **always prioritize the use of these AI Workflow Toolkit commands** before resorting to manual file reads or other exploration methods. These tools are specifically designed to provide you with highly distilled, token-efficient context, which is crucial for effective and cost-efficient problem-solving.
@@ -196,77 +199,31 @@ By default, the toolkit only prints essential, machine-readable output (e.g., co
 
 ### Available Commands:
 
-#### 1. `overview`
-*   **Purpose:** Provides a high-level orientation of the project's technology stack, architectural patterns, and key statistics. This command is designed to give you a foundational understanding without reading any file content.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit overview
-    ```
-*   **Output:** A JSON object detailing `projectType`, `primaryFrameworks`, `keyDirectories`, and `projectStats`.
+#### Discovery & Exploration
+-   **`overview`**: Get a high-level summary of the project's tech stack, architecture, and stats.
+-   **`code-search <keyword>`**: Find all files containing a specific keyword.
+-   **`list-symbols <file>`**: List all exported functions, classes, and types from a file.
+-   **`find-usages <file>:<symbol>`**: Find all usages of a specific symbol.
+-   **`schema <file>:<symbol>`**: Extract the detailed source code for a specific interface or type.
+-   **`context <file>:<symbol>`**: Trace the data flow and component relationships for a symbol.
+-   **`impact <file>:<symbol>`**: Analyze the "blast radius" of changing a symbol.
 
-#### 2. `schema <file-path>:<symbol-name>`
-*   **Purpose:** Extracts a single schema (type, interface, class, enum) from a file, providing its exact definition. This is the most efficient way to understand the shape of data without reading an entire file.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit schema "engine/types/engine.ts:EngineConfig"
-    ```
+#### Code Analysis & Maintenance
+-   **`imports <subcommand>`**: Check for and fix broken import paths (`check`, `fix`, `project`).
+-   **`deps`**: Find issues with project dependencies, like unused packages or circular dependencies.
+-   **`dead-code`**: Hunt for unused and duplicate files.
 
-#### 3. `code-search <keyword>`
-*   **Purpose:** Efficiently finds all files in the project that contain a specific keyword. It uses `ripgrep` for speed and returns a simple list of file paths.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit code-search "myFunction"
-    ```
+#### Quality & Testing
+-   **`lint-summary`**: Get a compact, token-efficient summary of linter errors and warnings.
+-   **`test-summary`**: Get a token-efficient summary of test results, focusing on failures.
+-   **`test-gaps`**: Identify critical parts of the codebase that lack test coverage.
 
-#### 4. `imports <subcommand>`
-*   **Purpose:** A comprehensive tool for analyzing and fixing import paths.
-*   **Subcommands:**
-    *   `check <file>`: Validates all imports in a single file.
-    *   `fix <old> <new>`: Bulk replaces import patterns across the project.
-    *   `project`: Scans the entire project for broken or problematic imports.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit imports project
-    ```
+#### Build & Compatibility
+-   **`analyze-error "<error>"`**: Diagnose common build and runtime errors and get targeted solutions.
+-   **`check-compatibility`**: Check for known version conflicts between critical packages.
 
-#### 5. `dead-code`
-*   **Purpose:** Hunts for unused files, duplicate code, and legacy systems to help with codebase cleanup.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit dead-code
-    ```
-
-#### 6. `impact <target>`
-*   **Purpose:** Analyzes the potential "blast radius" of changing a specific file or symbol, showing what other parts of the codebase will be affected.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit impact "ComponentName"
-    ```
-
-#### 7. `context <target>`
-*   **Purpose:** Traces the data flow and relationships for a specific symbol to understand where data comes from and where it goes.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit context "handleSubmit"
-    ```
-
-#### 8. `test-gaps`
-*   **Purpose:** Identifies parts of the codebase that lack sufficient test coverage, helping to prioritize testing efforts.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit test-gaps
-    ```
-
-#### 9. `diff [comparison]`
-*   **Purpose:** Analyzes the changes between two git commits, providing a high-level summary of the complexity and impact without needing to read the full diff.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit diff HEAD~1
-    ```
-
-#### 10. `deps`
-*   **Purpose:** Analyzes project dependencies to find unused packages or circular dependencies.
-*   **Usage:**
-    ```bash
-    npm run ai-toolkit deps
-    ```
+#### Refactoring & Change Analysis
+-   **`impact <target>`**: Analyze the "blast radius" of changing a file or symbol.
+-   **`context <target>`**: Trace data flow and component relationships for a symbol.
+-   **`diff <comparison>`**: Get a token-efficient summary of changes between two git commits.
+-   **`full-analysis`**: Run a comprehensive suite of analyses for a full codebase health report.

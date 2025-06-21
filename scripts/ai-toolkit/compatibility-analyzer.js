@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Enhanced Dependency Analyzer 📦🔍
+ * Ecosystem Compatibility Analyzer 📦🔍
  * 
  * AI-optimized tool for advanced dependency analysis including:
  * - Version conflict detection
@@ -20,7 +20,10 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-class EnhancedDependencyAnalyzer {
+const BATCHED_MESH_SUGGESTION = 'Three.js version r153 or higher is required. Please upgrade `three` and `@react-three/fiber`.';
+const WEBGL_RENDERER_SUGGESTION = 'WebGPURenderer has been moved to its own module. Install it via `npm install three-addons` and import from `three-addons/renderers/WebGPURenderer.js`.';
+
+class CompatibilityAnalyzer {
   constructor(options = {}) {
     this.options = {
       rootDir: options.rootDir || process.cwd(),
@@ -514,14 +517,14 @@ class EnhancedDependencyAnalyzer {
   }
 }
 
-module.exports = { EnhancedDependencyAnalyzer };
+module.exports = { CompatibilityAnalyzer };
 
 // CLI interface
 if (require.main === module) {
   const command = process.argv[2];
   const args = process.argv.slice(3);
   
-  const analyzer = new EnhancedDependencyAnalyzer({
+  const analyzer = new CompatibilityAnalyzer({
     verbose: args.includes('--verbose')
   });
   

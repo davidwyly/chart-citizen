@@ -26,6 +26,7 @@ class ImportAnalyzer {
     this.options = {
       rootDir: options.rootDir || process.cwd(),
       extensions: options.extensions || ['.ts', '.tsx', '.js', '.jsx'],
+      writeFiles: options.writeFiles || false,
       ...options
     };
     
@@ -185,7 +186,7 @@ class ImportAnalyzer {
 
           changes.push({ file, changes: fileChanges });
 
-          if (!dryRun) {
+          if (!dryRun && this.options.writeFiles) {
             await fs.writeFile(file, newContent);
           }
         }
@@ -586,68 +587,43 @@ class ImportAnalyzer {
 
 // CLI interface
 if (require.main === module) {
-  const [,, command, ...args] = process.argv;
-  
-  if (!command) {
-    console.log(`
-🔍 Import Analyzer - Comprehensive Import Analysis & Fixing
+  const [command, ...args] = process.argv.slice(2);
+  const dryRun = args.includes('--dry-run');
+  const writeFiles = args.includes('--write-files');
 
-Usage:
-  node import-analyzer.js file <path>                    # Analyze single file
-  node import-analyzer.js project                        # Analyze entire project  
-  node import-analyzer.js fix <old-pattern> <new-pattern> [--dry-run]  # Bulk fix pattern
-  node import-analyzer.js batch <file1> <file2> ...      # Analyze multiple files
-
-Examples:
-  node import-analyzer.js file gas-giant-renderer.tsx
-  node import-analyzer.js project
-  node import-analyzer.js fix "../planets/materials" "./materials"
-  node import-analyzer.js batch *.tsx
-
-Token Reduction: 80% vs manual find/grep commands
-`);
-    process.exit(1);
-  }
-  
-  const analyzer = new ImportAnalyzer();
+  const analyzer = new ImportAnalyzer({ writeFiles });
   
   (async () => {
-    try {
-      let result;
-      
-      switch (command) {
-        case 'file':
-          result = await analyzer.analyzeFile(args[0]);
-          console.log(JSON.stringify(result, null, 2));
-          break;
-          
-        case 'project':
-          result = await analyzer.analyzeProject();
-          const report = analyzer.generateReport();
-          await fs.writeFile('./analysis-results/import-analysis-report.md', report);
-          console.log('\n📄 Report saved to: ./analysis-results/import-analysis-report.md');
-          break;
-          
-        case 'fix':
-          const dryRun = args.includes('--dry-run');
-          result = await analyzer.fixImportPattern(args[0], args[1], dryRun);
-          console.log(JSON.stringify(result, null, 2));
-          break;
-          
-        case 'batch':
-          result = await analyzer.batchAnalyze(args);
-          console.log(JSON.stringify(result, null, 2));
-          break;
-          
-        default:
-          console.log(`Unknown command: ${command}`);
-          process.exit(1);
-      }
-      
-    } catch (error) {
-      console.error('❌ Error:', error.message);
-      process.exit(1);
+    let result;
+    
+    switch (command) {
+      case 'file':
+        result = await analyzer.analyzeFile(args[0]);
+        console.log(JSON.stringify(result, null, 2));
+        break;
+        
+      case 'project':
+        result = await analyzer.analyzeProject();
+        const report = analyzer.generateReport();
+        await fs.writeFile('./analysis-results/import-analysis-report.md', report);
+        console.log('\n📄 Report saved to: ./analysis-results/import-analysis-report.md');
+        break;
+        
+      case 'fix':
+        result = await analyzer.fixImportPattern(args[0], args[1], dryRun);
+        console.log(JSON.stringify(result, null, 2));
+        break;
+        
+      case 'batch':
+        result = await analyzer.batchAnalyze(args);
+        console.log(JSON.stringify(result, null, 2));
+        break;
+        
+      default:
+        console.log(`Unknown command: ${command}`);
+        process.exit(1);
     }
+    
   })();
 }
 

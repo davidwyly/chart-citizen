@@ -30,6 +30,7 @@ class DeadCodeHunter {
         'analysis-results/**' // Exclude our output folder
       ],
       excludeTests: options.excludeTests || false,
+      writeFiles: options.writeFiles || false, // Default to not writing files
       ...options
     };
     
@@ -378,117 +379,75 @@ class DeadCodeHunter {
    * Generate AI-optimized report
    */
   generateReport() {
-    const { metrics, deadFiles, suspicious, legacy, duplicates } = this.results;
+    const { deadFiles, duplicates, legacy, suspicious, metrics } = this.results;
     
-    return `# Dead Code Hunter Results 🏹
+    const report = `# Dead Code Analysis Report 🏹\n\n` +
+                   `*Analysis Time: ${metrics.analysisTime}*\n\n` +
+                   `## Summary\n` +
+                   `- Total Files Analyzed: ${metrics.totalFiles}\n` +
+                   `- Dead Files (Zero Imports): ${deadFiles.length}\n` +
+                   `- Duplicate Files: ${duplicates.length}\n` +
+                   `- Legacy/Deprecated Code: ${legacy.length}\n` +
+                   `- Suspicious/Unused Files (needs review): ${suspicious.length}\n\n` +
+                   `## ☠️ Dead Files (${deadFiles.length})\n\n` +
+                   (deadFiles.length > 0 ? 
+                     deadFiles.filter(f => f && f.path).map(f => `- **${f.path}** (${f.size} bytes) - Reason: ${f.reason} (Confidence: ${f.confidence})`).join('\n') : 
+                     '_No dead files found._') + '\n\n' +
+                   `## 👯 Duplicate Files (${duplicates.length})\n\n` +
+                   (duplicates.length > 0 ? 
+                     duplicates.filter(d => d && d.original && d.duplicate).map(d => `- **${d.original.path}** and **${d.duplicate.path}** (Size: ${d.original.size} bytes)`).join('\n') : 
+                     '_No duplicate files found._') + '\n\n' +
+                   `## ⏳ Legacy/Deprecated Code (${legacy.length})\n\n` +
+                   (legacy.length > 0 ? 
+                     legacy.filter(l => l && l.path).map(l => `- **${l.path}** (Markers: ${l.markers.length}) - Severity: ${l.severity}`).join('\n') : 
+                     '_No legacy code found._') + '\n\n' +
+                   `## 🤔 Suspicious Files (${suspicious.length})\n\n` +
+                   (suspicious.length > 0 ? 
+                     suspicious.filter(s => s && s.path).map(s => `- **${s.path}** (${s.size} bytes) - Reason: ${s.reason} (Confidence: ${s.confidence})`).join('\n') : 
+                     '_No suspicious files found._');
 
-**Analysis completed in ${metrics.analysisTime}**
-
-## Executive Summary
-- **Dead Files**: ${metrics.deadFiles} files (${metrics.deadSize})
-- **Suspicious Files**: ${metrics.suspiciousFiles} files (${metrics.suspiciousSize}) 
-- **Legacy Systems**: ${metrics.legacyFiles} files
-- **Duplicates**: ${metrics.duplicateSets} sets (${metrics.duplicateSize})
-- **Total Savings**: ${metrics.totalPotentialSavings}
-
-## 🗑️ Dead Files (High Confidence - Safe to Delete)
-
-${deadFiles.length === 0 ? 'None found.' : deadFiles.map(f => 
-  `- \`${f.path}\` (${Math.round(f.size/1024)}KB) - ${f.reason}`
-).join('\n')}
-
-## ⚠️ Suspicious Files (Review Required)
-
-${suspicious.length === 0 ? 'None found.' : suspicious.slice(0, 10).map(f => 
-  `- \`${f.path}\` (${Math.round(f.size/1024)}KB) - ${f.reason}`
-).join('\n')}
-${suspicious.length > 10 ? `\n... and ${suspicious.length - 10} more` : ''}
-
-## 🏚️ Legacy Systems (${legacy.length} files)
-
-${legacy.length === 0 ? 'None found.' : legacy.slice(0, 5).map(l => 
-  `- \`${l.path}\` (${l.severity} priority) - ${l.markers.length} markers`
-).join('\n')}
-${legacy.length > 5 ? `\n... and ${legacy.length - 5} more` : ''}
-
-## 👥 Duplicates (${duplicates.length} sets)
-
-${duplicates.length === 0 ? 'None found.' : duplicates.map(d => 
-  `- ${d.files.join(' ↔ ')} (${Math.round(d.size/1024)}KB each)`
-).join('\n')}
-
-## 🎯 Recommended Actions
-
-1. **Immediate**: Delete ${deadFiles.length} dead files (saves ${metrics.deadSize})
-2. **Review**: Audit ${suspicious.length} suspicious files  
-3. **Plan**: Address ${legacy.length} legacy systems
-4. **Dedupe**: Resolve ${duplicates.length} duplicate sets
-
-*Report generated on ${new Date().toISOString()}*
-`;
+    if (this.options.writeFiles) {
+      const reportPath = path.join(this.options.rootDir, 'analysis-results', 'dead-code-analysis.md');
+      if (!fs.existsSync(path.dirname(reportPath))) {
+        fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+      }
+      fs.writeFileSync(reportPath, report);
+      console.log(`📄 Dead Code Report saved to: ${reportPath}`);
+    } else {
+      console.log('📄 Dead Code Report (preview, use --write-files to save):\n');
+      console.log(report);
+    }
+    return report;
   }
 
   /**
    * Generate detailed files for deeper analysis
    */
   generateDetailedReports() {
-    const reports = {};
-    
-    // Detailed dead files list
-    if (this.results.deadFiles.length > 0) {
-      reports['dead-files.md'] = `# Dead Files Analysis\n\n${this.results.deadFiles.map(f => 
-        `## ${f.path}\n- **Size**: ${f.size} bytes\n- **Reason**: ${f.reason}\n- **Confidence**: ${f.confidence}\n`
-      ).join('\n')}`;
+    // This method is for generating more detailed reports (e.g., JSON, separate files for each category)
+    // For now, it just ensures the output directory exists if writing is enabled.
+    if (this.options.writeFiles) {
+      const outputDir = path.join(this.options.rootDir, 'analysis-results');
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
     }
-    
-    // Detailed legacy analysis  
-    if (this.results.legacy.length > 0) {
-      reports['legacy-systems.md'] = `# Legacy Systems Analysis\n\n${this.results.legacy.map(l => 
-        `## ${l.path}\n- **Severity**: ${l.severity}\n- **Markers**: ${l.markers.length}\n${l.markers.map(m => `  - ${m}`).join('\n')}\n`
-      ).join('\n')}`;
-    }
-    
-    return reports;
   }
 }
 
-// CLI interface
+// CLI entry point
 if (require.main === module) {
-  const outputDir = path.join(process.cwd(), 'analysis-results');
-  
-  // Ensure output directory exists
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-  
   const hunter = new DeadCodeHunter({
-    rootDir: process.cwd(),
-    excludeTests: process.argv.includes('--exclude-tests')
+    excludeTests: process.argv.includes('--no-tests'),
+    writeFiles: process.argv.includes('--write-files') // Check for --write-files flag
   });
 
-  hunter.hunt().then(() => {
-    // Generate main report
-    const report = hunter.generateReport();
-    const reportPath = path.join(outputDir, 'dead-code-report.md');
-    fs.writeFileSync(reportPath, report);
-    
-    // Generate detailed reports
-    const detailedReports = hunter.generateDetailedReports();
-    for (const [filename, content] of Object.entries(detailedReports)) {
-      fs.writeFileSync(path.join(outputDir, filename), content);
-    }
-    
-    // Generate JSON for programmatic access
-    if (process.argv.includes('--json')) {
-      const jsonPath = path.join(outputDir, 'results.json');
-      fs.writeFileSync(jsonPath, JSON.stringify(hunter.results, null, 2));
-    }
-    
-    console.log('\n' + report);
-    console.log(`\n📁 Detailed reports saved to: ${outputDir}`);
-    console.log(`💡 To clean up: rm -rf ${outputDir}`);
+  hunter.hunt().then(results => {
+    hunter.generateReport(); // This will handle printing/writing based on the flag
+    // For dead-code-hunter, we primarily want the markdown report, 
+    // so the JSON output to stdout can be a separate consideration if needed.
   }).catch(error => {
-    console.error('❌ Hunt failed:', error);
+    console.error('❌ Dead code hunt failed:', error);
     process.exit(1);
   });
 }

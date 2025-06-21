@@ -21,6 +21,7 @@ class ProjectIntelligence {
       rootDir: options.rootDir || process.cwd(),
       intelFile: options.intelFile || path.join(process.cwd(), 'PROJECT-INTELLIGENCE.md'),
       configFile: options.configFile || path.join(process.cwd(), '.project-intel.json'),
+      writeFiles: options.writeFiles || false,
       ...options
     };
     
@@ -576,17 +577,20 @@ ${legacy.systems.length > 5 ? `\n... and ${legacy.systems.length - 5} more legac
 *This document maintains AI context across sessions to prevent architectural drift.*
 `;
 
-    fs.writeFileSync(this.options.intelFile, report);
-    
-    // Also save machine-readable intelligence
-    const intelligence = {
-      ...this.intelligence,
-      lastUpdated: new Date().toISOString()
-    };
-    
-    fs.writeFileSync(this.options.configFile, JSON.stringify(intelligence, null, 2));
-    
-    console.log(`📄 Intelligence report saved to: ${this.options.intelFile}`);
+    if (this.options.writeFiles) {
+      fs.writeFileSync(this.options.intelFile, report);
+      
+      const intelligence = {
+        ...this.intelligence,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      fs.writeFileSync(this.options.configFile, JSON.stringify(intelligence, null, 2));
+      
+      console.log(`📄 Intelligence report saved to: ${this.options.intelFile}`);
+    } else {
+      console.log(report);
+    }
   }
 
   async updateContextualGuidance() {
@@ -625,8 +629,10 @@ ${this.intelligence.legacy.systems.slice(0, 3).map(system =>
 *Run \`npm run project-intel\` for full intelligence report*
 `;
 
-    fs.writeFileSync(contextFile, context);
-    console.log(`🎯 AI context saved to: ${contextFile}`);
+    if (this.options.writeFiles) {
+      fs.writeFileSync(contextFile, context);
+      console.log(`🎯 AI context saved to: ${contextFile}`);
+    }
   }
 }
 
@@ -635,13 +641,16 @@ if (require.main === module) {
   const args = process.argv.slice(2);
   const mode = args.includes('--update') ? 'update' : 
                args.includes('--validate') ? 'validate' : 'analyze';
+  const writeFiles = args.includes('--write-files');
   
-  const intel = new ProjectIntelligence();
+  const intel = new ProjectIntelligence({ writeFiles });
   
   intel.buildIntelligence(mode).then(() => {
     console.log('🧠 Project Intelligence complete!');
-    console.log('📄 Check PROJECT-INTELLIGENCE.md for full context');
-    console.log('🎯 Check AI-CONTEXT.md for quick AI reference');
+    if (writeFiles) {
+      console.log('📄 Check PROJECT-INTELLIGENCE.md for full context');
+      console.log('🎯 Check AI-CONTEXT.md for quick AI reference');
+    }
   }).catch(error => {
     console.error('❌ Intelligence building failed:', error);
     process.exit(1);

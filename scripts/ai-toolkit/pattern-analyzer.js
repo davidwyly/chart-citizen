@@ -14,6 +14,14 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
+const { promisify } = require('util');
+const { findInDir } = require('./utils'); // Assuming a utility for finding files
+
+const readdir = promisify(fs.readdir);
+const readFile = promisify(fs.readFile);
+
+// A simple regex to capture import paths. Not as robust as an AST parser, but fast and dependency-free.
+const IMPORT_REGEX = /import\s+.*\s+from\s+['"]((?:\.\/|\.\.\/)[^'"]+)['"]/g;
 
 class PatternAnalyzer {
   constructor(options = {}) {
